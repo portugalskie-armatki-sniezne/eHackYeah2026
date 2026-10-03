@@ -1,0 +1,42 @@
+/* The survey dot: an ink-ruled amber disc on a paper halo, so it reads as part
+   of the drawing rather than a browser default. */
+.user-dot {
+  position: relative;
+  width: 1.125rem;
+  height: 1.125rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow:
+    0 0 0 3px rgba(253, 252, 249, 0.9),
+    2px 2px 0 rgba(20, 20, 20, 0.25);
+}
+
+/* A slow ping outward, the only moving thing on the sheet. */
+.user-dot__pulse {
+  position: absolute;
+  inset: -0.25rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: 50%;
+  animation: user-dot-ping 2.4s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes user-dot-ping {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.7);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-dot__pulse {
+    animation: none;
+    opacity: 0.35;
+  }
+}
