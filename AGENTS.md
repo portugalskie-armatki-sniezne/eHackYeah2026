@@ -30,7 +30,7 @@
 - `Taskfile.yml` at the repository root defines root development commands. `mise.toml` pins Bun, Task, and uv, and `setup-dev-env.sh` installs mise, the pinned tools, and dependencies.
 - `tests/e2e/` is reserved for cross-application scenarios, and `tests/fixtures/` for shared behavioral examples.
 - `.agents/skills/` is reserved for repository-local agent skills.
-- `.github/workflows/` is reserved for CI workflows.
+- `.github/workflows/` contains CI workflows. `deploy-web.yml` builds the web image and deploys it: to the dev environment when frontend changes reach `main`, or to the dev or prod environment chosen in a manual run.
 - `.env` holds optional local environment overrides and is ignored by Git. `.env.example` documents the available values.
 - `README.md` is the top-level project documentation.
 - `TESTING.md` documents database setup and validation.
