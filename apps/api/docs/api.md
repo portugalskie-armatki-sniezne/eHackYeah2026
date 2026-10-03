@@ -1,11 +1,11 @@
 # API CRUD
 
-Wszystkie endpointy opisane poniżej mają status `done`. Nazwy pól są takie same jak kolumny w [data-model.md](data-model.md).
+Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same jak kolumny w [data-model.md](data-model.md). `/inference` udostępnia podstawę analizy z pustymi implementacjami tłumacza i klasyfikatora.
 
 ## Konwencje
 
 - Format: JSON, pola w snake_case. Identyfikatory użytkowników, masterów, reportów, zdjęć i komentarzy jako UUID w postaci tekstu; identyfikatory kategorii, statusów, urzędów i jednostek usługowych jako liczby całkowite.
-- Wyjątek: `POST /reports` i `POST /reports/{id}/photos` przyjmują `multipart/form-data`, bo zawierają pliki zdjęć.
+- Wyjątek: `POST /reports`, `POST /reports/{id}/photos` i `POST /inference` przyjmują `multipart/form-data`, bo mogą zawierać pliki zdjęć.
 - Daty: ISO 8601 z strefą czasową (UTC).
 - Pola `id`, `created_at`, `edited_at` są tylko do odczytu. Serwer ignoruje je w requestach albo zwraca 422.
 - `PATCH` przyjmuje podzbiór pól (częściowa aktualizacja). `PUT` jest używany tylko do idempotentnego polubienia komentarza.
@@ -27,7 +27,8 @@ Wszystkie endpointy opisane poniżej mają status `done`. Nazwy pól są takie s
 | 409 | naruszenie unikalności albo klucza obcego przy usuwaniu |
 | 413 | zdjęcie większe niż 10 MB |
 | 422 | niepoprawne dane (typ, pusty `title` lub `description`, brak kontaktu użytkownika, zły zakres współrzędnych, zły format lub za dużo zdjęć) |
-| 503 | logowanie przez Google nie jest skonfigurowane albo nie udało się pobrać kluczy Google |
+| 502 | dostawca analizy zwrócił niepoprawny wynik |
+| 503 | dostawca analizy jest niedostępny, logowanie przez Google nie jest skonfigurowane albo nie udało się pobrać kluczy Google |
 
 ## Przegląd endpointów
 
@@ -42,13 +43,14 @@ Wszystkie endpointy opisane poniżej mają status `done`. Nazwy pól są takie s
 | słowniki | `/report-categories`, `/master-report-statuses` | list (tylko odczyt) |
 | local_government_offices | `/institution-contacts` | list, get (tylko odczyt) |
 | service_entities | `/service-entities` | list, get (tylko odczyt) |
+| inference | `/inference` | tłumaczenie i klasyfikacja tekstu z opcjonalnym zdjęciem |
 
 ### Dostęp
 
 | Kto | Co może |
 | --- | --- |
 | publiczny | rejestracja, logowanie, mastery, komentarze, słowniki, urzędy, jednostki usługowe, pliki zdjęć |
-| zalogowany | odczyt reportów i metadanych zdjęć, dodawanie reportów, komentarzy i polubień, połączenie własnego konta z Google |
+| zalogowany | odczyt reportów i metadanych zdjęć, dodawanie reportów, komentarzy i polubień, analiza przez `/inference`, połączenie własnego konta z Google |
 | autor reportu | edycja i usuwanie reportu oraz jego zdjęć |
 | autor komentarza | usuwanie komentarza |
 | `office` | jak zalogowany oraz edycja masterów, przepinanie reportów, usuwanie dowolnych komentarzy |
@@ -350,6 +352,31 @@ a wyniki są sortowane po `id`.
 
 Przykład: `/service-entities?entity_type=road_manager&locality=Krak%C3%B3w&limit=20`.
 TERYT wskazuje powiązaną gminę, a nie zasięg usług lub jurysdykcję. Typ jednostki nie określa kompletu jej kompetencji.
+
+## inference
+
+| Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
+| --- | --- | --- | --- | --- | --- |
+| POST | `/inference` | tłumaczenie i klasyfikacja według przekazanych pytań | zalogowany | 200 | 401, 413, 422, 502, 503 |
+
+Request przyjmuje pole formularza `payload` z JSON-em zawierającym `text`, `source_language`,
+`target_language` i `questions` oraz opcjonalny plik `image`. Tekst jest wymagany.
+Pytania, instrukcje i opcje odpowiedzi określa wywołujący. Zdjęcie podlega limitowi
+rozmiaru i regułom formatów zdjęć reportów, ale nie jest zapisywane.
+
+Domyślna odpowiedź pustych implementacji dla różnych języków:
+
+```json
+{
+  "translation": { "status": "disabled", "text": null },
+  "classification": { "status": "disabled", "answers": {} }
+}
+```
+
+Przy zgodnych językach tłumaczenie ma status `unchanged` i zawiera wejściowy tekst.
+Podłączony tłumacz zwraca `translated`, a działający klasyfikator `classified` i odpowiedzi
+z polami `choice` i `scores`. Analiza nie tworzy reportów ani nie przypisuje instytucji.
+Kontrakt, przykład requestu i podłączanie modeli opisuje [inference.md](inference.md).
 
 ## Otwarte pytania
 

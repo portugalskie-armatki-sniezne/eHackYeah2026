@@ -8,6 +8,7 @@ API w FastAPI do zgłaszania problemów, łączenia podobnych zgłoszeń w maste
 | --- | --- |
 | [data-model.md](data-model.md) | ERD (Mermaid), tabele kolumn, relacje i reguły usuwania |
 | [api.md](api.md) | konwencje, dostęp, endpointy, dopasowanie do mastera, przykłady JSON, kody błędów |
+| [inference.md](inference.md) | podstawa tłumaczenia i klasyfikacji, opcjonalne zdjęcia i podłączanie modeli |
 
 ## Zasady dla agentów i ludzi
 
@@ -25,7 +26,7 @@ API w FastAPI do zgłaszania problemów, łączenia podobnych zgłoszeń w maste
 | `mock` | działa na danych testowych |
 | `done` | działa na bazie, są testy |
 
-Wszystkie endpointy z [api.md](api.md) mają status `done`. Dopasowanie reportów do masterów też działa na bazie i ma testy, ale jest tymczasową heurystyką, którą zastąpi klasyfikator LLM.
+Endpointy CRUD z [api.md](api.md) mają status `done`. `/inference` udostępnia podstawę analizy z pustymi implementacjami dostawców. Dopasowanie reportów do masterów też działa na bazie i ma testy, ale jest tymczasową heurystyką, którą zastąpi klasyfikator LLM.
 
 ## Uruchomienie
 
@@ -56,16 +57,17 @@ Polecenie uruchamia bazę, migracje i import seeda, a potem API pod <http://127.
 | `comments.py` | komentarze i polubienia masterów |
 | `reference.py` | `/report-categories` i `/master-report-statuses` |
 | `institution_contacts.py` | `/institution-contacts` |
+| `inference/` | `/inference`, wymienny tłumacz, klasyfikator i adapter Laya |
 | `set_role.py` | skrypt nadający rolę użytkownikowi |
 
 ## Testy
 
-Testy w `apps/api/tests/` działają na bazie z `.env` i wycofują zmiany po każdym teście. Zdjęcia zapisują w katalogu tymczasowym. Bez dostępnej bazy są pomijane.
+Testy w `apps/api/tests/` automatycznie wczytują główny `.env` przed importem aplikacji. Zmienne ustawione w środowisku mają pierwszeństwo. Testy działają na wskazanej bazie i wycofują zmiany po każdym teście. Zdjęcia zapisują w katalogu tymczasowym. Bez dostępnej bazy są pomijane.
 
 ```sh
 task db
 cd apps/api
-uv run --env-file ../../.env pytest
+uv run pytest
 ```
 
 ## Role

@@ -186,6 +186,39 @@
   transform: translate(-1px, -1px);
 }
 
+/* The account corner: the user's name and an outlined tile to sign in or out. */
+.navbar__account {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbar__user {
+  max-width: 10rem;
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navbar__button {
+  background: var(--paper);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.navbar__button--primary {
+  background: var(--amber);
+}
+
+.navbar__button--primary:hover {
+  background: var(--amber);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
 :where(.navbar a):focus-visible {
   outline: var(--scaffold-line) solid var(--focus);
   outline-offset: 3px;
@@ -233,6 +266,17 @@
 
   .navbar__frame--open .navbar__nav {
     display: block;
+  }
+
+  .navbar__account {
+    display: none;
+    flex-basis: 100%;
+    padding-top: 0.75rem;
+    border-top: var(--scaffold-line) solid var(--ink);
+  }
+
+  .navbar__frame--open .navbar__account {
+    display: flex;
   }
 
   .navbar__list {
