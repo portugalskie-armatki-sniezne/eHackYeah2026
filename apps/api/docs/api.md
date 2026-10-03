@@ -39,12 +39,13 @@ Wszystkie endpointy opisane poniżej mają status `done`. Nazwy pól są takie s
 | master_report_comments | `/master-reports/{id}/comments`, `/comments/{id}` | create, list, delete, like, unlike |
 | słowniki | `/report-categories`, `/master-report-statuses` | list (tylko odczyt) |
 | local_government_offices | `/institution-contacts` | list, get (tylko odczyt) |
+| service_entities | `/service-entities` | list, get (tylko odczyt) |
 
 ### Dostęp
 
 | Kto | Co może |
 | --- | --- |
-| publiczny | rejestracja, logowanie, mastery, komentarze, słowniki, urzędy, pliki zdjęć |
+| publiczny | rejestracja, logowanie, mastery, komentarze, słowniki, urzędy, jednostki usługowe, pliki zdjęć |
 | zalogowany | odczyt reportów i metadanych zdjęć, dodawanie reportów, komentarzy i polubień |
 | autor reportu | edycja i usuwanie reportu oraz jego zdjęć |
 | autor komentarza | usuwanie komentarza |
@@ -286,7 +287,7 @@ Oba endpointy są publiczne i zwracają listę `[{"id": 1, "name": "improvement"
 
 ## institution-contacts
 
-Katalog czyta tabelę `local_government_offices`; nazwa ścieżki API pozostaje bez zmian. `service_entities` jest na tym etapie katalogiem DB i nie ma endpointów.
+Katalog czyta tabelę `local_government_offices`; nazwa ścieżki API pozostaje bez zmian.
 
 Dane referencyjne z seeda, tylko odczyt i publiczne. Id to liczba całkowita, nie UUID.
 
@@ -296,6 +297,26 @@ Dane referencyjne z seeda, tylko odczyt i publiczne. Id to liczba całkowita, ni
 | GET | `/institution-contacts/{id}` | pobranie | 200 | 404 |
 
 Filtry: `teryt_code`, `province`, `county`, `local_government_type` (dokładnie), `q` (fragment `local_government_name` bez rozróżniania wielkości liter). Odpowiedź zawiera wszystkie kolumny z [data-model.md](data-model.md).
+
+## service-entities
+
+Publiczny katalog jednostek usługowych z tabeli `service_entities`, tylko do odczytu.
+Id to liczba całkowita. Odpowiedź zawiera wszystkie kolumny opisane w [data-model.md](data-model.md#service_entities),
+w tym źródła, kanał zgłoszeniowy i datę weryfikacji `verified_on` w formacie `YYYY-MM-DD`.
+
+| Metoda | Ścieżka | Opis | Sukces | Błędy |
+| --- | --- | --- | --- | --- |
+| GET | `/service-entities` | lista z filtrami i paginacją | 200 | 422 |
+| GET | `/service-entities/{id}` | pobranie jednostki | 200 | 404, 422 |
+
+Filtry `entity_type`, `teryt_code` i `locality` wymagają dokładnego dopasowania i można je łączyć.
+`entity_type` przyjmuje jeden z 15 typów katalogu; Swagger pokazuje listę wyboru i objaśnienia kodów.
+Nieznany typ zwraca 422. `q` wyszukuje fragment `name` lub `short_name` bez rozróżniania wielkości liter;
+znaki `%`, `_` i `\` są traktowane dosłownie. Parametry `limit` i `offset` działają zgodnie z konwencją list,
+a wyniki są sortowane po `id`.
+
+Przykład: `/service-entities?entity_type=road_manager&locality=Krak%C3%B3w&limit=20`.
+TERYT wskazuje powiązaną gminę, a nie zasięg usług lub jurysdykcję. Typ jednostki nie określa kompletu jej kompetencji.
 
 ## Otwarte pytania
 
