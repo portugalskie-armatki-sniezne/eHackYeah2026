@@ -6,11 +6,16 @@ import {
 import "maplibre-gl/dist/maplibre-gl.css";
 import MapToolbar, { type BasemapId } from "./MapToolbar";
 import MapCursor from "./MapCursor";
+import UserPosition from "./UserPosition";
+import useUserPosition from "./useUserPosition";
+import EventMarkers, { type EventPin } from "./EventMarkers";
 import { createTiltPrewarmer } from "./mapPrewarm";
 import "./Map.css";
 
 const KRAKOW: [number, number] = [19.945, 50.0647];
 const ZOOM = 15.2;
+// Close enough to read the street you are standing on.
+const LOCATE_ZOOM = 16.5;
 const TILTED_VIEW = { pitch: 55, bearing: -20 };
 const FLAT_VIEW = { pitch: 0, bearing: 0 };
 // Looking straight down is a flat drawn plan, so heights stay hidden until the
@@ -340,7 +345,14 @@ export default function Map() {
   const containerRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
-  const [tilted, setTilted] = useState(true);
+  const [tilted, setTilted] = useState(false);
+  const [styleReady, setStyleReady] = useState(false);
+  const [pins, setPins] = useState<EventPin[]>([]);
+  const nextPinIdRef = useRef(1);
+  const { fix } = useUserPosition();
+  // The camera eases to the first fix so the dot isn't off-screen, then leaves
+  // the view alone: later fixes only move the dot.
+  const centredRef = useRef(false);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -353,7 +365,7 @@ export default function Map() {
       style: BASEMAP_STYLES.streets,
       center: KRAKOW,
       zoom: ZOOM,
-      ...TILTED_VIEW,
+      ...FLAT_VIEW,
       maxPitch: 70,
       attributionControl: false,
     });
@@ -363,7 +375,10 @@ export default function Map() {
     const prewarmer = createTiltPrewarmer(map, TILTED_VIEW);
 
     // Runs on initial load and again after any setStyle, so the overrides survive basemap swaps.
-    map.on("style.load", () => applyLightTheme(map));
+    map.on("style.load", () => {
+      applyLightTheme(map);
+      setStyleReady(true);
+    });
     // Keep the toggle honest when the user tilts with ctrl+drag / two-finger drag.
     map.on("pitch", () => {
       if (!prewarmer.isMeasuring()) {
@@ -376,6 +391,21 @@ export default function Map() {
       }
     });
     map.on("idle", prewarmer.prewarm);
+    // A click on the sheet drops an event pin. MapLibre only fires click when the
+    // pointer hasn't moved past its tolerance, so drags never leave pins behind.
+    map.on("click", (event) => {
+      const target = event.originalEvent.target as Element | null;
+      // clicks land on the map even when they hit an existing pin
+      if (target?.closest(".maplibregl-marker")) {
+        return;
+      }
+      const id = String(nextPinIdRef.current);
+      nextPinIdRef.current += 1;
+      setPins((current) => [
+        ...current,
+        { id, lngLat: [event.lngLat.lng, event.lngLat.lat] },
+      ]);
+    });
 
     map
       .getCanvas()
@@ -388,10 +418,29 @@ export default function Map() {
 
     return () => {
       prewarmer.dispose();
+      setStyleReady(false);
       map.remove();
       mapRef.current = null;
     };
   }, []);
+
+  const flyToFix = useCallback((lngLat: [number, number]) => {
+    mapRef.current?.flyTo({ center: lngLat, zoom: LOCATE_ZOOM });
+  }, []);
+
+  useEffect(() => {
+    if (!fix || centredRef.current) {
+      return;
+    }
+    centredRef.current = true;
+    flyToFix(fix.lngLat);
+  }, [fix, flyToFix]);
+
+  const handleRecenterOnMe = useCallback(() => {
+    if (fix) {
+      flyToFix(fix.lngLat);
+    }
+  }, [fix, flyToFix]);
 
   const handleZoomIn = useCallback(() => mapRef.current?.zoomIn(), []);
   const handleZoomOut = useCallback(() => mapRef.current?.zoomOut(), []);
@@ -422,7 +471,11 @@ export default function Map() {
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
         onRecenter={handleRecenter}
+        onRecenterOnMe={handleRecenterOnMe}
+        canRecenterOnMe={fix !== null}
       />
+      <UserPosition mapRef={mapRef} styleReady={styleReady} fix={fix} />
+      <EventMarkers mapRef={mapRef} styleReady={styleReady} pins={pins} />
       <MapCursor targetRef={frameRef} />
     </section>
   );
