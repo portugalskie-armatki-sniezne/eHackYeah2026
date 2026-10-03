@@ -142,6 +142,21 @@ function featureCollection(pins: EventPin[]): ReportFeatures {
   };
 }
 
+function sameIds(
+  ids: ReadonlySet<string>,
+  previous: ReadonlySet<string> | null,
+): boolean {
+  if (!previous || previous.size !== ids.size) {
+    return false;
+  }
+  for (const id of ids) {
+    if (!previous.has(id)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 type ReportClustersProps = {
   mapRef: RefObject<MapLibreMap | null>;
   /** Flipped on style.load, by which point the map instance exists. */
@@ -157,9 +172,9 @@ export default function ReportClusters({
   pins,
   onUngroupedChange,
 }: ReportClustersProps) {
-  // what the last sync reported, so a pan that changes nothing does not tear the
-  // pins down and build them again
-  const lastKeyRef = useRef<string | null>(null);
+  // what the last sync reported, so a frame that changes nothing does not tear
+  // the pins down and build them again
+  const lastRef = useRef<ReadonlySet<string> | null>(null);
   const hoveredRef = useRef<number | null>(null);
 
   const syncUngrouped = useCallback(() => {
@@ -171,17 +186,24 @@ export default function ReportClusters({
     // features repeat across tile boundaries, so this collects into a set
     for (const feature of map.querySourceFeatures(SOURCE, {
       filter: UNGROUPED,
+      // the filter is a constant of this module, and this runs every frame
+      validate: false,
     })) {
       const id = feature.properties?.id;
       if (typeof id === "string") {
         ids.add(id);
       }
     }
-    const key = [...ids].sort().join("\n");
-    if (key === lastKeyRef.current) {
+    // Before the source has a renderable tile the query is empty, which is not
+    // the same as there being nothing on screen; reporting it would take every
+    // pin down until the first tile arrives.
+    if (ids.size === 0 && !map.isSourceLoaded(SOURCE)) {
       return;
     }
-    lastKeyRef.current = key;
+    if (sameIds(ids, lastRef.current)) {
+      return;
+    }
+    lastRef.current = ids;
     onUngroupedChange(ids);
   }, [mapRef, onUngroupedChange]);
 
@@ -237,30 +259,25 @@ export default function ReportClusters({
     };
     const clearHover = () => setHover(null);
 
-    const onSourceData = (event: {
-      sourceId?: string;
-      isSourceLoaded?: boolean;
-    }) => {
-      if (event.sourceId === SOURCE && event.isSourceLoaded) {
-        syncUngrouped();
-      }
-    };
-
     map.on("click", DISC_LAYER, openCluster);
     map.on("mousemove", DISC_LAYER, trackHover);
     map.on("mouseleave", DISC_LAYER, clearHover);
-    map.on("moveend", syncUngrouped);
-    map.on("sourcedata", onSourceData);
+    // Runs with the frame rather than at the end of a gesture. querySourceFeatures
+    // reads the tiles the map has just drawn, so asking here is asking exactly what
+    // is on screen: a pin comes down on the frame its disc appears, instead of
+    // standing on top of its own group until the camera stops. The work is a walk
+    // of the renderable tiles and a set compare, which is why the compare below
+    // allocates nothing.
+    map.on("render", syncUngrouped);
     syncUngrouped();
 
     return () => {
       map.off("click", DISC_LAYER, openCluster);
       map.off("mousemove", DISC_LAYER, trackHover);
       map.off("mouseleave", DISC_LAYER, clearHover);
-      map.off("moveend", syncUngrouped);
-      map.off("sourcedata", onSourceData);
+      map.off("render", syncUngrouped);
       hoveredRef.current = null;
-      lastKeyRef.current = null;
+      lastRef.current = null;
       try {
         for (const layer of LAYERS) {
           if (map.getLayer(layer.id)) {
@@ -286,7 +303,7 @@ export default function ReportClusters({
       return;
     }
     source.setData(featureCollection(pins));
-    // setData reclusters, and the sync lands on the sourcedata it raises
+    // setData reclusters and repaints, and the sync rides that frame
   }, [mapRef, pins, styleReady]);
 
   return null;
