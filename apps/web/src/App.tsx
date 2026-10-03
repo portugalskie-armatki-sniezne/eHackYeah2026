@@ -1,7 +1,11 @@
+import Map from "./components/Map";
+import Navbar from "./components/Navbar";
+
 export default function App() {
   return (
     <main>
-      <h1>eHackYeah2026</h1>
+      <Navbar />
+      <Map />
     </main>
   );
 }
