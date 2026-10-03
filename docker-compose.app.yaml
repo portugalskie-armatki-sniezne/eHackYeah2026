@@ -1,0 +1,30 @@
+name: ehackyeah2026-app
+
+# api and web run published images, the database lives in a separate Compose project
+services:
+  api:
+    image: ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api:${API_IMAGE_TAG:-dev}
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST:-db}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-app_db}
+      POSTGRES_USER: ${POSTGRES_USER:-app_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_dev_password}
+      JWT_SECRET: ${JWT_SECRET:-}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    networks:
+      - db
+
+  web:
+    image: ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web:${WEB_IMAGE_TAG:-dev}
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+
+networks:
+  # the network of the database Compose project, where the api reaches POSTGRES_HOST
+  db:
+    name: ${DB_NETWORK:-ehackyeah2026_default}
+    external: true

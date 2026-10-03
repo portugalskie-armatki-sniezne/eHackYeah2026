@@ -10,7 +10,7 @@ from psycopg_pool import ConnectionPool
 def conninfo() -> str:
     # defaults match docker-compose.yaml, values come from the root .env.
     return make_conninfo(
-        host="127.0.0.1",
+        host=os.environ.get("POSTGRES_HOST", "127.0.0.1"),
         port=os.environ.get("POSTGRES_PORT", "5432"),
         dbname=os.environ.get("POSTGRES_DB", "app_db"),
         user=os.environ.get("POSTGRES_USER", "app_user"),
