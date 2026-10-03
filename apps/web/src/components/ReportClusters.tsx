@@ -5,10 +5,10 @@ import type {
   GeoJSONSource,
   MapLayerMouseEvent,
   Map as MapLibreMap,
-  PointLike,
   SymbolLayerSpecification,
 } from "maplibre-gl";
 import type { EventPin } from "./EventMarkers";
+import { CLUSTER_DISC_LAYER as DISC_LAYER } from "./reportClusterHit";
 
 /**
  * Groups reports whose pins would collide in the current view.
@@ -36,7 +36,6 @@ const AMBER = "#efb33f";
 
 const SOURCE = "report-groups";
 const SHADOW_LAYER = "report-cluster-shadow";
-const DISC_LAYER = "report-cluster";
 const COUNT_LAYER = "report-cluster-count";
 
 // The box of .event-pin, which maplibre anchors at its bottom centre: two pins
@@ -101,14 +100,6 @@ const COUNT: SymbolLayerSpecification = {
 
 const LAYERS = [SHADOW, DISC, COUNT];
 
-/** True when the point is on a group, which opens rather than starting a report. */
-export function isClusterAt(map: MapLibreMap, point: PointLike): boolean {
-  if (!map.getLayer(DISC_LAYER)) {
-    return false;
-  }
-  return map.queryRenderedFeatures(point, { layers: [DISC_LAYER] }).length > 0;
-}
-
 type Projected = { pin: EventPin; x: number; y: number };
 
 type Group = {
@@ -146,7 +137,9 @@ function components(points: Projected[]): Projected[][] {
 
   // swept left to right, so the inner loop stops at the first pin too far along
   // the x axis to overlap, instead of comparing every pair
-  const order = points.map((_, i) => i).sort((a, b) => points[a].x - points[b].x);
+  const order = points
+    .map((_, i) => i)
+    .sort((a, b) => points[a].x - points[b].x);
   for (let a = 0; a < order.length; a++) {
     const i = order[a];
     for (let b = a + 1; b < order.length; b++) {

@@ -15,7 +15,8 @@ import EventMarkers, {
   type EventPin,
 } from "./EventMarkers";
 import PinDialog, { type PinDraft } from "./PinDialog";
-import ReportClusters, { isClusterAt } from "./ReportClusters";
+import ReportClusters from "./ReportClusters";
+import { isClusterAt } from "./reportClusterHit";
 import { createTiltPrewarmer } from "./mapPrewarm";
 import { POZNAN_REPORTS } from "../data/reports";
 import "./Map.css";
