@@ -91,6 +91,20 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 
 3. The build output is written to `apps/web/dist`.
 
+#### Development Report Connection
+
+[`devReports.ts`](apps/web/src/api/devReports.ts) is a temporary, local-development-only connection. It runs when `import.meta.env.DEV` is true and displays **Development test mode** in the application. Production builds, including builds deployed to the `dev` environment, disable this flow. The production form currently keeps new markers in browser memory.
+
+Authentication is still required: the helper creates or signs in to the shared test account, obtains a JWT from `/auth/login`, and sends it as `Authorization: Bearer <token>`. It supplies a fixed test title and the `issue` category. Reports and image files are really saved, so use a development database. Vite proxies `/api` to `http://127.0.0.1:8000`; `API_PROXY_TARGET` in the root `.env` can select another local API.
+
+To migrate the form to normal authenticated use:
+
+1. Implement user sign-in and replace `getDevSession()` with the signed-in user's session, including expired-token handling.
+2. Use [`createReportsApi`](apps/web/src/api/reports.ts) with that user's token and the title/category collected by the form. Replace the development-only save/load branches and remove the shared test account flow and labels.
+3. Configure the deployed API URL with a same-origin proxy or CORS. The Vite development proxy is not included in the production build.
+
+The existing report endpoints and database schema support this transition; switching authentication needs no new SQL migration. The target database must already have the current [`db/migrations`](db/migrations) applied, including user authentication fields and report categories. Authentication does not apply database migrations.
+
 ### Automated Deployment
 
 1. Configure the GitHub environments `dev` and `prod` with `VITE_API_URL` (the backend URL included in the frontend build) and `DEPLOY_DIR` (the deployment directory on the target machine).
