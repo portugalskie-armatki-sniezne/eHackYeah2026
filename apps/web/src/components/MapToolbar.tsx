@@ -1,3 +1,5 @@
+import type { ChangeEvent } from "react";
+import BrandMark from "./BrandMark";
 import "./MapToolbar.css";
 
 export type BasemapId = "streets";
@@ -11,6 +13,8 @@ type MapToolbarProps = {
   onRecenterOnMe: () => void;
   /** False until the device has reported a position. */
   canRecenterOnMe: boolean;
+  /** A photo taken with the "+" tile, to be pinned where the device is. */
+  onPhotoReport: (photo: File) => void;
 };
 
 export default function MapToolbar({
@@ -21,7 +25,17 @@ export default function MapToolbar({
   onRecenter,
   onRecenterOnMe,
   canRecenterOnMe,
+  onPhotoReport,
 }: MapToolbarProps) {
+  const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // cleared so the same photo can be taken again and still fire a change
+    event.target.value = "";
+    if (file) {
+      onPhotoReport(file);
+    }
+  };
+
   return (
     <div className="toolbar">
       <div className="toolbar__frame">
@@ -40,7 +54,8 @@ export default function MapToolbar({
             className="toolbar__button toolbar__button--wide"
             onClick={onRecenter}
           >
-            Recenter on Poznań
+            <BrandMark className="toolbar__icon toolbar__icon--city" />
+            <span className="toolbar__label">Recenter on Poznań</span>
           </button>
           <button
             type="button"
@@ -49,7 +64,19 @@ export default function MapToolbar({
             disabled={!canRecenterOnMe}
             title={canRecenterOnMe ? undefined : "No location fix yet"}
           >
-            Recenter on me
+            <svg
+              className="toolbar__icon"
+              viewBox="-10 -10 20 20"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                className="toolbar__icon-line"
+                d="M-9 0 H-4 M4 0 H9 M0 -9 V-4 M0 4 V9"
+              />
+              <circle className="toolbar__icon-dot" r="2.25" />
+            </svg>
+            <span className="toolbar__label">Recenter on me</span>
           </button>
           <span className="toolbar__divider" aria-hidden="true" />
           <button
@@ -61,6 +88,33 @@ export default function MapToolbar({
             3D
           </button>
         </div>
+        <span className="toolbar__divider" aria-hidden="true" />
+        {/* The camera opens straight from the tile: the input is the control,
+            and the tile is its label, so no click has to be forwarded. */}
+        <label
+          className="toolbar__add"
+          aria-disabled={!canRecenterOnMe}
+          title={canRecenterOnMe ? undefined : "No location fix yet"}
+        >
+          <span className="toolbar__add-glyph" aria-hidden="true">
+            +
+          </span>
+          <span className="toolbar__label">Report here</span>
+          <span className="visually-hidden">
+            {canRecenterOnMe
+              ? "Take a photo and report it at my location"
+              : "Report at my location, waiting for a location fix"}
+          </span>
+          <input
+            className="visually-hidden"
+            type="file"
+            name="photo"
+            accept="image/*"
+            capture="environment"
+            disabled={!canRecenterOnMe}
+            onChange={handlePhotoChange}
+          />
+        </label>
       </div>
     </div>
   );

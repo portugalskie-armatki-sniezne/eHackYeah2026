@@ -37,6 +37,10 @@ const EXTRUSION_FADE_START_PITCH = 22;
 const EXTRUSION_FULL_PITCH = 50;
 const EXTRUSION_OPACITY = 0.95;
 
+// The phone layout, as the chrome's stylesheets draw it. There the "+" tile is
+// the way to file a report, so a tap on the map only pans.
+const PHONE_LAYOUT = "(max-width: 40rem)";
+
 const BASEMAP_STYLES: Record<BasemapId, string> = {
   streets: "https://tiles.openfreemap.org/styles/bright",
 };
@@ -428,6 +432,9 @@ export default function Map() {
     // fires click when the pointer hasn't moved past its tolerance, so drags
     // never open it.
     map.on("click", (event) => {
+      if (window.matchMedia(PHONE_LAYOUT).matches) {
+        return;
+      }
       const target = event.originalEvent.target as Element | null;
       // clicks land on the map even when they hit an existing pin
       if (target?.closest(".maplibregl-marker")) {
@@ -500,6 +507,32 @@ export default function Map() {
     [draftLngLat],
   );
 
+  // The "+" tile skips the sheet: the photo is the report, filed where the
+  // device stands, and the camera goes there so the new pin is in view.
+  const handlePhotoReport = useCallback(
+    (photo: File) => {
+      if (!fix) {
+        return;
+      }
+      const id = String(nextPinIdRef.current);
+      nextPinIdRef.current += 1;
+      setPins((current) => [
+        ...current,
+        {
+          id,
+          lngLat: fix.lngLat,
+          description: "Photo report",
+          image: photo,
+          imageUrl: URL.createObjectURL(photo),
+          category: DEFAULT_PIN_CATEGORY,
+          reportCount: 1,
+        },
+      ]);
+      flyToFix(fix.lngLat);
+    },
+    [fix, flyToFix],
+  );
+
   const handleZoomIn = useCallback(() => mapRef.current?.zoomIn(), []);
   const handleZoomOut = useCallback(() => mapRef.current?.zoomOut(), []);
   const handleRecenter = useCallback(() => {
@@ -531,6 +564,7 @@ export default function Map() {
         onRecenter={handleRecenter}
         onRecenterOnMe={handleRecenterOnMe}
         canRecenterOnMe={fix !== null}
+        onPhotoReport={handlePhotoReport}
       />
       <UserPosition mapRef={mapRef} styleReady={styleReady} fix={fix} />
       <ReportClusters
