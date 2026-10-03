@@ -7,7 +7,7 @@ A web application for reporting civic issues, proposing citizen initiatives, and
 ```text
 eHackYeah2026/
 ├── apps/
-│   ├── web/                 # frontend workspace, application not implemented yet
+│   ├── web/                 # minimal React + Vite + TypeScript frontend
 │   └── api/                 # backend workspace, application not implemented yet
 ├── db/
 │   ├── migrations/          # existing dbmate SQL migrations
@@ -34,7 +34,7 @@ eHackYeah2026/
 
 ## Development commands
 
-Install Bun 1.4 or newer, then run commands from the repository root:
+Install Bun 1.4 or newer and Node.js 22.12 or newer, then run commands from the repository root:
 
 | Command | Purpose |
 | --- | --- |
@@ -44,7 +44,8 @@ Install Bun 1.4 or newer, then run commands from the repository root:
 | `bun run web` | Start the frontend. |
 | `bun run api` | Start PostgreSQL, apply migrations, and start the API. |
 
-Applications are not implemented yet and are skipped. Setup preserves `.env`.
+The web application is ready to run. The API is not implemented yet and is skipped.
+Setup preserves `.env`.
 Configured API startup requires Docker with Compose; PostgreSQL uses
 `127.0.0.1:POSTGRES_PORT`. Ctrl+C stops applications; PostgreSQL remains running.
 
@@ -52,3 +53,24 @@ Future applications provide `scripts.dev` and, when needed, `scripts.setup` in
 their workspace manifests. API setup installs Python dependencies. Scripts run
 from their application directory with root `.env` values. Keep setup repeatable,
 servers in the foreground, and reloads scoped to each application.
+
+## Web application
+
+```sh
+bun install
+bun run web
+```
+
+Open the local URL printed by Vite. Edit `apps/web/src/App.tsx` for the UI and
+`apps/web/src/index.css` for styles. `apps/web/src/main.tsx` mounts the application.
+
+Run web checks and production commands from its workspace:
+
+```sh
+cd apps/web
+bun run typecheck
+bun run build
+bun run preview
+```
+
+The build output is written to `apps/web/dist`.
