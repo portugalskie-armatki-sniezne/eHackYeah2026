@@ -102,6 +102,11 @@
   fill: currentColor;
 }
 
+/* The report tile only exists on phones; wide screens never render it. */
+.toolbar__report {
+  display: none;
+}
+
 /* The "+" tile is the toolbar's one primary action: an amber block lifted off
    an ink shadow, like the pressed 3D toggle, holding a camera input. */
 .toolbar__add {
@@ -226,8 +231,7 @@
     margin: 0.125rem 0.125rem;
   }
 
-  .toolbar__button--wide,
-  .toolbar__add {
+  .toolbar__button--wide {
     padding: 0;
     min-width: 2.5rem;
     min-height: 2.5rem;
@@ -237,6 +241,24 @@
   .toolbar__button {
     min-width: 2.5rem;
     min-height: 2.5rem;
+  }
+
+  /* The report tile takes the middle of the row and outgrows its neighbours,
+     so the one action that matters on a phone is the one the thumb finds. */
+  .toolbar__report {
+    display: flex;
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+
+  .toolbar__add {
+    padding: 0;
+    min-width: 3.5rem;
+    min-height: 3.5rem;
+  }
+
+  .toolbar__add-glyph {
+    font-size: 2rem;
   }
 
   .toolbar__label {

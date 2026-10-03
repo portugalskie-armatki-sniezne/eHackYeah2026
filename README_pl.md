@@ -74,9 +74,9 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 
 #### Aplikacja API
 
-- Podczas konfiguracji `uv sync` instaluje zależności w `apps/api/.venv`. uv pobiera Pythona 3.10 lub nowszego, jeśli go brakuje, i korzysta z tego samego środowiska przy kolejnych uruchomieniach.
+- Konfiguracja uruchamia `uv sync --extra inference`, instaluje zależności w `apps/api/.venv` i pobiera przypięte wersje Laya oraz tłumacza polsko-angielskiego do `apps/api/models` (około 1,1 GB, poza Gitem). Pierwsze uruchomienie wymaga Gita i internetu. Kolejne korzystają z kompletnych pobranych modeli. uv pobiera Pythona 3.10 lub nowszego, jeśli go brakuje.
 - Dokumentacja API jest dostępna pod adresem <http://127.0.0.1:8000/docs>. `GET /health` sprawdza działanie aplikacji bez odpytywania PostgreSQL.
-- `POST /inference` wymaga zalogowania i przyjmuje tekst, pytania klasyfikacyjne oraz opcjonalne zdjęcie. Domyślnie tłumacz i klasyfikator mają puste implementacje. Zobacz [jak podłączyć tłumacz i Laya](apps/api/docs/inference.md).
+- `POST /inference` wymaga zalogowania i przyjmuje tekst, pytania klasyfikacyjne oraz opcjonalne zdjęcie. `POST /inference/service-entity` wybiera typ jednostki usługowej na podstawie tytułu, opisu i opcjonalnego zdjęcia. Ścieżki modeli w `.env.example` włączają lokalną analizę. Do istniejącego `.env` dodaj `LAYA_MODEL_PATH=models/laya-vision` i `TRANSLATION_MODEL_PATH=models/opus-mt-pl-en`; konfiguracja zachowuje istniejące wartości. Zobacz [konfigurację modeli i dostawców](apps/api/docs/inference.md).
 - Zmiany w `apps/api/app` automatycznie przeładowują API.
 - Uruchom `task be:lint`, aby sprawdzić API za pomocą Ruff, lub `task be:lint:fix`, aby zastosować poprawki i formatowanie.
 

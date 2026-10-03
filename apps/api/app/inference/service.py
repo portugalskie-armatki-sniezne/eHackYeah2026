@@ -15,7 +15,6 @@ from app.inference.contracts import (
     Translator,
     validate_answers,
 )
-from app.inference.translation import EmptyTranslator
 
 
 class InferenceRequest(TranslationRequest):
@@ -69,11 +68,15 @@ class InferenceService:
 
 
 def get_translator() -> Translator:
-    return EmptyTranslator()
+    from app.inference.runtime import configured_translator
+
+    return configured_translator()
 
 
 def get_classifier() -> Classifier:
-    return EmptyClassifier()
+    from app.inference.runtime import configured_classifier
+
+    return configured_classifier()
 
 
 def get_inference_service(
