@@ -13,7 +13,8 @@ It aims to simplify communication with public institutions by using AI (determin
 eHackYeah2026/
 ├── apps/
 │   ├── web/                         # frontend workspace
-│   └── api/                         # backend workspace
+│   ├── api/                         # backend workspace
+│   └── notify/                      # internal SMTP relay
 ├── db/
 │   ├── migrations/                  # dbmate SQL migrations
 │   └── seeds/                       # reference data and the contacts workbook
@@ -26,7 +27,7 @@ eHackYeah2026/
 │   ├── e2e/                         # cross-application scenarios
 │   └── fixtures/                    # shared behavioral examples
 ├── docker-compose.yaml              # database, migrations, and seed import
-├── docker-compose.app.yaml          # api and web containers from published images
+├── docker-compose.app.yaml          # api, web, and notify containers from published images
 ├── Taskfile.yml                     # development commands
 ├── mise.toml                        # pinned Bun, Task, and uv versions
 ├── setup-dev-env.sh                 # installs mise, pinned tools, and dependencies
@@ -94,11 +95,11 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 ### Automated Deployment
 
 1. Configure the GitHub environments `dev` and `prod` with `VITE_API_URL` (the backend URL included in the frontend build) and `DEPLOY_DIR` (the deployment directory on the target machine).
-2. Copy `docker-compose.app.yaml` to `DEPLOY_DIR/docker-compose.yaml` and place the environment's `.env` alongside it. The database runs in a separate Compose project; `DB_NETWORK` selects its network (default `ehackyeah2026_default`) and `POSTGRES_HOST` selects its host (default `db`). Keep `.env` valid for both Compose and a shell script, with database credentials safe to use in a URL.
-3. Use `[1] Deploy` in GitHub Actions to deploy `web` or `api` to `dev` or `prod`. Pushes to `main` deploy changed services to `dev`; changes to `db/migrations` deploy `api`. The workflow builds images from `apps/web/Dockerfile` and `apps/api/Dockerfile` and publishes them to `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web` and `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api`, tagged with the environment and `<environment>-<commit SHA>`.
-4. The self-hosted runner updates `WEB_IMAGE_TAG` or `API_IMAGE_TAG` in `DEPLOY_DIR/.env`, pulls images, applies migrations before restarting `api`, and restarts the selected services. A failed migration leaves the previous API container running. Deployment does not import seed data. Keep self-hosted runners out of workflows triggered by pull requests.
+2. Copy `docker-compose.app.yaml` to `DEPLOY_DIR/docker-compose.yaml` and place the environment's `.env` alongside it. The database runs in a separate Compose project; `DB_NETWORK` selects its network (default `ehackyeah2026_default`) and `POSTGRES_HOST` selects its host (default `db`). Keep `.env` valid for both Compose and a shell script, with database credentials safe to use in a URL. Configure Gmail and test delivery for `notify` using the [mail setup instructions](apps/notify/docs/deployment.md).
+3. Use `[1] Deploy` in GitHub Actions to deploy `web`, `api`, or `notify` to `dev` or `prod`. Pushes to `main` deploy changed services to `dev`; changes to `db/migrations` deploy `api`. The workflow builds images from `apps/web/Dockerfile`, `apps/api/Dockerfile`, and `apps/notify/Dockerfile` and publishes them to `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web`, `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api`, and `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-notify`, tagged with the environment and `<environment>-<commit SHA>`.
+4. The self-hosted runner updates `WEB_IMAGE_TAG`, `API_IMAGE_TAG`, or `NOTIFY_IMAGE_TAG` in `DEPLOY_DIR/.env`, pulls images, applies migrations before restarting `api`, and restarts the selected services. A failed migration leaves the previous API container running. Deployment does not import seed data. Keep self-hosted runners out of workflows triggered by pull requests.
 5. After deploying `api`, run `[4] Seed` manually for `dev` or `prod` to import reference data from `db/seeds`. It waits for deployments to the same environment. Repeating the import preserves IDs and avoids duplicates; seed data overwrites manual edits, while records absent from the seed files remain in the database.
-6. Run `[2] Release` manually to deploy both services to `prod`, then publish a Git tag and GitHub release. Versions use the UTC date and a daily counter, for example `v2026.10.03-1`.
+6. Run `[2] Release` manually to deploy all three services to `prod`, then publish a Git tag and GitHub release. Versions use the UTC date and a daily counter, for example `v2026.10.03-1`.
 7. The Compose template stores report photos in `/app/uploads` on the `api_uploads` volume, so they survive deployments. Update the copy in `DEPLOY_DIR` when the template changes.
 
 > `[3] Lint` runs ESLint, Prettier, and Ruff on every pull request and push to `main`, using GitHub-hosted runners.
