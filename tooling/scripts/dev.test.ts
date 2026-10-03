@@ -51,16 +51,45 @@ process.exit(${code});
   chmodSync(executable, 0o755);
 }
 
-test("setup creates configuration, preserves existing values, and runs app setup", async () => {
+test("setup installs workspaces, creates configuration, preserves existing values, and runs app setup", async () => {
   const root = await fixture();
+  await Bun.write(join(root, "package.json"), JSON.stringify({
+    private: true,
+    workspaces: ["apps/*"],
+    devDependencies: { web: "workspace:*" },
+  }));
   expect((await command(root, "setup")).code).toBe(0);
+  expect(await Bun.file(join(root, "bun.lock")).exists()).toBe(true);
+  expect(await Bun.file(join(root, "node_modules/web/package.json")).exists()).toBe(true);
   expect(await Bun.file(join(root, ".env")).text()).toBe("POSTGRES_PORT=5432\n");
   await Bun.write(join(root, ".env"), "LOCAL_VALUE=preserved\n");
   await manifest(root, "api", { setup: "bun run setup.ts" });
-  await Bun.write(join(root, "apps/api/setup.ts"), 'await Bun.write("setup-result", process.env.LOCAL_VALUE ?? "missing");');
+  await Bun.write(join(root, "apps/api/setup.ts"), `Bun.resolveSync("web/package.json", import.meta.dir);
+await Bun.write("setup-result", process.env.LOCAL_VALUE ?? "missing");
+`);
   expect((await command(root, "setup")).code).toBe(0);
   expect(await Bun.file(join(root, ".env")).text()).toBe("LOCAL_VALUE=preserved\n");
   expect(await Bun.file(join(root, "apps/api/setup-result")).text()).toBe("preserved");
+});
+
+test("dependency installation failure stops setup and all before app setup or startup", async () => {
+  for (const name of ["setup", "all"]) {
+    const root = await fixture();
+    await Bun.write(join(root, "apps/web/package.json"), JSON.stringify({
+      name: "web",
+      private: true,
+      dependencies: { missing: "file:../../missing" },
+    }));
+    await manifest(root, "api", { setup: "bun run setup.ts", dev: "bun run dev.ts" });
+    await Bun.write(join(root, "apps/api/setup.ts"), 'await Bun.write("setup-result", "yes");');
+    await Bun.write(join(root, "apps/api/dev.ts"), 'await Bun.write("started", "yes");');
+    const result = await command(root, name);
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain("failed (exit 1).");
+    expect(await Bun.file(join(root, ".env")).exists()).toBe(false);
+    expect(await Bun.file(join(root, "apps/api/setup-result")).exists()).toBe(false);
+    expect(await Bun.file(join(root, "apps/api/started")).exists()).toBe(false);
+  }
 });
 
 test("unimplemented web does not start Docker", async () => {
@@ -116,6 +145,30 @@ process.exit(process.argv[3] === "${failure}" ? 1 : 0);
     expect(result.code).toBe(1);
     expect(result.stderr).toContain("docker failed (exit 1).");
   }
+});
+
+test.skipIf(process.platform === "win32")("all runs API setup and starts both implemented applications with root environment values", async () => {
+  const root = await fixture();
+  await fakeDocker(root);
+  await Bun.write(join(root, ".env"), "LOCAL_VALUE=preserved\n");
+  await manifest(root, "web", { dev: "bun run dev.ts" });
+  await manifest(root, "api", { setup: "bun run setup.ts", dev: "bun run dev.ts" });
+  await Bun.write(join(root, "apps/api/setup.ts"), 'await Bun.write("setup-result", process.env.LOCAL_VALUE ?? "missing");');
+  await Bun.write(join(root, "apps/web/dev.ts"), 'await Bun.write("started", process.env.LOCAL_VALUE ?? "missing");');
+  await Bun.write(join(root, "apps/api/dev.ts"), `import { appendFileSync } from "node:fs";
+if (await Bun.file("setup-result").text() !== "preserved") process.exit(1);
+appendFileSync("../../calls.log", "api\\n");
+await Bun.write("started", process.env.LOCAL_VALUE ?? "missing");
+`);
+  const result = await command(root, "all");
+  expect(result.code).toBe(0);
+  for (const app of ["web", "api"]) {
+    expect(await Bun.file(join(root, "apps", app, "started")).text()).toBe("preserved");
+  }
+  const calls = (await Bun.file(join(root, "calls.log")).text()).trim().split("\n");
+  expect(JSON.parse(calls[0])).toEqual(["compose", "up", "-d", "db-seeder"]);
+  expect(JSON.parse(calls[1])).toEqual(["compose", "wait", "db-seeder"]);
+  expect(calls[2]).toBe("api");
 });
 
 test.skipIf(process.platform === "win32")("API starts the database and seed services before its dev script", async () => {

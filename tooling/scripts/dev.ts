@@ -51,6 +51,7 @@ async function runScript(app: App, script: string) {
 }
 
 async function setup() {
+  await run([process.execPath, "install"]);
   try {
     copyFileSync(resolve(root, ".env.example"), envFile, constants.COPYFILE_EXCL);
     console.log("Created .env from .env.example. Review its values before starting the API.");
@@ -90,7 +91,6 @@ try {
       await setup();
       break;
     case "all":
-      await run([process.execPath, "install"]);
       await setup();
       await Promise.all(apps.map(start));
       break;

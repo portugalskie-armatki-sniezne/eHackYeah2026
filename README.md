@@ -38,23 +38,33 @@ Compose starts PostGIS, applies migrations, and imports the institution contacts
 
 ## Development commands
 
-Install Bun 1.4 or newer and Node.js 22.12 or newer, then run commands from the repository root:
+Install Bun 1.4 or newer, Node.js 22.12 or newer, and Python 3.10 or newer with venv support, then run commands from the repository root:
 
 | Command | Purpose |
 | --- | --- |
-| `bun install` | Install workspace dependencies. |
-| `bun run setup` | Create missing `.env` and run application setup. |
-| `bun run all` | Install, set up, and start web and API. |
+| `bun run setup` | Install JavaScript, TypeScript, and Python dependencies, and create missing `.env`. |
+| `bun run all` | Run setup and start web and API. |
 | `bun run web` | Start the frontend. |
 | `bun run db` | Start the database, apply migrations, and wait for seed import. |
 | `bun run api` | Start the database and seed services, then start the API. |
 
-The current web workspace is a React/Vite scaffold. The API workspace is not implemented yet; `bun run api` still starts the database. Both `bun run db` and `bun run api` require Docker with Compose running. The database command returns after seed import finishes and leaves PostgreSQL running. Setup preserves `.env`. PostgreSQL is published on `127.0.0.1:POSTGRES_PORT`. Ctrl+C stops applications; the database remains running.
+The current web workspace is a React/Vite scaffold. The API workspace is a FastAPI placeholder. Both `bun run db` and `bun run api` require Docker with Compose running, as does `bun run all`. The database command returns after seed import finishes and leaves PostgreSQL running. Setup preserves `.env`. PostgreSQL is published on `127.0.0.1:POSTGRES_PORT`. Ctrl+C stops applications; the database remains running.
+
+## API application
+
+```sh
+bun run setup
+bun run api
+```
+
+Setup creates `apps/api/.venv` and installs Python dependencies from `apps/api/requirements.txt`. Repeating setup reuses the virtual environment. The API starts after migrations and seed import finish, at <http://127.0.0.1:8000>. The placeholder provides `GET /` and `GET /health`, with interactive API documentation at <http://127.0.0.1:8000/docs>. The health endpoint checks the application only; it does not query PostgreSQL. Edit `apps/api/app/main.py`; changes under `apps/api/app` reload the API automatically.
+
+To set up and start both applications together, run `bun run all`.
 
 ## Web application
 
 ```sh
-bun install
+bun run setup
 bun run web
 ```
 
