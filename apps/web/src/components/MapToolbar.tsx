@@ -13,6 +13,8 @@ type MapToolbarProps = {
   onRecenterOnMe: () => void;
   /** False until the device has reported a position. */
   canRecenterOnMe: boolean;
+  /** Asked when the "+" tile is pressed; false keeps the camera closed. */
+  onPhotoReportStart: () => boolean;
   /** A photo taken with the "+" tile, to be pinned where the device is. */
   onPhotoReport: (photo: File) => void;
 };
@@ -25,6 +27,7 @@ export default function MapToolbar({
   onRecenter,
   onRecenterOnMe,
   canRecenterOnMe,
+  onPhotoReportStart,
   onPhotoReport,
 }: MapToolbarProps) {
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -112,6 +115,9 @@ export default function MapToolbar({
             accept="image/*"
             capture="environment"
             disabled={!canRecenterOnMe}
+            onClick={(event) => {
+              if (!onPhotoReportStart()) event.preventDefault();
+            }}
             onChange={handlePhotoChange}
           />
         </label>
