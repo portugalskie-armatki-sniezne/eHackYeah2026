@@ -35,7 +35,7 @@ Z katalogu głównego repozytorium:
 task api
 ```
 
-Polecenie uruchamia bazę, migracje i import seeda, a potem API pod <http://127.0.0.1:8000>. Interaktywna dokumentacja jest pod `/docs`. API wymaga `JWT_SECRET` w `.env`, a ustawienia bazy czyta z tych samych zmiennych co Docker Compose.
+Polecenie uruchamia bazę, migracje i import seeda, a potem API pod <http://127.0.0.1:8000>. Interaktywna dokumentacja jest pod `/docs`. API wymaga `JWT_SECRET` w `.env`, a ustawienia bazy czyta z tych samych zmiennych co Docker Compose. Logowanie przez Google działa po ustawieniu opcjonalnego `GOOGLE_CLIENT_ID`.
 
 ## Struktura kodu
 
@@ -43,7 +43,7 @@ Polecenie uruchamia bazę, migracje i import seeda, a potem API pod <http://127.
 | --- | --- |
 | `main.py` | aplikacja FastAPI, routery i otwarcie puli połączeń |
 | `db.py` | pula połączeń z PostgreSQL |
-| `security.py` | hashowanie haseł i tokeny JWT |
+| `security.py` | hashowanie haseł, tokeny JWT i weryfikacja tokenów Google |
 | `auth.py` | `/auth` i zależności dostępu: `CurrentUser`, `OptionalUser`, `StaffUser` (`office`, `admin`), `AdminUser` |
 | `models.py` | model użytkownika i role |
 | `common.py` | wspólne typy i SQL: lokalizacja, paginacja, filtr po okolicy, częściowy `UPDATE` |
