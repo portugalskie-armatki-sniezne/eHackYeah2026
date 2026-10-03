@@ -5,8 +5,10 @@
 
   position: fixed;
   inset: 0;
-  padding: var(--map-inset) calc(var(--map-inset) + var(--scaffold-offset))
-    calc(var(--map-inset) + var(--scaffold-offset)) var(--map-inset);
+  padding: calc(var(--map-inset) + var(--safe-top))
+    calc(var(--map-inset) + var(--scaffold-offset) + var(--safe-right))
+    calc(var(--map-inset) + var(--scaffold-offset) + var(--safe-bottom))
+    calc(var(--map-inset) + var(--safe-left));
   background: var(--paper);
 }
 

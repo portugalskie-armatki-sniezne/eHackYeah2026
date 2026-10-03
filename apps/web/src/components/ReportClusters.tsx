@@ -319,11 +319,15 @@ export default function ReportClusters({
       return;
     }
     viewRef.current = view;
+    // a changed pin set has to go through even when the groups come out the
+    // same: a pin added clear of every group is only drawn once it is reported
+    // as ungrouped
+    const pinsChanged = staleRef.current;
     staleRef.current = false;
 
     const groups = groupPins(map, pinsRef.current);
     const membership = signature(groups);
-    if (membership === signatureRef.current) {
+    if (membership === signatureRef.current && !pinsChanged) {
       return;
     }
     signatureRef.current = membership;
