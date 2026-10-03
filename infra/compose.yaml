@@ -11,6 +11,8 @@ services:
       POSTGRES_PORT: ${POSTGRES_PORT:?Set POSTGRES_PORT in .env}
     expose:
       - "${POSTGRES_PORT:?Set POSTGRES_PORT in .env}"
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:?Set POSTGRES_PORT in .env}:${POSTGRES_PORT:?Set POSTGRES_PORT in .env}"
     command: ["postgres", "-p", "${POSTGRES_PORT:?Set POSTGRES_PORT in .env}"]
     volumes:
       - postgres_data:/var/lib/postgresql
