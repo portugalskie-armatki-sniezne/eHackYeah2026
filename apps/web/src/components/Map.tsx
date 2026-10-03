@@ -19,6 +19,12 @@ import ReportClusters from "./ReportClusters";
 import { isClusterAt } from "./reportClusterHit";
 import { createTiltPrewarmer } from "./mapPrewarm";
 import { POZNAN_REPORTS } from "../data/reports";
+import {
+  DEV_REPORTS_ENABLED,
+  devReportsApi,
+  getDevSession,
+  saveDevReport,
+} from "../api/devReports";
 import "./Map.css";
 
 // maplibre resolves its worker next to its own file at runtime, which the bundler cannot see
@@ -378,6 +384,10 @@ export default function Map() {
   const [tilted, setTilted] = useState(false);
   const [styleReady, setStyleReady] = useState(false);
   const [pins, setPins] = useState<EventPin[]>(REPORT_PINS);
+  const [devStatus, setDevStatus] = useState(
+    "Connecting to the test database...",
+  );
+  const photoSavingRef = useRef(false);
   // Which reports escaped grouping, so only those get a pin. Null until the
   // clusters have first reported, when every pin is drawn.
   const [ungroupedIds, setUngroupedIds] = useState<ReadonlySet<string> | null>(
@@ -390,6 +400,52 @@ export default function Map() {
   // The camera eases to the first fix so the dot isn't off-screen, then leaves
   // the view alone: later fixes only move the dot.
   const centredRef = useRef(false);
+
+  useEffect(() => {
+    if (!DEV_REPORTS_ENABLED) return;
+    let active = true;
+    async function loadReports() {
+      try {
+        const { token, userId } = await getDevSession();
+        const page = await devReportsApi.list(token, {
+          user_id: userId,
+          limit: 200,
+        });
+        if (!active) return;
+        const loaded: EventPin[] = page.items.map((report) => ({
+          id: report.id,
+          lngLat: [report.location.longitude, report.location.latitude],
+          description: report.description,
+          image: null,
+          imageUrl: report.photos[0]
+            ? devReportsApi.photoUrl(report.photos[0])
+            : null,
+          category: DEFAULT_PIN_CATEGORY,
+          reportCount: 1,
+        }));
+        setPins((current) => [
+          ...current,
+          ...loaded.filter(
+            (pin) => !current.some((existing) => existing.id === pin.id),
+          ),
+        ]);
+        setDevStatus(
+          `Connected. Loaded ${loaded.length} recent test ${loaded.length === 1 ? "report" : "reports"}.`,
+        );
+      } catch (error) {
+        if (active)
+          setDevStatus(
+            error instanceof Error
+              ? error.message
+              : "Could not connect to the test API.",
+          );
+      }
+    }
+    void loadReports();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -485,11 +541,21 @@ export default function Map() {
 
   const handleCloseDraft = useCallback(() => setDraftLngLat(null), []);
   const handleAddPin = useCallback(
-    (draft: PinDraft) => {
+    async (draft: PinDraft) => {
       if (!draftLngLat) {
         return;
       }
-      const id = String(nextPinIdRef.current);
+      const report = DEV_REPORTS_ENABLED
+        ? await saveDevReport(
+            draft.description,
+            {
+              longitude: draftLngLat[0],
+              latitude: draftLngLat[1],
+            },
+            draft.image,
+          )
+        : null;
+      const id = report?.id ?? String(nextPinIdRef.current);
       nextPinIdRef.current += 1;
       setPins((current) => [
         ...current,
@@ -502,7 +568,8 @@ export default function Map() {
           reportCount: 1,
         },
       ]);
-      setDraftLngLat(null);
+      if (report)
+        setDevStatus(`Saved test report ${report.id} to the database.`);
     },
     [draftLngLat],
   );
@@ -510,25 +577,49 @@ export default function Map() {
   // The "+" tile skips the sheet: the photo is the report, filed where the
   // device stands, and the camera goes there so the new pin is in view.
   const handlePhotoReport = useCallback(
-    (photo: File) => {
-      if (!fix) {
+    async (photo: File) => {
+      if (!fix || photoSavingRef.current) {
         return;
       }
-      const id = String(nextPinIdRef.current);
-      nextPinIdRef.current += 1;
-      setPins((current) => [
-        ...current,
-        {
-          id,
-          lngLat: fix.lngLat,
-          description: "Photo report",
-          image: photo,
-          imageUrl: URL.createObjectURL(photo),
-          category: DEFAULT_PIN_CATEGORY,
-          reportCount: 1,
-        },
-      ]);
-      flyToFix(fix.lngLat);
+      photoSavingRef.current = true;
+      try {
+        if (DEV_REPORTS_ENABLED) setDevStatus("Saving test photo report...");
+        const report = DEV_REPORTS_ENABLED
+          ? await saveDevReport(
+              "Photo report",
+              {
+                longitude: fix.lngLat[0],
+                latitude: fix.lngLat[1],
+              },
+              photo,
+            )
+          : null;
+        const id = report?.id ?? String(nextPinIdRef.current);
+        nextPinIdRef.current += 1;
+        setPins((current) => [
+          ...current,
+          {
+            id,
+            lngLat: fix.lngLat,
+            description: "Photo report",
+            image: photo,
+            imageUrl: URL.createObjectURL(photo),
+            category: DEFAULT_PIN_CATEGORY,
+            reportCount: 1,
+          },
+        ]);
+        flyToFix(fix.lngLat);
+        if (report)
+          setDevStatus(`Saved test report ${report.id} to the database.`);
+      } catch (error) {
+        setDevStatus(
+          error instanceof Error
+            ? error.message
+            : "Could not save the photo report.",
+        );
+      } finally {
+        photoSavingRef.current = false;
+      }
     },
     [fix, flyToFix],
   );
@@ -553,6 +644,15 @@ export default function Map() {
 
   return (
     <section className="map" aria-label="Map of Poznań">
+      {DEV_REPORTS_ENABLED && (
+        <aside className="map__dev-status" role="status">
+          <strong>Development test mode</strong>
+          <span>{devStatus}</span>
+          <small>
+            New reports use a test account. Sample map markers remain visible.
+          </small>
+        </aside>
+      )}
       <div className="map__frame" ref={frameRef}>
         <div className="map__canvas" ref={containerRef} />
       </div>
