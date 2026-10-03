@@ -15,6 +15,7 @@ import EventMarkers, {
   type EventPin,
 } from "./EventMarkers";
 import PinDialog, { type PinDraft } from "./PinDialog";
+import ReportClusters, { isClusterAt } from "./ReportClusters";
 import { createTiltPrewarmer } from "./mapPrewarm";
 import { POZNAN_REPORTS } from "../data/reports";
 import "./Map.css";
@@ -372,6 +373,11 @@ export default function Map() {
   const [tilted, setTilted] = useState(false);
   const [styleReady, setStyleReady] = useState(false);
   const [pins, setPins] = useState<EventPin[]>(REPORT_PINS);
+  // Which reports escaped grouping, so only those get a pin. Null until the
+  // clusters have first reported, when every pin is drawn.
+  const [ungroupedIds, setUngroupedIds] = useState<ReadonlySet<string> | null>(
+    null,
+  );
   // the clicked point while its marker sheet is open
   const [draftLngLat, setDraftLngLat] = useState<[number, number] | null>(null);
   const nextPinIdRef = useRef(1);
@@ -424,6 +430,11 @@ export default function Map() {
       const target = event.originalEvent.target as Element | null;
       // clicks land on the map even when they hit an existing pin
       if (target?.closest(".maplibregl-marker")) {
+        return;
+      }
+      // a cluster is drawn on the canvas, so only a feature query sees it; it
+      // opens on click rather than starting a report on top of the reports it holds
+      if (isClusterAt(map, event.point)) {
         return;
       }
       setDraftLngLat([event.lngLat.lng, event.lngLat.lat]);
@@ -521,10 +532,17 @@ export default function Map() {
         canRecenterOnMe={fix !== null}
       />
       <UserPosition mapRef={mapRef} styleReady={styleReady} fix={fix} />
+      <ReportClusters
+        mapRef={mapRef}
+        styleReady={styleReady}
+        pins={pins}
+        onUngroupedChange={setUngroupedIds}
+      />
       <EventMarkers
         mapRef={mapRef}
         styleReady={styleReady}
         pins={pins}
+        ungroupedIds={ungroupedIds}
         draftLngLat={draftLngLat}
       />
       {draftLngLat && (

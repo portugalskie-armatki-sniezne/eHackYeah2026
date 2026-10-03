@@ -23,6 +23,11 @@ type EventMarkersProps = {
   /** Flipped on style.load, by which point the map instance exists. */
   styleReady: boolean;
   pins: EventPin[];
+  /**
+   * Ids of the reports to pin, when something upstream is grouping them. Null
+   * while nothing is, in which case every pin is drawn.
+   */
+  ungroupedIds: ReadonlySet<string> | null;
   /** Where the pin being described will land; shown faint until it is added. */
   draftLngLat: [number, number] | null;
 };
@@ -168,6 +173,7 @@ export default function EventMarkers({
   mapRef,
   styleReady,
   pins,
+  ungroupedIds,
   draftLngLat,
 }: EventMarkersProps) {
   const markersRef = useRef(new globalThis.Map<string, Marker>());
@@ -180,7 +186,13 @@ export default function EventMarkers({
     }
 
     const markers = markersRef.current;
-    const wanted = new Set(pins.map((pin) => pin.id));
+    // A report swept into a cluster is drawn by the disc instead, so its pin comes
+    // down until the zoom that breaks the group open puts it back.
+    const wanted = new Set(
+      pins
+        .filter((pin) => !ungroupedIds || ungroupedIds.has(pin.id))
+        .map((pin) => pin.id),
+    );
 
     for (const [id, marker] of markers) {
       if (!wanted.has(id)) {
@@ -189,8 +201,9 @@ export default function EventMarkers({
       }
     }
 
+    // Numbered off the full list, so a pin keeps its label as groups come and go.
     pins.forEach((pin, index) => {
-      if (markers.has(pin.id)) {
+      if (!wanted.has(pin.id) || markers.has(pin.id)) {
         return;
       }
       const marker = new Marker({
@@ -205,7 +218,7 @@ export default function EventMarkers({
         .addTo(map);
       markers.set(pin.id, marker);
     });
-  }, [mapRef, pins, styleReady]);
+  }, [mapRef, pins, styleReady, ungroupedIds]);
 
   useEffect(() => {
     const map = mapRef.current;
