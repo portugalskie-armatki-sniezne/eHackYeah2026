@@ -1,12 +1,13 @@
 # API CRUD
 
-Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same jak kolumny w [data-model.md](data-model.md). `/inference` udostępnia analizę z wymiennymi dostawcami, domyślnie wyłączonymi.
+Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same jak kolumny w [data-model.md](data-model.md). `/inference` udostępnia analizę z konfigurowalnym tłumaczem i klasyfikatorem Laya.
 
 ## Konwencje
 
 - Format: JSON, pola w snake_case. Identyfikatory użytkowników, masterów, reportów, zdjęć i komentarzy jako UUID w postaci tekstu; identyfikatory kategorii, statusów, urzędów i jednostek usługowych jako liczby całkowite.
 - Wyjątek: `POST /reports`, `POST /reports/{id}/photos` i endpointy `POST /inference` oraz `POST /inference/service-entity` przyjmują `multipart/form-data`, bo mogą zawierać pliki zdjęć.
 - Daty: ISO 8601 z strefą czasową (UTC).
+- CORS: API przyjmuje na razie zapytania z każdej domeny (`*`). Uwierzytelnianie opiera się na nagłówku `Authorization`, bez ciasteczek.
 - Pola `id`, `created_at`, `edited_at` są tylko do odczytu. Serwer ignoruje je w requestach albo zwraca 422.
 - `PATCH` przyjmuje podzbiór pól (częściowa aktualizacja). `PUT` jest używany tylko do idempotentnego polubienia komentarza.
 - Lokalizacja w JSON to obiekt `{"longitude": 19.9449, "latitude": 50.0647}`. Zakres: longitude od -180 do 180, latitude od -90 do 90 (WGS 84).
@@ -49,8 +50,8 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 
 | Kto | Co może |
 | --- | --- |
-| publiczny | rejestracja, logowanie, mastery, komentarze, słowniki, urzędy, jednostki usługowe, pliki zdjęć |
-| zalogowany | odczyt reportów i metadanych zdjęć, dodawanie reportów, komentarzy i polubień, analiza przez `/inference`, połączenie własnego konta z Google |
+| publiczny | rejestracja, logowanie, odczyt reportów i metadanych zdjęć, mastery, komentarze, słowniki, urzędy, jednostki usługowe, pliki zdjęć |
+| zalogowany | dodawanie reportów, komentarzy i polubień, analiza przez `/inference`, połączenie własnego konta z Google |
 | autor reportu | edycja i usuwanie reportu oraz jego zdjęć |
 | autor komentarza | usuwanie komentarza |
 | `office` | jak zalogowany oraz edycja masterów, przepinanie reportów, usuwanie dowolnych komentarzy |
@@ -168,8 +169,8 @@ Pola `PATCH`: `first_name`, `last_name`, `email`, `phone`, `password`, `role` (t
 | Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
 | --- | --- | --- | --- | --- | --- |
 | POST | `/reports` | dodanie z dopasowaniem do mastera | zalogowany | 201 | 401, 404 (brak kategorii), 413, 422 |
-| GET | `/reports` | lista z filtrami | zalogowany | 200 | 401, 422 |
-| GET | `/reports/{id}` | pobranie | zalogowany | 200 | 401, 404 |
+| GET | `/reports` | lista z filtrami | publiczny | 200 | 422 |
+| GET | `/reports/{id}` | pobranie | publiczny | 200 | 404 |
 | PATCH | `/reports/{id}` | aktualizacja | autor, `admin` | 200 | 401, 403, 404, 422 |
 | DELETE | `/reports/{id}` | usunięcie wraz ze zdjęciami | autor, `admin` | 204 | 401, 403, 404 |
 | POST | `/reports/{id}/move` | przepięcie do innego mastera | `office`, `admin` | 200 | 401, 403, 404, 422 |
@@ -238,7 +239,7 @@ Request `POST /reports/{id}/move`:
 | Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
 | --- | --- | --- | --- | --- | --- |
 | POST | `/reports/{report_id}/photos` | dodanie zdjęć | autor, `admin` | 201 | 401, 403, 404, 413, 422 |
-| GET | `/reports/{report_id}/photos` | lista zdjęć reportu | zalogowany | 200 | 401, 404 |
+| GET | `/reports/{report_id}/photos` | lista zdjęć reportu | publiczny | 200 | 404 |
 | DELETE | `/reports/{report_id}/photos/{id}` | usunięcie | autor, `admin` | 204 | 401, 403, 404 |
 | GET | `/photos/{id}/file` | plik zdjęcia | publiczny | 200 | 404 |
 
@@ -358,14 +359,14 @@ TERYT wskazuje powiązaną gminę, a nie zasięg usług lub jurysdykcję. Typ je
 | Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
 | --- | --- | --- | --- | --- | --- |
 | POST | `/inference` | tłumaczenie i klasyfikacja według przekazanych pytań | zalogowany | 200 | 401, 413, 422, 502, 503 |
-| POST | `/inference/service-entity` | wybór jednej wartości ServiceEntityType | zalogowany | 200 | 401, 413, 422, 502, 503 |
+| POST | `/inference/service-entity` | wybór typu jednostki usługowej na podstawie tytułu, opisu i zdjęcia | zalogowany | 200 | 401, 413, 422, 502, 503 |
 
 Request przyjmuje pole formularza `payload` z JSON-em zawierającym `text`, `source_language`,
 `target_language` i `questions` oraz opcjonalny plik `image`. Tekst jest wymagany.
 Pytania, instrukcje i opcje odpowiedzi określa wywołujący. Zdjęcie podlega limitowi
 rozmiaru i regułom formatów zdjęć reportów, ale nie jest zapisywane.
 
-Domyślna odpowiedź pustych implementacji dla różnych języków:
+Odpowiedź przy wyłączonych dostawcach i różnych językach:
 
 ```json
 {

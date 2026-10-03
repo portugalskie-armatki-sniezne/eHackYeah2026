@@ -19,6 +19,7 @@ from app.inference.contracts import (
     TranslationRequest,
 )
 from app.inference.laya import LayaClassifier
+from app.inference.models import resolve_model_path
 
 _loading_lock = Lock()
 
@@ -146,7 +147,9 @@ def configured_translator():
     if not path:
         return EmptyTranslator()
     return ConfiguredTranslator(
-        path, os.getenv("TRANSLATION_SOURCE_LANGUAGE", "pl"), os.getenv("TRANSLATION_TARGET_LANGUAGE", "en")
+        str(resolve_model_path(path)),
+        os.getenv("TRANSLATION_SOURCE_LANGUAGE", "pl"),
+        os.getenv("TRANSLATION_TARGET_LANGUAGE", "en"),
     )
 
 
@@ -166,7 +169,7 @@ def configured_classifier():
     except ValueError as error:
         raise InferenceUnavailableError("Invalid Laya configuration") from error
     return ConfiguredClassifier(
-        path,
+        str(resolve_model_path(path)),
         os.getenv("LAYA_DEVICE", "cpu"),
         os.getenv("LAYA_LOAD_OPTIONS", '{"head_max_len": 768, "max_len": 2048}'),
         permutations,

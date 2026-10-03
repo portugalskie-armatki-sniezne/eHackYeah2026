@@ -7,7 +7,6 @@ import {
   type FormEvent,
 } from "react";
 import "./PinDialog.css";
-import { DEV_REPORTS_ENABLED } from "../api/devReports";
 
 export type PinDraft = {
   description: string;
@@ -115,12 +114,6 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
           <p className="pin-dialog__coords">{formatLngLat(lngLat)}</p>
         </header>
 
-        {DEV_REPORTS_ENABLED && (
-          <p className="pin-dialog__coords">
-            Development test mode. Saved as reports-dev@example.com with title
-            "Development test report" and category "issue".
-          </p>
-        )}
         {error && <p role="alert">{error}</p>}
 
         <div className="pin-dialog__field">

@@ -74,9 +74,9 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 
 #### API Application
 
-- Setup runs `uv sync` to install dependencies in `apps/api/.venv`. uv downloads Python 3.10 or newer if needed and reuses the environment on subsequent runs.
+- Setup runs `uv sync --extra inference` to install dependencies in `apps/api/.venv` and downloads pinned Laya and Polish-English translation checkpoints into `apps/api/models` (about 1.1 GB, excluded from Git). The first run requires Git and internet access. Later runs reuse complete downloads. uv downloads Python 3.10 or newer if needed.
 - API documentation is available at <http://127.0.0.1:8000/docs>. `GET /health` checks the application without querying PostgreSQL.
-- Authenticated `POST /inference/service-entity` selects one service entity type from a Polish or English report and an optional photo. The generic `/inference` endpoint accepts custom questions. Providers stay disabled until configured. See [model setup and evaluation](apps/api/docs/inference.md).
+- Authenticated `POST /inference` accepts text, supplied classification questions, and an optional photo. `POST /inference/service-entity` classifies a title, description, and optional photo into one service entity type. The model paths in `.env.example` enable local inference. For an existing `.env`, add `LAYA_MODEL_PATH=models/laya-vision` and `TRANSLATION_MODEL_PATH=models/opus-mt-pl-en`; setup preserves existing values. See [model setup and provider configuration](apps/api/docs/inference.md).
 - Changes under `apps/api/app` reload the API automatically.
 - Run `task be:lint` to check the API with Ruff, or `task be:lint:fix` to apply fixes and formatting.
 
@@ -94,19 +94,11 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 
 3. The build output is written to `apps/web/dist`.
 
-#### Development Report Connection
+#### Report Connection
 
-[`devReports.ts`](apps/web/src/api/devReports.ts) is a temporary, local-development-only connection. It runs when `import.meta.env.DEV` is true and displays **Development test mode** in the application. Production builds, including builds deployed to the `dev` environment, disable this flow. The production form currently keeps new markers in browser memory.
+The map loads pins from `GET /master-reports` and files new reports with `POST /reports` through [`reports.ts`](apps/web/src/api/reports.ts). Every request goes through `apiFetch` in [`client.ts`](apps/web/src/api/client.ts), which adds the stored token and drops it on a 401. Reading reports, masters and categories needs no token. Filing a report needs the signed-in session from [`session.ts`](apps/web/src/api/session.ts); signed out, adding a marker opens the sign-in dialog. The form has no title or category field yet, so the title is taken from the start of the description and the category is `issue`. Reports and image files are really saved, so use a development database.
 
-Authentication is still required: the helper creates or signs in to the shared test account, obtains a JWT from `/auth/login`, and sends it as `Authorization: Bearer <token>`. It supplies a fixed test title and the `issue` category. Reports and image files are really saved, so use a development database. Vite proxies `/api` to `http://127.0.0.1:8000`; `API_PROXY_TARGET` in the root `.env` can select another local API.
-
-To migrate the form to normal authenticated use:
-
-1. Replace `getDevSession()` with the signed-in user's session from [`useSession`](apps/web/src/api/useSession.ts), which restores the stored token and drops expired ones.
-2. Use [`createReportsApi`](apps/web/src/api/reports.ts) with that user's token and the title/category collected by the form. Replace the development-only save/load branches and remove the shared test account flow and labels.
-3. Configure the deployed API URL with a same-origin proxy or CORS. The Vite development proxy is not included in the production build.
-
-The existing report endpoints and database schema support this transition; switching authentication needs no new SQL migration. The target database must already have the current [`db/migrations`](db/migrations) applied, including user authentication fields and report categories. Authentication does not apply database migrations.
+In development Vite proxies `/api` to `http://127.0.0.1:8000`; `API_PROXY_TARGET` in the root `.env` can select another local API. Deployed builds get the API origin from `VITE_API_URL` at build time, so configure a same-origin proxy or CORS there.
 
 ### Automated Deployment
 

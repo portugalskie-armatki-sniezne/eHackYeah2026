@@ -1,3 +1,5 @@
+import { apiFetch, apiUrl } from "./client";
+
 export type ReportLocation = {
   longitude: number;
   latitude: number;
@@ -34,104 +36,107 @@ export type ReportCreate = {
 
 export type ReportCategory = { id: number; name: string };
 
-export type ReportPage = {
-  items: Report[];
+export type Page<T> = {
+  items: T[];
   total: number;
   limit: number;
   offset: number;
 };
 
-export class ReportApiError extends Error {
-  constructor(
-    public readonly status: number,
-    message: string,
-  ) {
-    super(message);
-    this.name = "ReportApiError";
-  }
+export type ReportPage = Page<Report>;
+
+/** The issue several filings are folded into; what the map draws a pin for. */
+export type MasterReport = {
+  id: string;
+  report_category_id: number;
+  status_id: number;
+  responsible_office_id: number | null;
+  responsible_service_entity_id: number | null;
+  title: string;
+  description: string;
+  location: ReportLocation;
+  response: string | null;
+  report_count: number;
+  edited_at: string;
+  created_at: string;
+};
+
+/** The detail view adds the photos of every report attached to the master. */
+export type MasterReportDetail = MasterReport & { photos: ReportPhoto[] };
+
+export type MasterReportPage = Page<MasterReport>;
+
+export type MasterReportFilters = {
+  status_id?: number;
+  report_category_id?: number;
+  responsible_office_id?: number;
+  responsible_service_entity_id?: number;
+  limit?: number;
+  offset?: number;
+};
+
+// the largest page the api serves
+const MAX_PAGE_SIZE = 200;
+
+function masterReports(
+  params: MasterReportFilters = {},
+  signal?: AbortSignal,
+): Promise<MasterReportPage> {
+  return apiFetch("/master-reports", { query: params, signal });
 }
 
-function errorMessage(body: unknown, status: number): string {
-  if (body && typeof body === "object" && "detail" in body) {
-    const detail = body.detail;
-    if (typeof detail === "string") return detail;
-    if (Array.isArray(detail)) {
-      const messages = detail.flatMap((item: unknown) => {
-        if (!item || typeof item !== "object" || !("msg" in item)) return [];
-        if (typeof item.msg !== "string") return [];
-        const field =
-          "loc" in item && Array.isArray(item.loc)
-            ? item.loc.slice(1).join(".")
-            : "";
-        return [field ? `${field}: ${item.msg}` : item.msg];
-      });
-      if (messages.length) return messages.join("; ");
+export const reportsApi = {
+  categories(signal?: AbortSignal): Promise<ReportCategory[]> {
+    return apiFetch("/report-categories", { signal });
+  },
+
+  create(body: ReportCreate): Promise<Report> {
+    const form = new FormData();
+    form.set("report_category_id", String(body.report_category_id));
+    form.set("title", body.title);
+    form.set("description", body.description);
+    form.set("longitude", String(body.location.longitude));
+    form.set("latitude", String(body.location.latitude));
+    for (const photo of body.photos ?? []) {
+      form.append("photos", photo, photo.name);
     }
-  }
-  return `Report request failed (${status}).`;
-}
+    return apiFetch("/reports", { method: "POST", body: form });
+  },
 
-export function createReportsApi(baseUrl: string) {
-  const base = baseUrl.replace(/\/+$/, "");
+  get(id: string, signal?: AbortSignal): Promise<Report> {
+    return apiFetch(`/reports/${encodeURIComponent(id)}`, { signal });
+  },
 
-  async function request<T>(path: string, options?: RequestInit): Promise<T> {
-    const response = await fetch(`${base}${path}`, options);
-    if (!response.ok) {
-      const body: unknown = await response.json().catch(() => null);
-      throw new ReportApiError(
-        response.status,
-        errorMessage(body, response.status),
+  list(
+    params: { user_id?: string; limit?: number; offset?: number } = {},
+    signal?: AbortSignal,
+  ): Promise<ReportPage> {
+    return apiFetch("/reports", { query: params, signal });
+  },
+
+  masterReports,
+
+  masterReport(id: string, signal?: AbortSignal): Promise<MasterReportDetail> {
+    return apiFetch(`/master-reports/${encodeURIComponent(id)}`, { signal });
+  },
+
+  /** Every master report, paged through at the largest page the api serves. */
+  async allMasterReports(signal?: AbortSignal): Promise<MasterReport[]> {
+    const items: MasterReport[] = [];
+    let total = Infinity;
+    while (items.length < total) {
+      const page = await masterReports(
+        { limit: MAX_PAGE_SIZE, offset: items.length },
+        signal,
       );
+      total = page.total;
+      if (page.items.length === 0) break;
+      items.push(...page.items);
     }
-    return response.json() as Promise<T>;
-  }
+    return items;
+  },
 
-  return {
-    categories(signal?: AbortSignal): Promise<ReportCategory[]> {
-      return request("/report-categories", { signal });
-    },
-
-    create(body: ReportCreate, token: string): Promise<Report> {
-      const form = new FormData();
-      form.set("report_category_id", String(body.report_category_id));
-      form.set("title", body.title);
-      form.set("description", body.description);
-      form.set("longitude", String(body.location.longitude));
-      form.set("latitude", String(body.location.latitude));
-      for (const photo of body.photos ?? []) {
-        form.append("photos", photo, photo.name);
-      }
-      return request("/reports", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: form,
-      });
-    },
-
-    get(id: string, token: string, signal?: AbortSignal): Promise<Report> {
-      return request(`/reports/${encodeURIComponent(id)}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        signal,
-      });
-    },
-
-    list(
-      token: string,
-      params: { user_id?: string; limit?: number; offset?: number } = {},
-      signal?: AbortSignal,
-    ): Promise<ReportPage> {
-      const query = new URLSearchParams();
-      for (const [key, value] of Object.entries(params)) {
-        if (value !== undefined) query.set(key, String(value));
-      }
-      return request(`/reports?${query}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        signal,
-      });
-    },
-
-    photoUrl(photo: ReportPhoto): string {
-      return `${base}${photo.url}`;
-    },
-  };
-}
+  photoUrl(photo: ReportPhoto): string {
+    return apiUrl(photo.url);
+  },
+};

@@ -424,6 +424,7 @@ dependencies = [
 
 [package.optional-dependencies]
 inference = [
+    { name = "huggingface-hub" },
     { name = "laya" },
     { name = "pillow" },
     { name = "sacremoses" },
@@ -444,6 +445,7 @@ dev = [
 requires-dist = [
     { name = "email-validator", specifier = "==2.3.0" },
     { name = "fastapi", specifier = "==0.142.2" },
+    { name = "huggingface-hub", marker = "extra == 'inference'", specifier = ">=1.33.0,<2" },
     { name = "laya", marker = "extra == 'inference'", git = "https://github.com/r33drichards/laya-vision.git?rev=9e1e2419d855ad3e1a2af4d4bd1ef6be5418842c" },
     { name = "pillow", marker = "extra == 'inference'", specifier = ">=12.0.0" },
     { name = "psycopg", extras = ["binary", "pool"], specifier = "==3.3.6" },

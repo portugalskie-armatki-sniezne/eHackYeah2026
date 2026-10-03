@@ -4,6 +4,25 @@ import psycopg
 from fastapi.testclient import TestClient
 
 
+def test_browser_requests_from_other_origins_are_allowed(client: TestClient):
+    origin = "https://web.example.com"
+
+    preflight = client.options(
+        "/reports",
+        headers={
+            "Origin": origin,
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "authorization,content-type",
+        },
+    )
+
+    assert preflight.status_code == 200
+    assert preflight.headers["Access-Control-Allow-Origin"] == "*"
+    assert "authorization" in preflight.headers["Access-Control-Allow-Headers"].lower()
+    response = client.get("/report-categories", headers={"Origin": origin})
+    assert response.headers["Access-Control-Allow-Origin"] == "*"
+
+
 def test_reference_data_is_public(client: TestClient):
     categories = client.get("/report-categories").json()
     statuses = client.get("/master-report-statuses").json()
