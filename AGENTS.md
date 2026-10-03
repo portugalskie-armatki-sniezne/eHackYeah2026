@@ -2,9 +2,11 @@
 
 ## Project overview
 
-- Project brief: we are creating application
-- Planned stack: React Native (Vite) in Type Scritfor the frontend, Python with FastAPI for the backend, PostgreSQL for the database, and Docker with Docker Compose.
-- Development environment: VS Code on macOS, Windows, and Linux. `.gitignore` should cover generated artifacts from the stack and development environments, as well as local secret files.
+- eHackYeah2026 is a web application for reporting civic issues, proposing citizen initiatives, and tracking their progress.
+- The repository is currently a scaffold. The web and API directories are empty placeholders; application frameworks, dependencies, and commands are not configured yet. Do not treat the previous React Native, Vite, or FastAPI plans as an implemented stack.
+- PostgreSQL and dbmate are configured through Docker Compose in `infra/compose.yaml`.
+- `package.json`, `bun.lock`, and `TESTING.md` are currently empty placeholders. Do not assume package scripts, a working Bun workspace, or a test runner exist.
+- Development should work on macOS, Windows, and Linux. Keep tooling and shared editor configuration portable.
 
 ## Working rules
 
@@ -20,12 +22,23 @@
 
 ## Architecture and repository layout
 
-- `frontend/` contains the React Native application. It currently has only a `.gitkeep` placeholder.
-- `backend/` contains the Python FastAPI application. It currently has only a `.gitkeep` placeholder.
-- `db/migrations/` contains dbmate SQL migrations, with both `migrate:up` and `migrate:down` sections in each file. Dbmate writes the generated schema snapshot to `db/schema.sql`.
-- `docker-compose.yml` defines the PostgreSQL database and the one-shot dbmate migration service.
+- `apps/web/` is the web application directory, currently containing only `.gitkeep`.
+- `apps/api/` is the backend application directory, currently containing only `.gitkeep`.
+- `db/migrations/` contains dbmate SQL migrations. Each migration must include both `-- migrate:up` and `-- migrate:down` sections. The existing migration creates the example `example_items` table.
+- `db/seeds/` is reserved for development and reference data.
+- `infra/compose.yaml` defines PostgreSQL and a one-shot dbmate migration service. It mounts `db/` into the migration container and stores PostgreSQL data in the `postgres_data` named volume. Schema dumping is disabled with `DBMATE_NO_DUMP_SCHEMA`; there is currently no generated `db/schema.sql`.
+- `tooling/scripts/` is reserved for development and maintenance scripts.
+- `tests/e2e/` is reserved for cross-application scenarios, and `tests/fixtures/` for shared behavioral examples. Keep application-specific tests near their application code when a test setup is introduced.
+- `.agents/skills/` is reserved for repository-local agent skills.
+- `.github/workflows/` is reserved for CI workflows; none are configured yet.
 - `.env` holds local environment values and is ignored by Git. `.env.example` documents the variables required by Docker Compose.
 - `README.md` is the top-level project documentation.
+- `TESTING.md` is the place to document test setup and commands once they exist.
+
+## Local infrastructure
+
+- Create a root `.env` from `.env.example` if it does not exist.
+- From the repository root, run `docker compose --env-file .env -f infra/compose.yaml up -d` to start PostgreSQL and apply migrations.
 
 ## Validation
 
@@ -33,6 +46,8 @@
 - For documentation changes, check grammar, Markdown structure, and affected links or table-of-contents anchors.
 - For ignore-rule changes, check representative ignored and tracked paths with `git check-ignore`.
 - For code or Docker changes, run the relevant configured formatting, build, test, and configuration checks, including checks for affected callers or services. Add or update regression tests when behavior changes warrant them.
+- Validate Compose changes with `docker compose --env-file .env -f infra/compose.yaml config --quiet`. For configuration-only checks without a local `.env`, use `.env.example` instead. Avoid printing resolved configuration because it can contain credentials.
+- Application lint, build, and test commands are not available yet. Once configured, document the actual commands in `README.md` and `TESTING.md`; until then, report the validation gap instead of inventing commands.
 
 ## Secrets and local files
 
