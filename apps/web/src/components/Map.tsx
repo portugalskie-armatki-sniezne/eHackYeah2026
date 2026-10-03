@@ -16,13 +16,15 @@ import EventMarkers, {
 } from "./EventMarkers";
 import PinDialog, { type PinDraft } from "./PinDialog";
 import { createTiltPrewarmer } from "./mapPrewarm";
+import { POZNAN_REPORTS } from "../data/reports";
 import "./Map.css";
 
 // maplibre resolves its worker next to its own file at runtime, which the bundler cannot see
 setWorkerUrl(maplibreWorkerUrl);
 
-const KRAKOW: [number, number] = [19.945, 50.0647];
-const ZOOM = 15.2;
+const POZNAN: [number, number] = [16.929, 52.407];
+// wide enough to open on most of the reported city, not one street of it
+const ZOOM = 14;
 // Close enough to read the street you are standing on.
 const LOCATE_ZOOM = 16.5;
 const TILTED_VIEW = { pitch: 55, bearing: -20 };
@@ -36,6 +38,19 @@ const EXTRUSION_OPACITY = 0.95;
 const BASEMAP_STYLES: Record<BasemapId, string> = {
   streets: "https://tiles.openfreemap.org/styles/bright",
 };
+
+// The map draws master reports, so each pin is an aggregate: its pictogram comes
+// from the category and its count from the filings folded into it.
+const REPORT_PINS: EventPin[] = POZNAN_REPORTS.map((report) => ({
+  id: report.id,
+  lngLat: report.location,
+  // a pin's label is a one-liner, so the master's title stands in for it
+  description: report.title,
+  image: null,
+  imageUrl: null,
+  category: report.category,
+  reportCount: report.reportCount,
+}));
 
 type PaintProperty = Parameters<MapLibreMap["setPaintProperty"]>[1];
 type PaintValue = Parameters<MapLibreMap["setPaintProperty"]>[2];
@@ -356,7 +371,7 @@ export default function Map() {
   const mapRef = useRef<MapLibreMap | null>(null);
   const [tilted, setTilted] = useState(false);
   const [styleReady, setStyleReady] = useState(false);
-  const [pins, setPins] = useState<EventPin[]>([]);
+  const [pins, setPins] = useState<EventPin[]>(REPORT_PINS);
   // the clicked point while its marker sheet is open
   const [draftLngLat, setDraftLngLat] = useState<[number, number] | null>(null);
   const nextPinIdRef = useRef(1);
@@ -374,7 +389,7 @@ export default function Map() {
     const map = new MapLibreMap({
       container,
       style: BASEMAP_STYLES.streets,
-      center: KRAKOW,
+      center: POZNAN,
       zoom: ZOOM,
       ...FLAT_VIEW,
       maxPitch: 70,
@@ -418,7 +433,7 @@ export default function Map() {
       .getCanvas()
       .setAttribute(
         "aria-label",
-        "Map of Kraków. Use the arrow keys to pan and the plus and minus keys to zoom.",
+        "Map of Poznań. Use the arrow keys to pan and the plus and minus keys to zoom.",
       );
 
     mapRef.current = map;
@@ -477,7 +492,7 @@ export default function Map() {
   const handleZoomOut = useCallback(() => mapRef.current?.zoomOut(), []);
   const handleRecenter = useCallback(() => {
     mapRef.current?.flyTo({
-      center: KRAKOW,
+      center: POZNAN,
       zoom: ZOOM,
       ...(tilted ? TILTED_VIEW : FLAT_VIEW),
     });
@@ -492,7 +507,7 @@ export default function Map() {
   }, [tilted]);
 
   return (
-    <section className="map" aria-label="Map of Kraków">
+    <section className="map" aria-label="Map of Poznań">
       <div className="map__frame" ref={frameRef}>
         <div className="map__canvas" ref={containerRef} />
       </div>
