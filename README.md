@@ -101,7 +101,7 @@ Authentication is still required: the helper creates or signs in to the shared t
 
 To migrate the form to normal authenticated use:
 
-1. Implement user sign-in and replace `getDevSession()` with the signed-in user's session, including expired-token handling.
+1. Replace `getDevSession()` with the signed-in user's session from [`useSession`](apps/web/src/api/useSession.ts), which restores the stored token and drops expired ones.
 2. Use [`createReportsApi`](apps/web/src/api/reports.ts) with that user's token and the title/category collected by the form. Replace the development-only save/load branches and remove the shared test account flow and labels.
 3. Configure the deployed API URL with a same-origin proxy or CORS. The Vite development proxy is not included in the production build.
 
