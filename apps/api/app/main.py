@@ -3,7 +3,18 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app import auth, comments, institution_contacts, master_reports, photos, reference, reports, storage, users
+from app import (
+    auth,
+    comments,
+    institution_contacts,
+    master_reports,
+    photos,
+    reference,
+    reports,
+    service_entities,
+    storage,
+    users,
+)
 from app.db import pool
 from app.security import jwt_secret
 
@@ -28,6 +39,7 @@ app.include_router(master_reports.router)
 app.include_router(comments.router)
 app.include_router(reference.router)
 app.include_router(institution_contacts.router)
+app.include_router(service_entities.router)
 
 
 @app.get("/")
