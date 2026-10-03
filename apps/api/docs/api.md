@@ -50,8 +50,8 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 
 | Kto | Co może |
 | --- | --- |
-| publiczny | rejestracja, logowanie, mastery, komentarze, słowniki, urzędy, jednostki usługowe, pliki zdjęć |
-| zalogowany | odczyt reportów i metadanych zdjęć, dodawanie reportów, komentarzy i polubień, analiza przez `/inference`, połączenie własnego konta z Google |
+| publiczny | rejestracja, logowanie, odczyt reportów i metadanych zdjęć, mastery, komentarze, słowniki, urzędy, jednostki usługowe, pliki zdjęć |
+| zalogowany | dodawanie reportów, komentarzy i polubień, analiza przez `/inference`, połączenie własnego konta z Google |
 | autor reportu | edycja i usuwanie reportu oraz jego zdjęć |
 | autor komentarza | usuwanie komentarza |
 | `office` | jak zalogowany oraz edycja masterów, przepinanie reportów, usuwanie dowolnych komentarzy |
@@ -169,8 +169,8 @@ Pola `PATCH`: `first_name`, `last_name`, `email`, `phone`, `password`, `role` (t
 | Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
 | --- | --- | --- | --- | --- | --- |
 | POST | `/reports` | dodanie z dopasowaniem do mastera | zalogowany | 201 | 401, 404 (brak kategorii), 413, 422 |
-| GET | `/reports` | lista z filtrami | zalogowany | 200 | 401, 422 |
-| GET | `/reports/{id}` | pobranie | zalogowany | 200 | 401, 404 |
+| GET | `/reports` | lista z filtrami | publiczny | 200 | 422 |
+| GET | `/reports/{id}` | pobranie | publiczny | 200 | 404 |
 | PATCH | `/reports/{id}` | aktualizacja | autor, `admin` | 200 | 401, 403, 404, 422 |
 | DELETE | `/reports/{id}` | usunięcie wraz ze zdjęciami | autor, `admin` | 204 | 401, 403, 404 |
 | POST | `/reports/{id}/move` | przepięcie do innego mastera | `office`, `admin` | 200 | 401, 403, 404, 422 |
@@ -239,7 +239,7 @@ Request `POST /reports/{id}/move`:
 | Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
 | --- | --- | --- | --- | --- | --- |
 | POST | `/reports/{report_id}/photos` | dodanie zdjęć | autor, `admin` | 201 | 401, 403, 404, 413, 422 |
-| GET | `/reports/{report_id}/photos` | lista zdjęć reportu | zalogowany | 200 | 401, 404 |
+| GET | `/reports/{report_id}/photos` | lista zdjęć reportu | publiczny | 200 | 404 |
 | DELETE | `/reports/{report_id}/photos/{id}` | usunięcie | autor, `admin` | 204 | 401, 403, 404 |
 | GET | `/photos/{id}/file` | plik zdjęcia | publiczny | 200 | 404 |
 
