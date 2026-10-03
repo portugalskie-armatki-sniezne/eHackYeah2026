@@ -24,8 +24,7 @@ class Token(BaseModel):
 
 
 def unauthorized(detail: str) -> HTTPException:
-    return HTTPException(status.HTTP_401_UNAUTHORIZED, detail,
-                         headers={"WWW-Authenticate": "Bearer"})
+    return HTTPException(status.HTTP_401_UNAUTHORIZED, detail, headers={"WWW-Authenticate": "Bearer"})
 
 
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], connection: Connection) -> User:

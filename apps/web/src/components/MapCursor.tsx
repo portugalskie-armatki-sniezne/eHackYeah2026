@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
-import BrandMark from "./BrandMark";
 import "./MapCursor.css";
 
 type MapCursorProps = {

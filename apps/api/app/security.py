@@ -39,8 +39,7 @@ def create_access_token(user_id: UUID) -> str:
 
 def read_access_token(token: str) -> UUID | None:
     try:
-        payload = jwt.decode(token, jwt_secret(), algorithms=[TOKEN_ALGORITHM],
-                             options={"require": ["sub", "exp"]})
+        payload = jwt.decode(token, jwt_secret(), algorithms=[TOKEN_ALGORITHM], options={"require": ["sub", "exp"]})
         return UUID(payload["sub"])
     except (jwt.InvalidTokenError, ValueError):
         return None

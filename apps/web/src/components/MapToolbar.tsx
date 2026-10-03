@@ -2,19 +2,15 @@ import "./MapToolbar.css";
 
 export type BasemapId = "streets";
 
-type BasemapOption = {
-  id: BasemapId;
-  label: string;
-};
-
-const basemaps: BasemapOption[] = [{ id: "streets", label: "Streets" }];
-
 type MapToolbarProps = {
   tilted: boolean;
   onToggleTilt: () => void;
   onZoomIn: () => void;
   onZoomOut: () => void;
   onRecenter: () => void;
+  onRecenterOnMe: () => void;
+  /** False until the device has reported a position. */
+  canRecenterOnMe: boolean;
 };
 
 export default function MapToolbar({
@@ -23,6 +19,8 @@ export default function MapToolbar({
   onZoomIn,
   onZoomOut,
   onRecenter,
+  onRecenterOnMe,
+  canRecenterOnMe,
 }: MapToolbarProps) {
   return (
     <div className="toolbar">
@@ -43,6 +41,15 @@ export default function MapToolbar({
             onClick={onRecenter}
           >
             Recenter on Kraków
+          </button>
+          <button
+            type="button"
+            className="toolbar__button toolbar__button--wide"
+            onClick={onRecenterOnMe}
+            disabled={!canRecenterOnMe}
+            title={canRecenterOnMe ? undefined : "No location fix yet"}
+          >
+            Recenter on me
           </button>
           <span className="toolbar__divider" aria-hidden="true" />
           <button
