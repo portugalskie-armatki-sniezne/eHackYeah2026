@@ -3,9 +3,9 @@
 ## Project overview
 
 - eHackYeah2026 is a web application for reporting civic issues, proposing citizen initiatives, and tracking their progress.
-- The repository is currently a scaffold. The web and API directories are empty placeholders; application frameworks, dependencies, and commands are not configured yet. Do not treat the previous React Native, Vite, or FastAPI plans as an implemented stack.
+- The repository is a scaffold with web and API workspaces. Application frameworks are not implemented yet.
 - PostgreSQL and dbmate are configured through Docker Compose in `infra/compose.yaml`.
-- `package.json`, `bun.lock`, and `TESTING.md` are currently empty placeholders. Do not assume package scripts, a working Bun workspace, or a test runner exist.
+- `package.json` and `bun.lock` configure Bun workspaces and root commands. `TESTING.md` remains empty.
 - Development should work on macOS, Windows, and Linux. Keep tooling and shared editor configuration portable.
 
 ## Working rules
@@ -22,12 +22,11 @@
 
 ## Architecture and repository layout
 
-- `apps/web/` is the web application directory, currently containing only `.gitkeep`.
-- `apps/api/` is the backend application directory, currently containing only `.gitkeep`.
-- `db/migrations/` contains dbmate SQL migrations. Each migration must include both `-- migrate:up` and `-- migrate:down` sections. The existing migration creates the example `example_items` table.
+- `apps/web/` and `apps/api/` are web and backend workspaces; application code is not implemented yet.
+- `db/migrations/` contains dbmate SQL with `-- migrate:up` and `-- migrate:down` sections.
 - `db/seeds/` is reserved for development and reference data.
-- `infra/compose.yaml` defines PostgreSQL and a one-shot dbmate migration service. It mounts `db/` into the migration container and stores PostgreSQL data in the `postgres_data` named volume. Schema dumping is disabled with `DBMATE_NO_DUMP_SCHEMA`; there is currently no generated `db/schema.sql`.
-- `tooling/scripts/` is reserved for development and maintenance scripts.
+- `infra/compose.yaml` defines PostgreSQL on localhost and dbmate, with persistent database storage and schema dumps disabled.
+- `tooling/scripts/dev.ts` coordinates root development commands.
 - `tests/e2e/` is reserved for cross-application scenarios, and `tests/fixtures/` for shared behavioral examples. Keep application-specific tests near their application code when a test setup is introduced.
 - `.agents/skills/` is reserved for repository-local agent skills.
 - `.github/workflows/` is reserved for CI workflows; none are configured yet.
@@ -35,10 +34,12 @@
 - `README.md` is the top-level project documentation.
 - `TESTING.md` is the place to document test setup and commands once they exist.
 
-## Local infrastructure
+## Development command contract
 
-- Create a root `.env` from `.env.example` if it does not exist.
-- From the repository root, run `docker compose --env-file .env -f infra/compose.yaml up -d` to start PostgreSQL and apply migrations.
+- Use Bun 1.4+ and keep root commands limited to `bun install` and `bun run setup|all|web|api` unless requested otherwise.
+- Workspaces provide `scripts.dev` and optional `scripts.setup`; API setup installs Python dependencies from its Python manifest. Keep setup repeatable and preserve `.env`.
+- Scripts run in their application directory with root `.env` values. Keep servers in the foreground and reloads scoped to each application.
+- The runner skips unimplemented applications and handles PostgreSQL and migrations before API startup.
 
 ## Validation
 
@@ -47,7 +48,7 @@
 - For ignore-rule changes, check representative ignored and tracked paths with `git check-ignore`.
 - For code or Docker changes, run the relevant configured formatting, build, test, and configuration checks, including checks for affected callers or services. Add or update regression tests when behavior changes warrant them.
 - Validate Compose changes with `docker compose --env-file .env -f infra/compose.yaml config --quiet`. For configuration-only checks without a local `.env`, use `.env.example` instead. Avoid printing resolved configuration because it can contain credentials.
-- Application lint, build, and test commands are not available yet. Once configured, document the actual commands in `README.md` and `TESTING.md`; until then, report the validation gap instead of inventing commands.
+- Run `bun test tooling/scripts/dev.test.ts` for runner changes. Application checks are not configured yet; report that gap.
 
 ## Secrets and local files
 
