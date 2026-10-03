@@ -1,3 +1,5 @@
+name: ehackyeah2026
+
 services:
   db:
     image: postgres:18-alpine
@@ -31,7 +33,7 @@ services:
       DBMATE_NO_DUMP_SCHEMA: "true"
       DBMATE_STRICT: "true"
     volumes:
-      - ./db:/db
+      - ../db:/db
     command: ["--wait", "up"]
     restart: "no"
 
