@@ -22,7 +22,7 @@
   overflow: hidden;
 }
 
-.map__dev-status {
+.map__notice {
   position: absolute;
   top: calc(8rem + var(--safe-top));
   left: 1.5rem;
@@ -87,7 +87,7 @@
 }
 
 @media (max-width: 40rem) {
-  .map__dev-status {
+  .map__notice {
     top: calc(6rem + var(--safe-top));
   }
 

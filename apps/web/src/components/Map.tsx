@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+} from "react";
 import {
   Map as MapLibreMap,
   setWorkerUrl,
@@ -24,12 +30,9 @@ import {
   type MasterReport,
   type MasterReportDetail,
   type Report,
+  type ReportLocation,
 } from "../api/reports";
-import {
-  DEV_REPORTS_ENABLED,
-  getDevSession,
-  saveDevReport,
-} from "../api/devReports";
+import { useSession } from "../api/session";
 import "./Map.css";
 
 // maplibre resolves its worker next to its own file at runtime, which the bundler cannot see
@@ -63,6 +66,18 @@ const CATEGORY_NAMES: readonly ReportCategory[] = ["improvement", "issue"];
 
 function isReportCategory(name: string): name is ReportCategory {
   return (CATEGORY_NAMES as readonly string[]).includes(name);
+}
+
+// The sheet has no title field, so a report is titled by the start of its
+// description: the first line, cut where a sentence or the limit ends.
+const TITLE_LIMIT = 80;
+
+function titleFrom(description: string): string {
+  const firstLine = description.split(/\r?\n/, 1)[0].trim();
+  const sentence = firstLine.match(/^.*?[.!?](?=\s|$)/)?.[0] ?? firstLine;
+  if (sentence.length <= TITLE_LIMIT) return sentence;
+  const cut = sentence.slice(0, TITLE_LIMIT);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), 40)).trimEnd()}…`;
 }
 
 // The map draws master reports, so each pin is an aggregate: its pictogram comes
@@ -410,15 +425,21 @@ function applyLightTheme(map: MapLibreMap) {
   });
 }
 
-export default function Map() {
+type MapProps = {
+  /** Called when a signed-out visitor starts a report. */
+  onSignInRequired: () => void;
+};
+
+export default function Map({ onSignInRequired }: MapProps) {
+  const session = useSession();
   const containerRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const [tilted, setTilted] = useState(false);
   const [styleReady, setStyleReady] = useState(false);
   const [pins, setPins] = useState<EventPin[]>([]);
-  // what the last save through the test account did, once there has been one
-  const [devStatus, setDevStatus] = useState<string | null>(null);
+  // why the last photo report did not save, until the next one is tried
+  const [saveError, setSaveError] = useState<string | null>(null);
   const photoSavingRef = useRef(false);
   // filled by the first load; a report saved before then falls back to the default
   const categoriesRef = useRef<CategoryNames>(new globalThis.Map());
@@ -429,25 +450,30 @@ export default function Map() {
   );
   // the clicked point while its marker sheet is open
   const [draftLngLat, setDraftLngLat] = useState<[number, number] | null>(null);
-  const nextPinIdRef = useRef(1);
   const { fix } = useUserPosition();
   // The camera eases to the first fix so the dot isn't off-screen, then leaves
   // the view alone: later fixes only move the dot.
   const centredRef = useRef(false);
 
+  // Reports are saved for the signed-in user. While the session is still
+  // being restored the answer is not known yet, so nothing happens.
+  const canStartReport = useCallback(() => {
+    if (session.status === "signed-out") onSignInRequired();
+    return session.status === "signed-in";
+  }, [session.status, onSignInRequired]);
+  const handleMapClick = useEffectEvent((lngLat: [number, number]) => {
+    if (canStartReport()) setDraftLngLat(lngLat);
+  });
+
   // The pins come from the master reports, fetched once on load and in full,
-  // since the map opens on the whole city. In development the fetch is made as
-  // the test account, the way the saves are, until user sign-in exists.
+  // since the map opens on the whole city.
   useEffect(() => {
     const controller = new AbortController();
     async function loadMasterReports() {
       try {
-        const token = DEV_REPORTS_ENABLED
-          ? (await getDevSession()).token
-          : undefined;
         const [categories, masters] = await Promise.all([
-          reportsApi.categories(controller.signal, token),
-          reportsApi.allMasterReports(controller.signal, token),
+          reportsApi.categories(controller.signal),
+          reportsApi.allMasterReports(controller.signal),
         ]);
         const names = new globalThis.Map<number, ReportCategory>();
         for (const category of categories) {
@@ -478,14 +504,7 @@ export default function Map() {
       const categories = categoriesRef.current;
       if (report.master_report_id) {
         try {
-          const token = DEV_REPORTS_ENABLED
-            ? (await getDevSession()).token
-            : undefined;
-          const master = await reportsApi.masterReport(
-            report.master_report_id,
-            undefined,
-            token,
-          );
+          const master = await reportsApi.masterReport(report.master_report_id);
           return masterPin(master, categories, imageUrl);
         } catch (error) {
           console.error("Could not load the saved report's master.", error);
@@ -559,7 +578,7 @@ export default function Map() {
       if (isClusterAt(map, event.point)) {
         return;
       }
-      setDraftLngLat([event.lngLat.lng, event.lngLat.lat]);
+      handleMapClick([event.lngLat.lng, event.lngLat.lat]);
     });
 
     map
@@ -598,88 +617,74 @@ export default function Map() {
   }, [fix, flyToFix]);
 
   const handleCloseDraft = useCallback(() => setDraftLngLat(null), []);
+  // The sheet has no category field yet, so a new report starts in the default
+  // category, looked up by name from the categories the first load brought, or
+  // fetched now when it has not run yet. The client sends the user's token.
+  const saveReport = useCallback(
+    async (
+      description: string,
+      location: ReportLocation,
+      image: File | null,
+    ) => {
+      let categoryId: number | undefined;
+      for (const [id, name] of categoriesRef.current) {
+        if (name === DEFAULT_PIN_CATEGORY) categoryId = id;
+      }
+      if (categoryId === undefined) {
+        categoryId = (await reportsApi.categories()).find(
+          (category) => category.name === DEFAULT_PIN_CATEGORY,
+        )?.id;
+      }
+      if (categoryId === undefined) {
+        throw new Error("The report categories could not be loaded.");
+      }
+      return reportsApi.create({
+        report_category_id: categoryId,
+        title: titleFrom(description),
+        description,
+        location,
+        photos: image ? [image] : [],
+      });
+    },
+    [],
+  );
+
   const handleAddPin = useCallback(
     async (draft: PinDraft) => {
       if (!draftLngLat) {
         return;
       }
-      const report = DEV_REPORTS_ENABLED
-        ? await saveDevReport(
-            draft.description,
-            {
-              longitude: draftLngLat[0],
-              latitude: draftLngLat[1],
-            },
-            draft.image,
-          )
-        : null;
-      if (report) {
-        const pin = await pinForSavedReport(report, draft.imageUrl);
-        setPins((current) => upsertPin(current, pin));
-        setDevStatus(`Saved test report ${report.id} to the database.`);
-        return;
-      }
-      const id = String(nextPinIdRef.current);
-      nextPinIdRef.current += 1;
-      setPins((current) => [
-        ...current,
-        {
-          id,
-          lngLat: draftLngLat,
-          ...draft,
-          // the sheet has no category field yet, so a new pin starts as a fault
-          category: DEFAULT_PIN_CATEGORY,
-          reportCount: 1,
-        },
-      ]);
+      const report = await saveReport(
+        draft.description,
+        { longitude: draftLngLat[0], latitude: draftLngLat[1] },
+        draft.image,
+      );
+      const pin = await pinForSavedReport(report, draft.imageUrl);
+      setPins((current) => upsertPin(current, pin));
     },
-    [draftLngLat, pinForSavedReport],
+    [draftLngLat, saveReport, pinForSavedReport],
   );
 
   // The "+" tile skips the sheet: the photo is the report, filed where the
   // device stands, and the camera goes there so the new pin is in view.
   const handlePhotoReport = useCallback(
     async (photo: File) => {
-      if (!fix || photoSavingRef.current) {
+      if (!fix || photoSavingRef.current || !canStartReport()) {
         return;
       }
       photoSavingRef.current = true;
+      setSaveError(null);
       try {
-        if (DEV_REPORTS_ENABLED) setDevStatus("Saving test photo report...");
-        const report = DEV_REPORTS_ENABLED
-          ? await saveDevReport(
-              "Photo report",
-              {
-                longitude: fix.lngLat[0],
-                latitude: fix.lngLat[1],
-              },
-              photo,
-            )
-          : null;
-        const imageUrl = URL.createObjectURL(photo);
-        if (report) {
-          const pin = await pinForSavedReport(report, imageUrl);
-          setPins((current) => upsertPin(current, pin));
-          setDevStatus(`Saved test report ${report.id} to the database.`);
-        } else {
-          const id = String(nextPinIdRef.current);
-          nextPinIdRef.current += 1;
-          setPins((current) => [
-            ...current,
-            {
-              id,
-              lngLat: fix.lngLat,
-              description: "Photo report",
-              image: photo,
-              imageUrl,
-              category: DEFAULT_PIN_CATEGORY,
-              reportCount: 1,
-            },
-          ]);
-        }
+        const report = await saveReport(
+          "Photo report",
+          { longitude: fix.lngLat[0], latitude: fix.lngLat[1] },
+          photo,
+        );
+        const pin = await pinForSavedReport(report, URL.createObjectURL(photo));
+        setPins((current) => upsertPin(current, pin));
         flyToFix(fix.lngLat);
       } catch (error) {
-        setDevStatus(
+        setSaveError(
           error instanceof Error
             ? error.message
             : "Could not save the photo report.",
@@ -688,7 +693,7 @@ export default function Map() {
         photoSavingRef.current = false;
       }
     },
-    [fix, flyToFix, pinForSavedReport],
+    [fix, flyToFix, canStartReport, saveReport, pinForSavedReport],
   );
 
   const handleZoomIn = useCallback(() => mapRef.current?.zoomIn(), []);
@@ -711,11 +716,9 @@ export default function Map() {
 
   return (
     <section className="map" aria-label="Map of Poznań">
-      {DEV_REPORTS_ENABLED && (
-        <aside className="map__dev-status" role="status">
-          <strong>Development test mode</strong>
-          {devStatus && <span>{devStatus}</span>}
-          <small>New reports use a test account.</small>
+      {saveError && (
+        <aside className="map__notice" role="alert">
+          {saveError}
         </aside>
       )}
       <div className="map__frame" ref={frameRef}>

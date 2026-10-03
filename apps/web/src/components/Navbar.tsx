@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from "react";
-import type { SessionState } from "../api/useSession";
+import type { SessionState } from "../api/session";
 import BrandMark from "./BrandMark";
 import "./Navbar.css";
 
@@ -94,7 +94,7 @@ export default function Navbar({ session, onSignIn, onSignOut }: NavbarProps) {
               <>
                 <span className="navbar__user">
                   <span className="visually-hidden">Signed in as </span>
-                  {session.session.user.first_name}
+                  {session.user.first_name}
                 </span>
                 <button
                   type="button"

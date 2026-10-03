@@ -1,12 +1,12 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
-import { authApi, signIn, type Session } from "../api/auth";
+import { authApi } from "../api/auth";
+import { signIn } from "../api/session";
 import "./AuthDialog.css";
 
 type AuthMode = "sign-in" | "register";
 
 type AuthDialogProps = {
   onClose: () => void;
-  onSignedIn: (session: Session) => void;
 };
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -15,7 +15,7 @@ const MIN_PASSWORD_LENGTH = 8;
  * The sign-in and registration sheet. Both forms share one native dialog with
  * a switch between them; a new account is signed in right after it is made.
  */
-export default function AuthDialog({ onClose, onSignedIn }: AuthDialogProps) {
+export default function AuthDialog({ onClose }: AuthDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [mode, setMode] = useState<AuthMode>("sign-in");
   const [login, setLogin] = useState("");
@@ -77,7 +77,7 @@ export default function AuthDialog({ onClose, onSignedIn }: AuthDialogProps) {
     setBusy(true);
     setError(null);
     try {
-      onSignedIn(await submit());
+      await submit();
       onClose();
     } catch (error) {
       setError(
