@@ -1,5 +1,4 @@
 import type { ChangeEvent } from "react";
-import BrandMark from "./BrandMark";
 import "./MapToolbar.css";
 
 export type BasemapId = "streets";
@@ -22,7 +21,6 @@ export default function MapToolbar({
   onToggleTilt,
   onZoomIn,
   onZoomOut,
-  onRecenter,
   onRecenterOnMe,
   canRecenterOnMe,
   onPhotoReport,
@@ -39,7 +37,7 @@ export default function MapToolbar({
   return (
     <div className="toolbar">
       <div className="toolbar__frame">
-        <div className="toolbar__group" role="group" aria-label="Map controls">
+        <div className="toolbar__group" role="group" aria-label="Zoom">
           <button type="button" className="toolbar__button" onClick={onZoomOut}>
             <span aria-hidden="true">&minus;</span>
             <span className="visually-hidden">Zoom out</span>
@@ -48,15 +46,40 @@ export default function MapToolbar({
             <span aria-hidden="true">+</span>
             <span className="visually-hidden">Zoom in</span>
           </button>
+        </div>
+        {/* Phones only: the primary action sits in the middle of the row,
+            between the zoom pair and the view controls. On wide screens the
+            report flow starts elsewhere, so the tile and its divider go. */}
+        <div className="toolbar__report">
           <span className="toolbar__divider" aria-hidden="true" />
-          <button
-            type="button"
-            className="toolbar__button toolbar__button--wide"
-            onClick={onRecenter}
+          {/* The camera opens straight from the tile: the input is the control,
+              and the tile is its label, so no click has to be forwarded. */}
+          <label
+            className="toolbar__add"
+            aria-disabled={!canRecenterOnMe}
+            title={canRecenterOnMe ? undefined : "No location fix yet"}
           >
-            <BrandMark className="toolbar__icon toolbar__icon--city" />
-            <span className="toolbar__label">Recenter on Poznań</span>
-          </button>
+            <span className="toolbar__add-glyph" aria-hidden="true">
+              +
+            </span>
+            <span className="visually-hidden">
+              {canRecenterOnMe
+                ? "Take a photo and report it at my location"
+                : "Report at my location, waiting for a location fix"}
+            </span>
+            <input
+              className="visually-hidden"
+              type="file"
+              name="photo"
+              accept="image/*"
+              capture="environment"
+              disabled={!canRecenterOnMe}
+              onChange={handlePhotoChange}
+            />
+          </label>
+        </div>
+        <span className="toolbar__divider" aria-hidden="true" />
+        <div className="toolbar__group" role="group" aria-label="View">
           <button
             type="button"
             className="toolbar__button toolbar__button--wide"
@@ -88,33 +111,6 @@ export default function MapToolbar({
             3D
           </button>
         </div>
-        <span className="toolbar__divider" aria-hidden="true" />
-        {/* The camera opens straight from the tile: the input is the control,
-            and the tile is its label, so no click has to be forwarded. */}
-        <label
-          className="toolbar__add"
-          aria-disabled={!canRecenterOnMe}
-          title={canRecenterOnMe ? undefined : "No location fix yet"}
-        >
-          <span className="toolbar__add-glyph" aria-hidden="true">
-            +
-          </span>
-          <span className="toolbar__label">Report here</span>
-          <span className="visually-hidden">
-            {canRecenterOnMe
-              ? "Take a photo and report it at my location"
-              : "Report at my location, waiting for a location fix"}
-          </span>
-          <input
-            className="visually-hidden"
-            type="file"
-            name="photo"
-            accept="image/*"
-            capture="environment"
-            disabled={!canRecenterOnMe}
-            onChange={handlePhotoChange}
-          />
-        </label>
       </div>
     </div>
   );
