@@ -96,8 +96,7 @@ def create_user(body: UserCreate, connection: Connection) -> User:
                     "INSERT INTO users (first_name, last_name, email, phone, password_hash) "
                     "VALUES (%s, %s, %s, %s, %s) RETURNING {}"
                 ).format(USER_COLUMNS),
-                (body.first_name, body.last_name, body.email, body.phone,
-                 hash_password(body.password)),
+                (body.first_name, body.last_name, body.email, body.phone, hash_password(body.password)),
             ).fetchone()
     except (errors.UniqueViolation, errors.CheckViolation) as error:
         raise write_error(error) from None
@@ -117,14 +116,11 @@ def list_users(
             sql.SQL("SELECT {} FROM users ORDER BY created_at, id LIMIT %s OFFSET %s").format(USER_COLUMNS),
             (limit, offset),
         ).fetchall()
-    return UserList(items=[User.model_validate(row) for row in rows],
-                    total=total, limit=limit, offset=offset)
+    return UserList(items=[User.model_validate(row) for row in rows], total=total, limit=limit, offset=offset)
 
 
 def fetch_user(user_id: UUID, connection: psycopg.Connection) -> User:
-    row = connection.execute(
-        sql.SQL("SELECT {} FROM users WHERE id = %s").format(USER_COLUMNS), (user_id,)
-    ).fetchone()
+    row = connection.execute(sql.SQL("SELECT {} FROM users WHERE id = %s").format(USER_COLUMNS), (user_id,)).fetchone()
     if row is None:
         raise user_not_found()
     return User.model_validate(row)
@@ -147,9 +143,7 @@ def update_user(user_id: UUID, body: UserUpdate, current_user: CurrentUser, conn
     if not changes:
         return fetch_user(user_id, connection)
 
-    assignments = sql.SQL(", ").join(
-        sql.SQL("{} = %s").format(sql.Identifier(column)) for column in changes
-    )
+    assignments = sql.SQL(", ").join(sql.SQL("{} = %s").format(sql.Identifier(column)) for column in changes)
     try:
         with connection.transaction():
             row = connection.execute(

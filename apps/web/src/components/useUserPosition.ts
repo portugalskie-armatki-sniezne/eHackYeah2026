@@ -7,11 +7,7 @@ export type UserFix = {
 };
 
 export type LocationStatus =
-  | "unsupported"
-  | "locating"
-  | "tracking"
-  | "denied"
-  | "error";
+  "unsupported" | "locating" | "tracking" | "denied" | "error";
 
 const WATCH_OPTIONS: PositionOptions = {
   enableHighAccuracy: true,
@@ -36,7 +32,6 @@ export default function useUserPosition() {
 
   useEffect(() => {
     if (!("geolocation" in navigator)) {
-      setStatus("unsupported");
       return;
     }
 

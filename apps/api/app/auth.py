@@ -13,6 +13,8 @@ from app.security import create_access_token, read_access_token, verify_password
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+# public endpoints accept a token to personalize the response, for example liked_by_me.
+optional_oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)
 Connection = Annotated[psycopg.Connection, Depends(get_connection)]
 
 
@@ -22,8 +24,7 @@ class Token(BaseModel):
 
 
 def unauthorized(detail: str) -> HTTPException:
-    return HTTPException(status.HTTP_401_UNAUTHORIZED, detail,
-                         headers={"WWW-Authenticate": "Bearer"})
+    return HTTPException(status.HTTP_401_UNAUTHORIZED, detail, headers={"WWW-Authenticate": "Bearer"})
 
 
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], connection: Connection) -> User:
@@ -42,6 +43,15 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], connection: 
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
+def get_optional_user(
+    token: Annotated[str | None, Depends(optional_oauth2_scheme)], connection: Connection
+) -> User | None:
+    return None if token is None else get_current_user(token, connection)
+
+
+OptionalUser = Annotated[User | None, Depends(get_optional_user)]
+
+
 def require_admin(user: CurrentUser) -> User:
     if user.role != "admin":
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Admin role required")
@@ -49,6 +59,15 @@ def require_admin(user: CurrentUser) -> User:
 
 
 AdminUser = Annotated[User, Depends(require_admin)]
+
+
+def require_staff(user: CurrentUser) -> User:
+    if user.role not in ("office", "admin"):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Office or admin role required")
+    return user
+
+
+StaffUser = Annotated[User, Depends(require_staff)]
 
 
 @router.post("/login")

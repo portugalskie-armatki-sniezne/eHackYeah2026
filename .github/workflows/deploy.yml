@@ -2,12 +2,15 @@ name: "[1] Deploy"
 
 # builds and deploys the web and api images
 # a merge to main deploys the changed services to dev, a manual run deploys the chosen service and environment
+# every api deployment applies the database migrations first
+# the release workflow calls it to deploy both services to prod
 on:
   push:
     branches: [main]
     paths:
       - apps/web/**
       - apps/api/**
+      - db/migrations/**
       - package.json
       - bun.lock
       - .dockerignore
@@ -29,6 +32,16 @@ on:
           - dev
           - prod
         default: dev
+  workflow_call:
+    inputs:
+      service:
+        description: "Service to deploy, or all for both"
+        type: string
+        required: true
+      environment:
+        description: "Environment to deploy"
+        type: string
+        required: true
 
 env:
   REGISTRY: ghcr.io
@@ -53,7 +66,9 @@ jobs:
           SERVICE: ${{ inputs.service }}
           BEFORE: ${{ github.event.before }}
         run: |
-          if [ -n "$SERVICE" ]; then
+          if [ "$SERVICE" = all ]; then
+            services='"web","api"'
+          elif [ -n "$SERVICE" ]; then
             services="\"$SERVICE\""
           else
             # the compose file and this workflow affect both services
@@ -63,7 +78,8 @@ jobs:
             if echo "$changed" | grep -qE "^(apps/web/|package\.json$|bun\.lock$|\.dockerignore$|$shared)"; then
               services='"web"'
             fi
-            if echo "$changed" | grep -qE "^(apps/api/|\.dockerignore$|$shared)"; then
+            # migrations are applied when api is deployed
+            if echo "$changed" | grep -qE "^(apps/api/|db/migrations/|\.dockerignore$|$shared)"; then
               services="${services:+$services,}\"api\""
             fi
           fi
@@ -128,6 +144,7 @@ jobs:
     runs-on: [self-hosted]
     environment: ${{ inputs.environment || 'dev' }}
     permissions:
+      contents: read
       packages: read
     # do not let deployments overlap
     concurrency:
@@ -139,6 +156,10 @@ jobs:
       IMAGE_TAG: ${{ inputs.environment || 'dev' }}-${{ github.sha }}
       SERVICES: ${{ join(fromJSON(needs.select.outputs.services), ' ') }}
     steps:
+      # the migrations of the deployed commit are applied from this checkout
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        if: ${{ contains(fromJSON(needs.select.outputs.services), 'api') }}
+
       - name: Select image tags
         run: |
           for service in $SERVICES; do
@@ -159,11 +180,35 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull & restart services
+      - name: Pull images
         # the Compose file and .env of the environment live in this directory on the target machine
         working-directory: ${{ vars.DEPLOY_DIR }}
         run: |
           # SERVICES is unquoted on purpose so that each service is a separate argument
           docker compose pull $SERVICES
+
+      # runs after the pull, so that the old api works on the new schema only for the time of the restart
+      - name: Apply database migrations
+        if: ${{ contains(fromJSON(needs.select.outputs.services), 'api') }}
+        run: |
+          # the database settings of the environment, with the same defaults as in docker-compose.app.yaml
+          set -a
+          . "$ENV_FILE"
+          set +a
+          export DATABASE_URL="postgres://${POSTGRES_USER:-app_user}:${POSTGRES_PASSWORD:-local_dev_password}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-app_db}?sslmode=disable"
+          # the same dbmate version and settings as the db-migrator service in docker-compose.yaml
+          # DATABASE_URL is passed by name to keep the password out of the command line
+          docker run --rm \
+            --network "${DB_NETWORK:-ehackyeah2026_default}" \
+            -e DATABASE_URL \
+            -e DBMATE_MIGRATIONS_DIR=/db/migrations \
+            -e DBMATE_NO_DUMP_SCHEMA=true \
+            -e DBMATE_STRICT=true \
+            -v "$GITHUB_WORKSPACE/db/migrations:/db/migrations:ro" \
+            amacneil/dbmate:2.34.1 --wait up
+
+      - name: Restart services
+        working-directory: ${{ vars.DEPLOY_DIR }}
+        run: |
           docker compose up -d $SERVICES
           docker image prune -f

@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Map as MapLibreMap,
+  setWorkerUrl,
   type FillExtrusionLayerSpecification,
 } from "maplibre-gl";
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
 import MapToolbar, { type BasemapId } from "./MapToolbar";
 import MapCursor from "./MapCursor";
@@ -12,6 +14,9 @@ import EventMarkers, { type EventPin } from "./EventMarkers";
 import PinDialog, { type PinDraft } from "./PinDialog";
 import { createTiltPrewarmer } from "./mapPrewarm";
 import "./Map.css";
+
+// maplibre resolves its worker next to its own file at runtime, which the bundler cannot see
+setWorkerUrl(maplibreWorkerUrl);
 
 const KRAKOW: [number, number] = [19.945, 50.0647];
 const ZOOM = 15.2;
