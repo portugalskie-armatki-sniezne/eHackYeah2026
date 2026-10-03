@@ -168,10 +168,10 @@ Pola `PATCH`: `first_name`, `last_name`, `email`, `phone`, `password`, `role` (t
 
 | Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
 | --- | --- | --- | --- | --- | --- |
-| POST | `/reports` | dodanie z dopasowaniem do mastera | zalogowany | 201 | 401, 404 (brak kategorii), 413, 422 |
+| POST | `/reports` | dodanie z dopasowaniem do mastera i ustaleniem gminy i powiatu | zalogowany | 201 | 401, 404 (brak kategorii), 413, 422, 503 |
 | GET | `/reports` | lista z filtrami | publiczny | 200 | 422 |
 | GET | `/reports/{id}` | pobranie | publiczny | 200 | 404 |
-| PATCH | `/reports/{id}` | aktualizacja | autor, `admin` | 200 | 401, 403, 404, 422 |
+| PATCH | `/reports/{id}` | aktualizacja | autor, `admin` | 200 | 401, 403, 404, 422, 503 |
 | DELETE | `/reports/{id}` | usunięcie wraz ze zdjęciami | autor, `admin` | 204 | 401, 403, 404 |
 | POST | `/reports/{id}/move` | przepięcie do innego mastera | `office`, `admin` | 200 | 401, 403, 404, 422 |
 
@@ -199,6 +199,10 @@ Odpowiedź:
   "title": "Dziura przy ul. Długiej 5",
   "description": "Dziura w jezdni przy ul. Długiej 5.",
   "location": { "longitude": 19.9449, "latitude": 50.0647 },
+  "municipality_teryt": "1261011",
+  "municipality_name": "Kraków (miasto)",
+  "county_teryt": "1261",
+  "county_name": "powiat Kraków",
   "photos": [
     {
       "id": "c3d4e5f6-1a2b-4c3d-8e9f-0a1b2c3d4e5f",
@@ -212,6 +216,29 @@ Odpowiedź:
   "created_at": "2026-04-16T10:00:00Z"
 }
 ```
+
+### Przypisanie do gminy i powiatu
+
+Zgłoszenia są przyjmowane wyłącznie z województwa małopolskiego (prefiks TERYT `12`).
+Przed zapisem backend ustala gminę i powiat ze współrzędnych przez
+[ULDK GUGiK](https://uldk.gugik.gov.pl/opis.html), operację `GetCommuneByXY`
+na granicach PRG. Wysyła tylko długość i szerokość geograficzną w WGS 84.
+Zapisuje `municipality_teryt` (7 cyfr), `municipality_name`, `county_teryt`
+(pierwsze 4 cyfry kodu gminy) i `county_name`. Nazwy pochodzą z odpowiedzi usługi.
+Dla Krakowa jako miasta na prawach powiatu są to kody `1261011` i `1261`.
+Współrzędne zgłoszenia pozostają bez zmian. Kod gminy można zestawić z `teryt_code`
+w katalogu urzędów. Przypisanie terytorialne jest niezależne od
+`responsible_office_id` i `responsible_service_entity_id` mastera.
+
+Pola są zwracane przy tworzeniu, odczycie i edycji zgłoszeń. Klient nie ustawia ich
+samodzielnie. `PATCH` z lokalizacją wyznacza je ponownie; edycja samego opisu oraz
+przepięcie do mastera zachowują przypisanie. Starsze rekordy mają cztery pola `null`
+do czasu aktualizacji lokalizacji; migracja nie odpytuje usługi zewnętrznej.
+
+Punkt poza Małopolską lub brak gminy dla punktu oznacza 422. Niedostępność usługi,
+przekroczenie limitu 5 s oczekiwania na odpowiedź lub niejednoznaczna odpowiedź
+oznaczają 503. Błąd nie zapisuje nowego zgłoszenia, mastera ani zdjęć; przy edycji
+zachowuje poprzednie dane.
 
 ### Dopasowanie do mastera
 

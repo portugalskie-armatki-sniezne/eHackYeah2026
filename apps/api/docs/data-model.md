@@ -1,6 +1,6 @@
 # Model danych
 
-Źródło: migracje w `db/migrations/`. Migracje 01 i 02 tworzą tabele, 03 dodaje ograniczenia, a 04 wstawia początkowe kategorie i statusy.
+Źródło: migracje w `db/migrations/`. Migracje 01 i 02 tworzą tabele, 03 dodaje ograniczenia, a 04 wstawia początkowe kategorie i statusy. Migracja 06 dodaje gminę i powiat zgłoszenia w Małopolsce.
 
 ## ERD
 
@@ -60,6 +60,10 @@ erDiagram
         text title
         text description
         geography location
+        text municipality_teryt
+        text municipality_name
+        text county_teryt
+        text county_name
         timestamptz edited_at
         timestamptz created_at
     }
@@ -182,10 +186,20 @@ Indeksy: `report_category_id`, `status_id`, `responsible_office_id`, `responsibl
 | title | text | NOT NULL, niepusty po przycięciu spacji |
 | description | text | NOT NULL, niepusty po przycięciu spacji |
 | location | geography(point, 4326) | NOT NULL, niepusty punkt, kolejność: długość, szerokość (lng, lat) |
+| municipality_teryt | text | NULL dla starszych danych lub 7 cyfr kodu gminy TERYT z prefiksem 12, ostatnia cyfra: 1, 2 lub 3 |
+| municipality_name | text | NULL dla starszych danych lub niepusta nazwa gminy z PRG |
+| county_teryt | text | NULL dla starszych danych lub pierwsze 4 cyfry kodu gminy |
+| county_name | text | NULL dla starszych danych lub niepusta nazwa powiatu z PRG |
 | edited_at | timestamptz | NOT NULL, trigger |
 | created_at | timestamptz | NOT NULL |
 
-Indeksy: `user_id`, `master_report_id`, `report_category_id`, GIST na `location`.
+CHECK wymaga czterech pól gminy i powiatu naraz albo wszystkich NULL oraz
+zgodności kodów i prefiksu województwa małopolskiego (12). API wyznacza je na
+podstawie granic PRG przy tworzeniu zgłoszenia i zmianie lokalizacji. Kody nie
+mają FK do katalogu urzędów i nie określają odpowiedzialnego podmiotu mastera.
+Migracja zachowuje starsze zgłoszenia bez przypisania.
+
+Indeksy: `user_id`, `master_report_id`, `report_category_id`, `municipality_teryt`, `county_teryt`, GIST na `location`.
 
 ### report_photos
 

@@ -76,6 +76,7 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 
 - Setup runs `uv sync --extra inference` to install dependencies in `apps/api/.venv` and downloads pinned Laya and Polish-English translation checkpoints into `apps/api/models` (about 1.1 GB, excluded from Git). The first run requires Git and internet access. Later runs reuse complete downloads. uv downloads Python 3.10 or newer if needed.
 - API documentation is available at <http://127.0.0.1:8000/docs>. `GET /health` checks the application without querying PostgreSQL.
+- Saving a report or changing its coordinates requires access to `https://uldk.gugik.gov.pl/` to identify its municipality and county in Małopolskie. If the service is unavailable, the API returns an error so the user can retry.
 - Authenticated `POST /inference` accepts text, supplied classification questions, and an optional photo. `POST /inference/service-entity` classifies a title, description, and optional photo into one service entity type. The model paths in `.env.example` enable local inference. For an existing `.env`, add `LAYA_MODEL_PATH=models/laya-vision` and `TRANSLATION_MODEL_PATH=models/opus-mt-pl-en`; setup preserves existing values. See [model setup and provider configuration](apps/api/docs/inference.md).
 - Changes under `apps/api/app` reload the API automatically.
 - Run `task be:lint` to check the API with Ruff, or `task be:lint:fix` to apply fixes and formatting.
@@ -135,5 +136,6 @@ the linked `SKILL.md` instructions directly.
 - Master reports keep independent content, a shared status and response, and an optional responsible institution. Comments and likes belong to master reports.
 - Photos are represented by rows in `report_photos`. Each row stores a persistent `storage_key` that refers to a file managed by the API or storage layer.
 - The workbook contains institution addresses, but no coordinates or boundary polygons.
+- New reports are accepted only in Małopolskie and store the TERYT codes and names of their municipality and county, determined from their coordinates using [GUGiK's PRG boundaries](https://uldk.gugik.gov.pl/opis.html). Existing reports keep these fields empty until their location is updated. The administrative area does not determine the institution responsible for the issue.
 
 See [TESTING.md](TESTING.md) for data import behavior and database validation.
