@@ -1,23 +1,102 @@
 /* The event pin: ink-outlined paper on an amber block, the same tile the nav,
    toolbar and brand mark are drawn as, so a dropped pin reads as part of the
-   sheet rather than a browser default. */
+   sheet rather than a browser default.
+
+   Stays the size of the pin at rest even while the head swells: maplibre anchors
+   the marker off this box, so the tip keeps its grip on the point. */
 .event-pin {
   width: 32px;
   height: 40px;
-  /* the amber block overhangs the head to the right */
-  padding-right: 4px;
-  box-sizing: content-box;
   cursor: default;
+  /* how far the head is open; hover drives it, and the layers pinned to the
+     head's corners are measured off it */
+  --pin-head: 28px;
 }
 
-.event-pin__mark {
-  display: block;
-  width: 32px;
-  height: 40px;
-  overflow: visible;
+/* Carries the drop, which maplibre's own transform on .event-pin cannot.
+   Hit testing stays on .event-pin, whose box never changes: were the stretched
+   head hoverable it would hold its own hover open and swallow map clicks. */
+.event-pin__drop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   transform-origin: 50% 100%;
   animation: event-pin-drop 260ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
   filter: drop-shadow(2px 2px 0 rgba(20, 20, 20, 0.25));
+}
+
+/* The head's layers, stretching as one. Their bottom edge sits where the needle
+   leaves it and stays there, so stretching opens them upward and outward
+   without moving the point. */
+.event-pin__plate {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  translate: -50% 0;
+  width: var(--pin-head);
+  height: var(--pin-head);
+  overflow: visible;
+  transition:
+    width 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2),
+    height 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+/* Every pin lifts under the pointer, photo or not: the head opens far enough to
+   bring the category pictogram forward, well short of the photo stretch. Declared
+   ahead of the photo rule, which matches at the same weight and has to win. */
+.event-pin:hover {
+  --pin-head: 38px;
+}
+
+/* Stretched to frame the photo, which fills the head rect and so is exactly this
+   size: about 61px on a 1440 × 900 screen, against 24px of head at rest. */
+.event-pin--photo:hover {
+  --pin-head: calc(2.6vw + 2.6vh);
+}
+
+/* The block is the pin's drawn shadow at rest; stretched open into a photo frame
+   it has nothing left to lift, so it goes. Leaving is not a transition: were it
+   given one it would sit there growing behind the head for the whole stretch.
+   Coming back is, once the pin has settled — hence the delay. */
+.event-pin__blocks {
+  transition: opacity 140ms ease 140ms;
+}
+
+.event-pin--photo:hover .event-pin__blocks {
+  opacity: 0;
+  transition: none;
+}
+
+/* A hovered pin and its photo come out in front of their neighbours. */
+.event-pin:hover {
+  z-index: 10;
+}
+
+.event-pin__photo {
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.event-pin:hover .event-pin__photo {
+  opacity: 1;
+}
+
+/* Never stretches: the pin keeps its length however far the head opens. */
+.event-pin__needle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  translate: -50% 0;
+  width: 32px;
+  height: 40px;
+  overflow: visible;
+}
+
+/* Fill and outline are separate shapes, so the outline can leave the bottom
+   centre open where the needle comes through. */
+.event-pin__paper {
+  fill: var(--paper);
+  stroke: none;
 }
 
 .event-pin__block {
@@ -26,20 +105,62 @@
 }
 
 .event-pin__line {
-  fill: var(--paper);
+  fill: none;
   stroke: var(--ink);
   stroke-width: 2.5;
   stroke-linejoin: round;
+  /* the stretched head is drawn with the same pen, not a thicker one */
+  vector-effect: non-scaling-stroke;
 }
 
-/* The same square dot as the cursor's reticle marks the head's centre. */
-.event-pin__dot {
-  fill: var(--ink);
+/* The category pictogram is struck with the outline's pen and left square at the
+   ends, so the bar of the "!" and the dot under it are cut the same way. Like the
+   outline it keeps that one pen however far the head opens, rather than inking a
+   thicker line, which is why the dot is a stroke and not a filled square. */
+.event-pin__glyph {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+}
+
+/* How many filings the pin stands for: the chrome's amber tile, straddling the
+   head's top-right corner. The plates put that corner at 16px + half the head
+   across and 24px - the head down, so a 15px tile centred on it works out as
+   below and rides the head as it opens. The tile itself never stretches, and on
+   a photo pin it steps aside the way the block does. */
+.event-pin__count {
+  position: absolute;
+  top: calc(16.5px - var(--pin-head));
+  right: calc(8.5px - var(--pin-head) / 2);
+  min-width: 15px;
+  padding: 0 1px;
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+  background: var(--amber);
+  color: var(--ink);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  /* a fixed line box keeps the tile square whatever the figure is */
+  line-height: 11px;
+  text-align: center;
+  transition:
+    opacity 140ms ease 140ms,
+    top 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2),
+    right 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.event-pin--photo:hover .event-pin__count {
+  opacity: 0;
+  transition: none;
 }
 
 /* A pin still being described is pencilled in: dashed outline, no block yet. */
 .event-pin--draft .event-pin__line {
   stroke-dasharray: 4 3;
+}
+
+.event-pin--draft .event-pin__paper {
   fill: var(--amber-ghost);
 }
 
@@ -61,7 +182,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .event-pin__mark {
+  .event-pin__drop {
     animation: none;
+  }
+
+  /* the hover states still apply, they just arrive without easing */
+  .event-pin__plate,
+  .event-pin__blocks,
+  .event-pin__count,
+  .event-pin__photo {
+    transition: none;
   }
 }

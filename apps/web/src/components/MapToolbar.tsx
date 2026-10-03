@@ -40,7 +40,7 @@ export default function MapToolbar({
             className="toolbar__button toolbar__button--wide"
             onClick={onRecenter}
           >
-            Recenter on Kraków
+            Recenter on Poznań
           </button>
           <button
             type="button"
