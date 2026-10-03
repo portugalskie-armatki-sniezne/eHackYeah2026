@@ -1,0 +1,38 @@
+name: "[2] Release"
+
+# builds both images and deploys them to prod, then publishes a GitHub release when the deployment succeeds
+on:
+  workflow_dispatch:
+
+# do not let releases overlap, so that each one gets its own version
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy
+    uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      service: all
+      environment: prod
+
+  release:
+    name: Publish release
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # the version is the UTC date and the number of the release on that day, for example v2026.10.03-1
+          prefix="v$(date -u +%Y.%m.%d)-"
+          last="$(gh api --paginate "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/$prefix" --jq '.[].ref | split("-") | last' | grep -E '^[0-9]+$' | sort -n | tail -n 1)"
+          version="$prefix$((${last:-0} + 1))"
+          gh release create "$version" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --generate-notes

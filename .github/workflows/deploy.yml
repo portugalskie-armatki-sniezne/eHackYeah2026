@@ -2,6 +2,7 @@ name: "[1] Deploy"
 
 # builds and deploys the web and api images
 # a merge to main deploys the changed services to dev, a manual run deploys the chosen service and environment
+# the release workflow calls it to deploy both services to prod
 on:
   push:
     branches: [main]
@@ -29,6 +30,16 @@ on:
           - dev
           - prod
         default: dev
+  workflow_call:
+    inputs:
+      service:
+        description: "Service to deploy, or all for both"
+        type: string
+        required: true
+      environment:
+        description: "Environment to deploy"
+        type: string
+        required: true
 
 env:
   REGISTRY: ghcr.io
@@ -53,7 +64,9 @@ jobs:
           SERVICE: ${{ inputs.service }}
           BEFORE: ${{ github.event.before }}
         run: |
-          if [ -n "$SERVICE" ]; then
+          if [ "$SERVICE" = all ]; then
+            services='"web","api"'
+          elif [ -n "$SERVICE" ]; then
             services="\"$SERVICE\""
           else
             # the compose file and this workflow affect both services
