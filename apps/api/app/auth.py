@@ -7,7 +7,7 @@ from psycopg import sql
 from pydantic import BaseModel
 
 from app.db import get_connection
-from app.models import USER_COLUMNS, User
+from app.models import USER_COLUMNS, User, normalize_phone
 from app.security import create_access_token, read_access_token, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -53,12 +53,14 @@ AdminUser = Annotated[User, Depends(require_admin)]
 
 @router.post("/login")
 def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], connection: Connection) -> Token:
-    # OAuth2 calls the email field username.
-    row = connection.execute(
-        "SELECT id, password_hash FROM users WHERE email = %s", (form.username,)
-    ).fetchone()
+    # OAuth2 calls the login field username, it holds an email or a phone number.
+    if "@" in form.username:
+        query, login_value = "SELECT id, password_hash FROM users WHERE email = %s", form.username
+    else:
+        query, login_value = "SELECT id, password_hash FROM users WHERE phone = %s", normalize_phone(form.username)
+    row = connection.execute(query, (login_value,)).fetchone()
     if not verify_password(form.password, row["password_hash"] if row else None):
-        raise unauthorized("Incorrect email or password")
+        raise unauthorized("Incorrect login or password")
     return Token(access_token=create_access_token(row["id"]))
 
 

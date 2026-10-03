@@ -4,18 +4,22 @@ from uuid import UUID
 import psycopg
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from psycopg import errors, sql
-from pydantic import BaseModel, ConfigDict, EmailStr, StringConstraints, model_validator
+from pydantic import BaseModel, BeforeValidator, ConfigDict, EmailStr, StringConstraints, model_validator
 
 from app.auth import AdminUser, CurrentUser
 from app.db import get_connection
-from app.models import USER_COLUMNS, Role, User
+from app.models import USER_COLUMNS, Role, User, normalize_phone
 from app.security import hash_password
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 Connection = Annotated[psycopg.Connection, Depends(get_connection)]
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
-Phone = Annotated[str, StringConstraints(strip_whitespace=True)]
+Phone = Annotated[
+    str,
+    BeforeValidator(lambda value: normalize_phone(value) if isinstance(value, str) else value),
+    StringConstraints(pattern=r"^\+?[0-9]{7,15}$"),
+]
 Password = Annotated[str, StringConstraints(min_length=8)]
 
 
@@ -24,9 +28,15 @@ class UserCreate(BaseModel):
 
     first_name: Name
     last_name: Name
-    email: EmailStr
+    email: EmailStr | None = None
     phone: Phone | None = None
     password: Password
+
+    @model_validator(mode="after")
+    def require_contact(self) -> "UserCreate":
+        if self.email is None and self.phone is None:
+            raise ValueError("email or phone is required")
+        return self
 
 
 class UserUpdate(BaseModel):
@@ -42,8 +52,8 @@ class UserUpdate(BaseModel):
 
     @model_validator(mode="after")
     def reject_null_required_fields(self) -> "UserUpdate":
-        # only phone is nullable in the database.
-        for field in ("first_name", "last_name", "email", "password", "role"):
+        # email and phone are nullable, the database requires at least one of them.
+        for field in ("first_name", "last_name", "password", "role"):
             if field in self.model_fields_set and getattr(self, field) is None:
                 raise ValueError(f"{field} cannot be null")
         return self
@@ -56,8 +66,15 @@ class UserList(BaseModel):
     offset: int
 
 
-def email_taken() -> HTTPException:
-    return HTTPException(status.HTTP_409_CONFLICT, "Email is already taken")
+def write_error(error: psycopg.Error) -> HTTPException:
+    constraint = error.diag.constraint_name
+    if constraint == "users_email_key":
+        return HTTPException(status.HTTP_409_CONFLICT, "Email is already taken")
+    if constraint == "users_phone_key":
+        return HTTPException(status.HTTP_409_CONFLICT, "Phone is already taken")
+    if constraint == "users_contact_check":
+        return HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Email or phone is required")
+    raise error
 
 
 def user_not_found() -> HTTPException:
@@ -82,8 +99,8 @@ def create_user(body: UserCreate, connection: Connection) -> User:
                 (body.first_name, body.last_name, body.email, body.phone,
                  hash_password(body.password)),
             ).fetchone()
-    except errors.UniqueViolation:
-        raise email_taken() from None
+    except (errors.UniqueViolation, errors.CheckViolation) as error:
+        raise write_error(error) from None
     return User.model_validate(row)
 
 
@@ -139,8 +156,8 @@ def update_user(user_id: UUID, body: UserUpdate, current_user: CurrentUser, conn
                 sql.SQL("UPDATE users SET {} WHERE id = %s RETURNING {}").format(assignments, USER_COLUMNS),
                 (*changes.values(), user_id),
             ).fetchone()
-    except errors.UniqueViolation:
-        raise email_taken() from None
+    except (errors.UniqueViolation, errors.CheckViolation) as error:
+        raise write_error(error) from None
     if row is None:
         raise user_not_found()
     return User.model_validate(row)
@@ -153,7 +170,7 @@ def delete_user(user_id: UUID, current_user: CurrentUser, connection: Connection
         with connection.transaction():
             deleted = connection.execute("DELETE FROM users WHERE id = %s", (user_id,)).rowcount
     except errors.ForeignKeyViolation:
-        raise HTTPException(status.HTTP_409_CONFLICT, "User has reports") from None
+        raise HTTPException(status.HTTP_409_CONFLICT, "User has reports or comments") from None
     if not deleted:
         raise user_not_found()
     return Response(status_code=status.HTTP_204_NO_CONTENT)

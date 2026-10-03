@@ -41,7 +41,7 @@ def user_payload(**overrides: object) -> dict[str, object]:
         "first_name": "Anna",
         "last_name": "Nowak",
         "email": f"anna-{uuid4().hex}@example.com",
-        "phone": "+48123456789",
+        "phone": f"+48{uuid4().int % 10**9:09d}",
         "password": "tajne-haslo",
     } | overrides
 
@@ -52,8 +52,8 @@ def create_user(client: TestClient, **overrides: object) -> dict[str, object]:
     return response.json()
 
 
-def login(client: TestClient, email: str, password: str = "tajne-haslo") -> dict[str, str]:
-    response = client.post("/auth/login", data={"username": email, "password": password})
+def login(client: TestClient, username: str, password: str = "tajne-haslo") -> dict[str, str]:
+    response = client.post("/auth/login", data={"username": username, "password": password})
     assert response.status_code == 200, response.text
     return {"Authorization": f"Bearer {response.json()['access_token']}"}
 
@@ -66,6 +66,7 @@ def signed_in(client: TestClient, connection: psycopg.Connection
     def sign_in(role: str = "user") -> tuple[dict[str, object], dict[str, str]]:
         user = create_user(client)
         connection.execute("UPDATE users SET role = %s WHERE id = %s", (role, user["id"]))
-        return user | {"role": role}, login(client, user["email"])
+        headers = login(client, user["email"])
+        return client.get("/auth/me", headers=headers).json(), headers
 
     return sign_in

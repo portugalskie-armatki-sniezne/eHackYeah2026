@@ -18,11 +18,20 @@ def test_login_returns_token_for_current_user(client: TestClient):
     assert client.get("/auth/me", headers=headers).json() == user
 
 
+def test_login_with_phone(client: TestClient):
+    user = create_user(client, email=None, phone="+48 600-100-200")
+
+    for username in ("+48600100200", "+48 600 100 200"):
+        headers = login(client, username)
+        assert client.get("/auth/me", headers=headers).json()["id"] == user["id"]
+
+
 def test_login_rejects_wrong_credentials(client: TestClient):
     user = create_user(client)
 
-    for email, password in ((user["email"], "zle-haslo"), ("missing@example.com", "tajne-haslo")):
-        response = client.post("/auth/login", data={"username": email, "password": password})
+    for username, password in ((user["email"], "zle-haslo"), (user["phone"], "zle-haslo"),
+                               ("missing@example.com", "tajne-haslo"), ("+48000000000", "tajne-haslo")):
+        response = client.post("/auth/login", data={"username": username, "password": password})
         assert response.status_code == 401
         assert response.headers["WWW-Authenticate"] == "Bearer"
 

@@ -2,8 +2,8 @@
 CREATE TABLE institution_contacts (
     id BIGSERIAL PRIMARY KEY,
     -- seven-digit TERYT code, authority name, province, county, and office name.
-    teryt_code TEXT NOT NULL UNIQUE CHECK (teryt_code ~ '^[0-9]{7}$'),
-    local_government_name TEXT NOT NULL CHECK (BTRIM(local_government_name) <> ''),
+    teryt_code TEXT NOT NULL,
+    local_government_name TEXT NOT NULL,
     province TEXT,
     county TEXT,
     -- kody JST: GW = gmina wiejska, GM = gmina miejska, GMW = gmina miejsko-wiejska,
@@ -31,7 +31,6 @@ CREATE TABLE institution_contacts (
     electronic_inbox TEXT,
     electronic_delivery_address TEXT
 );
-
 
 -- migrate:down
 DROP TABLE institution_contacts;

@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import uuid4
 
 import psycopg
@@ -17,19 +18,30 @@ def test_create_user_returns_user_without_password(client: TestClient, connectio
     assert stored["password_hash"].startswith("$argon2")
 
 
+def test_create_user_with_only_email_or_phone(client: TestClient):
+    with_email = create_user(client, phone=None)
+    with_phone = create_user(client, email=None, phone="+48 600-100-200")
+
+    assert with_email["phone"] is None
+    assert with_phone["email"] is None and with_phone["phone"] == "+48600100200"
+
+
 def test_create_user_rejects_role_and_invalid_data(client: TestClient):
     assert client.post("/users", json=user_payload(role="admin")).status_code == 422
     assert client.post("/users", json=user_payload(email="not-an-email")).status_code == 422
+    assert client.post("/users", json=user_payload(email=None, phone=None)).status_code == 422
+    assert client.post("/users", json=user_payload(phone="call me")).status_code == 422
     assert client.post("/users", json=user_payload(first_name="   ")).status_code == 422
     assert client.post("/users", json=user_payload(password="short")).status_code == 422
 
 
-def test_create_user_with_taken_email_conflicts(client: TestClient):
+def test_create_user_with_taken_email_or_phone_conflicts(client: TestClient):
     user = create_user(client)
 
-    response = client.post("/users", json=user_payload(email=user["email"]))
-
+    assert client.post("/users", json=user_payload(email=user["email"])).status_code == 409
+    response = client.post("/users", json=user_payload(phone=user["phone"].replace("+48", "+48 ")))
     assert response.status_code == 409
+    assert response.json()["detail"] == "Phone is already taken"
 
 
 @pytest.mark.parametrize("role", ["user", "office"])
@@ -88,7 +100,9 @@ def test_update_own_account(client: TestClient, signed_in, connection: psycopg.C
                             json={"last_name": "Kowalska", "phone": None, "password": "nowe-haslo"})
 
     assert response.status_code == 200
-    assert response.json() == user | {"last_name": "Kowalska", "phone": None}
+    updated = response.json()
+    assert updated | {"edited_at": None} == user | {"last_name": "Kowalska", "phone": None, "edited_at": None}
+    assert datetime.fromisoformat(updated["edited_at"]) > datetime.fromisoformat(user["edited_at"])
     login(client, user["email"], "nowe-haslo")
 
 
@@ -100,6 +114,11 @@ def test_update_rejects_invalid_changes(client: TestClient, signed_in):
     assert client.patch(url, json={"first_name": None}, headers=headers).status_code == 422
     assert client.patch(url, json={"unknown": 1}, headers=headers).status_code == 422
     assert client.patch(url, json={"email": other["email"]}, headers=headers).status_code == 409
+    assert client.patch(url, json={"phone": other["phone"]}, headers=headers).status_code == 409
+    assert client.patch(url, json={"email": None}, headers=headers).status_code == 200
+    response = client.patch(url, json={"phone": None}, headers=headers)
+    assert response.status_code == 422
+    assert response.json()["detail"] == "Email or phone is required"
 
 
 @pytest.mark.parametrize("role", ["user", "office"])
@@ -133,10 +152,27 @@ def test_delete_own_account(client: TestClient, signed_in):
 def test_delete_user_with_reports_conflicts(client: TestClient, signed_in, connection: psycopg.Connection):
     user, headers = signed_in("user")
     connection.execute(
-        "INSERT INTO reports (user_id, description, location) "
-        "VALUES (%s, 'Dziura w jezdni', ST_MakePoint(19.9449, 50.0647)::geography)",
+        "INSERT INTO reports (user_id, report_category_id, title, description, location) "
+        "SELECT %s, id, 'Dziura', 'Dziura w jezdni', ST_MakePoint(19.9449, 50.0647)::geography "
+        "FROM report_categories WHERE name = 'issue'",
         (user["id"],),
     )
 
     assert client.delete(f"/users/{user['id']}", headers=headers).status_code == 409
     assert client.get(f"/users/{user['id']}", headers=headers).status_code == 200
+
+
+def test_delete_user_with_comments_conflicts(client: TestClient, signed_in, connection: psycopg.Connection):
+    user, headers = signed_in("user")
+    connection.execute(
+        "WITH master AS ("
+        " INSERT INTO master_reports (report_category_id, status_id, title, description, location)"
+        " SELECT c.id, s.id, 'Dziura', 'Dziura w jezdni', ST_MakePoint(19.9449, 50.0647)::geography"
+        " FROM report_categories c, master_report_statuses s WHERE c.name = 'issue' AND s.name = 'created'"
+        " RETURNING id) "
+        "INSERT INTO master_report_comments (master_report_id, user_id, content) "
+        "SELECT id, %s, 'Potwierdzam' FROM master",
+        (user["id"],),
+    )
+
+    assert client.delete(f"/users/{user['id']}", headers=headers).status_code == 409
