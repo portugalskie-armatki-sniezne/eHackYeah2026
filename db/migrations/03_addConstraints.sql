@@ -1,9 +1,11 @@
 -- migrate:up
 ALTER TABLE users
     ADD CONSTRAINT users_email_key UNIQUE (email),
+    ADD CONSTRAINT users_phone_key UNIQUE (phone),
     ADD CONSTRAINT users_contact_check CHECK (
         NULLIF(BTRIM(email), '') IS NOT NULL OR NULLIF(BTRIM(phone), '') IS NOT NULL
-    );
+    ),
+    ADD CONSTRAINT users_role_check CHECK (role IN ('user', 'office', 'admin'));
 
 ALTER TABLE report_categories
     ADD CONSTRAINT report_categories_name_key UNIQUE (name),
@@ -132,5 +134,7 @@ ALTER TABLE report_categories
     DROP CONSTRAINT report_categories_name_key;
 
 ALTER TABLE users
+    DROP CONSTRAINT users_role_check,
     DROP CONSTRAINT users_contact_check,
+    DROP CONSTRAINT users_phone_key,
     DROP CONSTRAINT users_email_key;

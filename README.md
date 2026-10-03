@@ -86,6 +86,19 @@ bun run preview
 
 The build output is written to `apps/web/dist`.
 
+## Deployment
+
+The `[1] Deploy web` workflow builds and pushes the web image, then deploys it to one environment:
+
+| Trigger | Environment |
+| --- | --- |
+| Push to `main` that changes the frontend. | `dev` |
+| Manual run from the Actions tab. | `dev` or `prod`, chosen when starting the run. |
+
+The web image is built from `apps/web/Dockerfile` with the repository root as the build context and pushed to `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web`. Builds are tagged with the environment name and with `<environment>-<commit SHA>`, for example `dev` and `dev-<commit SHA>`. To build the image locally, run `docker build -f apps/web/Dockerfile -t ehackyeah-web .` from the repository root.
+
+The workflow reads its configuration from the GitHub environments `dev` and `prod`. Each environment needs two variables: `VITE_API_URL`, the backend URL that Vite inlines into the frontend bundle, and `DEPLOY_DIR`, the directory with the Compose file on the target machine. Deployment runs `docker compose pull` and `docker compose up -d` on a self-hosted runner labeled `dev` or `prod`. Do not use these runners in workflows triggered by pull requests, because the repository is public.
+
 ## Shared agent skills
 
 Repository-local skills live in `.agents/skills/` and are versioned with the

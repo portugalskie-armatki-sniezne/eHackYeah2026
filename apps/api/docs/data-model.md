@@ -24,8 +24,9 @@ erDiagram
         text first_name
         text last_name
         text email UK
-        text phone
+        text phone UK
         text password_hash
+        text role
         timestamptz edited_at
         timestamptz created_at
     }
@@ -110,9 +111,10 @@ Pojedynczy report jest zapisywany przed klasyfikacją, więc może nie mieć mas
 | first_name | text | NOT NULL |
 | last_name | text | NOT NULL |
 | email | text | NULL, UNIQUE |
-| phone | text | NULL |
+| phone | text | NULL, UNIQUE |
 | password_hash | text | NOT NULL, nigdy nie zwracany w API |
-| edited_at | timestamptz | NOT NULL, domyślnie `NOW()`, bez triggera aktualizacji |
+| role | text | NOT NULL, domyślnie `'user'`, CHECK: `user`, `office` lub `admin` |
+| edited_at | timestamptz | NOT NULL, domyślnie `NOW()`, ustawiane triggerem przy UPDATE |
 | created_at | timestamptz | NOT NULL, domyślnie `NOW()` |
 
 Ograniczenie: co najmniej jedno z pól `email` lub `phone` musi być niepuste po przycięciu spacji.

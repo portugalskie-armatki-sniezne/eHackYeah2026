@@ -36,9 +36,28 @@ BEGIN
         RAISE EXCEPTION 'Duplicate email accepted';
     EXCEPTION WHEN unique_violation THEN NULL;
     END;
-    INSERT INTO users (first_name, last_name, phone, password_hash)
-    VALUES ('Another', 'Phone', '+48111222333', 'test-only-placeholder')
+    BEGIN
+        INSERT INTO users (first_name, last_name, phone, password_hash)
+        VALUES ('Duplicate', 'Phone', '+48123456789', 'test-only-placeholder');
+        RAISE EXCEPTION 'Duplicate phone accepted';
+    EXCEPTION WHEN unique_violation THEN NULL;
+    END;
+    INSERT INTO users (first_name, last_name, phone, password_hash, edited_at)
+    VALUES ('Another', 'Phone', '+48111222333', 'test-only-placeholder', '2000-01-01 00:00:00+00')
     RETURNING id INTO author_id;
+    IF (SELECT role FROM users WHERE id = author_id) <> 'user' THEN
+        RAISE EXCEPTION 'New user did not get the user role';
+    END IF;
+    UPDATE users SET role = 'office' WHERE id = author_id;
+    IF (SELECT edited_at FROM users WHERE id = author_id) <= '2000-01-01 00:00:00+00' THEN
+        RAISE EXCEPTION 'User edit timestamp was not updated';
+    END IF;
+    UPDATE users SET role = 'admin' WHERE id = author_id;
+    BEGIN
+        UPDATE users SET role = 'moderator' WHERE id = author_id;
+        RAISE EXCEPTION 'Unknown user role accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
     BEGIN
         UPDATE users SET phone = NULL WHERE id = author_id;
         RAISE EXCEPTION 'Removing the last user contact accepted';

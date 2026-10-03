@@ -8,6 +8,7 @@ CREATE TABLE users (
     email TEXT,
     phone TEXT,
     password_hash TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'user',
     edited_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -95,6 +96,10 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER users_set_edited_at
+BEFORE UPDATE ON users
+FOR EACH ROW EXECUTE FUNCTION set_edited_at();
 
 CREATE TRIGGER reports_set_edited_at
 BEFORE UPDATE ON reports
