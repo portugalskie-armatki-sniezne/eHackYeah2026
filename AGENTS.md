@@ -26,11 +26,12 @@
 - `db/migrations/` contains dbmate SQL migrations, with `-- migrate:up` and `-- migrate:down` sections.
 - `db/seeds/` contains development and reference data, including the institution contacts workbook.
 - `docker-compose.yaml` at the repository root defines the PostGIS database, dbmate migrations, and the seed importer. Run `docker compose up`; optional root `.env` values override local defaults.
+- `docker-compose.app.yaml` defines only the `api` and `web` containers, which run published images selected by `API_IMAGE_TAG` and `WEB_IMAGE_TAG`. The `api` container reaches the database through the external network named by `DB_NETWORK`.
 - `tooling/seed/` contains the XLS importer with its `Dockerfile`, `pyproject.toml`, and `uv.lock`.
 - `Taskfile.yml` at the repository root defines root development commands. `mise.toml` pins Bun, Task, and uv, and `setup-dev-env.sh` installs mise, the pinned tools, and dependencies.
 - `tests/e2e/` is reserved for cross-application scenarios, and `tests/fixtures/` for shared behavioral examples.
 - `.agents/skills/` is reserved for repository-local agent skills.
-- `.github/workflows/` contains CI workflows. `deploy-web.yml` builds the web image and deploys it: to the dev environment when frontend changes reach `main`, or to the dev or prod environment chosen in a manual run.
+- `.github/workflows/` contains CI workflows. `deploy.yml` builds the web and API images and deploys them: the changed services to the dev environment when changes reach `main`, or the service and environment chosen in a manual run.
 - `.env` holds optional local environment overrides and is ignored by Git. `.env.example` documents the available values.
 - `README.md` is the top-level project documentation.
 - `TESTING.md` documents database setup and validation.

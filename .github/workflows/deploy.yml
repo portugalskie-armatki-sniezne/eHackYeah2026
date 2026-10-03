@@ -1,0 +1,159 @@
+name: "[1] Deploy"
+
+# builds and deploys the web and api images
+# a merge to main deploys the changed services to dev, a manual run deploys the chosen service and environment
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/web/**
+      - apps/api/**
+      - package.json
+      - bun.lock
+      - .dockerignore
+      - docker-compose.app.yaml
+      - .github/workflows/deploy.yml
+  workflow_dispatch:
+    inputs:
+      service:
+        description: "Service to deploy"
+        type: choice
+        options:
+          - web
+          - api
+        default: web
+      environment:
+        description: "Environment to deploy"
+        type: choice
+        options:
+          - dev
+          - prod
+        default: dev
+
+env:
+  REGISTRY: ghcr.io
+  # GHCR requires lowercase image names
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/ehackyeah2026
+
+jobs:
+  select:
+    name: Select services
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.select.outputs.services }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # the full history is needed to compare a push with the previous commit on main
+          fetch-depth: 0
+
+      - name: Select services
+        id: select
+        env:
+          SERVICE: ${{ inputs.service }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ -n "$SERVICE" ]; then
+            services="\"$SERVICE\""
+          else
+            # the compose file and this workflow affect both services
+            shared='docker-compose\.app\.yaml$|\.github/workflows/deploy\.yml$'
+            changed="$(git diff --name-only "$BEFORE" "$GITHUB_SHA")"
+            services=""
+            if echo "$changed" | grep -qE "^(apps/web/|package\.json$|bun\.lock$|\.dockerignore$|$shared)"; then
+              services='"web"'
+            fi
+            if echo "$changed" | grep -qE "^(apps/api/|\.dockerignore$|$shared)"; then
+              services="${services:+$services,}\"api\""
+            fi
+          fi
+          echo "services=[$services]" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build & push ${{ matrix.service }}
+    needs: select
+    if: ${{ needs.select.outputs.services != '[]' }}
+    runs-on: ubuntu-latest
+    # provides the VITE_API_URL variable of the target environment
+    # pushes to main have no inputs, so the environment falls back to dev
+    environment: ${{ inputs.environment || 'dev' }}
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        service: ${{ fromJSON(needs.select.outputs.services) }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+
+      - name: Log in to GHCR
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate tags
+        id: meta
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
+        with:
+          images: ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}
+          tags: |
+            type=raw,value=${{ inputs.environment || 'dev' }}
+            type=sha,format=long,prefix=${{ inputs.environment || 'dev' }}-
+
+      - name: Build & push
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        with:
+          # both Dockerfiles use the repository root as the build context
+          context: .
+          file: apps/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # the api image has no such ARG, so Docker ignores it there
+          build-args: |
+            VITE_API_URL=${{ vars.VITE_API_URL }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+  deploy:
+    name: Deploy on ${{ inputs.environment || 'dev' }}
+    needs: [select, build]
+    # the self-hosted runner works on the target machine, so no inbound connection is needed
+    runs-on: [self-hosted]
+    environment: ${{ inputs.environment || 'dev' }}
+    # do not let deployments overlap
+    concurrency:
+      group: deploy-${{ inputs.environment || 'dev' }}
+      cancel-in-progress: false
+    env:
+      # holds the secrets and image tags of the target environment
+      ENV_FILE: ${{ vars.DEPLOY_DIR }}/.env
+      IMAGE_TAG: ${{ inputs.environment || 'dev' }}-${{ github.sha }}
+      SERVICES: ${{ join(fromJSON(needs.select.outputs.services), ' ') }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Select image tags
+        run: |
+          for service in $SERVICES; do
+            # web uses WEB_IMAGE_TAG, api uses API_IMAGE_TAG
+            variable="$(echo "$service" | tr '[:lower:]' '[:upper:]')_IMAGE_TAG"
+            if grep -q "^$variable=" "$ENV_FILE"; then
+              sed -i "s|^$variable=.*|$variable=$IMAGE_TAG|" "$ENV_FILE"
+            else
+              echo "$variable=$IMAGE_TAG" >> "$ENV_FILE"
+            fi
+          done
+
+      - name: Pull & restart services
+        run: |
+          # SERVICES is unquoted on purpose so that each service is a separate argument
+          docker compose pull $SERVICES
+          docker compose up -d $SERVICES
+          docker image prune -f
