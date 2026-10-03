@@ -30,7 +30,9 @@ export default function Navbar() {
           <ul className="navbar__list">
             {items.map((item, index) => (
               <li key={item.href} className="navbar__item">
-                {index > 0 && <span className="navbar__divider" aria-hidden="true" />}
+                {index > 0 && (
+                  <span className="navbar__divider" aria-hidden="true" />
+                )}
                 <a
                   className="navbar__link"
                   href={item.href}

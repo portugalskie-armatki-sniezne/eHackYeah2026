@@ -29,8 +29,12 @@ def test_login_with_phone(client: TestClient):
 def test_login_rejects_wrong_credentials(client: TestClient):
     user = create_user(client)
 
-    for username, password in ((user["email"], "zle-haslo"), (user["phone"], "zle-haslo"),
-                               ("missing@example.com", "tajne-haslo"), ("+48000000000", "tajne-haslo")):
+    for username, password in (
+        (user["email"], "zle-haslo"),
+        (user["phone"], "zle-haslo"),
+        ("missing@example.com", "tajne-haslo"),
+        ("+48000000000", "tajne-haslo"),
+    ):
         response = client.post("/auth/login", data={"username": username, "password": password})
         assert response.status_code == 401
         assert response.headers["WWW-Authenticate"] == "Bearer"
@@ -40,11 +44,13 @@ def test_protected_endpoint_requires_valid_token(client: TestClient):
     user = create_user(client)
     expired = jwt.encode(
         {"sub": user["id"], "exp": datetime.now(timezone.utc) - timedelta(seconds=1)},
-        "test-only-secret-with-at-least-32-bytes", algorithm="HS256",
+        "test-only-secret-with-at-least-32-bytes",
+        algorithm="HS256",
     )
     forged = jwt.encode(
         {"sub": user["id"], "exp": datetime.now(timezone.utc) + timedelta(hours=1)},
-        "another-secret-with-at-least-32-bytes!!", algorithm="HS256",
+        "another-secret-with-at-least-32-bytes!!",
+        algorithm="HS256",
     )
 
     assert client.get("/auth/me").status_code == 401
@@ -63,7 +69,8 @@ def test_token_of_deleted_user_is_rejected(client: TestClient):
 def test_token_with_unknown_user_is_rejected(client: TestClient):
     token = jwt.encode(
         {"sub": str(uuid4()), "exp": datetime.now(timezone.utc) + timedelta(hours=1)},
-        "test-only-secret-with-at-least-32-bytes", algorithm="HS256",
+        "test-only-secret-with-at-least-32-bytes",
+        algorithm="HS256",
     )
 
     assert client.get("/auth/me", headers={"Authorization": f"Bearer {token}"}).status_code == 401
