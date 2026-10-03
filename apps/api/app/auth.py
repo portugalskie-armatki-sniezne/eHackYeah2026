@@ -43,8 +43,9 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], connection: 
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
-def get_optional_user(token: Annotated[str | None, Depends(optional_oauth2_scheme)],
-                      connection: Connection) -> User | None:
+def get_optional_user(
+    token: Annotated[str | None, Depends(optional_oauth2_scheme)], connection: Connection
+) -> User | None:
     return None if token is None else get_current_user(token, connection)
 
 

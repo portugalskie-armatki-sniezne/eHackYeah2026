@@ -66,17 +66,25 @@ def near_query(
     if all(value is None for value in values):
         return None
     if any(value is None for value in values):
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT,
-                            "longitude, latitude, and radius_m are required together")
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT, "longitude, latitude, and radius_m are required together"
+        )
     return Near(longitude, latitude, radius_m)
 
 
 NearFilter = Annotated[Near | None, Depends(near_query)]
 
 
-def fetch_page(connection: psycopg.Connection, columns: sql.Composable, source: sql.Composable,
-               conditions: list[sql.Composable], params: dict[str, Any], order_by: sql.Composable,
-               limit: int, offset: int) -> tuple[int, list[dict[str, Any]]]:
+def fetch_page(
+    connection: psycopg.Connection,
+    columns: sql.Composable,
+    source: sql.Composable,
+    conditions: list[sql.Composable],
+    params: dict[str, Any],
+    order_by: sql.Composable,
+    limit: int,
+    offset: int,
+) -> tuple[int, list[dict[str, Any]]]:
     """count and fetch one page, all queries use named parameters from params."""
     where = sql.SQL(" WHERE ") + sql.SQL(" AND ").join(conditions) if conditions else sql.SQL("")
     with connection.transaction():
@@ -85,7 +93,8 @@ def fetch_page(connection: psycopg.Connection, columns: sql.Composable, source: 
         ).fetchone()["total"]
         rows = connection.execute(
             sql.SQL("SELECT {} FROM {}{} ORDER BY {} LIMIT %(limit)s OFFSET %(offset)s").format(
-                columns, source, where, order_by),
+                columns, source, where, order_by
+            ),
             params | {"limit": limit, "offset": offset},
         ).fetchall()
     return total, rows

@@ -46,8 +46,12 @@ def list_local_government_offices(
     offset: Offset = 0,
 ) -> Page[LocalGovernmentOffice]:
     conditions, params = [], {}
-    for column, value in (("teryt_code", teryt_code), ("province", province), ("county", county),
-                          ("local_government_type", local_government_type)):
+    for column, value in (
+        ("teryt_code", teryt_code),
+        ("province", province),
+        ("county", county),
+        ("local_government_type", local_government_type),
+    ):
         if value is not None:
             conditions.append(sql.SQL("{} = {}").format(sql.Identifier(column), sql.Placeholder(column)))
             params[column] = value
@@ -55,10 +59,19 @@ def list_local_government_offices(
         # q matches a fragment of the authority name, % and _ are matched literally.
         conditions.append(sql.SQL("local_government_name ILIKE %(q)s ESCAPE '\\'"))
         params["q"] = "%" + q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
-    total, rows = fetch_page(connection, OFFICE_COLUMNS, sql.SQL("local_government_offices"), conditions,
-                             params, sql.SQL("id"), limit, offset)
-    return Page[LocalGovernmentOffice](items=[LocalGovernmentOffice.model_validate(row) for row in rows],
-                                    total=total, limit=limit, offset=offset)
+    total, rows = fetch_page(
+        connection,
+        OFFICE_COLUMNS,
+        sql.SQL("local_government_offices"),
+        conditions,
+        params,
+        sql.SQL("id"),
+        limit,
+        offset,
+    )
+    return Page[LocalGovernmentOffice](
+        items=[LocalGovernmentOffice.model_validate(row) for row in rows], total=total, limit=limit, offset=offset
+    )
 
 
 @router.get("/{office_id}")

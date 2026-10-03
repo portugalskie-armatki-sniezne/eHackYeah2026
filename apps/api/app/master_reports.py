@@ -7,8 +7,20 @@ from psycopg import errors, sql
 from pydantic import BaseModel, ConfigDict, model_validator
 
 from app.auth import AdminUser, StaffUser
-from app.common import (Connection, Limit, Location, NearFilter, Offset, Page, Text, assignments, fetch_page,
-                        foreign_key_error, location_json, reject_nulls)
+from app.common import (
+    Connection,
+    Limit,
+    Location,
+    NearFilter,
+    Offset,
+    Page,
+    Text,
+    assignments,
+    fetch_page,
+    foreign_key_error,
+    location_json,
+    reject_nulls,
+)
 from app.photos import PHOTO_COLUMNS, PHOTO_ORDER, Photo
 
 router = APIRouter(prefix="/master-reports", tags=["master reports"])
@@ -104,19 +116,31 @@ def list_master_reports(
     offset: Offset = 0,
 ) -> Page[MasterReport]:
     conditions, params = [], {}
-    for column, value in (("status_id", status_id), ("report_category_id", report_category_id),
-                          ("responsible_office_id", responsible_office_id),
-                          ("responsible_service_entity_id", responsible_service_entity_id)):
+    for column, value in (
+        ("status_id", status_id),
+        ("report_category_id", report_category_id),
+        ("responsible_office_id", responsible_office_id),
+        ("responsible_service_entity_id", responsible_service_entity_id),
+    ):
         if value is not None:
             conditions.append(sql.SQL("m.{} = {}").format(sql.Identifier(column), sql.Placeholder(column)))
             params[column] = value
     if near is not None:
         conditions.append(near.condition("m"))
         params |= near.params()
-    total, rows = fetch_page(connection, MASTER_REPORT_COLUMNS, sql.SQL("master_reports m"), conditions, params,
-                             sql.SQL("m.created_at DESC, m.id"), limit, offset)
-    return Page[MasterReport](items=[MasterReport.model_validate(row) for row in rows],
-                              total=total, limit=limit, offset=offset)
+    total, rows = fetch_page(
+        connection,
+        MASTER_REPORT_COLUMNS,
+        sql.SQL("master_reports m"),
+        conditions,
+        params,
+        sql.SQL("m.created_at DESC, m.id"),
+        limit,
+        offset,
+    )
+    return Page[MasterReport](
+        items=[MasterReport.model_validate(row) for row in rows], total=total, limit=limit, offset=offset
+    )
 
 
 @router.get("/{master_report_id}")
@@ -125,8 +149,9 @@ def get_master_report(master_report_id: UUID, connection: Connection) -> MasterR
 
 
 @router.patch("/{master_report_id}")
-def update_master_report(master_report_id: UUID, body: MasterReportUpdate, _: StaffUser,
-                         connection: Connection) -> MasterReportDetail:
+def update_master_report(
+    master_report_id: UUID, body: MasterReportUpdate, _: StaffUser, connection: Connection
+) -> MasterReportDetail:
     # status changes are not restricted, office or admin can set any status.
     # changing the responsible party to the other kind needs both ids, one of them null.
     changes = body.model_dump(exclude_unset=True)
@@ -153,8 +178,7 @@ def update_master_report(master_report_id: UUID, body: MasterReportUpdate, _: St
 def delete_master_report(master_report_id: UUID, _: AdminUser, connection: Connection) -> Response:
     try:
         with connection.transaction():
-            deleted = connection.execute("DELETE FROM master_reports WHERE id = %s",
-                                         (master_report_id,)).rowcount
+            deleted = connection.execute("DELETE FROM master_reports WHERE id = %s", (master_report_id,)).rowcount
     except errors.RestrictViolation:
         raise HTTPException(status.HTTP_409_CONFLICT, "Master report has reports") from None
     if not deleted:

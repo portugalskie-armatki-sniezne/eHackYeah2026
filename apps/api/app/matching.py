@@ -31,8 +31,7 @@ def lock(connection: psycopg.Connection) -> None:
     connection.execute("SELECT pg_advisory_xact_lock(%s)", (MATCHING_LOCK_KEY,))
 
 
-def find_master(connection: psycopg.Connection, report_category_id: int, title: str,
-                location: Location) -> UUID | None:
+def find_master(connection: psycopg.Connection, report_category_id: int, title: str, location: Location) -> UUID | None:
     """return the open master within the radius whose title, or a title of its reports, fits best."""
     rows = connection.execute(
         sql.SQL(
@@ -45,21 +44,29 @@ def find_master(connection: psycopg.Connection, report_category_id: int, title: 
             "AND ST_DWithin(m.location, {point}, %(radius_m)s) "
             "GROUP BY m.id"
         ).format(point=NAMED_POINT),
-        {"report_category_id": report_category_id, "radius_m": MATCH_RADIUS_M,
-         "longitude": location.longitude, "latitude": location.latitude},
+        {
+            "report_category_id": report_category_id,
+            "radius_m": MATCH_RADIUS_M,
+            "longitude": location.longitude,
+            "latitude": location.latitude,
+        },
     ).fetchall()
     # the most similar title wins, the nearer master breaks ties.
     matches = [
-        (max(title_similarity(title, other) for other in [row["title"], *row["report_titles"]]),
-         -row["distance"], row["id"])
+        (
+            max(title_similarity(title, other) for other in [row["title"], *row["report_titles"]]),
+            -row["distance"],
+            row["id"],
+        )
         for row in rows
     ]
     matches = [match for match in matches if match[0] >= MIN_TITLE_SIMILARITY]
     return max(matches)[2] if matches else None
 
 
-def create_master(connection: psycopg.Connection, report_category_id: int, title: str,
-                  description: str, location: Location) -> UUID:
+def create_master(
+    connection: psycopg.Connection, report_category_id: int, title: str, description: str, location: Location
+) -> UUID:
     return connection.execute(
         sql.SQL(
             "INSERT INTO master_reports (report_category_id, status_id, title, description, location) "
@@ -69,8 +76,9 @@ def create_master(connection: psycopg.Connection, report_category_id: int, title
     ).fetchone()["id"]
 
 
-def assign_master(connection: psycopg.Connection, report_category_id: int, title: str,
-                  description: str, location: Location) -> UUID:
+def assign_master(
+    connection: psycopg.Connection, report_category_id: int, title: str, description: str, location: Location
+) -> UUID:
     """find a matching master or create one from the report, call inside a transaction."""
     lock(connection)
     master_id = find_master(connection, report_category_id, title, location)

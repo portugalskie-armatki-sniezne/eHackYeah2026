@@ -58,7 +58,9 @@ Commands are defined in `Taskfile.yml` and need mise activated in your shell; ot
 | `task db` | Start the database, apply migrations, and wait for seed import. |
 | `task api` | Start the database and seed services, then start the API. |
 | `task fe:lint` | Check the frontend with ESLint and Prettier. |
+| `task fe:lint:fix` | Fix the frontend with ESLint and Prettier. |
 | `task be:lint` | Check the API with Ruff. |
+| `task be:lint:fix` | Fix the API with Ruff. |
 
 The current web workspace is a React/Vite scaffold. The API workspace is a FastAPI placeholder. Web and API start separately, so run `task web` and `task api` in separate terminals. Both `task db` and `task api` require Docker with Compose running. The database command returns after seed import finishes and leaves PostgreSQL running. Setup preserves `.env`. PostgreSQL is published on `127.0.0.1:POSTGRES_PORT`. Ctrl+C stops applications; the database remains running.
 

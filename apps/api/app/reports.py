@@ -9,8 +9,23 @@ from pydantic import BaseModel, ConfigDict, model_validator
 
 from app import matching, storage
 from app.auth import CurrentUser, StaffUser
-from app.common import (POINT, Connection, Latitude, Limit, Location, Longitude, NearFilter, Offset, Page,
-                        Text, assignments, fetch_page, foreign_key_error, location_json, reject_nulls)
+from app.common import (
+    POINT,
+    Connection,
+    Latitude,
+    Limit,
+    Location,
+    Longitude,
+    NearFilter,
+    Offset,
+    Page,
+    Text,
+    assignments,
+    fetch_page,
+    foreign_key_error,
+    location_json,
+    reject_nulls,
+)
 from app.models import User
 from app.photos import PHOTO_COLUMNS, PHOTO_ORDER, Photo
 
@@ -101,8 +116,9 @@ def require_owner_or_admin(user: User, report: dict[str, Any]) -> None:
 def read_photos(files: list[UploadFile], existing: int = 0) -> list[tuple[str, bytes]]:
     """validate uploaded photos and return their extensions and contents."""
     if existing + len(files) > storage.MAX_PHOTOS_PER_REPORT:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT,
-                            f"A report can have at most {storage.MAX_PHOTOS_PER_REPORT} photos")
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT, f"A report can have at most {storage.MAX_PHOTOS_PER_REPORT} photos"
+        )
     photos = []
     for file in files:
         data = file.file.read(storage.MAX_PHOTO_BYTES + 1)
@@ -110,20 +126,22 @@ def read_photos(files: list[UploadFile], existing: int = 0) -> list[tuple[str, b
             raise HTTPException(status.HTTP_413_CONTENT_TOO_LARGE, "A photo can have at most 10 MB")
         extension = storage.detect_extension(data)
         if extension is None:
-            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT,
-                                "Photos must be JPEG, PNG, or WebP images")
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Photos must be JPEG, PNG, or WebP images")
         photos.append((extension, data))
     return photos
 
 
-def save_photos(connection: psycopg.Connection, report_id: UUID, photos: list[tuple[str, bytes]],
-                saved: list[str]) -> list[UUID]:
+def save_photos(
+    connection: psycopg.Connection, report_id: UUID, photos: list[tuple[str, bytes]], saved: list[str]
+) -> list[UUID]:
     photo_ids = []
     for extension, data in photos:
         photo_id = uuid4()
         storage_key = f"reports/{report_id}/{photo_id}.{extension}"
-        connection.execute("INSERT INTO report_photos (id, report_id, storage_key) VALUES (%s, %s, %s)",
-                           (photo_id, report_id, storage_key))
+        connection.execute(
+            "INSERT INTO report_photos (id, report_id, storage_key) VALUES (%s, %s, %s)",
+            (photo_id, report_id, storage_key),
+        )
         storage.save(storage_key, data)
         saved.append(storage_key)
         photo_ids.append(photo_id)
@@ -180,10 +198,17 @@ def list_reports(
     if near is not None:
         conditions.append(near.condition("r"))
         params |= near.params()
-    total, rows = fetch_page(connection, REPORT_COLUMNS, sql.SQL("reports r"), conditions, params,
-                             sql.SQL("r.created_at DESC, r.id"), limit, offset)
-    return Page[Report](items=[Report.model_validate(row) for row in rows],
-                        total=total, limit=limit, offset=offset)
+    total, rows = fetch_page(
+        connection,
+        REPORT_COLUMNS,
+        sql.SQL("reports r"),
+        conditions,
+        params,
+        sql.SQL("r.created_at DESC, r.id"),
+        limit,
+        offset,
+    )
+    return Page[Report](items=[Report.model_validate(row) for row in rows], total=total, limit=limit, offset=offset)
 
 
 @router.get("/{report_id}")
@@ -200,8 +225,7 @@ def update_report(report_id: UUID, body: ReportUpdate, user: CurrentUser, connec
             require_owner_or_admin(user, lock_report(report_id, connection))
             if changes:
                 clause, params = assignments(changes)
-                connection.execute(sql.SQL("UPDATE reports SET {} WHERE id = %s").format(clause),
-                                   (*params, report_id))
+                connection.execute(sql.SQL("UPDATE reports SET {} WHERE id = %s").format(clause), (*params, report_id))
     except errors.ForeignKeyViolation as error:
         raise foreign_key_error(error, FOREIGN_KEY_ERRORS) from None
     return fetch_report(report_id, connection)
@@ -212,9 +236,12 @@ def delete_report(report_id: UUID, user: CurrentUser, connection: Connection) ->
     with connection.transaction():
         report = lock_report(report_id, connection)
         require_owner_or_admin(user, report)
-        storage_keys = [row["storage_key"] for row in connection.execute(
-            "SELECT storage_key FROM report_photos WHERE report_id = %s", (report_id,)
-        ).fetchall()]
+        storage_keys = [
+            row["storage_key"]
+            for row in connection.execute(
+                "SELECT storage_key FROM report_photos WHERE report_id = %s", (report_id,)
+            ).fetchall()
+        ]
         connection.execute("DELETE FROM reports WHERE id = %s", (report_id,))
         matching.delete_if_empty(connection, report["master_report_id"])
     storage.delete(storage_keys)
@@ -229,11 +256,13 @@ def move_report(report_id: UUID, body: ReportMove, _: StaffUser, connection: Con
             master_report_id = body.master_report_id
             if master_report_id is None:
                 report = fetch_report(report_id, connection)
-                master_report_id = matching.create_master(connection, report.report_category_id, report.title,
-                                                          report.description, report.location)
+                master_report_id = matching.create_master(
+                    connection, report.report_category_id, report.title, report.description, report.location
+                )
             if master_report_id != previous_master_id:
-                connection.execute("UPDATE reports SET master_report_id = %s WHERE id = %s",
-                                   (master_report_id, report_id))
+                connection.execute(
+                    "UPDATE reports SET master_report_id = %s WHERE id = %s", (master_report_id, report_id)
+                )
                 matching.delete_if_empty(connection, previous_master_id)
     except errors.ForeignKeyViolation as error:
         raise foreign_key_error(error, FOREIGN_KEY_ERRORS) from None
@@ -241,9 +270,12 @@ def move_report(report_id: UUID, body: ReportMove, _: StaffUser, connection: Con
 
 
 @router.post("/{report_id}/photos", status_code=status.HTTP_201_CREATED)
-def add_photos(report_id: UUID, user: CurrentUser, connection: Connection,
-               photos: Annotated[list[UploadFile], File(description="JPEG, PNG, or WebP images, 10 MB each")]
-               ) -> list[Photo]:
+def add_photos(
+    report_id: UUID,
+    user: CurrentUser,
+    connection: Connection,
+    photos: Annotated[list[UploadFile], File(description="JPEG, PNG, or WebP images, 10 MB each")],
+) -> list[Photo]:
     with storage.cleanup_on_error() as saved, connection.transaction():
         require_owner_or_admin(user, lock_report(report_id, connection))
         existing = connection.execute(

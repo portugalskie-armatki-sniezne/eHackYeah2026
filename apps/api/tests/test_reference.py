@@ -31,7 +31,8 @@ def test_institution_contacts_read_offices(client: TestClient, connection: psyco
     # % and _ in q are matched literally.
     assert client.get("/institution-contacts", params={"q": name[6:].upper()}).json()["items"] == [office]
     assert client.get("/institution-contacts", params={"q": "100__"}).json()["total"] == 0
-    page = client.get("/institution-contacts",
-                      params={"province": "małopolskie", "local_government_type": "GM", "limit": 200}).json()
+    page = client.get(
+        "/institution-contacts", params={"province": "małopolskie", "local_government_type": "GM", "limit": 200}
+    ).json()
     assert office in page["items"]
     assert client.get("/institution-contacts/0").status_code == 404

@@ -39,7 +39,7 @@
 
 ## Development command contract
 
-- Use the Bun, Task, and uv versions pinned in `mise.toml` and keep root commands limited to `./setup-dev-env.sh` and `task setup|web|db|api|fe:lint|be:lint` unless requested otherwise.
+- Use the Bun, Task, and uv versions pinned in `mise.toml` and keep root commands limited to `./setup-dev-env.sh` and `task setup|web|db|api|fe:lint|fe:lint:fix|be:lint|be:lint:fix` unless requested otherwise.
 - The web workspace provides `scripts.dev`; API setup installs Python dependencies from its Python manifest with uv. Keep setup repeatable and preserve `.env`.
 - Tasks run applications in their directory with root `.env` values. Keep servers in the foreground and reloads scoped to each application.
 - Both `db` and `api` start the database, migrations, and seed import.

@@ -104,11 +104,20 @@ def reference_id(client: TestClient, path: str, name: str) -> int:
     return next(item["id"] for item in client.get(path).json() if item["name"] == name)
 
 
-def create_report(client: TestClient, headers: dict[str, str], location: dict[str, float],
-                  photos: list[bytes] | None = None, category: str = "issue",
-                  **overrides: object) -> dict[str, object]:
-    form = {"report_category_id": reference_id(client, "/report-categories", category),
-            "title": "Dziura w jezdni", "description": "Głęboka dziura na pasie ruchu.", **location} | overrides
+def create_report(
+    client: TestClient,
+    headers: dict[str, str],
+    location: dict[str, float],
+    photos: list[bytes] | None = None,
+    category: str = "issue",
+    **overrides: object,
+) -> dict[str, object]:
+    form = {
+        "report_category_id": reference_id(client, "/report-categories", category),
+        "title": "Dziura w jezdni",
+        "description": "Głęboka dziura na pasie ruchu.",
+        **location,
+    } | overrides
     files = [("photos", (f"photo-{index}", data)) for index, data in enumerate(photos or [])]
     response = client.post("/reports", data=form, files=files or None, headers=headers)
     assert response.status_code == 201, response.text

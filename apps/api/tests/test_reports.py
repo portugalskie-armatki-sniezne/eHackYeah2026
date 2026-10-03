@@ -28,7 +28,8 @@ def test_first_report_creates_master(client: TestClient, signed_in):
     assert master["response"] is None
     assert master["report_count"] == 1
     assert {key: master[key] for key in ("report_category_id", "title", "description")} == {
-        key: report[key] for key in ("report_category_id", "title", "description")}
+        key: report[key] for key in ("report_category_id", "title", "description")
+    }
     assert master["location"] == pytest.approx(location)
 
 
@@ -38,20 +39,25 @@ def test_similar_report_nearby_joins_master(client: TestClient, signed_in):
     location = random_location()
     first = create_report(client, headers, location, title="Dziura w jezdni")
 
-    second = create_report(client, other_headers, moved(location, north_m=30, east_m=20),
-                           title="Dziura w jezdni na Długiej")
+    second = create_report(
+        client, other_headers, moved(location, north_m=30, east_m=20), title="Dziura w jezdni na Długiej"
+    )
 
     assert second["master_report_id"] == first["master_report_id"]
     assert client.get(f"/master-reports/{first['master_report_id']}").json()["report_count"] == 2
 
 
-@pytest.mark.parametrize("overrides, offset_m", [
-    ({"title": "Zepsuta latarnia"}, 5),
-    ({"title": "Dziura w jezdni"}, 60),
-    ({"title": "Dziura w jezdni", "category": "improvement"}, 5),
-])
+@pytest.mark.parametrize(
+    "overrides, offset_m",
+    [
+        ({"title": "Zepsuta latarnia"}, 5),
+        ({"title": "Dziura w jezdni"}, 60),
+        ({"title": "Dziura w jezdni", "category": "improvement"}, 5),
+    ],
+)
 def test_report_creates_new_master_for_other_issue_place_or_category(
-        client: TestClient, signed_in, overrides: dict[str, str], offset_m: float):
+    client: TestClient, signed_in, overrides: dict[str, str], offset_m: float
+):
     _, headers = signed_in("user")
     location = random_location()
     first = create_report(client, headers, location, title="Dziura w jezdni")
@@ -80,7 +86,9 @@ def test_finished_master_is_not_matched(client: TestClient, signed_in, connectio
     first = create_report(client, headers, location)
     connection.execute(
         "UPDATE master_reports SET status_id = (SELECT id FROM master_report_statuses WHERE name = 'finished') "
-        "WHERE id = %s", (first["master_report_id"],))
+        "WHERE id = %s",
+        (first["master_report_id"],),
+    )
 
     second = create_report(client, headers, location)
 
@@ -95,8 +103,9 @@ def test_most_similar_master_wins_and_distance_breaks_ties(client: TestClient, s
     def master_at(title: str, north_m: float) -> str:
         # created elsewhere and moved, so it does not join the other masters.
         master_id = create_report(client, headers, random_location(), title=title)["master_report_id"]
-        response = client.patch(f"/master-reports/{master_id}", headers=office_headers,
-                                json={"location": moved(location, north_m=north_m)})
+        response = client.patch(
+            f"/master-reports/{master_id}", headers=office_headers, json={"location": moved(location, north_m=north_m)}
+        )
         assert response.status_code == 200
         return master_id
 
@@ -116,8 +125,9 @@ def test_report_matches_titles_of_attached_reports(client: TestClient, signed_in
     first = create_report(client, headers, location, title="Dziura w jezdni")
     synonym = create_report(client, headers, location, title="Wyrwa w asfalcie")
     assert synonym["master_report_id"] != first["master_report_id"]
-    response = client.post(f"/reports/{synonym['id']}/move", headers=office_headers,
-                           json={"master_report_id": first["master_report_id"]})
+    response = client.post(
+        f"/reports/{synonym['id']}/move", headers=office_headers, json={"master_report_id": first["master_report_id"]}
+    )
     assert response.status_code == 200
 
     report = create_report(client, headers, location, title="Wyrwa w asfalcie przy przejściu")
@@ -145,8 +155,12 @@ def test_create_report_with_photos(client: TestClient, signed_in, upload_dir):
 
 def test_create_report_rejects_invalid_photos(client: TestClient, signed_in, upload_dir):
     _, headers = signed_in("user")
-    form = {"report_category_id": reference_id(client, "/report-categories", "issue"),
-            "title": "Dziura", "description": "Dziura w jezdni", **random_location()}
+    form = {
+        "report_category_id": reference_id(client, "/report-categories", "issue"),
+        "title": "Dziura",
+        "description": "Dziura w jezdni",
+        **random_location(),
+    }
 
     def post(photos: list[bytes]) -> int:
         files = [("photos", (f"photo-{index}.jpg", data)) for index, data in enumerate(photos)]
@@ -160,8 +174,12 @@ def test_create_report_rejects_invalid_photos(client: TestClient, signed_in, upl
 
 def test_create_report_validates_input(client: TestClient, signed_in):
     _, headers = signed_in("user")
-    form = {"report_category_id": reference_id(client, "/report-categories", "issue"),
-            "title": "Dziura", "description": "Dziura w jezdni", **random_location()}
+    form = {
+        "report_category_id": reference_id(client, "/report-categories", "issue"),
+        "title": "Dziura",
+        "description": "Dziura w jezdni",
+        **random_location(),
+    }
 
     assert client.post("/reports", data=form).status_code == 401
     response = client.post("/reports", data=form | {"report_category_id": 0}, headers=headers)
@@ -251,8 +269,7 @@ def test_move_report(client: TestClient, signed_in):
     assert split["master_report_id"] not in (None, first["master_report_id"])
     assert client.get(f"/master-reports/{split['master_report_id']}").json()["title"] == second["title"]
 
-    moved_report = client.post(url, json={"master_report_id": other["master_report_id"]},
-                               headers=office_headers).json()
+    moved_report = client.post(url, json={"master_report_id": other["master_report_id"]}, headers=office_headers).json()
     assert moved_report["master_report_id"] == other["master_report_id"]
     # the master created by the split has no reports left.
     assert client.get(f"/master-reports/{split['master_report_id']}").status_code == 404

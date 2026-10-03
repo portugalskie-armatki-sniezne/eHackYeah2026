@@ -52,23 +52,26 @@ def fetch_comment(comment_id: UUID, viewer_id: UUID | None, connection: psycopg.
 
 
 @router.get("/master-reports/{master_report_id}/comments")
-def list_comments(master_report_id: UUID, user: OptionalUser, connection: Connection,
-                  limit: Limit = 50, offset: Offset = 0) -> Page[Comment]:
+def list_comments(
+    master_report_id: UUID, user: OptionalUser, connection: Connection, limit: Limit = 50, offset: Offset = 0
+) -> Page[Comment]:
     if connection.execute("SELECT 1 FROM master_reports WHERE id = %s", (master_report_id,)).fetchone() is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Master report not found")
     total, rows = fetch_page(
-        connection, COMMENT_COLUMNS, sql.SQL("master_report_comments c"),
+        connection,
+        COMMENT_COLUMNS,
+        sql.SQL("master_report_comments c"),
         [sql.SQL("c.master_report_id = %(master_report_id)s")],
         {"master_report_id": master_report_id, "viewer_id": user.id if user else None},
-        sql.SQL("c.created_at, c.id"), limit, offset,
+        sql.SQL("c.created_at, c.id"),
+        limit,
+        offset,
     )
-    return Page[Comment](items=[Comment.model_validate(row) for row in rows],
-                         total=total, limit=limit, offset=offset)
+    return Page[Comment](items=[Comment.model_validate(row) for row in rows], total=total, limit=limit, offset=offset)
 
 
 @router.post("/master-reports/{master_report_id}/comments", status_code=status.HTTP_201_CREATED)
-def create_comment(master_report_id: UUID, body: CommentCreate, user: CurrentUser,
-                   connection: Connection) -> Comment:
+def create_comment(master_report_id: UUID, body: CommentCreate, user: CurrentUser, connection: Connection) -> Comment:
     try:
         with connection.transaction():
             comment_id = connection.execute(
@@ -84,8 +87,9 @@ def create_comment(master_report_id: UUID, body: CommentCreate, user: CurrentUse
 @router.delete("/comments/{comment_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_comment(comment_id: UUID, user: CurrentUser, connection: Connection) -> Response:
     with connection.transaction():
-        row = connection.execute("SELECT user_id FROM master_report_comments WHERE id = %s FOR UPDATE",
-                                 (comment_id,)).fetchone()
+        row = connection.execute(
+            "SELECT user_id FROM master_report_comments WHERE id = %s FOR UPDATE", (comment_id,)
+        ).fetchone()
         if row is None:
             raise comment_not_found()
         if user.role == "user" and user.id != row["user_id"]:
@@ -99,8 +103,7 @@ def like_comment(comment_id: UUID, user: CurrentUser, connection: Connection) ->
     try:
         with connection.transaction():
             connection.execute(
-                "INSERT INTO master_report_comment_likes (comment_id, user_id) VALUES (%s, %s) "
-                "ON CONFLICT DO NOTHING",
+                "INSERT INTO master_report_comment_likes (comment_id, user_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
                 (comment_id, user.id),
             )
     except errors.ForeignKeyViolation:
@@ -111,6 +114,7 @@ def like_comment(comment_id: UUID, user: CurrentUser, connection: Connection) ->
 @router.delete("/comments/{comment_id}/like")
 def unlike_comment(comment_id: UUID, user: CurrentUser, connection: Connection) -> Comment:
     with connection.transaction():
-        connection.execute("DELETE FROM master_report_comment_likes WHERE comment_id = %s AND user_id = %s",
-                           (comment_id, user.id))
+        connection.execute(
+            "DELETE FROM master_report_comment_likes WHERE comment_id = %s AND user_id = %s", (comment_id, user.id)
+        )
     return fetch_comment(comment_id, user.id, connection)
