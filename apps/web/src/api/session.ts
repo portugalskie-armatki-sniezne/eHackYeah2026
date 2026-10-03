@@ -59,6 +59,11 @@ export function signOut() {
   setToken(null);
 }
 
+// swaps in the user returned by a profile update and keeps the token
+export function updateUser(user: User) {
+  if (state.status === "signed-in") setState({ status: "signed-in", user });
+}
+
 function subscribe(listener: () => void) {
   listeners.add(listener);
   return () => {
