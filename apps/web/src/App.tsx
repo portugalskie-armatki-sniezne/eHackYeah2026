@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useSession } from "./api/useSession";
+import { signOut, useSession } from "./api/session";
 import AuthDialog from "./components/AuthDialog";
 import Map from "./components/Map";
 import Navbar from "./components/Navbar";
 import SignOutDialog from "./components/SignOutDialog";
 
 export default function App() {
-  const { state: session, signIn, signOut } = useSession();
+  const session = useSession();
   const [authOpen, setAuthOpen] = useState(false);
   const [signOutOpen, setSignOutOpen] = useState(false);
 
@@ -17,10 +17,8 @@ export default function App() {
         onSignIn={() => setAuthOpen(true)}
         onSignOut={() => setSignOutOpen(true)}
       />
-      <Map />
-      {authOpen && (
-        <AuthDialog onClose={() => setAuthOpen(false)} onSignedIn={signIn} />
-      )}
+      <Map onSignInRequired={() => setAuthOpen(true)} />
+      {authOpen && <AuthDialog onClose={() => setAuthOpen(false)} />}
       {signOutOpen && (
         <SignOutDialog
           onClose={() => setSignOutOpen(false)}

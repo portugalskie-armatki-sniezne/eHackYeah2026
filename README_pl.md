@@ -93,6 +93,7 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
    ```
 
 3. Gotowy build trafia do `apps/web/dist`.
+4. Aplikacja łączy się z API pod adresem `VITE_API_URL` z głównego `.env`. Bez tej zmiennej zapytania trafiają pod `/api`, skąd serwer deweloperski Vite przekazuje je do `http://127.0.0.1:8000` albo do `API_PROXY_TARGET`. Dodanie zgłoszenia wymaga zalogowania.
 
 ### Automatyczne wdrożenie
 

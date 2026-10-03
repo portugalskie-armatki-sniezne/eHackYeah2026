@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+} from "react";
 import {
   Map as MapLibreMap,
   setWorkerUrl,
@@ -19,12 +25,8 @@ import ReportClusters from "./ReportClusters";
 import { isClusterAt } from "./reportClusterHit";
 import { createTiltPrewarmer } from "./mapPrewarm";
 import { POZNAN_REPORTS } from "../data/reports";
-import {
-  DEV_REPORTS_ENABLED,
-  devReportsApi,
-  getDevSession,
-  saveDevReport,
-} from "../api/devReports";
+import { reportsApi } from "../api/reports";
+import { useSession } from "../api/session";
 import "./Map.css";
 
 // maplibre resolves its worker next to its own file at runtime, which the bundler cannot see
@@ -63,6 +65,31 @@ const REPORT_PINS: EventPin[] = POZNAN_REPORTS.map((report) => ({
   category: report.category,
   reportCount: report.reportCount,
 }));
+
+// the sheet has no title or category field yet, so every report is saved with these
+const REPORT_TITLE = "Development test report";
+
+async function saveReport(
+  description: string,
+  [longitude, latitude]: [number, number],
+  image: File | null,
+) {
+  const category = (await reportsApi.categories()).find(
+    (item) => item.name === DEFAULT_PIN_CATEGORY,
+  );
+  if (!category) {
+    throw new Error(
+      `The database is missing the ${DEFAULT_PIN_CATEGORY} category.`,
+    );
+  }
+  return reportsApi.create({
+    title: REPORT_TITLE,
+    report_category_id: category.id,
+    description,
+    location: { longitude, latitude },
+    photos: image ? [image] : [],
+  });
+}
 
 type PaintProperty = Parameters<MapLibreMap["setPaintProperty"]>[1];
 type PaintValue = Parameters<MapLibreMap["setPaintProperty"]>[2];
@@ -377,16 +404,21 @@ function applyLightTheme(map: MapLibreMap) {
   });
 }
 
-export default function Map() {
+type MapProps = {
+  /** Called when a signed-out visitor starts a report. */
+  onSignInRequired: () => void;
+};
+
+export default function Map({ onSignInRequired }: MapProps) {
+  const session = useSession();
+  const userId = session.status === "signed-in" ? session.user.id : null;
   const containerRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const [tilted, setTilted] = useState(false);
   const [styleReady, setStyleReady] = useState(false);
   const [pins, setPins] = useState<EventPin[]>(REPORT_PINS);
-  const [devStatus, setDevStatus] = useState(
-    "Connecting to the test database...",
-  );
+  const [status, setStatus] = useState<string | null>(null);
   const photoSavingRef = useRef(false);
   // Which reports escaped grouping, so only those get a pin. Null until the
   // clusters have first reported, when every pin is drawn.
@@ -395,22 +427,27 @@ export default function Map() {
   );
   // the clicked point while its marker sheet is open
   const [draftLngLat, setDraftLngLat] = useState<[number, number] | null>(null);
-  const nextPinIdRef = useRef(1);
   const { fix } = useUserPosition();
   // The camera eases to the first fix so the dot isn't off-screen, then leaves
   // the view alone: later fixes only move the dot.
   const centredRef = useRef(false);
 
+  // Reports are saved for the signed-in user. While the session is still
+  // being restored the answer is not known yet, so nothing happens.
+  const canStartReport = useCallback(() => {
+    if (session.status === "signed-out") onSignInRequired();
+    return session.status === "signed-in";
+  }, [session.status, onSignInRequired]);
+  const handleMapClick = useEffectEvent((lngLat: [number, number]) => {
+    if (canStartReport()) setDraftLngLat(lngLat);
+  });
+
   useEffect(() => {
-    if (!DEV_REPORTS_ENABLED) return;
+    if (!userId) return;
     let active = true;
-    async function loadReports() {
+    async function loadReports(userId: string) {
       try {
-        const { token, userId } = await getDevSession();
-        const page = await devReportsApi.list(token, {
-          user_id: userId,
-          limit: 200,
-        });
+        const page = await reportsApi.list({ user_id: userId, limit: 200 });
         if (!active) return;
         const loaded: EventPin[] = page.items.map((report) => ({
           id: report.id,
@@ -418,7 +455,7 @@ export default function Map() {
           description: report.description,
           image: null,
           imageUrl: report.photos[0]
-            ? devReportsApi.photoUrl(report.photos[0])
+            ? reportsApi.photoUrl(report.photos[0])
             : null,
           category: DEFAULT_PIN_CATEGORY,
           reportCount: 1,
@@ -429,23 +466,20 @@ export default function Map() {
             (pin) => !current.some((existing) => existing.id === pin.id),
           ),
         ]);
-        setDevStatus(
-          `Connected. Loaded ${loaded.length} recent test ${loaded.length === 1 ? "report" : "reports"}.`,
-        );
       } catch (error) {
         if (active)
-          setDevStatus(
+          setStatus(
             error instanceof Error
               ? error.message
-              : "Could not connect to the test API.",
+              : "Could not load your reports.",
           );
       }
     }
-    void loadReports();
+    void loadReports(userId);
     return () => {
       active = false;
     };
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -501,7 +535,7 @@ export default function Map() {
       if (isClusterAt(map, event.point)) {
         return;
       }
-      setDraftLngLat([event.lngLat.lng, event.lngLat.lat]);
+      handleMapClick([event.lngLat.lng, event.lngLat.lat]);
     });
 
     map
@@ -545,22 +579,15 @@ export default function Map() {
       if (!draftLngLat) {
         return;
       }
-      const report = DEV_REPORTS_ENABLED
-        ? await saveDevReport(
-            draft.description,
-            {
-              longitude: draftLngLat[0],
-              latitude: draftLngLat[1],
-            },
-            draft.image,
-          )
-        : null;
-      const id = report?.id ?? String(nextPinIdRef.current);
-      nextPinIdRef.current += 1;
+      const report = await saveReport(
+        draft.description,
+        draftLngLat,
+        draft.image,
+      );
       setPins((current) => [
         ...current,
         {
-          id,
+          id: report.id,
           lngLat: draftLngLat,
           ...draft,
           // the sheet has no category field yet, so a new pin starts as a fault
@@ -568,8 +595,6 @@ export default function Map() {
           reportCount: 1,
         },
       ]);
-      if (report)
-        setDevStatus(`Saved test report ${report.id} to the database.`);
     },
     [draftLngLat],
   );
@@ -583,23 +608,12 @@ export default function Map() {
       }
       photoSavingRef.current = true;
       try {
-        if (DEV_REPORTS_ENABLED) setDevStatus("Saving test photo report...");
-        const report = DEV_REPORTS_ENABLED
-          ? await saveDevReport(
-              "Photo report",
-              {
-                longitude: fix.lngLat[0],
-                latitude: fix.lngLat[1],
-              },
-              photo,
-            )
-          : null;
-        const id = report?.id ?? String(nextPinIdRef.current);
-        nextPinIdRef.current += 1;
+        setStatus("Saving photo report...");
+        const report = await saveReport("Photo report", fix.lngLat, photo);
         setPins((current) => [
           ...current,
           {
-            id,
+            id: report.id,
             lngLat: fix.lngLat,
             description: "Photo report",
             image: photo,
@@ -609,10 +623,9 @@ export default function Map() {
           },
         ]);
         flyToFix(fix.lngLat);
-        if (report)
-          setDevStatus(`Saved test report ${report.id} to the database.`);
+        setStatus(null);
       } catch (error) {
-        setDevStatus(
+        setStatus(
           error instanceof Error
             ? error.message
             : "Could not save the photo report.",
@@ -644,13 +657,9 @@ export default function Map() {
 
   return (
     <section className="map" aria-label="Map of Poznań">
-      {DEV_REPORTS_ENABLED && (
-        <aside className="map__dev-status" role="status">
-          <strong>Development test mode</strong>
-          <span>{devStatus}</span>
-          <small>
-            New reports use a test account. Sample map markers remain visible.
-          </small>
+      {status && (
+        <aside className="map__status" role="status">
+          {status}
         </aside>
       )}
       <div className="map__frame" ref={frameRef}>
@@ -664,6 +673,7 @@ export default function Map() {
         onRecenter={handleRecenter}
         onRecenterOnMe={handleRecenterOnMe}
         canRecenterOnMe={fix !== null}
+        onPhotoReportStart={canStartReport}
         onPhotoReport={handlePhotoReport}
       />
       <UserPosition mapRef={mapRef} styleReady={styleReady} fix={fix} />
