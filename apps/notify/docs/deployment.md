@@ -36,13 +36,13 @@ W `.env.example` mock jest włączony. Uzupełnij rzeczywisty adres testowy i da
 
 ## Wdrożenie
 
-1. Zaktualizuj na serwerze kopię `docker-compose.app.yaml` w `DEPLOY_DIR/docker-compose.yaml` i uzupełnij `.env` obok niej.
+1. Uzupełnij `.env` w `DEPLOY_DIR` na serwerze. Plik Compose trafia tam przy każdym wdrożeniu jako `docker-compose.yml`.
 2. Uruchom `[1] Deploy` dla usługi `notify` i wybranego środowiska. Push do `main` wdraża zmiany w `apps/notify/` na `dev`; `[2] Release` wdraża także `notify` na `prod`.
 3. Backend w tym projekcie Compose wywołuje `http://notify:<NOTIFY_PORT>/send`. Przy wartości z przykładu jest to `http://notify:8001/send`.
 
 Port pozostaje wewnętrzny. `task api` uruchamia backend na hoście, więc nie korzysta z adresu DNS `notify` w sieci Compose.
 
-Compose montuje `api_uploads` w `notify` pod `/app/uploads` tylko do odczytu. API nadal zapisuje tam zdjęcia. Po zmianie szablonu Compose zaktualizuj kopię w `DEPLOY_DIR`, aby wysyłka załączników widziała te same pliki. Backend przekazuje `photos` i `location` zgodnie z [kontraktem HTTP](api.md).
+Compose montuje `api_uploads` w `notify` pod `/app/uploads` tylko do odczytu. API nadal zapisuje tam zdjęcia. Po zmianie szablonu Compose wdróż `api` i `notify` ponownie, aby wysyłka załączników widziała te same pliki. Backend przekazuje `photos` i `location` zgodnie z [kontraktem HTTP](api.md).
 
 Po zmianie `.env` odtwórz kontener z katalogu `DEPLOY_DIR`:
 

@@ -1,7 +1,8 @@
 name: "[1] Deploy"
 
 # builds and deploys the web and api images
-# a merge to main deploys the changed services to dev, a manual run deploys the chosen service and environment
+# a merge to main deploys the changed services to dev, a manual run deploys the chosen service or all of them to the chosen environment
+# every deployment copies docker-compose.app.yaml to the target machine
 # every api deployment applies the database migrations first
 # the release workflow calls it to deploy both services to prod
 on:
@@ -20,9 +21,10 @@ on:
   workflow_dispatch:
     inputs:
       service:
-        description: "Service to deploy"
+        description: "Service to deploy, or all for every service"
         type: choice
         options:
+          - all
           - web
           - api
           - notify
@@ -162,9 +164,14 @@ jobs:
       IMAGE_TAG: ${{ inputs.environment || 'dev' }}-${{ github.sha }}
       SERVICES: ${{ join(fromJSON(needs.select.outputs.services), ' ') }}
     steps:
-      # the migrations of the deployed commit are applied from this checkout
+      # the Compose file and the migrations of the deployed commit come from this checkout
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        if: ${{ contains(fromJSON(needs.select.outputs.services), 'api') }}
+
+      # the copy on the target machine follows the deployed commit, so it needs no manual updates
+      - name: Update Compose file
+        env:
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+        run: cp docker-compose.app.yaml "$DEPLOY_DIR/docker-compose.yml"
 
       - name: Select image tags
         run: |

@@ -39,7 +39,7 @@ BIP filtering, distinct transport roles, stable IDs, atomic upserts, spatial
 distance queries, reports saved before classification, master report links and independent
 content, statuses, assignment to either an office or a service entity, exclusive assignment,
 referenced entity deletion restrictions, shared comments and likes, photo relationships,
-edit timestamps, and reference data rollback. All five migrations are rolled back and
+edit timestamps, and reference data rollback. All seven migrations are rolled back and
 reapplied. Its containers, volume, and local image tag are removed afterward.
 
 Report locations use `geography(Point, 4326)`. Supply longitude before latitude, for
@@ -69,6 +69,10 @@ Migrations 01 and 02 create the tables, migration 03 adds constraints, and migra
 04 inserts the initial categories (`improvement`, `issue`) and master report statuses.
 Migration 05 adds Google sign-in to users; its rollback gives accounts without a password
 the hash `!`, which no password matches.
+Migration 07 adds persistent institution seat coordinates, their municipality code,
+the geocoding timestamp, and the source address. API tests cover geocoding updates,
+unchanged addresses, stale coordinates, and administrative recommendation priority.
+External geocoding is mocked in these tests.
 The statuses mean: `created` is saved in the application, `reported` is successfully
 sent to the responsible institution, `inprogress` has confirmed work in progress,
 and `finished` has confirmed completion. The backend owns classification, master

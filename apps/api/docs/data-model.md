@@ -1,6 +1,6 @@
 # Model danych
 
-Źródło: migracje w `db/migrations/`. Migracje 01 i 02 tworzą tabele, 03 dodaje ograniczenia, a 04 wstawia początkowe kategorie i statusy. Migracja 06 dodaje gminę i powiat zgłoszenia w Małopolsce.
+Źródło: migracje w `db/migrations/`. Migracje 01 i 02 tworzą tabele, 03 dodaje ograniczenia, a 04 wstawia początkowe kategorie i statusy. Migracja 06 dodaje gminę i powiat zgłoszenia w Małopolsce, a 07 zapisaną lokalizację siedziby instytucji.
 
 ## ERD
 
@@ -262,6 +262,10 @@ wszystkie 22 nagłówki XLS, lecz zapisuje 19 pól danych.
 
 Katalog wyspecjalizowanych jednostek przyjmujących sprawy miejskie. Migracja 02 tworzy
 jedną tabelę; nie ma osobnych tabel kontaktów, kompetencji ani jurysdykcji.
+Migracja 07 dodaje zapisaną lokalizację siedziby. Cztery pola `seat_*` muszą
+być wypełnione razem albo pozostać NULL. [Polecenie geokodowania](inference.md#rekomendacja-instytucji-dla-nowego-zgłoszenia)
+uzupełnia je niezależnie od tworzenia zgłoszeń. Rekomendacja używa tylko
+lokalizacji zapisanych dla aktualnego adresu.
 
 | Kolumna | Typ | Uwagi |
 | --- | --- | --- |
@@ -272,6 +276,10 @@ jedną tabelę; nie ma osobnych tabel kontaktów, kompetencji ani jurysdykcji.
 | entity_type | text | NOT NULL, typ z listy poniżej |
 | teryt_code | text | NULL lub dokładnie 7 cyfr; powiązana gmina, bez FK i bez definicji zasięgu usług |
 | locality, postal_code, street, house_number | text | NULL, adres siedziby lub oddziału |
+| seat_location | geography(Point,4326) | NULL lub zapisane współrzędne siedziby z GUGiK |
+| seat_teryt | text | NULL lub 7-cyfrowy kod gminy siedziby ustalony przez ULDK |
+| seat_geocoded_at | timestamptz | NULL lub data geokodowania siedziby |
+| seat_address | jsonb | NULL lub tablica miejscowości, ulicy i numeru użytych przy geokodowaniu |
 | phone_number, email | text | NULL, kontakt ogólny |
 | website, bip_url | text | NULL, oficjalna strona i BIP |
 | reporting_channel | text | NULL, URL formularza albo URI `tel:` / `mailto:` |
