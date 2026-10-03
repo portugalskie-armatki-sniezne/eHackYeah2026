@@ -2,6 +2,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
 from app import (
     auth,
@@ -16,6 +17,7 @@ from app import (
     users,
 )
 from app.db import pool
+from app.inference.contracts import InferenceInputError, InferenceUnavailableError, InvalidInferenceResultError
 from app.inference.router import router as inference_router
 from app.security import jwt_secret
 
@@ -32,6 +34,23 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title="eHackYeah2026 API", lifespan=lifespan)
+
+
+@app.exception_handler(InferenceUnavailableError)
+async def inference_unavailable(_request, _error) -> JSONResponse:
+    return JSONResponse(status_code=503, content={"detail": "Inference provider is unavailable"})
+
+
+@app.exception_handler(InvalidInferenceResultError)
+async def inference_invalid(_request, _error) -> JSONResponse:
+    return JSONResponse(status_code=502, content={"detail": "Inference provider returned an invalid result"})
+
+
+@app.exception_handler(InferenceInputError)
+async def inference_input_invalid(_request, _error) -> JSONResponse:
+    return JSONResponse(status_code=422, content={"detail": "Input is unsupported or exceeds model limits"})
+
+
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(reports.router)

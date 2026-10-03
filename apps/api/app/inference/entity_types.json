@@ -1,0 +1,20 @@
+{
+  "instructions": "Which category best matches this report?",
+  "criteria": {
+    "road_manager": "Road and pavement repairs",
+    "transport_authority": "Bus routes and timetables",
+    "transport_operator": "Bus vehicles and drivers",
+    "green_space_manager": "Parks and tree maintenance",
+    "water_infrastructure_manager": "Rainwater drainage and flood protection",
+    "water_sewage_utility": "Water supply and sewage repairs",
+    "water_sewage_authority": "Intermunicipal water regulations",
+    "heating_utility": "District heating",
+    "waste_management": "Waste collection and street cleaning",
+    "municipal_services": "Public toilet maintenance",
+    "municipal_guard": "Parking and noise law enforcement",
+    "housing_manager": "Municipal apartment building repairs",
+    "cemetery_manager": "Cemetery maintenance",
+    "sports_infrastructure_manager": "Sports facilities maintenance",
+    "municipal_investment": "New municipal construction investments"
+  }
+}

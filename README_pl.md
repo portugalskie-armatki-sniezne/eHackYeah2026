@@ -76,7 +76,7 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 
 - Podczas konfiguracji `uv sync` instaluje zależności w `apps/api/.venv`. uv pobiera Pythona 3.10 lub nowszego, jeśli go brakuje, i korzysta z tego samego środowiska przy kolejnych uruchomieniach.
 - Dokumentacja API jest dostępna pod adresem <http://127.0.0.1:8000/docs>. `GET /health` sprawdza działanie aplikacji bez odpytywania PostgreSQL.
-- `POST /inference` wymaga zalogowania i przyjmuje tekst, pytania klasyfikacyjne oraz opcjonalne zdjęcie. Domyślnie tłumacz i klasyfikator mają puste implementacje. Zobacz [jak podłączyć tłumacz i Laya](apps/api/docs/inference.md).
+- `POST /inference/service-entity` wymaga zalogowania i wybiera jeden typ jednostki usługowej na podstawie polskiego lub angielskiego zgłoszenia oraz opcjonalnego zdjęcia. Ogólny endpoint `/inference` przyjmuje własne pytania. Dostawcy pozostają wyłączeni do konfiguracji. Zobacz [konfigurację modeli i pomiar trafności](apps/api/docs/inference.md).
 - Zmiany w `apps/api/app` automatycznie przeładowują API.
 - Uruchom `task be:lint`, aby sprawdzić API za pomocą Ruff, lub `task be:lint:fix`, aby zastosować poprawki i formatowanie.
 
