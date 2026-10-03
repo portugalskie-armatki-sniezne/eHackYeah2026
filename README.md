@@ -111,7 +111,7 @@ The `[1] Deploy` workflow builds and pushes the web and API images, then deploys
 
 | Trigger | Services | Environment |
 | --- | --- | --- |
-| Push to `main` that changes `apps/web` or `apps/api`. | The services that changed. | `dev` |
+| Push to `main` that changes `apps/web`, `apps/api`, or `db/migrations`. | The services that changed. A migration change deploys `api`. | `dev` |
 | Manual run from the Actions tab. | `web` or `api`, chosen when starting the run. | `dev` or `prod`, chosen when starting the run. |
 | Call from the `[2] Release` workflow. | Both. | `prod` |
 
@@ -120,6 +120,8 @@ The `[2] Release` workflow publishes a production release. Start it manually fro
 The images are built from `apps/web/Dockerfile` and `apps/api/Dockerfile` with the repository root as the build context and pushed to `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web` and `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api`. Builds are tagged with the environment name and with `<environment>-<commit SHA>`, for example `dev` and `dev-<commit SHA>`. To build an image locally, run `docker build -f apps/web/Dockerfile -t ehackyeah-web .` or `docker build -f apps/api/Dockerfile -t ehackyeah-api .` from the repository root.
 
 The workflow reads its configuration from the GitHub environments `dev` and `prod`. Each environment needs two variables: `VITE_API_URL`, the backend URL that Vite inlines into the frontend bundle, and `DEPLOY_DIR`, a directory on the target machine that holds the Compose file and the `.env` file of that environment. Deployment runs on a self-hosted runner: it writes the built tag to `WEB_IMAGE_TAG` or `API_IMAGE_TAG` in `DEPLOY_DIR/.env`, then runs `docker compose pull` and `docker compose up -d` for the deployed services in that directory. Do not use this runner in workflows triggered by pull requests, because the repository is public.
+
+Every deployment of `api` applies the database migrations between the pull and the restart. The workflow checks out the deployed commit on the runner and runs dbmate, in the same version and with the same settings as the `db-migrator` service of the root `docker-compose.yaml`, on `db/migrations`. It reads `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `DB_NETWORK` from `DEPLOY_DIR/.env` with the same defaults as `docker-compose.app.yaml`, so the values must be valid in both a Compose `.env` file and a shell script, and the user and password must be safe to place in a URL. A failed migration stops the deployment before the restart, so the previous `api` container keeps running. Deployment does not import seed data.
 
 `docker-compose.app.yaml` is the template for the Compose file on the target machine. It defines only the `api` and `web` services, which run published images selected by `API_IMAGE_TAG` and `WEB_IMAGE_TAG`. The database runs in a separate Compose project. The `api` service joins that project's network, named by `DB_NETWORK` (default `ehackyeah2026_default`, the network of the root `docker-compose.yaml`), and connects to `POSTGRES_HOST` (default `db`). The API stores report photos in `UPLOAD_DIR`, which the template sets to `/app/uploads` on the named volume `api_uploads`, so photos survive deployments. When the template changes, update the Compose file in `DEPLOY_DIR` as well.
 
