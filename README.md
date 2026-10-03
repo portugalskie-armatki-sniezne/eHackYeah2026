@@ -76,6 +76,7 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 
 - Setup runs `uv sync` to install dependencies in `apps/api/.venv`. uv downloads Python 3.10 or newer if needed and reuses the environment on subsequent runs.
 - API documentation is available at <http://127.0.0.1:8000/docs>. `GET /health` checks the application without querying PostgreSQL.
+- Authenticated `POST /inference` accepts text, supplied classification questions, and an optional photo. Translation and classification use empty providers by default. See [connecting translation and Laya providers](apps/api/docs/inference.md).
 - Changes under `apps/api/app` reload the API automatically.
 - Run `task be:lint` to check the API with Ruff, or `task be:lint:fix` to apply fixes and formatting.
 

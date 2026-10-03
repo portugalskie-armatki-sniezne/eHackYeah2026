@@ -6,11 +6,14 @@ from uuid import uuid4
 
 import psycopg
 import pytest
+from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from psycopg.rows import dict_row
 
-from app.db import conninfo, get_connection
-from app.main import app
+
+def pytest_configure() -> None:
+    # load configuration before application imports create the connection pool.
+    load_dotenv(Path(__file__).resolve().parents[3] / ".env", override=False)
 
 
 @pytest.fixture(autouse=True)
@@ -26,6 +29,8 @@ def upload_dir(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
 
 @pytest.fixture
 def connection() -> Iterator[psycopg.Connection]:
+    from app.db import conninfo
+
     try:
         connection = psycopg.connect(conninfo(), row_factory=dict_row, connect_timeout=3)
     except psycopg.OperationalError:
@@ -39,6 +44,9 @@ def connection() -> Iterator[psycopg.Connection]:
 
 @pytest.fixture
 def client(connection: psycopg.Connection) -> Iterator[TestClient]:
+    from app.db import get_connection
+    from app.main import app
+
     app.dependency_overrides[get_connection] = lambda: connection
     # no context manager, so the lifespan does not open the shared pool.
     yield TestClient(app)
