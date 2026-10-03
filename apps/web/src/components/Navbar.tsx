@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { SessionState } from "../api/session";
 import BrandMark from "./BrandMark";
 import useHashRoute from "./useHashRoute";
@@ -20,9 +20,15 @@ type NavbarProps = {
   session: SessionState;
   onSignIn: () => void;
   onSignOut: () => void;
+  onProfile: () => void;
 };
 
-export default function Navbar({ session, onSignIn, onSignOut }: NavbarProps) {
+export default function Navbar({
+  session,
+  onSignIn,
+  onSignOut,
+  onProfile,
+}: NavbarProps) {
   // only matters on narrow screens, where the list folds behind the hamburger
   const [open, setOpen] = useState(false);
   const menuId = useId();
@@ -94,26 +100,21 @@ export default function Navbar({ session, onSignIn, onSignOut }: NavbarProps) {
         {session.status !== "checking" && (
           <div className="navbar__account">
             {session.status === "signed-in" ? (
-              <>
-                <span className="navbar__user">
-                  <span className="visually-hidden">Signed in as </span>
-                  {session.user.first_name}
-                </span>
-                <button
-                  type="button"
-                  className="navbar__link navbar__button"
-                  onClick={() => {
-                    setOpen(false);
-                    onSignOut();
-                  }}
-                >
-                  Sign out
-                </button>
-              </>
+              <AccountMenu
+                name={session.user.first_name}
+                onProfile={() => {
+                  setOpen(false);
+                  onProfile();
+                }}
+                onSignOut={() => {
+                  setOpen(false);
+                  onSignOut();
+                }}
+              />
             ) : (
               <button
                 type="button"
-                className="navbar__link navbar__button navbar__button--primary"
+                className="navbar__link navbar__button"
                 onClick={() => {
                   setOpen(false);
                   onSignIn();
@@ -126,5 +127,94 @@ export default function Navbar({ session, onSignIn, onSignOut }: NavbarProps) {
         )}
       </div>
     </header>
+  );
+}
+type AccountMenuProps = {
+  name: string;
+  onProfile: () => void;
+  onSignOut: () => void;
+};
+
+/**
+ * The user's name as a tile that unfolds the account actions. It closes on
+ * Escape, on a click elsewhere, when focus leaves it, and after a choice.
+ */
+function AccountMenu({ name, onProfile, onSignOut }: AccountMenuProps) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const closeOnOutside = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", closeOnOutside);
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutside);
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
+  const choose = (action: () => void) => {
+    setOpen(false);
+    action();
+  };
+
+  return (
+    <div
+      ref={rootRef}
+      className="navbar__account-menu"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setOpen(false);
+        }
+      }}
+    >
+      <button
+        ref={toggleRef}
+        type="button"
+        className="navbar__link navbar__button navbar__user"
+        aria-expanded={open}
+        aria-controls={menuId}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span className="visually-hidden">Signed in as </span>
+        <span className="navbar__user-name">{name}</span>
+        <span className="navbar__caret" aria-hidden="true" />
+      </button>
+      <ul id={menuId} className="navbar__menu" hidden={!open}>
+        <li>
+          <button
+            type="button"
+            className="navbar__menu-item"
+            onClick={() => choose(onProfile)}
+          >
+            My Profile
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            className="navbar__menu-item"
+            onClick={() => choose(onSignOut)}
+          >
+            Logout
+          </button>
+        </li>
+      </ul>
+    </div>
   );
 }

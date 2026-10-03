@@ -5,7 +5,7 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 ## Konwencje
 
 - Format: JSON, pola w snake_case. Identyfikatory użytkowników, masterów, reportów, zdjęć i komentarzy jako UUID w postaci tekstu; identyfikatory kategorii, statusów, urzędów i jednostek usługowych jako liczby całkowite.
-- Wyjątek: `POST /reports`, `POST /reports/{id}/photos` i endpointy `POST /inference` oraz `POST /inference/service-entity` przyjmują `multipart/form-data`, bo mogą zawierać pliki zdjęć.
+- Wyjątek: `POST /reports`, `POST /reports/{id}/photos` i endpointy `POST /inference`, `POST /inference/service-entity` oraz `POST /inference/service-entity/recommendation` przyjmują `multipart/form-data`, bo mogą zawierać pliki zdjęć.
 - Daty: ISO 8601 z strefą czasową (UTC).
 - CORS: API przyjmuje na razie zapytania z każdej domeny (`*`). Uwierzytelnianie opiera się na nagłówku `Authorization`, bez ciasteczek.
 - Pola `id`, `created_at`, `edited_at` są tylko do odczytu. Serwer ignoruje je w requestach albo zwraca 422.
@@ -29,7 +29,7 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 | 413 | zdjęcie większe niż 10 MB |
 | 422 | niepoprawne dane (typ, pusty `title` lub `description`, brak kontaktu użytkownika, zły zakres współrzędnych, zły format lub za dużo zdjęć) |
 | 502 | dostawca analizy zwrócił niepoprawny wynik |
-| 503 | dostawca analizy jest niedostępny, logowanie przez Google nie jest skonfigurowane albo nie udało się pobrać kluczy Google |
+| 503 | dostawca analizy lub GUGiK jest niedostępny, logowanie przez Google nie jest skonfigurowane albo nie udało się pobrać kluczy Google |
 
 ## Przegląd endpointów
 
@@ -44,7 +44,7 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 | słowniki | `/report-categories`, `/master-report-statuses` | list (tylko odczyt) |
 | local_government_offices | `/institution-contacts` | list, get (tylko odczyt) |
 | service_entities | `/service-entities` | list, get (tylko odczyt) |
-| inference | `/inference`, `/inference/service-entity` | tłumaczenie, klasyfikacja i wybór typu jednostki z opcjonalnym zdjęciem |
+| inference | `/inference`, `/inference/service-entity`, `/inference/service-entity/recommendation` | tłumaczenie, klasyfikacja, wybór typu i rekomendacja instytucji według lokalizacji siedziby; [kontrakt](inference.md#rekomendacja-instytucji-dla-nowego-zgłoszenia) |
 
 ### Dostęp
 
