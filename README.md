@@ -88,6 +88,6 @@ the linked `SKILL.md` instructions directly.
 
 ## Data model
 
-Reports store their geographical point using PostGIS `geography(Point, 4326)`. Each report can optionally belong to one report group with a shared response. Photos are represented by rows in `report_photos`; each row stores a persistent `storage_key` that refers to a file managed by the API/storage layer. The workbook contains institution addresses, but no coordinates or boundary polygons.
+Reports store their geographical point using PostGIS `geography(Point, 4326)`. Reports are saved before classification, so `reports.master_report_id` can be `NULL`. After classification, the backend creates or links a master report. Master reports keep independent content, a shared status and response, and an optional responsible institution. Comments and likes belong to master reports. Photos are represented by rows in `report_photos`; each row stores a persistent `storage_key` that refers to a file managed by the API/storage layer. The workbook contains institution addresses, but no coordinates or boundary polygons.
 
 See [TESTING.md](TESTING.md) for data import behavior and database validation.
