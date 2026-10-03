@@ -42,6 +42,20 @@ BEGIN
         RAISE EXCEPTION 'Duplicate phone accepted';
     EXCEPTION WHEN unique_violation THEN NULL;
     END;
+    INSERT INTO users (first_name, last_name, email, google_sub)
+    VALUES ('Google', 'Only', 'google@example.invalid', 'google-check');
+    BEGIN
+        INSERT INTO users (first_name, last_name, email, google_sub)
+        VALUES ('Duplicate', 'Google', 'google-duplicate@example.invalid', 'google-check');
+        RAISE EXCEPTION 'Duplicate Google account accepted';
+    EXCEPTION WHEN unique_violation THEN NULL;
+    END;
+    BEGIN
+        INSERT INTO users (first_name, last_name, email)
+        VALUES ('No', 'Sign-in', 'no-sign-in@example.invalid');
+        RAISE EXCEPTION 'User without a password or Google account accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
     INSERT INTO users (first_name, last_name, phone, password_hash, edited_at)
     VALUES ('Another', 'Phone', '+48111222333', 'test-only-placeholder', '2000-01-01 00:00:00+00')
     RETURNING id INTO author_id;
