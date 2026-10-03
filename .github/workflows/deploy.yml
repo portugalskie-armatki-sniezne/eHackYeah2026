@@ -1,7 +1,7 @@
 name: "[1] Deploy"
 
 # builds and deploys the web and api images
-# a merge to main deploys the changed services to dev, a manual run deploys the chosen service and environment
+# a merge to main deploys the changed services to dev, a manual run deploys the chosen service or all of them to the chosen environment
 # every api deployment applies the database migrations first
 # the release workflow calls it to deploy both services to prod
 on:
@@ -20,9 +20,10 @@ on:
   workflow_dispatch:
     inputs:
       service:
-        description: "Service to deploy"
+        description: "Service to deploy, or all for every service"
         type: choice
         options:
+          - all
           - web
           - api
           - notify
