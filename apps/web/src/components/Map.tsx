@@ -669,7 +669,7 @@ export default function Map({ onSignInRequired }: MapProps) {
   // device stands, and the camera goes there so the new pin is in view.
   const handlePhotoReport = useCallback(
     async (photo: File) => {
-      if (!fix || photoSavingRef.current || !canStartReport()) {
+      if (!fix || photoSavingRef.current) {
         return;
       }
       photoSavingRef.current = true;
@@ -693,7 +693,7 @@ export default function Map({ onSignInRequired }: MapProps) {
         photoSavingRef.current = false;
       }
     },
-    [fix, flyToFix, canStartReport, saveReport, pinForSavedReport],
+    [fix, flyToFix, saveReport, pinForSavedReport],
   );
 
   const handleZoomIn = useCallback(() => mapRef.current?.zoomIn(), []);
@@ -732,6 +732,7 @@ export default function Map({ onSignInRequired }: MapProps) {
         onRecenter={handleRecenter}
         onRecenterOnMe={handleRecenterOnMe}
         canRecenterOnMe={fix !== null}
+        onPhotoReportStart={canStartReport}
         onPhotoReport={handlePhotoReport}
       />
       <UserPosition mapRef={mapRef} styleReady={styleReady} fix={fix} />
