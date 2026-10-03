@@ -88,7 +88,7 @@ erDiagram
 
 Na diagramie pokazano tylko wybrane kolumny `institution_contacts`, pełna lista jest niżej.
 
-Pojedynczy report jest zapisywany przed klasyfikacją, więc może nie mieć mastera. Backend po klasyfikacji tworzy master na podstawie pierwszego reportu albo przypina report do istniejącego mastera. Treść mastera jest niezależna; wspólny status, odpowiedź, odpowiedzialna jednostka, komentarze i polubienia należą do mastera.
+API przypina każdy nowy report do mastera w tej samej transakcji: do podobnego otwartego mastera w pobliżu albo do nowego mastera utworzonego z treści reportu (reguły w [api.md](api.md#dopasowanie-do-mastera)). Kolumna `master_report_id` pozostaje w schemacie nullable dla przyszłej klasyfikacji w tle. Treść mastera jest niezależna; wspólny status, odpowiedź, odpowiedzialna jednostka, komentarze i polubienia należą do mastera.
 
 ## Tabele
 
@@ -133,7 +133,7 @@ Migracja 04 wstawia:
 | inprogress | potwierdzone rozpoczęcie prac |
 | finished | potwierdzone zakończenie |
 
-Backend ustawia status i obsługuje przejścia między statusami. Baza nie nadaje domyślnego statusu.
+Backend ustawia status `created` przy tworzeniu mastera, a później status zmienia `office` lub `admin` bez ograniczeń przejść. Baza nie nadaje domyślnego statusu.
 
 ### master_reports
 
@@ -142,7 +142,7 @@ Backend ustawia status i obsługuje przejścia między statusami. Baza nie nadaj
 | id | uuid | PK |
 | report_category_id | bigint | NOT NULL, FK -> report_categories(id) |
 | status_id | bigint | NOT NULL, FK -> master_report_statuses(id) |
-| responsible_institution_id | bigint | NULL, FK -> institution_contacts(id), przypisywany przez klasyfikator |
+| responsible_institution_id | bigint | NULL, FK -> institution_contacts(id), obecnie ustawiany przez `office` lub `admin` |
 | title | text | NOT NULL, niepusty po przycięciu spacji |
 | description | text | NOT NULL, niepusty po przycięciu spacji |
 | location | geography(point, 4326) | NOT NULL, niepusty punkt WGS 84 (lng, lat) |
@@ -226,7 +226,7 @@ Katalog urzędów importowany z `db/seeds/teleaddr_base_16042026.xls`. Dane refe
 | --- | --- |
 | users | błąd, jeśli istnieją jego reporty lub komentarze; polubienia usuwane kaskadowo |
 | master_reports | błąd, jeśli istnieją powiązane reporty; w pozostałych przypadkach komentarze i polubienia usuwane kaskadowo |
-| reports | zdjęcia usuwane kaskadowo; master i dyskusja pozostają |
+| reports | zdjęcia usuwane kaskadowo; master i dyskusja pozostają, chyba że był to ostatni report mastera, wtedy API usuwa też master |
 | report_photos | brak zależności |
 | master_report_comments | polubienia usuwane kaskadowo |
 | master_report_comment_likes | brak zależności |

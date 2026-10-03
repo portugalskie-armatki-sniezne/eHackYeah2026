@@ -1,0 +1,60 @@
+import os
+from collections.abc import Iterable, Iterator
+from contextlib import contextmanager
+from pathlib import Path
+
+MAX_PHOTO_BYTES = 10 * 1024 * 1024
+MAX_PHOTOS_PER_REPORT = 5
+MEDIA_TYPES = {"jpg": "image/jpeg", "png": "image/png", "webp": "image/webp"}
+
+
+def upload_dir() -> Path:
+    # relative paths start in apps/api, the default directory is ignored by Git.
+    path = Path(os.environ.get("UPLOAD_DIR") or "uploads")
+    return path if path.is_absolute() else Path(__file__).resolve().parent.parent / path
+
+
+def file_path(storage_key: str) -> Path:
+    return upload_dir() / storage_key
+
+
+def detect_extension(data: bytes) -> str | None:
+    # the type comes from the file header, not from the client's file name or content type.
+    if data.startswith(b"\xff\xd8\xff"):
+        return "jpg"
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "png"
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "webp"
+    return None
+
+
+def media_type(storage_key: str) -> str:
+    return MEDIA_TYPES.get(storage_key.rsplit(".", 1)[-1], "application/octet-stream")
+
+
+def save(storage_key: str, data: bytes) -> None:
+    path = file_path(storage_key)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+
+
+def delete(storage_keys: Iterable[str]) -> None:
+    for storage_key in storage_keys:
+        path = file_path(storage_key)
+        path.unlink(missing_ok=True)
+        try:
+            path.parent.rmdir()
+        except OSError:
+            pass
+
+
+@contextmanager
+def cleanup_on_error() -> Iterator[list[str]]:
+    """collect saved storage keys and delete their files if the block fails."""
+    saved: list[str] = []
+    try:
+        yield saved
+    except BaseException:
+        delete(saved)
+        raise

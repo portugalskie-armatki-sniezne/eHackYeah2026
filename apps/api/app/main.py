@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app import auth, users
+from app import auth, comments, institution_contacts, master_reports, photos, reference, reports, users
 from app.db import pool
 from app.security import jwt_secret
 
@@ -21,6 +21,12 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(title="eHackYeah2026 API", lifespan=lifespan)
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(reports.router)
+app.include_router(photos.router)
+app.include_router(master_reports.router)
+app.include_router(comments.router)
+app.include_router(reference.router)
+app.include_router(institution_contacts.router)
 
 
 @app.get("/")
