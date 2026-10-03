@@ -1,5 +1,3 @@
-import os
-from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
@@ -9,9 +7,7 @@ from app import storage
 from app.auth import CurrentUser
 from app.inference.contracts import (
     ImageInput,
-    InferenceInputError,
     InferenceUnavailableError,
-    InvalidInferenceResultError,
 )
 from app.inference.entities import (
     EntityClassificationRequest,
@@ -49,17 +45,7 @@ def analyze(
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_CONTENT, detail=error.errors(include_context=False, include_url=False)
         ) from None
-    photo = read_image(image)
-    try:
-        return inference.analyze(body, photo)
-    except InferenceUnavailableError:
-        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "Inference provider is unavailable") from None
-    except InvalidInferenceResultError:
-        raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Inference provider returned an invalid result") from None
-    except InferenceInputError:
-        raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_CONTENT, "Input is unsupported or exceeds model limits"
-        ) from None
+    return inference.analyze(body, read_image(image))
 
 
 @router.post("/service-entity", description="Choose exactly one service entity type from a report and optional photo.")
@@ -76,8 +62,7 @@ def classify_service_entity(
             status.HTTP_422_UNPROCESSABLE_CONTENT, detail=error.errors(include_context=False, include_url=False)
         ) from None
     try:
-        path = os.getenv("SERVICE_ENTITY_CRITERIA_PATH")
-        question = load_entity_question(Path(path) if path else None)
+        question = load_entity_question()
     except (OSError, ValueError) as error:
         raise InferenceUnavailableError("Invalid service entity criteria configuration") from error
     return EntityClassificationService(inference, question).classify(body, read_image(image))

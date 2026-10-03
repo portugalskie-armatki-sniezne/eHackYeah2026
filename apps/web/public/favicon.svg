@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Same skyline mark as BrandMark.tsx, centred in a square and with the theme colours inlined. -->
+  <g transform="translate(0 9)">
+    <rect x="7" y="7" width="38" height="20" fill="#efb33f" />
+    <path
+      d="M2 23 V13 H9 V8 H15 V3 H22 V10 H28 V6 H34 V15 H40 V23 Z"
+      fill="#fdfcf9"
+      stroke="#141414"
+      stroke-width="2.5"
+      stroke-linejoin="round"
+    />
+  </g>
+</svg>

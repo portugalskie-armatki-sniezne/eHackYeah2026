@@ -22,6 +22,22 @@ services:
       - api_uploads:/app/uploads
     networks:
       - db
+      - default
+
+  notify:
+    image: ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-notify:${NOTIFY_IMAGE_TAG:-dev}
+    restart: unless-stopped
+    environment:
+      UVICORN_PORT: "${NOTIFY_PORT:-8000}"
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_MOCK: "${SMTP_MOCK:-false}"
+      SMTP_MOCK_DESTINATION: ${SMTP_MOCK_DESTINATION:-}
+      UPLOAD_DIR: /app/uploads
+    expose:
+      - "${NOTIFY_PORT:-8000}"
+    volumes:
+      - api_uploads:/app/uploads:ro
 
   web:
     image: ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web:${WEB_IMAGE_TAG:-dev}

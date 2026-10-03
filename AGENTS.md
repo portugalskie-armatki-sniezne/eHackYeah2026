@@ -4,7 +4,7 @@
 
 - eHackYeah2026 is an application for reporting civic issues, proposing citizen initiatives, and tracking their progress.
 - The planned stack is React Native with TypeScript for the frontend, Python with FastAPI for the backend, PostgreSQL, and Docker Compose.
-- The repository currently has a React/Vite web scaffold in `apps/web` and an empty API workspace in `apps/api`.
+- The repository has a React/Vite frontend in `apps/web`, a FastAPI backend in `apps/api`, and a separate SMTP relay in `apps/notify`.
 - Docker Compose at the repository root starts PostGIS, applies migrations, and imports institution contacts with local defaults.
 - Development should work on macOS, Windows, and Linux. Keep tooling and shared editor configuration portable.
 
@@ -30,17 +30,19 @@
 
 ## Architecture and repository layout
 
-- `apps/web/` and `apps/api/` are frontend and backend workspaces.
+- `apps/web/`, `apps/api/`, and `apps/notify/` are frontend, backend, and mail relay workspaces. `apps/api/docs/` and `apps/notify/docs/` document their implemented behavior.
 - `db/migrations/` contains dbmate SQL migrations, with `-- migrate:up` and `-- migrate:down` sections.
 - `db/seeds/` contains development and reference data, including the institution contacts workbook.
 - `docker-compose.yaml` at the repository root defines the PostGIS database, dbmate migrations, and the seed importer. Run `docker compose up`; optional root `.env` values override local defaults.
-- `docker-compose.app.yaml` defines only the `api` and `web` containers, which run published images selected by `API_IMAGE_TAG` and `WEB_IMAGE_TAG`. The `api` container reaches the database through the external network named by `DB_NETWORK` and stores report photos on the `api_uploads` volume.
+- `docker-compose.app.yaml` defines the `api`, `web`, and `notify` containers, which run published images selected by `API_IMAGE_TAG`, `WEB_IMAGE_TAG`, and `NOTIFY_IMAGE_TAG`. The `api` container reaches the database through the external network named by `DB_NETWORK` and stores report photos on the `api_uploads` volume.
+- `notify` shares the application network with `api` and exposes only an internal HTTP port selected by `NOTIFY_PORT`. It sends mail through Gmail SMTP using `SMTP_USER` and `SMTP_PASSWORD`. `SMTP_MOCK=true` redirects every mail to `SMTP_MOCK_DESTINATION`; an invalid test destination blocks sending.
+- `notify/templates/` contains Markdown templates for `issue` and `improvement`, rendered to HTML with a text alternative. `POST /send` inserts `description` and the reporter's `first_name` and `last_name`; `anonymous=true` omits their name. Optional `location` generates a Google Maps link, and `photos` uses API `storage_key` values from the shared `api_uploads` volume mounted read-only.
 - `tooling/seed/` contains the XLS importer with its `Dockerfile`, `pyproject.toml`, and `uv.lock`, and the mock demo data importer with its photos.
 - `docker compose run --rm mock-seeder` replaces mock demo data in Kraków; its `mock` profile keeps it out of `docker compose up`.
 - `Taskfile.yml` at the repository root defines root development commands. `mise.toml` pins Bun, Task, and uv, and `setup-dev-env.sh` installs mise, the pinned tools, and dependencies.
 - `tests/e2e/` is reserved for cross-application scenarios, and `tests/fixtures/` for shared behavioral examples.
 - `.agents/skills/` is reserved for repository-local agent skills.
-- `.github/workflows/` contains CI workflows. `deploy.yml` builds the web and API images and deploys them: the changed services to the dev environment when changes reach `main`, or the service and environment chosen in a manual run. Before restarting `api`, it applies `db/migrations` to the database of the target environment. `release.yml` is started manually: it calls `deploy.yml` to deploy both services to prod, then publishes a GitHub release versioned by date. `lint.yml` runs the web and API linters on pull requests and pushes to `main`. `seed.yml` is started manually: it imports `db/seeds` into the database of the chosen environment with the importer from `tooling/seed`.
+- `.github/workflows/` contains CI workflows. `deploy.yml` builds the web, API, and notify images and deploys them: the changed services to the dev environment when changes reach `main`, or the service and environment chosen in a manual run. Before restarting `api`, it applies `db/migrations` to the database of the target environment. `release.yml` is started manually: it calls `deploy.yml` to deploy all three services to prod, then publishes a GitHub release versioned by date. `lint.yml` runs the web, API, and notify linters on pull requests and pushes to `main`. `seed.yml` is started manually: it imports `db/seeds` into the database of the chosen environment with the importer from `tooling/seed`.
 - `.env` holds optional local environment overrides and is ignored by Git. `.env.example` documents the available values.
 - `README.md` and `README_pl.md` are the English and Polish project documentation. `docs/` contains their teaser images.
 - `TESTING.md` documents database setup and validation.
@@ -59,6 +61,7 @@
 - For ignore-rule changes, check representative ignored and tracked paths with `git check-ignore`.
 - For code or Docker changes, run the relevant configured formatting, build, test, and configuration checks, including checks for affected callers or services. Add or update regression tests when behavior changes warrant them.
 - For web changes, run `task fe:lint`. For API changes, run `task be:lint`.
+- For notify changes, run `uv run ruff check .`, `uv run ruff format --check .`, and `uv run pytest` from `apps/notify`. Its tests replace SMTP and do not send mail.
 - Validate Compose changes with `docker compose config --quiet`. Avoid printing resolved configuration because it can contain credentials.
 - Run `task --list-all` and the affected tasks for Taskfile changes and `python3 tests/check_database.py` for database changes. Report any unavailable checks.
 

@@ -1,5 +1,8 @@
 import argparse
+import hashlib
 import json
+import os
+from importlib.metadata import version
 from pathlib import Path
 from time import perf_counter
 
@@ -19,10 +22,10 @@ def main() -> None:
     args = parser.parse_args()
     if not 0 <= args.min_accuracy <= 1:
         parser.error("--min-accuracy must be between 0 and 1")
-    service = EntityClassificationService(
-        InferenceService(configured_translator(), configured_classifier()), load_entity_question()
-    )
-    cases = json.loads((ROOT / "tests/fixtures/entity_classification.json").read_text())
+    question = load_entity_question()
+    service = EntityClassificationService(InferenceService(configured_translator(), configured_classifier()), question)
+    fixture = ROOT / "tests/fixtures/entity_classification.json"
+    cases = json.loads(fixture.read_text())
     results = []
     for case in cases:
         if args.split != "all" and case["split"] != args.split:
@@ -51,6 +54,14 @@ def main() -> None:
     correct = sum(row["predicted"] == row["expected"] for row in labelled)
     accuracy = correct / len(labelled) if labelled else None
     report = {"correct": correct, "labelled": len(labelled), "accuracy": accuracy, "results": results}
+    report["configuration"] = {
+        "criteria_sha256": hashlib.sha256(question.model_dump_json().encode()).hexdigest(),
+        "fixtures_sha256": hashlib.sha256(fixture.read_bytes()).hexdigest(),
+        "calibration_strength": os.getenv("LAYA_CALIBRATION_STRENGTH", "1"),
+        "permutations": os.getenv("LAYA_PERMUTATIONS", "3"),
+        "device": os.getenv("LAYA_DEVICE", "cpu"),
+        "packages": {name: version(name) for name in ("laya", "transformers", "torch")},
+    }
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
     print(f"Accuracy: {correct}/{len(labelled)} ({accuracy})", flush=True)
     if accuracy is not None and accuracy < args.min_accuracy:

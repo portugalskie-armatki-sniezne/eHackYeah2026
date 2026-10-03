@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from "react";
 import type { SessionState } from "../api/session";
 import BrandMark from "./BrandMark";
+import useHashRoute from "./useHashRoute";
 import "./Navbar.css";
 
 type NavItem = {
@@ -25,6 +26,8 @@ export default function Navbar({ session, onSignIn, onSignOut }: NavbarProps) {
   // only matters on narrow screens, where the list folds behind the hamburger
   const [open, setOpen] = useState(false);
   const menuId = useId();
+  // the map is current for every hash that is not its own page
+  const current = `#${useHashRoute()}`;
 
   useEffect(() => {
     if (!open) {
@@ -79,7 +82,7 @@ export default function Navbar({ session, onSignIn, onSignOut }: NavbarProps) {
                 <a
                   className="navbar__link"
                   href={item.href}
-                  aria-current={index === 0 ? "page" : undefined}
+                  aria-current={item.href === current ? "page" : undefined}
                   onClick={() => setOpen(false)}
                 >
                   {item.label}

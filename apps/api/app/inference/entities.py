@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 from typing import Annotated, Literal, get_args
 
@@ -24,6 +25,8 @@ class EntityClassificationResult(BaseModel):
 
 
 def load_entity_question(path: Path | None = None) -> ChoiceQuestion:
+    if path is None and (configured_path := os.getenv("SERVICE_ENTITY_CRITERIA_PATH")):
+        path = Path(configured_path)
     question = ChoiceQuestion.model_validate(
         json.loads((path or Path(__file__).with_name("entity_types.json")).read_text())
     )

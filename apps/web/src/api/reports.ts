@@ -38,6 +38,9 @@ export type ReportCreate = {
   photos?: File[];
 };
 
+/** report_categories.name; picks the pin pictogram */
+export type ReportCategoryName = "improvement" | "issue";
+
 export type ReportCategory = { id: number; name: string };
 
 export type Page<T> = {

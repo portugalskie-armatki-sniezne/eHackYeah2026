@@ -1,6 +1,6 @@
 import { useEffect, useRef, type RefObject } from "react";
 import { Marker, type Map as MapLibreMap } from "maplibre-gl";
-import type { ReportCategory } from "../data/reports";
+import type { ReportCategoryName } from "../api/reports";
 import "./EventMarkers.css";
 
 export type EventPin = {
@@ -10,13 +10,13 @@ export type EventPin = {
   image: File | null;
   imageUrl: string | null;
   /** picks the head's pictogram: "!" for a fault, "+" for an improvement */
-  category: ReportCategory;
+  category: ReportCategoryName;
   /** how many filings the pin stands for; above one it carries a count */
   reportCount: number;
 };
 
 /** What a pin dropped on the map is until its category is chosen. */
-export const DEFAULT_PIN_CATEGORY: ReportCategory = "issue";
+export const DEFAULT_PIN_CATEGORY: ReportCategoryName = "issue";
 
 type EventMarkersProps = {
   mapRef: RefObject<MapLibreMap | null>;
@@ -33,7 +33,7 @@ type EventMarkersProps = {
 };
 
 type PinElementOptions = {
-  category: ReportCategory;
+  category: ReportCategoryName;
   draft?: boolean;
   imageUrl?: string | null;
   reportCount?: number;
@@ -44,7 +44,7 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 // The head's centre mark doubles as the category pictogram, drawn on the head's
 // own grid around the point the plain reticle dot used to sit on: a bar and a dot
 // for a fault, a cross for an improvement. Both are struck with the outline's pen.
-const CATEGORY_GLYPHS: Record<ReportCategory, string> = {
+const CATEGORY_GLYPHS: Record<ReportCategoryName, string> = {
   // bar, gap, dot: an "!" 11.5 units tall, so it squares off against the cross.
   // The dot is a stroke of the pen's own width rather than a filled square, so it
   // keeps step with the bar instead of fattening as the head opens.
