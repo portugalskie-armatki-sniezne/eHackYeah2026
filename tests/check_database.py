@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import tempfile
 import uuid
 
 
@@ -20,7 +21,14 @@ def main():
         # exercise the configurable port as well as the default PostgreSQL setup.
         "POSTGRES_PORT": "5543",
     }
-    command = ["docker", "compose"]
+    temporary_directory = tempfile.TemporaryDirectory(prefix=project + "-")
+    override_path = Path(temporary_directory.name) / "compose.yaml"
+    override_path.write_text("services:\n" + "".join(
+        f"  {service}:\n    container_name: {project}-{service}\n"
+        for service in ("db", "db-migrator", "db-seeder")
+    ))
+    command = ["docker", "compose", "--project-name", project,
+               "-f", str(ROOT / "docker-compose.yaml"), "-f", str(override_path)]
 
     def compose(*args, input=None, check=True):
         result = subprocess.run(command + list(args), cwd=ROOT, env=environment,
@@ -54,8 +62,8 @@ def main():
                 ["docker", "inspect", "--format", "{{.Name}}", container_id],
                 check=True, capture_output=True, text=True,
             ).stdout.strip()
-            if name != f"/{service}":
-                raise RuntimeError(f"Expected container name {service}, found {name}")
+            if name != f"/{project}-{service}":
+                raise RuntimeError(f"Expected container name {project}-{service}, found {name}")
 
     try:
         compose("config", "--quiet")
@@ -66,34 +74,68 @@ def main():
             raise RuntimeError("The workbook import did not produce 203 contacts")
         print("PASS: startup ran migrations and imported 203 contacts", flush=True)
         before = snapshot()
+        categories_before = query("SELECT id, name FROM report_categories ORDER BY id;")
+        statuses_before = query("SELECT id, name FROM master_report_statuses ORDER BY id;")
         compose("up", "-d")
         seed_completed()
         if snapshot() != before:
             raise RuntimeError("Repeated Compose startup changed contact rows or IDs")
+        if query("SELECT id, name FROM report_categories ORDER BY id;") != categories_before:
+            raise RuntimeError("Repeated Compose startup changed report categories or IDs")
+        if query("SELECT id, name FROM master_report_statuses ORDER BY id;") != statuses_before:
+            raise RuntimeError("Repeated Compose startup changed master report statuses or IDs")
         print("PASS: repeated Compose startup preserved contact data and IDs", flush=True)
         print(compose("run", "--rm", "--no-deps", "-e", "PYTHONPATH=/app",
                       "-v", f"{ROOT / 'tests'}:/tests:ro", "--entrypoint", "python", "db-seeder",
                       "/tests/test_contact_import.py"), flush=True)
         print("PASS: XLS parsing, upsert, and transaction rollback checks", flush=True)
         query((ROOT / "tests/fixtures/check_reports.sql").read_text())
-        print("PASS: report grouping, geography, photos, and edit timestamps", flush=True)
+        query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
+        print("PASS: master reports, statuses, institutions, comments, likes, and constraints", flush=True)
+        query("INSERT INTO report_categories (name) VALUES ('rollback_check_category'); "
+              "INSERT INTO master_report_statuses (name) VALUES ('rollback_check_status');")
         compose("run", "--rm", "--no-deps", "db-migrator", "down")
+        reference_rows = query("SELECT "
+                               "(SELECT COUNT(*) FROM report_categories WHERE name IN ('improvement', 'issue')), "
+                               "(SELECT COUNT(*) FROM master_report_statuses "
+                               "WHERE name IN ('created', 'reported', 'inprogress', 'finished')), "
+                               "(SELECT COUNT(*) FROM report_categories WHERE name = 'rollback_check_category'), "
+                               "(SELECT COUNT(*) FROM master_report_statuses WHERE name = 'rollback_check_status');")
+        if reference_rows != "0|0|1|1":
+            raise RuntimeError("Reference data rollback did not remove only the seeded rows")
+        print("PASS: reference data rollback preserved unrelated categories and statuses", flush=True)
         compose("run", "--rm", "--no-deps", "db-migrator", "down")
+        constraints = query("SELECT COUNT(*) FROM pg_constraint c JOIN pg_class t ON t.oid = c.conrelid "
+                            "JOIN pg_namespace n ON n.oid = t.relnamespace "
+                            "WHERE n.nspname = 'public' AND c.contype IN ('f', 'u', 'c') "
+                            "AND t.relname IN ('users', 'report_categories', 'master_report_statuses', "
+                            "'master_reports', 'reports', 'report_photos', 'master_report_comments', "
+                            "'master_report_comment_likes', 'institution_contacts');")
+        if constraints != "0":
+            raise RuntimeError("Constraint migration rollback left constraints behind")
+        for _ in range(2):
+            compose("run", "--rm", "--no-deps", "db-migrator", "down")
         remaining = query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' "
-                          "AND table_name IN ('users', 'reports', 'report_groups', 'report_photos', "
-                          "'institution_contacts');")
+                          "AND table_name IN ('users', 'report_categories', 'master_report_statuses', "
+                          "'master_reports', 'reports', 'report_photos', 'master_report_comments', "
+                          "'master_report_comment_likes', 'institution_contacts');")
         if remaining != "0":
             raise RuntimeError("Migration rollback left application tables behind")
         compose("run", "--rm", "--no-deps", "db-migrator", "up")
         compose("run", "--rm", "--no-deps", "db-seeder")
         if query("SELECT COUNT(*) FROM institution_contacts;") != "203":
             raise RuntimeError("Import after migration rollback failed")
-        print("PASS: both migrations rolled back and reapplied successfully", flush=True)
+        query((ROOT / "tests/fixtures/check_reports.sql").read_text())
+        query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
+        print("PASS: all four migrations rolled back and reapplied successfully", flush=True)
     except Exception:
         print(compose("logs", "--no-color", "--tail", "50", check=False), flush=True)
         raise
     finally:
-        compose("down", "--volumes", "--remove-orphans", "--rmi", "local")
+        try:
+            compose("down", "--volumes", "--remove-orphans", "--rmi", "local")
+        finally:
+            temporary_directory.cleanup()
 
 
 if __name__ == "__main__":
