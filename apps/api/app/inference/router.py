@@ -5,6 +5,7 @@ from pydantic import ValidationError
 
 from app import storage
 from app.auth import CurrentUser
+from app.common import Connection
 from app.inference.contracts import (
     ImageInput,
     InferenceUnavailableError,
@@ -15,7 +16,9 @@ from app.inference.entities import (
     EntityClassificationService,
     load_entity_question,
 )
+from app.inference.recommendations import EntityRecommendationRequest, EntityRecommendationResult, recommend_entity
 from app.inference.service import Inference, InferenceRequest, InferenceResult
+from app.reports import municipality_for
 
 router = APIRouter(prefix="/inference", tags=["inference"])
 
@@ -66,3 +69,30 @@ def classify_service_entity(
     except (OSError, ValueError) as error:
         raise InferenceUnavailableError("Invalid service entity criteria configuration") from error
     return EntityClassificationService(inference, question).classify(body, read_image(image))
+
+
+@router.post(
+    "/service-entity/recommendation",
+    description="Recommend an institution for a new report by type and seat location, without saving the report.",
+)
+def recommend_service_entity(
+    payload: Annotated[str, Form(description="JSON containing title, description, source_language, and location")],
+    _: CurrentUser,
+    inference: Inference,
+    connection: Connection,
+    image: Annotated[UploadFile | None, File(description="Optional JPEG, PNG, or WebP photo")] = None,
+) -> EntityRecommendationResult:
+    try:
+        body = EntityRecommendationRequest.model_validate_json(payload)
+    except ValidationError as error:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT, detail=error.errors(include_context=False, include_url=False)
+        ) from None
+    photo = read_image(image)
+    municipality = municipality_for(body.location)
+    try:
+        question = load_entity_question()
+    except (OSError, ValueError) as error:
+        raise InferenceUnavailableError("Invalid service entity criteria configuration") from error
+    classification = EntityClassificationService(inference, question).classify(body, photo)
+    return recommend_entity(connection, classification, body.location, municipality)
