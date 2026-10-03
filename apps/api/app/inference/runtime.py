@@ -1,11 +1,14 @@
 import json
+import math
 import os
 import re
+from dataclasses import dataclass
 from functools import lru_cache
 from io import BytesIO
 from pathlib import Path
 from threading import Lock
 
+from app.inference.calibration import ContextCalibratedAgent
 from app.inference.contracts import (
     ClassificationRequest,
     ClassificationResult,
@@ -87,19 +90,54 @@ def local_translator(model_path: str, source_language: str, target_language: str
 
 
 @lru_cache(maxsize=1)
-def local_classifier(model_path: str, device: str, load_options: str, permutations: int) -> LocalLayaClassifier:
+def local_classifier(
+    model_path: str, device: str, load_options: str, permutations: int, calibration_strength: float
+) -> LocalLayaClassifier:
     try:
         import laya
 
-        if not Path(model_path).is_dir():
-            raise ValueError("Laya requires a local checkpoint directory")
+        checkpoint = Path(model_path)
+        for filename in ("vlm_agent_config.json", "model.safetensors", "backbone/config.json", "processor"):
+            if not (checkpoint / filename).exists():
+                raise ValueError("Laya requires a complete local checkpoint")
         options = json.loads(load_options)
         agent = laya.load_vlm(model_path, device=device, **options)
         return LocalLayaClassifier(
-            agent, prepare_image=prepare_image, predict_options={"strict": True, "n_permutations": permutations}
+            ContextCalibratedAgent(agent, calibration_strength),
+            prepare_image=prepare_image,
+            predict_options={"strict": True, "n_permutations": permutations},
+            use_descriptions_as_labels=True,
         )
     except (ImportError, OSError, ValueError, TypeError, RuntimeError) as error:
         raise InferenceUnavailableError("Cannot load Laya model") from error
+
+
+@dataclass(frozen=True)
+class ConfiguredTranslator:
+    model_path: str
+    source_language: str
+    target_language: str
+
+    def translate(self, request: TranslationRequest) -> str:
+        with _loading_lock:
+            provider = local_translator(self.model_path, self.source_language, self.target_language)
+        return provider.translate(request)
+
+
+@dataclass(frozen=True)
+class ConfiguredClassifier:
+    model_path: str
+    device: str
+    load_options: str
+    permutations: int
+    calibration_strength: float
+
+    def classify(self, request: ClassificationRequest) -> ClassificationResult:
+        with _loading_lock:
+            provider = local_classifier(
+                self.model_path, self.device, self.load_options, self.permutations, self.calibration_strength
+            )
+        return provider.classify(request)
 
 
 def configured_translator():
@@ -108,12 +146,11 @@ def configured_translator():
     path = os.getenv("TRANSLATION_MODEL_PATH")
     if not path:
         return EmptyTranslator()
-    with _loading_lock:
-        return local_translator(
-            str(resolve_model_path(path)),
-            os.getenv("TRANSLATION_SOURCE_LANGUAGE", "pl"),
-            os.getenv("TRANSLATION_TARGET_LANGUAGE", "en"),
-        )
+    return ConfiguredTranslator(
+        str(resolve_model_path(path)),
+        os.getenv("TRANSLATION_SOURCE_LANGUAGE", "pl"),
+        os.getenv("TRANSLATION_TARGET_LANGUAGE", "en"),
+    )
 
 
 def configured_classifier():
@@ -126,12 +163,15 @@ def configured_classifier():
         permutations = int(os.getenv("LAYA_PERMUTATIONS", "3"))
         if permutations < 1:
             raise ValueError("Permutation count must be positive")
+        strength = float(os.getenv("LAYA_CALIBRATION_STRENGTH", "1"))
+        if not math.isfinite(strength) or not 0 <= strength <= 1:
+            raise ValueError("Calibration strength must be between 0 and 1")
     except ValueError as error:
         raise InferenceUnavailableError("Invalid Laya configuration") from error
-    with _loading_lock:
-        return local_classifier(
-            str(resolve_model_path(path)),
-            os.getenv("LAYA_DEVICE", "cpu"),
-            os.getenv("LAYA_LOAD_OPTIONS", '{"head_max_len": 768, "max_len": 2048}'),
-            permutations,
-        )
+    return ConfiguredClassifier(
+        str(resolve_model_path(path)),
+        os.getenv("LAYA_DEVICE", "cpu"),
+        os.getenv("LAYA_LOAD_OPTIONS", '{"head_max_len": 768, "max_len": 2048}'),
+        permutations,
+        strength,
+    )
