@@ -93,7 +93,12 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
    ```
 
 3. The build output is written to `apps/web/dist`.
-4. The application calls the API at `VITE_API_URL` from the root `.env`. Without it, requests go to `/api`, which the Vite development server proxies to `http://127.0.0.1:8000` or to `API_PROXY_TARGET`. Adding a report requires signing in.
+
+#### Report Connection
+
+The map loads pins from `GET /master-reports` and files new reports with `POST /reports` through [`reports.ts`](apps/web/src/api/reports.ts). Every request goes through `apiFetch` in [`client.ts`](apps/web/src/api/client.ts), which adds the stored token and drops it on a 401. Reading reports, masters and categories needs no token. Filing a report needs the signed-in session from [`session.ts`](apps/web/src/api/session.ts); signed out, adding a marker opens the sign-in dialog. The form has no title or category field yet, so the title is taken from the start of the description and the category is `issue`. Reports and image files are really saved, so use a development database.
+
+In development Vite proxies `/api` to `http://127.0.0.1:8000`; `API_PROXY_TARGET` in the root `.env` can select another local API. Deployed builds get the API origin from `VITE_API_URL` at build time, so configure a same-origin proxy or CORS there.
 
 ### Automated Deployment
 
