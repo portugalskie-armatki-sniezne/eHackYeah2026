@@ -89,6 +89,10 @@ Report to pojedyncze zgłoszenie użytkownika. Master to wspólna sprawa dla pod
 
 Pliki zdjęć trafiają do katalogu z opcjonalnej zmiennej `UPLOAD_DIR`. Domyślnie jest to `apps/api/uploads`, ignorowany przez Git. Ścieżka względna zaczyna się w `apps/api`. Report ma najwyżej 5 zdjęć JPEG, PNG lub WebP do 10 MB.
 
+Przy starcie API tworzy ten katalog i sprawdza, czy da się w nim zapisywać. Jeśli nie, kończy start błędem `UPLOAD_DIR ... is not writable`, zamiast zwracać 500 przy pierwszym zdjęciu.
+
+W kontenerze `docker-compose.app.yaml` ustawia `UPLOAD_DIR=/app/uploads` na nazwanym wolumenie `api_uploads`, więc zdjęcia przetrwają kolejne wdrożenia. Obraz tworzy ten katalog dla nieuprzywilejowanego użytkownika (65534), a nazwany wolumen przy pierwszym montowaniu przejmuje jego właściciela. Wolumen albo bind mount pod inną ścieżką musi być zapisywalny dla tego użytkownika.
+
 ## Zakres
 
 Model danych obejmuje tabele z migracji: `users`, `report_categories`, `master_report_statuses`, `master_reports`, `reports`, `report_photos`, `master_report_comments`, `master_report_comment_likes`, `local_government_offices`, `service_entities`.

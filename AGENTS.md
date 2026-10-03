@@ -26,7 +26,7 @@
 - `db/migrations/` contains dbmate SQL migrations, with `-- migrate:up` and `-- migrate:down` sections.
 - `db/seeds/` contains development and reference data, including the institution contacts workbook.
 - `docker-compose.yaml` at the repository root defines the PostGIS database, dbmate migrations, and the seed importer. Run `docker compose up`; optional root `.env` values override local defaults.
-- `docker-compose.app.yaml` defines only the `api` and `web` containers, which run published images selected by `API_IMAGE_TAG` and `WEB_IMAGE_TAG`. The `api` container reaches the database through the external network named by `DB_NETWORK`.
+- `docker-compose.app.yaml` defines only the `api` and `web` containers, which run published images selected by `API_IMAGE_TAG` and `WEB_IMAGE_TAG`. The `api` container reaches the database through the external network named by `DB_NETWORK` and stores report photos on the `api_uploads` volume.
 - `tooling/seed/` contains the XLS importer with its `Dockerfile`, `pyproject.toml`, and `uv.lock`.
 - `Taskfile.yml` at the repository root defines root development commands. `mise.toml` pins Bun, Task, and uv, and `setup-dev-env.sh` installs mise, the pinned tools, and dependencies.
 - `tests/e2e/` is reserved for cross-application scenarios, and `tests/fixtures/` for shared behavioral examples.

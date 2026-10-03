@@ -12,8 +12,13 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-app_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_dev_password}
       JWT_SECRET: ${JWT_SECRET:-}
+      # report photos, the image creates this directory for its unprivileged user
+      UPLOAD_DIR: /app/uploads
     ports:
       - "${API_PORT:-8000}:8000"
+    volumes:
+      # keeps photos across deployments, the first mount copies the directory owner from the image
+      - api_uploads:/app/uploads
     networks:
       - db
 
@@ -22,6 +27,9 @@ services:
     restart: unless-stopped
     ports:
       - "${WEB_PORT:-8080}:80"
+
+volumes:
+  api_uploads:
 
 networks:
   # the network of the database Compose project, where the api reaches POSTGRES_HOST

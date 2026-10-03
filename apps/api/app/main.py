@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app import auth, comments, institution_contacts, master_reports, photos, reference, reports, users
+from app import auth, comments, institution_contacts, master_reports, photos, reference, reports, storage, users
 from app.db import pool
 from app.security import jwt_secret
 
@@ -11,6 +11,7 @@ from app.security import jwt_secret
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     jwt_secret()
+    storage.check_upload_dir()
     pool.open()
     try:
         yield

@@ -1,4 +1,5 @@
 import os
+import tempfile
 from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -12,6 +13,17 @@ def upload_dir() -> Path:
     # relative paths start in apps/api, the default directory is ignored by Git.
     path = Path(os.environ.get("UPLOAD_DIR") or "uploads")
     return path if path.is_absolute() else Path(__file__).resolve().parent.parent / path
+
+
+def check_upload_dir() -> None:
+    """create the upload directory and fail at startup when photos cannot be saved there."""
+    path = upload_dir()
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryFile(dir=path):
+            pass
+    except OSError as error:
+        raise RuntimeError(f"UPLOAD_DIR {path} is not writable: {error.strerror or error}") from None
 
 
 def file_path(storage_key: str) -> Path:
