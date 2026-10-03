@@ -24,12 +24,12 @@ import PinDialog, { type PinDraft } from "./PinDialog";
 import ReportClusters from "./ReportClusters";
 import { isClusterAt } from "./reportClusterHit";
 import { createTiltPrewarmer } from "./mapPrewarm";
-import type { ReportCategory } from "../data/reports";
 import {
   reportsApi,
   type MasterReport,
   type MasterReportDetail,
   type Report,
+  type ReportCategoryName,
   type ReportLocation,
 } from "../api/reports";
 import { useSession } from "../api/session";
@@ -60,11 +60,11 @@ const BASEMAP_STYLES: Record<BasemapId, string> = {
 };
 
 // report_categories.id to the name the pin's pictogram is picked by
-type CategoryNames = ReadonlyMap<number, ReportCategory>;
+type CategoryNames = ReadonlyMap<number, ReportCategoryName>;
 
-const CATEGORY_NAMES: readonly ReportCategory[] = ["improvement", "issue"];
+const CATEGORY_NAMES: readonly ReportCategoryName[] = ["improvement", "issue"];
 
-function isReportCategory(name: string): name is ReportCategory {
+function isReportCategory(name: string): name is ReportCategoryName {
   return (CATEGORY_NAMES as readonly string[]).includes(name);
 }
 
@@ -475,7 +475,7 @@ export default function Map({ onSignInRequired }: MapProps) {
           reportsApi.categories(controller.signal),
           reportsApi.allMasterReports(controller.signal),
         ]);
-        const names = new globalThis.Map<number, ReportCategory>();
+        const names = new globalThis.Map<number, ReportCategoryName>();
         for (const category of categories) {
           if (isReportCategory(category.name)) {
             names.set(category.id, category.name);
