@@ -1,8 +1,13 @@
-# eHackYeah2026
+# eHackYeah2026 - pomożeMy
 
-A civic application for reporting issues, proposing citizen initiatives, and tracking their progress.
+**pomożeMy** is a **unified platform** for **reporting local issues**, **proposing citizen initiatives**, and **tracking their progress**.
+It aims to simplify communication with public institutions by using AI (deterministic classifiers and generative models) to identify the authority responsible for each report based on a database built from publicly available information about institutions. Each report can include GPS coordinates and photos to illustrate the problem.
 
-## Repository layout
+![pomożeMy - changing your city without excessive bureaucracy](docs/teaser-en.png)
+
+**[POLISH README | README PO POLSKU](README_pl.md)**
+
+## Repository Layout
 
 ```text
 eHackYeah2026/
@@ -12,6 +17,9 @@ eHackYeah2026/
 ├── db/
 │   ├── migrations/                  # dbmate SQL migrations
 │   └── seeds/                       # reference data and the contacts workbook
+├── docs/
+│   ├── teaser-en.png                # English project teaser
+│   └── teaser-pl.png                # Polish project teaser
 ├── tooling/
 │   └── seed/                        # XLS importer and its Docker image
 ├── tests/
@@ -25,93 +33,86 @@ eHackYeah2026/
 ├── package.json                     # Bun workspaces
 ├── bun.lock
 ├── .env.example
+├── README.md                        # English documentation
+├── README_pl.md                     # Polish documentation
 ├── AGENTS.md
 └── TESTING.md
 ```
 
-## Startup
+## Access
 
-From the repository root, start the database with:
-
-```sh
-task db
-```
-
-Compose starts PostGIS, applies migrations, and imports the local government office workbook and the official service entity snapshot. Defaults are provided for local development; create `.env` from `.env.example` only if you want to override them. The importer image is built from `tooling/seed/Dockerfile` and installs dependencies with uv from `tooling/seed/pyproject.toml` and `tooling/seed/uv.lock`.
-
-## Development commands
-
-Install Node.js 22.12 or newer and Docker with Compose, then set up the environment from the repository root:
-
-```sh
-./setup-dev-env.sh
-```
-
-The script installs [mise](https://mise.jdx.dev) when it is missing, installs the Bun, Task, and uv versions pinned in `mise.toml`, and runs `task setup`. Restart your shell when the script asks for it. On Windows, install mise manually, then run `mise install` and `task setup` instead.
-
-Commands are defined in `Taskfile.yml` and need mise activated in your shell; otherwise prefix them with `mise exec --`. Run them from the repository root:
-
-| Command | Purpose |
-| --- | --- |
-| `task setup` | Install JavaScript, TypeScript, and Python dependencies, and create missing `.env`. |
-| `task web` | Start the frontend. |
-| `task db` | Start the database, apply migrations, and wait for seed import. |
-| `task api` | Start the database and seed services, then start the API. |
-
-The current web workspace is a React/Vite scaffold. The API workspace is a FastAPI placeholder. Web and API start separately, so run `task web` and `task api` in separate terminals. Both `task db` and `task api` require Docker with Compose running. The database command returns after seed import finishes and leaves PostgreSQL running. Setup preserves `.env`. PostgreSQL is published on `127.0.0.1:POSTGRES_PORT`. Ctrl+C stops applications; the database remains running.
-
-## API application
-
-```sh
-task setup
-task api
-```
-
-Setup runs `uv sync`, which creates `apps/api/.venv` and installs Python dependencies from `apps/api/pyproject.toml` and `apps/api/uv.lock`. uv downloads Python 3.10 or newer when none is available. Repeating setup reuses the virtual environment. The API starts after migrations and seed import finish, at <http://127.0.0.1:8000>. The placeholder provides `GET /` and `GET /health`, with interactive API documentation at <http://127.0.0.1:8000/docs>. The health endpoint checks the application only; it does not query PostgreSQL. Edit `apps/api/app/main.py`; changes under `apps/api/app` reload the API automatically.
-
-## Web application
-
-```sh
-task setup
-task web
-```
-
-Open the local URL printed by Vite. Edit `apps/web/src/App.tsx` for the UI and `apps/web/src/index.css` for styles. Run web checks and build commands from its workspace:
-
-```sh
-cd apps/web
-bun run typecheck
-bun run build
-bun run preview
-```
-
-The build output is written to `apps/web/dist`.
+You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.jakubowskii.pl/#main), at least during the HackYeah 2026 hackathon.
 
 ## Deployment
 
-The `[1] Deploy` workflow builds and pushes the web and API images, then deploys them to one environment:
+### Prerequisites
 
-| Trigger | Services | Environment |
-| --- | --- | --- |
-| Push to `main` that changes `apps/web` or `apps/api`. | The services that changed. | `dev` |
-| Manual run from the Actions tab. | `web` or `api`, chosen when starting the run. | `dev` or `prod`, chosen when starting the run. |
+1. Install `Node.js 22.12` or newer and `Docker` with `Compose`. Keep Docker running.
+2. Run the setup script from the repository root. The script installs [mise](https://mise.jdx.dev), the Bun, Task, and uv versions pinned in `mise.toml`, and runs `task setup` to install project dependencies. Restart your shell if prompted. On Windows, install mise manually, then run `mise install` and `task setup`.
 
-The images are built from `apps/web/Dockerfile` and `apps/api/Dockerfile` with the repository root as the build context and pushed to `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web` and `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api`. Builds are tagged with the environment name and with `<environment>-<commit SHA>`, for example `dev` and `dev-<commit SHA>`. To build an image locally, run `docker build -f apps/web/Dockerfile -t ehackyeah-web .` or `docker build -f apps/api/Dockerfile -t ehackyeah-api .` from the repository root.
+   ```sh
+   ./setup-dev-env.sh
+   ```
 
-The workflow reads its configuration from the GitHub environments `dev` and `prod`. Each environment needs two variables: `VITE_API_URL`, the backend URL that Vite inlines into the frontend bundle, and `DEPLOY_DIR`, a directory on the target machine that holds the Compose file and the `.env` file of that environment. Deployment runs on a self-hosted runner: it writes the built tag to `WEB_IMAGE_TAG` or `API_IMAGE_TAG` in `DEPLOY_DIR/.env`, then runs `docker compose pull` and `docker compose up -d` for the deployed services in that directory. Do not use this runner in workflows triggered by pull requests, because the repository is public.
+   > `task setup` creates `.env` from `.env.example` if it is missing and preserves an existing file.
 
-`docker-compose.app.yaml` is the template for the Compose file on the target machine. It defines only the `api` and `web` services, which run published images selected by `API_IMAGE_TAG` and `WEB_IMAGE_TAG`. The database runs in a separate Compose project. The `api` service joins that project's network, named by `DB_NETWORK` (default `ehackyeah2026_default`, the network of the root `docker-compose.yaml`), and connects to `POSTGRES_HOST` (default `db`).
+3. Review the database settings and replace the environment variable placeholders in `.env` with appropriate values and a random `JWT_SECRET` before starting the API. The generation command is included in `.env.example`.
 
-## Shared agent skills
+### Startup
+
+> Run all the commands from the repository root with mise activated in your shell; otherwise prefix them with `mise exec --`.
+
+1. `task db`: Start only the database, migrations, and seed import.
+2. `task api`: Start the database, apply migrations, import reference data, and start the API.
+3. `task web`: Start the frontend.
+
+> We recommend running `task web` and `task api` in separate terminals. The API is available at <http://127.0.0.1:8000>; Vite prints the frontend URL. Ctrl+C stops the application in that terminal; PostgreSQL remains running on `127.0.0.1:POSTGRES_PORT`.
+
+> Database startup imports the local government office workbook and the official service entity snapshot. `task db` returns after seed import finishes.
+
+#### API Application
+
+- Setup runs `uv sync` to install dependencies in `apps/api/.venv`. uv downloads Python 3.10 or newer if needed and reuses the environment on subsequent runs.
+- API documentation is available at <http://127.0.0.1:8000/docs>. `GET /health` checks the application without querying PostgreSQL.
+- Changes under `apps/api/app` reload the API automatically.
+- Run `task be:lint` to check the API with Ruff, or `task be:lint:fix` to apply fixes and formatting.
+
+#### Web Application
+
+1. Edit `apps/web/src/App.tsx` for the UI and `apps/web/src/index.css` for styles. Run `task fe:lint` to check ESLint and Prettier, or `task fe:lint:fix` to apply fixes and formatting.
+2. Run checks and build commands from the web workspace:
+
+   ```sh
+   cd apps/web
+   bun run typecheck
+   bun run build
+   bun run preview
+   ```
+
+3. The build output is written to `apps/web/dist`.
+
+### Automated Deployment
+
+1. Configure the GitHub environments `dev` and `prod` with `VITE_API_URL` (the backend URL included in the frontend build) and `DEPLOY_DIR` (the deployment directory on the target machine).
+2. Copy `docker-compose.app.yaml` to `DEPLOY_DIR/docker-compose.yaml` and place the environment's `.env` alongside it. The database runs in a separate Compose project; `DB_NETWORK` selects its network (default `ehackyeah2026_default`) and `POSTGRES_HOST` selects its host (default `db`). Keep `.env` valid for both Compose and a shell script, with database credentials safe to use in a URL.
+3. Use `[1] Deploy` in GitHub Actions to deploy `web` or `api` to `dev` or `prod`. Pushes to `main` deploy changed services to `dev`; changes to `db/migrations` deploy `api`. The workflow builds images from `apps/web/Dockerfile` and `apps/api/Dockerfile` and publishes them to `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web` and `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api`, tagged with the environment and `<environment>-<commit SHA>`.
+4. The self-hosted runner updates `WEB_IMAGE_TAG` or `API_IMAGE_TAG` in `DEPLOY_DIR/.env`, pulls images, applies migrations before restarting `api`, and restarts the selected services. A failed migration leaves the previous API container running. Deployment does not import seed data. Keep self-hosted runners out of workflows triggered by pull requests.
+5. After deploying `api`, run `[4] Seed` manually for `dev` or `prod` to import reference data from `db/seeds`. It waits for deployments to the same environment. Repeating the import preserves IDs and avoids duplicates; seed data overwrites manual edits, while records absent from the seed files remain in the database.
+6. Run `[2] Release` manually to deploy both services to `prod`, then publish a Git tag and GitHub release. Versions use the UTC date and a daily counter, for example `v2026.10.03-1`.
+7. The Compose template stores report photos in `/app/uploads` on the `api_uploads` volume, so they survive deployments. Update the copy in `DEPLOY_DIR` when the template changes.
+
+> `[3] Lint` runs ESLint, Prettier, and Ruff on every pull request and push to `main`, using GitHub-hosted runners.
+
+## Shared Agent Skills
 
 Repository-local skills live in `.agents/skills/` and are versioned with the
 project. Teammates can use them from a repository checkout in Codex:
 
-| Skill | Example request | Behavior |
-| --- | --- | --- |
-| [commit](.agents/skills/commit/SKILL.md) | `Use $commit to commit the staged changes.` | Review the complete staged snapshot, run relevant checks, and create a commit. Push only when explicitly requested. |
-| [pr](.agents/skills/pr/SKILL.md) | `Use $pr to open a pull request for this branch.` | Review and push the committed branch, then create or update a GitHub PR against the repository's default branch unless another base is supplied. |
-| [babysit](.agents/skills/babysit/SKILL.md) | `Use $babysit to take these changes to main.` | Commit task changes if needed, create or resume a draft PR, validate, and squash merge into main. |
+| Skill                                      | Example request                                   | Behavior                                                                                                                                         |
+| ------------------------------------------ | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [commit](.agents/skills/commit/SKILL.md)   | `Use $commit to commit the staged changes.`       | Review the complete staged snapshot, run relevant checks, and create a commit. Push only when explicitly requested.                              |
+| [pr](.agents/skills/pr/SKILL.md)           | `Use $pr to open a pull request for this branch.` | Review and push the committed branch, then create or update a GitHub PR against the repository's default branch unless another base is supplied. |
+| [babysit](.agents/skills/babysit/SKILL.md) | `Use $babysit to take these changes to main.`     | Commit task changes if needed, create or resume a draft PR, validate, and squash merge into main.                                                |
 
 All three skills require Git. The PR and babysit skills also require authenticated
 GitHub access through a connected integration or the `gh` CLI. They follow `AGENTS.md`
@@ -119,8 +120,11 @@ and accept optional message hints or issue references. They do not require
 installing personal global skills. Agents that support skill files can also read
 the linked `SKILL.md` instructions directly.
 
-## Data model
+## Data Model
 
-Reports store their geographical point using PostGIS `geography(Point, 4326)`. Reports are saved before classification, so `reports.master_report_id` can be `NULL`. After classification, the backend creates or links a master report. Master reports keep independent content, a shared status and response, and an optional responsible institution. Comments and likes belong to master reports. Photos are represented by rows in `report_photos`; each row stores a persistent `storage_key` that refers to a file managed by the API/storage layer. The workbook contains institution addresses, but no coordinates or boundary polygons.
+- Reports store their location using PostGIS `geography(Point, 4326)`. They are saved before classification, so `reports.master_report_id` can be `NULL`. After classification, the backend creates or links a master report.
+- Master reports keep independent content, a shared status and response, and an optional responsible institution. Comments and likes belong to master reports.
+- Photos are represented by rows in `report_photos`. Each row stores a persistent `storage_key` that refers to a file managed by the API or storage layer.
+- The workbook contains institution addresses, but no coordinates or boundary polygons.
 
 See [TESTING.md](TESTING.md) for data import behavior and database validation.

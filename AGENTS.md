@@ -20,6 +20,13 @@
 - Validate that changes are correct and do not break related behavior. Review the final diff, run relevant available checks, and report their results and any checks that could not be run.
 - Use `.gitkeep` to include otherwise empty directories in Git. Remove a directory's `.gitkeep` once it contains other tracked files.
 
+## README maintenance
+
+- Maintain `README.md` and `README_pl.md` together in the same change. Keep their sections, facts, and commands aligned; write idiomatic English and Polish rather than literal translations.
+- Preserve the project name, language links, teasers, section order, and existing visual style. Use short, plain sentences, numbered instructions, and concise bullets.
+- Avoid boilerplate, repeated setup instructions, and implementation details that do not help the reader. Keep setup and startup instructions in the deployment section.
+- Keep teaser files in `docs/` and include them in both repository layouts. Check both READMEs for broken links, missing images, empty link targets, and duplicate sections after editing.
+
 ## Architecture and repository layout
 
 - `apps/web/` and `apps/api/` are frontend and backend workspaces.
@@ -33,7 +40,7 @@
 - `.agents/skills/` is reserved for repository-local agent skills.
 - `.github/workflows/` contains CI workflows. `deploy.yml` builds the web and API images and deploys them: the changed services to the dev environment when changes reach `main`, or the service and environment chosen in a manual run.
 - `.env` holds optional local environment overrides and is ignored by Git. `.env.example` documents the available values.
-- `README.md` is the top-level project documentation.
+- `README.md` and `README_pl.md` are the English and Polish project documentation. `docs/` contains their teaser images.
 - `TESTING.md` documents database setup and validation.
 
 ## Development command contract
