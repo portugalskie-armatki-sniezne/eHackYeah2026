@@ -1,6 +1,6 @@
 .toolbar {
   position: fixed;
-  bottom: calc(var(--pill-inset) + 2 * var(--scaffold-offset));
+  bottom: calc(var(--pill-inset) + 3 * var(--scaffold-offset));
   left: var(--pill-inset);
   right: calc(var(--pill-inset) + var(--scaffold-offset));
   z-index: 20;
@@ -96,6 +96,16 @@
 .toolbar__choice[aria-pressed="true"]:hover {
   background: var(--amber);
   box-shadow: var(--scaffold-shadow-ink);
+}
+
+/* A control with nothing to act on stays flat on the sheet. */
+.toolbar__button:disabled {
+  background: var(--paper);
+  box-shadow: none;
+  color: var(--ink-soft);
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
 }
 
 .toolbar__choice:focus-visible,
