@@ -13,6 +13,10 @@ class InvalidInferenceResultError(ValueError):
     pass
 
 
+class InferenceInputError(ValueError):
+    pass
+
+
 class TranslationRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

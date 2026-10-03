@@ -9,6 +9,7 @@ from app.inference.contracts import (
     ClassificationRequest,
     ClassificationResult,
     ImageInput,
+    InferenceInputError,
     InferenceUnavailableError,
     InvalidInferenceResultError,
     validate_answers,
@@ -26,10 +27,12 @@ class LayaClassifier:
         *,
         prepare_image: Callable[[ImageInput], Any] | None = None,
         predict_options: Mapping[str, Any] | None = None,
+        use_descriptions_as_labels: bool = False,
     ) -> None:
         self._agent = agent
         self._prepare_image = prepare_image
         self._predict_options = dict(predict_options or {})
+        self._use_descriptions_as_labels = use_descriptions_as_labels
         self._lock = Lock()
 
     def classify(self, request: ClassificationRequest) -> ClassificationResult:
@@ -37,6 +40,13 @@ class LayaClassifier:
             name: {"type": "choice", "instructions": question.instructions, "criteria": dict(question.criteria)}
             for name, question in request.questions.items()
         }
+        labels = {}
+        if self._use_descriptions_as_labels:
+            for name, question in request.questions.items():
+                labels[name] = {description: key for key, description in question.criteria.items()}
+                if len(labels[name]) != len(question.criteria):
+                    raise InferenceInputError("Laya option descriptions must be unique")
+                questions[name]["criteria"] = list(labels[name])
         state: dict[str, Any] = {"description": request.text}
         if request.image is not None:
             if self._prepare_image is None:
@@ -48,7 +58,12 @@ class LayaClassifier:
             result = ClassificationResult(
                 status="classified",
                 answers={
-                    name: ChoiceAnswer(choice=answer["choice"], scores=answer["probabilities"])
+                    name: ChoiceAnswer(
+                        choice=labels[name][answer["choice"]] if labels else answer["choice"],
+                        scores={labels[name][key]: value for key, value in answer["probabilities"].items()}
+                        if labels
+                        else answer["probabilities"],
+                    )
                     for name, answer in prediction["answers"].items()
                 },
             )

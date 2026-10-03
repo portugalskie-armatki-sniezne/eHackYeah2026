@@ -74,9 +74,9 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 
 #### API Application
 
-- Setup runs `uv sync` to install dependencies in `apps/api/.venv`. uv downloads Python 3.10 or newer if needed and reuses the environment on subsequent runs.
+- Setup runs `uv sync --extra inference` to install dependencies in `apps/api/.venv` and downloads pinned Laya and Polish-English translation checkpoints into `apps/api/models` (about 1.1 GB, excluded from Git). The first run requires Git and internet access. Later runs reuse complete downloads. uv downloads Python 3.10 or newer if needed.
 - API documentation is available at <http://127.0.0.1:8000/docs>. `GET /health` checks the application without querying PostgreSQL.
-- Authenticated `POST /inference` accepts text, supplied classification questions, and an optional photo. Translation and classification use empty providers by default. See [connecting translation and Laya providers](apps/api/docs/inference.md).
+- Authenticated `POST /inference` accepts text, supplied classification questions, and an optional photo. `POST /inference/service-entity` classifies a title, description, and optional photo into one service entity type. The model paths in `.env.example` enable local inference. For an existing `.env`, add `LAYA_MODEL_PATH=models/laya-vision` and `TRANSLATION_MODEL_PATH=models/opus-mt-pl-en`; setup preserves existing values. See [model setup and provider configuration](apps/api/docs/inference.md).
 - Changes under `apps/api/app` reload the API automatically.
 - Run `task be:lint` to check the API with Ruff, or `task be:lint:fix` to apply fixes and formatting.
 

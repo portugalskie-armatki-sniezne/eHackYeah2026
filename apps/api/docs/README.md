@@ -8,7 +8,7 @@ API w FastAPI do zgłaszania problemów, łączenia podobnych zgłoszeń w maste
 | --- | --- |
 | [data-model.md](data-model.md) | ERD (Mermaid), tabele kolumn, relacje i reguły usuwania |
 | [api.md](api.md) | konwencje, dostęp, endpointy, dopasowanie do mastera, przykłady JSON, kody błędów |
-| [inference.md](inference.md) | podstawa tłumaczenia i klasyfikacji, opcjonalne zdjęcia i podłączanie modeli |
+| [inference.md](inference.md) | tłumaczenie, klasyfikacja typów jednostek, opcjonalne zdjęcia i pomiar trafności |
 
 ## Zasady dla agentów i ludzi
 
@@ -26,7 +26,7 @@ API w FastAPI do zgłaszania problemów, łączenia podobnych zgłoszeń w maste
 | `mock` | działa na danych testowych |
 | `done` | działa na bazie, są testy |
 
-Endpointy CRUD z [api.md](api.md) mają status `done`. `/inference` udostępnia podstawę analizy z pustymi implementacjami dostawców. Dopasowanie reportów do masterów też działa na bazie i ma testy, ale jest tymczasową heurystyką, którą zastąpi klasyfikator LLM.
+Endpointy CRUD z [api.md](api.md) mają status `done`. `/inference` udostępnia analizę z wymiennymi dostawcami. `/inference/service-entity` wybiera jeden typ jednostki po skonfigurowaniu modeli. Dopasowanie reportów do masterów też działa na bazie i ma testy, ale jest tymczasową heurystyką, którą zastąpi klasyfikator LLM.
 
 ## Uruchomienie
 
