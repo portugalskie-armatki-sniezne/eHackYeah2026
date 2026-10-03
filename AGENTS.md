@@ -11,6 +11,7 @@
 ## Working rules
 
 - Always use classic dashes (`-`) rather than em dashes in code, comments, documentation, commit messages, and responses.
+- Never use emoji in pull request titles, descriptions, or comments.
 - Follow the repository's existing code structure, formatting, commenting, and documentation style. Read nearby files before editing and use established tooling when available.
 - Never delete comments written by the user. If a comment conflicts with a requested change, point out the conflict and ask the user how to resolve it. The only exception is a TODO comment addressed by your changes, which may be removed when replaced with the corresponding implementation.
 - Add code comments only when needed. Start them with lowercase letters and keep them simple, straightforward, and idiomatic, without excessive formatting.
@@ -31,7 +32,7 @@
 - `Taskfile.yml` at the repository root defines root development commands. `mise.toml` pins Bun, Task, and uv, and `setup-dev-env.sh` installs mise, the pinned tools, and dependencies.
 - `tests/e2e/` is reserved for cross-application scenarios, and `tests/fixtures/` for shared behavioral examples.
 - `.agents/skills/` is reserved for repository-local agent skills.
-- `.github/workflows/` contains CI workflows. `deploy.yml` builds the web and API images and deploys them: the changed services to the dev environment when changes reach `main`, or the service and environment chosen in a manual run.
+- `.github/workflows/` contains CI workflows. `deploy.yml` builds the web and API images and deploys them: the changed services to the dev environment when changes reach `main`, or the service and environment chosen in a manual run. `release.yml` is started manually: it calls `deploy.yml` to deploy both services to prod, then publishes a GitHub release versioned by date.
 - `.env` holds optional local environment overrides and is ignored by Git. `.env.example` documents the available values.
 - `README.md` is the top-level project documentation.
 - `TESTING.md` documents database setup and validation.

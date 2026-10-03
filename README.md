@@ -95,6 +95,9 @@ The `[1] Deploy` workflow builds and pushes the web and API images, then deploys
 | --- | --- | --- |
 | Push to `main` that changes `apps/web` or `apps/api`. | The services that changed. | `dev` |
 | Manual run from the Actions tab. | `web` or `api`, chosen when starting the run. | `dev` or `prod`, chosen when starting the run. |
+| Call from the `[2] Release` workflow. | Both. | `prod` |
+
+The `[2] Release` workflow publishes a production release. Start it manually from the Actions tab: it calls `[1] Deploy` to build both images and deploy them to `prod`, and when the deployment succeeds, it creates a Git tag and a GitHub release with generated notes for the deployed commit. The version is the UTC date and the number of the release on that day, for example `v2026.10.03-1`.
 
 The images are built from `apps/web/Dockerfile` and `apps/api/Dockerfile` with the repository root as the build context and pushed to `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web` and `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api`. Builds are tagged with the environment name and with `<environment>-<commit SHA>`, for example `dev` and `dev-<commit SHA>`. To build an image locally, run `docker build -f apps/web/Dockerfile -t ehackyeah-web .` or `docker build -f apps/api/Dockerfile -t ehackyeah-api .` from the repository root.
 

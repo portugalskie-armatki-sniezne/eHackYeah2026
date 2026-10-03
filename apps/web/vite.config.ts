@@ -6,4 +6,8 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ["maplibre-gl"],
   },
+  // maplibre starts its worker as a module worker
+  worker: {
+    format: "es",
+  },
 });
