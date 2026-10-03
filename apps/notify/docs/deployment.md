@@ -20,6 +20,7 @@ Nie jest potrzebna konfiguracja Google Cloud Console. Szczegóły i ograniczenia
 | `SMTP_PASSWORD` | hasło aplikacji Gmail |
 | `SMTP_MOCK` | `true` przekierowuje wszystkie maile na adres testowy, `false` używa odbiorcy z żądania |
 | `SMTP_MOCK_DESTINATION` | jeden adres testowy, wymagany przy `SMTP_MOCK=true` |
+| `UPLOAD_DIR` | katalog zdjęć API; Compose ustawia `/app/uploads`, lokalnie ścieżka względna zaczyna się w `apps/api` |
 
 Przykład konfiguracji testowej:
 
@@ -40,6 +41,8 @@ W `.env.example` mock jest włączony. Uzupełnij rzeczywisty adres testowy i da
 3. Backend w tym projekcie Compose wywołuje `http://notify:<NOTIFY_PORT>/send`. Przy wartości z przykładu jest to `http://notify:8001/send`.
 
 Port pozostaje wewnętrzny. `task api` uruchamia backend na hoście, więc nie korzysta z adresu DNS `notify` w sieci Compose.
+
+Compose montuje `api_uploads` w `notify` pod `/app/uploads` tylko do odczytu. API nadal zapisuje tam zdjęcia. Po zmianie szablonu Compose zaktualizuj kopię w `DEPLOY_DIR`, aby wysyłka załączników widziała te same pliki. Backend przekazuje `photos` i `location` zgodnie z [kontraktem HTTP](api.md).
 
 Po zmianie `.env` odtwórz kontener z katalogu `DEPLOY_DIR`:
 

@@ -1,0 +1,15 @@
+Szanowni Państwo,
+
+Za pośrednictwem platformy **pomożeMy** przekazujemy zgłoszenie problemu dotyczącego lokalnej przestrzeni lub usług publicznych. Prosimy o zapoznanie się z opisaną sytuacją i ocenę możliwości podjęcia działań przez Państwa instytucję.
+
+**Zgłoszone przez:** {reporter}
+
+**Opis zgłoszenia:**
+{description}
+
+Przybliżona lokalizacja zgłoszenia: {pin}
+
+Prosimy o informację o sposobie rozpatrzenia zgłoszenia i ewentualnych dalszych krokach. Dziękujemy za poświęcony czas i pomoc w rozwiązaniu sprawy.
+
+Z poważaniem,
+Zespół pomożeMy

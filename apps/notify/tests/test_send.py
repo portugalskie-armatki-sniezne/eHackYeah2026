@@ -1,10 +1,13 @@
 import smtplib
 import ssl
+from pathlib import Path
 from unittest.mock import MagicMock
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 from fastapi.testclient import TestClient
 
+from app import storage
 from app.main import app
 
 PAYLOAD = {
@@ -50,15 +53,25 @@ def test_send_plaintext(smtp: MagicMock, report_type: str, intro: str, other_int
     assert message["From"] == "sender@gmail.com"
     assert message["To"] == PAYLOAD["to"]
     assert message["Subject"] == PAYLOAD["subject"]
-    assert message.get_content_type() == "text/plain"
-    assert not message.is_multipart()
-    content = message.get_content()
+    assert message.get_content_type() == "multipart/alternative"
+    assert message.get_body(("plain",)).get_content_type() == "text/plain"
+    assert message.get_body(("html",)).get_content_type() == "text/html"
+    content = message.get_body(("plain",)).get_content()
     assert content.count(PAYLOAD["description"]) == 1
     assert intro in content
     assert other_intro not in content
     assert content.startswith("Szanowni Państwo,")
     assert "Zgłoszone przez: Jan Kowalski" in content
     assert content.rstrip().endswith("Zespół pomożeMy")
+    html = message.get_body(("html",)).get_content()
+    assert "<strong>Zgłoszone przez:</strong> Jan Kowalski" in html
+    assert html.count("<strong>pomożeMy</strong>") == 1
+    assert (
+        "<strong>Opis zgłoszenia:</strong>" in html
+        if report_type == "issue"
+        else "<strong>Opis propozycji:</strong>" in html
+    )
+    assert "<strong>Zespół pomożeMy</strong>" not in html
     assert connection.send_message.call_args.kwargs["to_addrs"] == [PAYLOAD["to"]]
 
 
@@ -75,7 +88,7 @@ def test_mock_redirects_mail(smtp: MagicMock, monkeypatch: pytest.MonkeyPatch, f
     assert message["To"] == "team@example.com"
     assert connection.send_message.call_args.kwargs["to_addrs"] == ["team@example.com"]
     assert message["Subject"] == PAYLOAD["subject"]
-    assert message.get_content().count(PAYLOAD["description"]) == 1
+    assert message.get_body(("plain",)).get_content().count(PAYLOAD["description"]) == 1
 
 
 @pytest.mark.parametrize("flag", ["false", None])
@@ -188,8 +201,12 @@ def test_description_is_inserted_literally(smtp: MagicMock, report_type: str):
 
     assert response.status_code == 200
     message = smtp.return_value.__enter__.return_value.send_message.call_args.args[0]
-    assert message.get_content_type() == "text/plain"
-    assert message.get_content().count(description) == 1
+    assert message.get_body(("plain",)).get_content_type() == "text/plain"
+    assert message.get_body(("plain",)).get_content().count(description) == 1
+    html = message.get_body(("html",)).get_content()
+    assert "&lt;b&gt;oświetlenie&lt;/b&gt;" in html
+    assert "<b>oświetlenie</b>" not in html
+    assert "<br>\nDruga linia" in html
 
 
 def test_templates_do_not_depend_on_working_directory(smtp: MagicMock, monkeypatch: pytest.MonkeyPatch, tmp_path):
@@ -212,11 +229,15 @@ def test_anonymous_mail_hides_reporter(smtp: MagicMock, report_type: str, includ
     response = TestClient(app).post("/send", json=payload)
 
     assert response.status_code == 200
-    content = smtp.return_value.__enter__.return_value.send_message.call_args.args[0].get_content()
+    content = smtp.return_value.__enter__.return_value.send_message.call_args.args[0].get_body(("plain",)).get_content()
     assert "Zgłoszone przez: anonimowo" in content
     assert "Jan" not in content
     assert "Kowalski" not in content
     assert content.count(PAYLOAD["description"]) == 1
+    html = smtp.return_value.__enter__.return_value.send_message.call_args.args[0].get_body(("html",)).get_content()
+    assert "<strong>Zgłoszone przez:</strong> anonimowo" in html
+    assert "Jan" not in html
+    assert "Kowalski" not in html
 
 
 @pytest.mark.parametrize("anonymous", [False, None])
@@ -256,7 +277,7 @@ def test_reporter_names_are_trimmed_and_inserted_literally(smtp: MagicMock):
     )
 
     assert response.status_code == 200
-    content = smtp.return_value.__enter__.return_value.send_message.call_args.args[0].get_content()
+    content = smtp.return_value.__enter__.return_value.send_message.call_args.args[0].get_body(("plain",)).get_content()
     assert "Zgłoszone przez: Łukasz Żółć-{description}\n" in content
     assert content.count(PAYLOAD["description"]) == 1
 
@@ -269,3 +290,196 @@ def test_health_without_credentials(monkeypatch: pytest.MonkeyPatch):
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+@pytest.mark.parametrize("report_type", ["issue", "improvement"])
+@pytest.mark.parametrize("location", [{"longitude": 19.9449, "latitude": 50.0647}, {"longitude": 0, "latitude": 0}])
+def test_location_links_to_correct_coordinates(smtp: MagicMock, report_type: str, location: dict[str, float]):
+    response = TestClient(app).post("/send", json=PAYLOAD | {"report_type": report_type, "location": location})
+
+    assert response.status_code == 200
+    message = smtp.return_value.__enter__.return_value.send_message.call_args.args[0]
+    content = message.get_body(("plain",)).get_content()
+    link = content.split("Przybliżona lokalizacja zgłoszenia: ", 1)[1].splitlines()[0]
+    url = urlparse(link)
+    assert url.scheme == "https"
+    assert url.netloc == "www.google.com"
+    assert url.path == "/maps/search/"
+    query = parse_qs(url.query)
+    assert query["api"] == ["1"]
+    assert [float(value) for value in query["query"][0].split(",")] == [location["latitude"], location["longitude"]]
+    assert content.index(PAYLOAD["description"]) < content.index("Przybliżona lokalizacja")
+    assert f'<a href="{link.replace("&", "&amp;")}">' in message.get_body(("html",)).get_content()
+
+
+@pytest.mark.parametrize("report_type", ["issue", "improvement"])
+@pytest.mark.parametrize("include_location", [False, True])
+def test_missing_location_is_unspecified(smtp: MagicMock, report_type: str, include_location: bool):
+    payload = PAYLOAD | {"report_type": report_type}
+    if include_location:
+        payload["location"] = None
+
+    response = TestClient(app).post("/send", json=payload)
+
+    assert response.status_code == 200
+    message = smtp.return_value.__enter__.return_value.send_message.call_args.args[0]
+    for kind in ("plain", "html"):
+        content = message.get_body((kind,)).get_content()
+        assert "Przybliżona lokalizacja zgłoszenia: nieokreślono" in content
+        assert "google.com/maps" not in content
+
+
+@pytest.mark.parametrize(
+    "location",
+    [
+        {"longitude": 181, "latitude": 0},
+        {"longitude": 0, "latitude": -91},
+        {"longitude": 0},
+        {"latitude": 0},
+        {},
+        {"longitude": "NaN", "latitude": 0},
+        {"longitude": 0, "latitude": "Infinity"},
+        {"longitude": 0, "latitude": 0, "pin": "https://example.com"},
+    ],
+)
+def test_invalid_location_blocks_sending(smtp: MagicMock, location):
+    response = TestClient(app).post("/send", json=PAYLOAD | {"location": location})
+
+    assert response.status_code == 422
+    smtp.assert_not_called()
+
+
+def test_payload_markdown_and_html_are_not_rendered(smtp: MagicMock):
+    description = '**bold** [link](https://example.com) <img src="https://example.com/pixel"> & {reporter}'
+    response = TestClient(app).post(
+        "/send", json=PAYLOAD | {"description": description, "first_name": "<b>Jan</b>", "last_name": "**Kowalski**"}
+    )
+
+    assert response.status_code == 200
+    message = smtp.return_value.__enter__.return_value.send_message.call_args.args[0]
+    assert description in message.get_body(("plain",)).get_content()
+    html = message.get_body(("html",)).get_content()
+    assert "**bold** [link](https://example.com)" in html
+    assert "<strong>bold</strong>" not in html
+    assert "<img " not in html
+    assert "&lt;img src=&quot;https://example.com/pixel&quot;&gt; &amp; {reporter}" in html
+    assert "&lt;b&gt;Jan&lt;/b&gt; **Kowalski**" in html
+
+
+PHOTO_KEY = "reports/9a2b8c44-7d5e-4f10-a3b1-6c0d1e2f3a44/c3d4e5f6-1a2b-4c3d-8e9f-0a1b2c3d4e5f.png"
+
+
+@pytest.fixture
+def photo_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    monkeypatch.setenv("UPLOAD_DIR", str(tmp_path))
+    return tmp_path
+
+
+@pytest.mark.parametrize(
+    ("extension", "content", "media_type"),
+    [
+        ("jpg", b"\xff\xd8\xfftest", "image/jpeg"),
+        ("png", b"\x89PNG\r\n\x1a\ntest", "image/png"),
+        ("webp", b"RIFF\x00\x00\x00\x00WEBPtest", "image/webp"),
+    ],
+)
+def test_photos_attach_existing_api_files(
+    smtp: MagicMock, photo_root: Path, extension: str, content: bytes, media_type: str
+):
+    key = PHOTO_KEY.removesuffix("png") + extension
+    path = photo_root / key
+    path.parent.mkdir(parents=True)
+    path.write_bytes(content)
+    photo = {
+        "id": path.stem,
+        "report_id": path.parent.name,
+        "storage_key": key,
+        "created_at": "2026-10-04T00:00:00Z",
+        "url": f"/photos/{path.stem}/file",
+    }
+
+    response = TestClient(app).post("/send", json=PAYLOAD | {"photos": [photo]})
+
+    assert response.status_code == 200
+    message = smtp.return_value.__enter__.return_value.send_message.call_args.args[0]
+    attachments = list(message.iter_attachments())
+    assert len(attachments) == 1
+    assert attachments[0].get_content_type() == media_type
+    assert attachments[0].get_content_disposition() == "attachment"
+    assert attachments[0].get_filename() == path.name
+    assert attachments[0].get_payload(decode=True) == content
+    assert message.get_body(("plain",)) is not None
+    assert message.get_body(("html",)) is not None
+    assert path.read_bytes() == content
+
+
+@pytest.mark.parametrize(
+    "key", ["/etc/passwd", "../secret.png", PHOTO_KEY.replace("reports/", "uploads/"), "https://example.com/photo.png"]
+)
+def test_invalid_photo_keys_block_sending(smtp: MagicMock, key: str):
+    response = TestClient(app).post("/send", json=PAYLOAD | {"photos": [{"storage_key": key}]})
+
+    assert response.status_code == 422
+    smtp.assert_not_called()
+
+
+def test_too_many_photos_block_sending(smtp: MagicMock):
+    response = TestClient(app).post("/send", json=PAYLOAD | {"photos": [{"storage_key": PHOTO_KEY}] * 6})
+
+    assert response.status_code == 422
+    smtp.assert_not_called()
+
+
+def test_missing_photo_blocks_sending(smtp: MagicMock, photo_root: Path):
+    response = TestClient(app).post("/send", json=PAYLOAD | {"photos": [{"storage_key": PHOTO_KEY}]})
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Photo not found"}
+    smtp.assert_not_called()
+
+
+def test_photo_symlink_cannot_leave_upload_directory(smtp: MagicMock, photo_root: Path):
+    secret = photo_root.parent / "outside-photo.png"
+    secret.write_bytes(b"\x89PNG\r\n\x1a\nprivate")
+    path = photo_root / PHOTO_KEY
+    path.parent.mkdir(parents=True)
+    path.symlink_to(secret)
+
+    response = TestClient(app).post("/send", json=PAYLOAD | {"photos": [{"storage_key": PHOTO_KEY}]})
+
+    assert response.status_code == 422
+    smtp.assert_not_called()
+
+
+@pytest.mark.parametrize(("content", "status"), [(b"invalid", 422), (b"\x89PNG\r\n\x1a\nlarge", 413)])
+def test_invalid_photo_content_blocks_sending(
+    smtp: MagicMock, photo_root: Path, monkeypatch: pytest.MonkeyPatch, content: bytes, status: int
+):
+    monkeypatch.setattr(storage, "MAX_PHOTO_BYTES", 10)
+    path = photo_root / PHOTO_KEY
+    path.parent.mkdir(parents=True)
+    path.write_bytes(content)
+
+    response = TestClient(app).post("/send", json=PAYLOAD | {"photos": [{"storage_key": PHOTO_KEY}]})
+
+    assert response.status_code == status
+    smtp.assert_not_called()
+
+
+def test_attachment_total_limit_blocks_sending(smtp: MagicMock, photo_root: Path, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(storage, "MAX_ATTACHMENT_BYTES", 20)
+    path = photo_root / PHOTO_KEY
+    path.parent.mkdir(parents=True)
+    path.write_bytes(b"\x89PNG\r\n\x1a\ntest")
+
+    response = TestClient(app).post("/send", json=PAYLOAD | {"photos": [{"storage_key": PHOTO_KEY}] * 2})
+
+    assert response.status_code == 413
+    smtp.assert_not_called()
+
+
+def test_local_upload_directory_matches_api(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("UPLOAD_DIR", "uploads")
+    expected = Path(__file__).resolve().parents[2] / "api" / "uploads"
+
+    assert storage.upload_dir() == expected

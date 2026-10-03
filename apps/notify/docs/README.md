@@ -1,6 +1,6 @@
 # Dokumentacja powiadomień (apps/notify)
 
-Osobny mikroserwis FastAPI do wysyłania maili plaintext przez Gmail SMTP. Backend wywołuje go po HTTP w sieci Docker Compose. Serwis nie korzysta z bazy danych.
+Osobny mikroserwis FastAPI do wysyłania maili przez Gmail SMTP. Renderuje szablony Markdown do HTML i dołącza wersję tekstową. Backend wywołuje go po HTTP w sieci Docker Compose. Serwis nie korzysta z bazy danych.
 
 ## Spis dokumentów
 
@@ -19,8 +19,9 @@ Osobny mikroserwis FastAPI do wysyłania maili plaintext przez Gmail SMTP. Backe
 | Plik | Zawartość |
 | --- | --- |
 | `app/main.py` | aplikacja FastAPI, walidacja, wybór szablonu i wysyłka SMTP |
-| `templates/*.txt` | szablony plaintext dla `issue` i `improvement` z opisem i danymi zgłaszającego |
-| `tests/test_send.py` | testy wysyłki imiennej i anonimowej, przekierowania i błędów |
+| `templates/*.md` | szablony dla `issue` i `improvement` z opisem, zgłaszającym i lokalizacją |
+| `app/storage.py` | odczyt i walidacja zdjęć z katalogu API |
+| `tests/test_send.py` | testy renderowania, wysyłki, lokalizacji, zdjęć, anonimowości i błędów |
 | `Dockerfile` | obraz uruchamiający serwis jako nieuprzywilejowany użytkownik |
 | `pyproject.toml`, `uv.lock` | zależności i konfiguracja narzędzi |
 
