@@ -6,6 +6,9 @@ WORKDIR /app
 # in CD: docker build --build-arg VITE_API_URL=https://api.example.com/ ...
 ARG VITE_API_URL=http://localhost:8000/
 ENV VITE_API_URL=$VITE_API_URL
+# the OAuth client ID of Google sign-in, the same value as GOOGLE_CLIENT_ID of the api
+ARG VITE_GOOGLE_CLIENT_ID=
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
 
 # the build context is the repository root because bun.lock covers all workspaces
 COPY package.json bun.lock ./

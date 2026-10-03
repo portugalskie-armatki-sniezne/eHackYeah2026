@@ -90,7 +90,7 @@ jobs:
     needs: select
     if: ${{ needs.select.outputs.services != '[]' }}
     runs-on: ubuntu-latest
-    # provides the VITE_API_URL variable of the target environment
+    # provides the VITE_API_URL and VITE_GOOGLE_CLIENT_ID variables of the target environment
     # pushes to main have no inputs, so the environment falls back to dev
     environment: ${{ inputs.environment || 'dev' }}
     permissions:
@@ -131,9 +131,10 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # the api image has no such ARG, so Docker ignores it there
+          # the api image has no such ARGs, so Docker ignores them there
           build-args: |
             VITE_API_URL=${{ vars.VITE_API_URL }}
+            VITE_GOOGLE_CLIENT_ID=${{ vars.VITE_GOOGLE_CLIENT_ID }}
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
