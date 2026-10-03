@@ -2,11 +2,24 @@ import os
 import smtplib
 import ssl
 from email.message import EmailMessage
+from pathlib import Path
+from typing import Annotated, Literal
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, TypeAdapter, ValidationError
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    StringConstraints,
+    TypeAdapter,
+    ValidationError,
+    model_validator,
+)
 
 app = FastAPI(title="eHackYeah2026 Notify")
+TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
+Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, pattern=r"^[^\r\n]+$")]
 
 
 class Mail(BaseModel):
@@ -14,7 +27,17 @@ class Mail(BaseModel):
 
     to: EmailStr
     subject: str = Field(min_length=1, max_length=255, pattern=r"^[^\r\n]+$")
-    text: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    report_type: Literal["issue", "improvement"]
+    first_name: Name | None = None
+    last_name: Name | None = None
+    anonymous: bool = Field(default=False, strict=True)
+
+    @model_validator(mode="after")
+    def require_reporter(self) -> "Mail":
+        if not self.anonymous and (self.first_name is None or self.last_name is None):
+            raise ValueError("first_name and last_name are required unless anonymous is true")
+        return self
 
 
 @app.get("/health")
@@ -43,7 +66,9 @@ def send(payload: Mail) -> dict[str, str]:
     message["From"] = username
     message["To"] = destination
     message["Subject"] = payload.subject
-    message.set_content(payload.text)
+    template = (TEMPLATES_DIR / f"{payload.report_type}.txt").read_text(encoding="utf-8")
+    reporter = "anonimowo" if payload.anonymous else f"{payload.first_name} {payload.last_name}"
+    message.set_content(template.format(description=payload.description, reporter=reporter))
 
     try:
         with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as smtp:

@@ -6,5 +6,6 @@ WORKDIR /app
 COPY apps/notify/pyproject.toml apps/notify/uv.lock ./
 RUN uv sync --locked --no-dev --no-cache
 COPY apps/notify/app app
+COPY apps/notify/templates templates
 USER 65534:65534
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0"]

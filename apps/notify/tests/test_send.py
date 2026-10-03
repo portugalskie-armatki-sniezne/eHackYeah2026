@@ -7,7 +7,14 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 
-PAYLOAD = {"to": "recipient@example.com", "subject": "Aktualizacja zgłoszenia", "text": "Zgłoszenie przyjęto."}
+PAYLOAD = {
+    "to": "recipient@example.com",
+    "subject": "Aktualizacja zgłoszenia",
+    "description": "Na ścieżce przy parku brakuje oświetlenia.",
+    "report_type": "issue",
+    "first_name": "Jan",
+    "last_name": "Kowalski",
+}
 
 
 @pytest.fixture
@@ -21,8 +28,15 @@ def smtp(monkeypatch: pytest.MonkeyPatch) -> MagicMock:
     return smtp
 
 
-def test_send_plaintext(smtp: MagicMock):
-    response = TestClient(app).post("/send", json=PAYLOAD)
+@pytest.mark.parametrize(
+    ("report_type", "intro", "other_intro"),
+    [
+        ("issue", "zgłoszenie problemu", "propozycję usprawnienia"),
+        ("improvement", "propozycję usprawnienia", "zgłoszenie problemu"),
+    ],
+)
+def test_send_plaintext(smtp: MagicMock, report_type: str, intro: str, other_intro: str):
+    response = TestClient(app).post("/send", json=PAYLOAD | {"report_type": report_type})
 
     assert response.status_code == 200
     assert response.json() == {"status": "sent"}
@@ -38,7 +52,13 @@ def test_send_plaintext(smtp: MagicMock):
     assert message["Subject"] == PAYLOAD["subject"]
     assert message.get_content_type() == "text/plain"
     assert not message.is_multipart()
-    assert message.get_content().strip() == PAYLOAD["text"]
+    content = message.get_content()
+    assert content.count(PAYLOAD["description"]) == 1
+    assert intro in content
+    assert other_intro not in content
+    assert content.startswith("Szanowni Państwo,")
+    assert "Zgłoszone przez: Jan Kowalski" in content
+    assert content.rstrip().endswith("Zespół pomożeMy")
     assert connection.send_message.call_args.kwargs["to_addrs"] == [PAYLOAD["to"]]
 
 
@@ -55,7 +75,7 @@ def test_mock_redirects_mail(smtp: MagicMock, monkeypatch: pytest.MonkeyPatch, f
     assert message["To"] == "team@example.com"
     assert connection.send_message.call_args.kwargs["to_addrs"] == ["team@example.com"]
     assert message["Subject"] == PAYLOAD["subject"]
-    assert message.get_content().strip() == PAYLOAD["text"]
+    assert message.get_content().count(PAYLOAD["description"]) == 1
 
 
 @pytest.mark.parametrize("flag", ["false", None])
@@ -134,7 +154,11 @@ def test_smtp_failure(smtp: MagicMock, stage: str, error: Exception):
         {"subject": "Update\nBcc: other@example.com"},
         {"subject": "Update\rBcc: other@example.com"},
         {"subject": "Update\n"},
-        {"text": ""},
+        {"description": ""},
+        {"report_type": "initiative"},
+        {"report_type": "../issue"},
+        {"report_type": "issue.txt"},
+        {"text": "Update"},
         {"html": "<p>Update</p>"},
     ],
 )
@@ -143,6 +167,98 @@ def test_invalid_mail(smtp: MagicMock, values: dict[str, str]):
 
     assert response.status_code == 422
     smtp.assert_not_called()
+
+
+@pytest.mark.parametrize("field", ["to", "subject", "description", "report_type"])
+def test_missing_required_field(smtp: MagicMock, field: str):
+    payload = PAYLOAD.copy()
+    del payload[field]
+
+    response = TestClient(app).post("/send", json=payload)
+
+    assert response.status_code == 422
+    smtp.assert_not_called()
+
+
+@pytest.mark.parametrize("report_type", ["issue", "improvement"])
+def test_description_is_inserted_literally(smtp: MagicMock, report_type: str):
+    description = "Opis: {description}, {unknown}, <b>oświetlenie</b>.\nDruga linia: zażółć gęślą jaźń."
+
+    response = TestClient(app).post("/send", json=PAYLOAD | {"description": description, "report_type": report_type})
+
+    assert response.status_code == 200
+    message = smtp.return_value.__enter__.return_value.send_message.call_args.args[0]
+    assert message.get_content_type() == "text/plain"
+    assert message.get_content().count(description) == 1
+
+
+def test_templates_do_not_depend_on_working_directory(smtp: MagicMock, monkeypatch: pytest.MonkeyPatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+
+    response = TestClient(app).post("/send", json=PAYLOAD)
+
+    assert response.status_code == 200
+    smtp.return_value.__enter__.return_value.send_message.assert_called_once()
+
+
+@pytest.mark.parametrize("report_type", ["issue", "improvement"])
+@pytest.mark.parametrize("include_names", [False, True])
+def test_anonymous_mail_hides_reporter(smtp: MagicMock, report_type: str, include_names: bool):
+    payload = PAYLOAD | {"anonymous": True, "report_type": report_type}
+    if not include_names:
+        del payload["first_name"]
+        del payload["last_name"]
+
+    response = TestClient(app).post("/send", json=payload)
+
+    assert response.status_code == 200
+    content = smtp.return_value.__enter__.return_value.send_message.call_args.args[0].get_content()
+    assert "Zgłoszone przez: anonimowo" in content
+    assert "Jan" not in content
+    assert "Kowalski" not in content
+    assert content.count(PAYLOAD["description"]) == 1
+
+
+@pytest.mark.parametrize("anonymous", [False, None])
+@pytest.mark.parametrize("field", ["first_name", "last_name"])
+def test_named_mail_requires_both_names(smtp: MagicMock, anonymous: bool | None, field: str):
+    payload = PAYLOAD.copy()
+    del payload[field]
+    if anonymous is not None:
+        payload["anonymous"] = anonymous
+
+    response = TestClient(app).post("/send", json=payload)
+
+    assert response.status_code == 422
+    smtp.assert_not_called()
+
+
+@pytest.mark.parametrize("field", ["first_name", "last_name"])
+@pytest.mark.parametrize("value", [None, "", "   ", "Jan\nKowalski", "Jan\rKowalski"])
+def test_named_mail_rejects_invalid_names(smtp: MagicMock, field: str, value: str | None):
+    response = TestClient(app).post("/send", json=PAYLOAD | {field: value})
+
+    assert response.status_code == 422
+    smtp.assert_not_called()
+
+
+@pytest.mark.parametrize("anonymous", ["false", "true", 0, 1, None])
+def test_anonymous_requires_json_boolean(smtp: MagicMock, anonymous):
+    response = TestClient(app).post("/send", json=PAYLOAD | {"anonymous": anonymous})
+
+    assert response.status_code == 422
+    smtp.assert_not_called()
+
+
+def test_reporter_names_are_trimmed_and_inserted_literally(smtp: MagicMock):
+    response = TestClient(app).post(
+        "/send", json=PAYLOAD | {"first_name": "  Łukasz  ", "last_name": "  Żółć-{description}  "}
+    )
+
+    assert response.status_code == 200
+    content = smtp.return_value.__enter__.return_value.send_message.call_args.args[0].get_content()
+    assert "Zgłoszone przez: Łukasz Żółć-{description}\n" in content
+    assert content.count(PAYLOAD["description"]) == 1
 
 
 def test_health_without_credentials(monkeypatch: pytest.MonkeyPatch):

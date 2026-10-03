@@ -18,8 +18,9 @@ Osobny mikroserwis FastAPI do wysyłania maili plaintext przez Gmail SMTP. Backe
 
 | Plik | Zawartość |
 | --- | --- |
-| `app/main.py` | aplikacja FastAPI, walidacja wiadomości i wysyłka SMTP |
-| `tests/test_send.py` | testy wysyłki, przekierowania i błędów |
+| `app/main.py` | aplikacja FastAPI, walidacja, wybór szablonu i wysyłka SMTP |
+| `templates/*.txt` | szablony plaintext dla `issue` i `improvement` z opisem i danymi zgłaszającego |
+| `tests/test_send.py` | testy wysyłki imiennej i anonimowej, przekierowania i błędów |
 | `Dockerfile` | obraz uruchamiający serwis jako nieuprzywilejowany użytkownik |
 | `pyproject.toml`, `uv.lock` | zależności i konfiguracja narzędzi |
 
