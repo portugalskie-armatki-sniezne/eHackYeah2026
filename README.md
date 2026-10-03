@@ -74,3 +74,19 @@ bun run preview
 ```
 
 The build output is written to `apps/web/dist`.
+
+## Shared agent skills
+
+Repository-local skills live in `.agents/skills/` and are versioned with the
+project. Teammates can use them from a repository checkout in Codex:
+
+| Skill | Example request | Behavior |
+| --- | --- | --- |
+| [commit](.agents/skills/commit/SKILL.md) | `Use $commit to commit the staged changes.` | Review the complete staged snapshot, run relevant checks, and create a commit. Push only when explicitly requested. |
+| [pr](.agents/skills/pr/SKILL.md) | `Use $pr to open a pull request for this branch.` | Review and push the committed branch, then create or update a GitHub PR against the repository's default branch unless another base is supplied. |
+
+The commit skill requires Git. The PR skill also requires authenticated GitHub
+access through a connected integration or the `gh` CLI. Both follow `AGENTS.md`
+and accept optional message hints or issue references. They do not require
+installing personal global skills. Agents that support skill files can also read
+the linked `SKILL.md` instructions directly.
