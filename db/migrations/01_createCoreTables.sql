@@ -26,7 +26,8 @@ CREATE TABLE master_reports (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     report_category_id BIGINT NOT NULL,
     status_id BIGINT NOT NULL,
-    responsible_institution_id BIGINT,
+    responsible_office_id BIGINT,
+    responsible_service_entity_id BIGINT,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     location GEOGRAPHY(POINT, 4326) NOT NULL,
@@ -38,7 +39,8 @@ CREATE TABLE master_reports (
 
 CREATE INDEX master_reports_report_category_id_idx ON master_reports (report_category_id);
 CREATE INDEX master_reports_status_id_idx ON master_reports (status_id);
-CREATE INDEX master_reports_responsible_institution_id_idx ON master_reports (responsible_institution_id);
+CREATE INDEX master_reports_responsible_office_id_idx ON master_reports (responsible_office_id);
+CREATE INDEX master_reports_responsible_service_entity_id_idx ON master_reports (responsible_service_entity_id);
 CREATE INDEX master_reports_location_idx ON master_reports USING GIST (location);
 
 CREATE TABLE reports (

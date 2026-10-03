@@ -1,4 +1,4 @@
-"""import the institution contact workbook without duplicating TERYT codes."""
+"""import the local government office workbook without duplicating TERYT codes."""
 
 import argparse
 import math
@@ -35,6 +35,9 @@ SOURCE_COLUMNS = {
     "ESP": "electronic_inbox",
     "adres doręczeń elektronicznych ADE": "electronic_delivery_address",
 }
+
+
+COLUMNS = [column for column in SOURCE_COLUMNS.values() if not column.startswith("fax_")]
 
 
 def normalize_header(value: str) -> str:
@@ -86,7 +89,8 @@ def read_contacts(path: Path) -> list[tuple[str | None, ...]]:
                         raise ValueError("Invalid numeric postal code")
                     values[7] = postal_code[:2] + "-" + postal_code[2:]
                 seen_codes.add(values[0])
-                rows.append(tuple(values))
+                rows.append(tuple(value for column, value in zip(SOURCE_COLUMNS.values(), values)
+                                  if column in COLUMNS))
             except ValueError as error:
                 raise ValueError(f"Worksheet row {row_number + 1}: {error}") from error
         if not rows:
@@ -95,29 +99,29 @@ def read_contacts(path: Path) -> list[tuple[str | None, ...]]:
 
 
 def import_contacts(connection: psycopg.Connection, rows: list[tuple[str | None, ...]]) -> int:
-    columns = list(SOURCE_COLUMNS.values())
+    columns = COLUMNS
     column_list = sql.SQL(", ").join(map(sql.Identifier, columns))
     assignments = sql.SQL(", ").join(
         sql.SQL("{0} = EXCLUDED.{0}").format(sql.Identifier(column))
         for column in columns[1:]
     )
     current_values = sql.SQL(", ").join(
-        sql.Identifier("institution_contacts", column) for column in columns[1:]
+        sql.Identifier("local_government_offices", column) for column in columns[1:]
     )
     new_values = sql.SQL(", ").join(
         sql.Identifier("excluded", column) for column in columns[1:]
     )
     with connection.transaction(), connection.cursor() as cursor:
-        cursor.execute("SELECT pg_advisory_xact_lock(hashtextextended('institution_contacts_seed', 0))")
+        cursor.execute("SELECT pg_advisory_xact_lock(hashtextextended('local_government_offices_seed', 0))")
         cursor.execute(sql.SQL(
             "CREATE TEMP TABLE staged_contacts ON COMMIT DROP AS "
-            "SELECT {} FROM institution_contacts WITH NO DATA"
+            "SELECT {} FROM local_government_offices WITH NO DATA"
         ).format(column_list))
         with cursor.copy(sql.SQL("COPY staged_contacts ({}) FROM STDIN").format(column_list)) as copy:
             for row in rows:
                 copy.write_row(row)
         cursor.execute(sql.SQL(
-            "INSERT INTO institution_contacts ({columns}) "
+            "INSERT INTO local_government_offices ({columns}) "
             "SELECT {columns} FROM staged_contacts "
             "ON CONFLICT (teryt_code) DO UPDATE SET {assignments} "
             "WHERE ({current_values}) IS DISTINCT FROM ({new_values})"

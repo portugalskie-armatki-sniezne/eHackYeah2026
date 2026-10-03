@@ -27,6 +27,6 @@ Wstępny design API CRUD dla tabel z `db/migrations/`. Dokumentacja jest po pols
 
 ## Zakres
 
-Model danych obejmuje tabele z migracji: `users`, `report_categories`, `master_report_statuses`, `master_reports`, `reports`, `report_photos`, `master_report_comments`, `master_report_comment_likes`, `institution_contacts`. Master przechowuje wspólny stan i dyskusję, a pojedynczy report może czekać na klasyfikację bez mastera.
+Model danych obejmuje tabele z migracji: `users`, `report_categories`, `master_report_statuses`, `master_reports`, `reports`, `report_photos`, `master_report_comments`, `master_report_comment_likes`, `local_government_offices`, `service_entities`. Master przechowuje wspólny stan i dyskusję, a pojedynczy report może czekać na klasyfikację bez mastera.
 
 Plan API opisuje podstawowy CRUD. Endpointy słowników, komentarzy i polubień wymagają osobnego projektu. Inicjatywy i role nie mają jeszcze tabel i pozostają poza zakresem.

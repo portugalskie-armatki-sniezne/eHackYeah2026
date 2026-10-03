@@ -10,7 +10,7 @@ import psycopg
 import xlrd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tooling" / "seed"))
-import import_institution_contacts as importer
+import import_local_government_offices as importer
 
 
 class ContactImportTests(unittest.TestCase):
@@ -77,6 +77,8 @@ class ContactImportTests(unittest.TestCase):
     def test_real_workbook(self):
         rows = importer.read_contacts(Path("/seeds/teleaddr_base_16042026.xls"))
         self.assertEqual(len(rows), 203)
+        self.assertEqual(len(rows[0]), 19)
+        self.assertEqual(importer.COLUMNS[15], "email")
         rzezawa = next(row for row in rows if row[0] == "1201072")
         self.assertEqual(rzezawa[1], "Rzezawa")
         self.assertEqual(rzezawa[12], "6484800")
@@ -88,24 +90,24 @@ class ContactImportTests(unittest.TestCase):
         with psycopg.connect(autocommit=True) as connection:
             self.assertEqual(importer.import_contacts(connection, rows), 0)
             original_id = connection.execute(
-                "SELECT id FROM institution_contacts WHERE teryt_code = %s", (rows[0][0],)
+                "SELECT id FROM local_government_offices WHERE teryt_code = %s", (rows[0][0],)
             ).fetchone()[0]
             changed = list(rows[0])
-            changed[18] = "changed@example.invalid"
+            changed[15] = "changed@example.invalid"
             self.assertEqual(importer.import_contacts(connection, [tuple(changed)]), 1)
             self.assertEqual(connection.execute(
-                "SELECT id FROM institution_contacts WHERE teryt_code = %s", (rows[0][0],)
+                "SELECT id FROM local_government_offices WHERE teryt_code = %s", (rows[0][0],)
             ).fetchone()[0], original_id)
             invalid = list(rows[1])
             invalid[0] = "invalid"
-            changed[18] = "must-rollback@example.invalid"
+            changed[15] = "must-rollback@example.invalid"
             with self.assertRaises(psycopg.errors.CheckViolation):
                 importer.import_contacts(connection, [tuple(changed), tuple(invalid)])
             self.assertEqual(connection.execute(
-                "SELECT email FROM institution_contacts WHERE id = %s", (original_id,)
+                "SELECT email FROM local_government_offices WHERE id = %s", (original_id,)
             ).fetchone()[0], "changed@example.invalid")
             self.assertEqual(importer.import_contacts(connection, rows), 1)
-            self.assertEqual(connection.execute("SELECT COUNT(*) FROM institution_contacts").fetchone()[0], 203)
+            self.assertEqual(connection.execute("SELECT COUNT(*) FROM local_government_offices").fetchone()[0], 203)
 
 
 if __name__ == "__main__":

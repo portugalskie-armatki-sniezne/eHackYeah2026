@@ -29,7 +29,7 @@ Wszystkie endpointy mają status `planned`. Nazwy pól są takie same jak kolumn
 | master_reports | `/master-reports` | create, list, get, update, delete; zapis kontrolowany przez backend |
 | reports | `/reports` | create, list, get, update, delete |
 | report_photos | `/reports/{report_id}/photos` | create, list, delete (bez update) |
-| institution_contacts | `/institution-contacts` | list, get (tylko odczyt) |
+| local_government_offices | `/institution-contacts` | list, get (tylko odczyt) |
 
 Kategorie, statusy, komentarze masterów i polubienia mają tabele w bazie. Ich endpointy wymagają osobnego projektu; poniższy plan ich jeszcze nie definiuje.
 
@@ -90,7 +90,8 @@ Odpowiedź:
   "id": "5d1f7a52-3c3e-4a7e-8b0a-1f6d2d9e7a20",
   "report_category_id": 2,
   "status_id": 2,
-  "responsible_institution_id": 17,
+  "responsible_office_id": null,
+  "responsible_service_entity_id": 17,
   "title": "Dziura w jezdni przy ul. Długiej",
   "description": "Dziura w jezdni przy ul. Długiej 5.",
   "location": { "longitude": 19.9449, "latitude": 50.0647 },
@@ -100,7 +101,7 @@ Odpowiedź:
 }
 ```
 
-Pola wymagane przy utworzeniu: `report_category_id`, `status_id`, `title`, `description`, `location`. `responsible_institution_id` i `response` mogą być null. Backend kopiuje początkową treść z pierwszego reportu, potem aktualizuje master niezależnie. Backend obsługuje przypisanie instytucji i przejścia między statusami z [data-model.md](data-model.md). ID w przykładzie są ilustracyjne; wartości słowników należy pobrać po nazwie.
+Pola wymagane przy utworzeniu: `report_category_id`, `status_id`, `title`, `description`, `location`. `responsible_office_id`, `responsible_service_entity_id` i `response` mogą być null. Co najwyżej jedno z pól odpowiedzialnego podmiotu może być ustawione; zmiana odbiorcy wymaga przesłania obu pól. Backend kopiuje początkową treść z pierwszego reportu, potem aktualizuje master niezależnie. Backend obsługuje przypisanie instytucji i przejścia między statusami z [data-model.md](data-model.md). ID w przykładzie są ilustracyjne; wartości słowników należy pobrać po nazwie.
 
 Uprawnienia do tych operacji wymagają ustalenia przed implementacją endpointów.
 
@@ -179,6 +180,9 @@ Endpoint przyjmuje tylko klucz. Sposób wgrywania pliku jest otwartym pytaniem.
 
 ## institution-contacts
 
+Katalog czyta tabelę `local_government_offices`; nazwa planowanej ścieżki API pozostaje bez zmian.
+`service_entities` jest na tym etapie katalogiem DB i nie dodaje nowych endpointów ani routingu.
+
 Dane referencyjne z seeda, tylko odczyt. Id to liczba całkowita, nie UUID.
 
 | Metoda | Ścieżka | Opis | Sukces | Błędy |
@@ -196,7 +200,7 @@ Na te pytania nie odpowiada obecny schemat. Do czasu decyzji nie implementujemy 
 | --- | --- | --- |
 | 1 | Jak działa logowanie (JWT, sesje) i kto może edytować cudze zasoby? W bazie nie ma ról. | wszystkie endpointy poza odczytem kontaktów |
 | 2 | Kto może aktualizować treść mastera, jego `response` i status? Tworzenie i przypisanie mastera obsługuje backend po klasyfikacji. | `/master-reports` |
-| 3 | Jak master trafia do odpowiedzialnej jednostki i jak potwierdzane są postęp oraz zakończenie? Relację przechowuje `responsible_institution_id`. | obsługa wysyłki i statusów |
+| 3 | Jak master trafia do odpowiedzialnej jednostki i jak potwierdzane są postęp oraz zakończenie? Relację przechowuje `responsible_office_id` albo `responsible_service_entity_id`. | obsługa wysyłki i statusów |
 | 4 | Jak wgrywane są pliki zdjęć (multipart w API, presigned URL)? | `/reports/{id}/photos` |
 | 5 | Czy `limit/offset` wystarcza, czy potrzebna paginacja kursorowa? | wszystkie listy |
 | 6 | Jakie będą endpointy odczytu słowników, komentarzy i polubień mastera? Tabele już istnieją; inicjatywy i role pozostają poza obecnym schematem. | rozszerzenie planu API |

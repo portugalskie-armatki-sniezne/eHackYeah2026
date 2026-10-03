@@ -29,7 +29,7 @@ BEGIN
        IS DISTINCT FROM ARRAY['created', 'finished', 'inprogress', 'reported'] THEN
         RAISE EXCEPTION 'Initial master report statuses were not populated';
     END IF;
-    SELECT id INTO institution_id FROM institution_contacts ORDER BY id LIMIT 1;
+    SELECT id INTO institution_id FROM local_government_offices ORDER BY id LIMIT 1;
 
     INSERT INTO users (first_name, last_name, email, password_hash)
     VALUES ('Schema', 'Check', 'schema@example.invalid', 'test-only-placeholder')
@@ -56,7 +56,8 @@ BEGIN
     VALUES (issue_category_id, created_status_id, 'Lamp repair', 'Broken lamp', 'SRID=4326;POINT(19.95 50.06)')
     RETURNING id INTO other_master_id;
 
-    IF (SELECT responsible_institution_id FROM master_reports WHERE id = master_id) IS NOT NULL THEN
+    IF EXISTS (SELECT FROM master_reports WHERE id = master_id
+               AND (responsible_office_id IS NOT NULL OR responsible_service_entity_id IS NOT NULL)) THEN
         RAISE EXCEPTION 'Master report required an institution before classification';
     END IF;
 
@@ -140,7 +141,7 @@ BEGIN
     END IF;
     UPDATE master_reports
     SET title = 'Shared pavement repair', description = 'Damage confirmed by multiple reports',
-        responsible_institution_id = institution_id,
+        responsible_office_id = institution_id,
         status_id = (SELECT id FROM master_report_statuses WHERE name = 'reported')
     WHERE id = master_id;
     UPDATE master_reports
@@ -154,7 +155,7 @@ BEGIN
     END IF;
     IF (SELECT COUNT(*) FROM reports r JOIN master_reports m ON m.id = r.master_report_id
         WHERE r.id IN (first_report_id, second_report_id)
-        AND m.status_id = finished_status_id AND m.responsible_institution_id = institution_id) <> 2 THEN
+        AND m.status_id = finished_status_id AND m.responsible_office_id = institution_id) <> 2 THEN
         RAISE EXCEPTION 'Reports did not share their master status and institution';
     END IF;
     IF (SELECT edited_at FROM reports WHERE id = first_report_id) <= initial_time

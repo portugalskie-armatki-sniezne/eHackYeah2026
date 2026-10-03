@@ -5,6 +5,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PATH="/app/.venv/bin:$PATH"
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --locked --no-cache
-COPY import_institution_contacts.py .
+COPY import_local_government_offices.py import_service_entities.py import_reference_data.py collect_service_entities.py ./
 USER 65534:65534
-ENTRYPOINT ["python", "/app/import_institution_contacts.py"]
+ENTRYPOINT ["python", "/app/import_reference_data.py"]
