@@ -1,5 +1,3 @@
-name: ehackyeah2026-app
-
 # api and web run published images, the database lives in a separate Compose project
 services:
   api:
