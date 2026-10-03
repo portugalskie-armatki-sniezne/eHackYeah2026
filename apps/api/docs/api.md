@@ -1,6 +1,6 @@
 # API CRUD
 
-Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same jak kolumny w [data-model.md](data-model.md). `/inference` udostępnia podstawę analizy z pustymi implementacjami tłumacza i klasyfikatora.
+Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same jak kolumny w [data-model.md](data-model.md). `/inference` udostępnia analizę z konfigurowalnym tłumaczem i klasyfikatorem Laya.
 
 ## Konwencje
 
@@ -358,13 +358,14 @@ TERYT wskazuje powiązaną gminę, a nie zasięg usług lub jurysdykcję. Typ je
 | Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
 | --- | --- | --- | --- | --- | --- |
 | POST | `/inference` | tłumaczenie i klasyfikacja według przekazanych pytań | zalogowany | 200 | 401, 413, 422, 502, 503 |
+| POST | `/inference/service-entity` | wybór typu jednostki usługowej na podstawie tytułu, opisu i zdjęcia | zalogowany | 200 | 401, 413, 422, 502, 503 |
 
 Request przyjmuje pole formularza `payload` z JSON-em zawierającym `text`, `source_language`,
 `target_language` i `questions` oraz opcjonalny plik `image`. Tekst jest wymagany.
 Pytania, instrukcje i opcje odpowiedzi określa wywołujący. Zdjęcie podlega limitowi
 rozmiaru i regułom formatów zdjęć reportów, ale nie jest zapisywane.
 
-Domyślna odpowiedź pustych implementacji dla różnych języków:
+Odpowiedź przy wyłączonych dostawcach i różnych językach:
 
 ```json
 {
@@ -376,6 +377,9 @@ Domyślna odpowiedź pustych implementacji dla różnych języków:
 Przy zgodnych językach tłumaczenie ma status `unchanged` i zawiera wejściowy tekst.
 Podłączony tłumacz zwraca `translated`, a działający klasyfikator `classified` i odpowiedzi
 z polami `choice` i `scores`. Analiza nie tworzy reportów ani nie przypisuje instytucji.
+`POST /inference/service-entity` przyjmuje w polu formularza `payload` JSON z `title`,
+`description` i `source_language` (`pl` lub `en`) oraz opcjonalny plik `image`.
+Zwraca `entity_type`, `scores` i `translation`.
 Kontrakt, przykład requestu i podłączanie modeli opisuje [inference.md](inference.md).
 
 ## Otwarte pytania
