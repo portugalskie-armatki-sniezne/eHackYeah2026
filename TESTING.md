@@ -3,11 +3,11 @@
 From the repository root, run:
 
 ```sh
-bun run db
+task db
 ```
 
 The command starts Compose services from the root `docker-compose.yaml` and waits for seed import to finish. PostgreSQL stays running afterward. Compose provides local defaults; `.env` is optional.
-The seed image uses `tooling/seed/Dockerfile` and `tooling/seed/requirements.txt`.
+The seed image uses `tooling/seed/Dockerfile`, `tooling/seed/pyproject.toml`, and `tooling/seed/uv.lock`.
 To inspect migration and import output, run `docker compose logs db-migrator db-seeder`.
 
 Startup waits for PostgreSQL, applies dbmate migrations, then imports
@@ -51,8 +51,9 @@ are populated by migration 04. Each photo row contains a persistent storage key;
 the API/storage layer owns file upload, access,
 and deletion. Deleting a report removes its photo rows and preserves its master and
 the shared discussion. A master with linked reports cannot be deleted.
-`edited_at` is maintained by database triggers. Users must provide at least one
-nonblank email or phone number; email remains unique. The API must
+`reports.edited_at` and `master_reports.edited_at` are maintained by database
+triggers; `users.edited_at` has a default value but no update trigger. Users must
+provide at least one nonblank email or phone number; email remains unique. The API must
 store a complete encoded password hash (including its salt) in `users.password_hash`.
 
 Migrations 01 and 02 create the tables, migration 03 adds constraints, and migration

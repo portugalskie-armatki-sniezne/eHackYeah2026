@@ -1,0 +1,40 @@
+version: "3"
+
+tasks:
+  setup:
+    desc: Install JavaScript, TypeScript, and Python dependencies, and create missing .env
+    cmds:
+      - bun install
+      - uv sync --directory apps/api
+      - cmd: |
+          if [ ! -f .env ]; then
+            cp .env.example .env
+            echo "Created .env from .env.example. Review its values before starting the API."
+          fi
+
+  web:
+    desc: Start the frontend
+    dir: apps/web
+    dotenv: ["../../.env"]
+    cmds:
+      - bun run --no-orphans dev
+
+  db:
+    desc: Start the database, apply migrations, and wait for seed import
+    preconditions:
+      - sh: docker compose version
+        msg: Install Docker with Compose and start Docker before running the database.
+    cmds:
+      - docker compose up -d db-seeder
+      - docker compose wait db-seeder
+
+  api:
+    desc: Start the database and seed services, then start the API
+    dir: apps/api
+    dotenv: ["../../.env"]
+    preconditions:
+      - sh: test -f ../../.env
+        msg: Run `task setup` to create .env first.
+    cmds:
+      - task: db
+      - uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload --reload-dir app

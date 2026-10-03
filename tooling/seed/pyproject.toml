@@ -1,0 +1,8 @@
+[project]
+name = "ehackyeah-seed"
+version = "0.0.0"
+requires-python = ">=3.14"
+dependencies = [
+    "psycopg[binary]==3.3.6",
+    "xlrd==2.0.2",
+]
