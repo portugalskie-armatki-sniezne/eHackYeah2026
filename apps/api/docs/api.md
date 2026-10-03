@@ -5,7 +5,7 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 ## Konwencje
 
 - Format: JSON, pola w snake_case. Identyfikatory użytkowników, masterów, reportów, zdjęć i komentarzy jako UUID w postaci tekstu; identyfikatory kategorii, statusów, urzędów i jednostek usługowych jako liczby całkowite.
-- Wyjątek: `POST /reports`, `POST /reports/{id}/photos` i `POST /inference` przyjmują `multipart/form-data`, bo mogą zawierać pliki zdjęć.
+- Wyjątek: `POST /reports`, `POST /reports/{id}/photos` i endpointy `POST /inference` oraz `POST /inference/service-entity` przyjmują `multipart/form-data`, bo mogą zawierać pliki zdjęć.
 - Daty: ISO 8601 z strefą czasową (UTC).
 - CORS: API przyjmuje na razie zapytania z każdej domeny (`*`). Uwierzytelnianie opiera się na nagłówku `Authorization`, bez ciasteczek.
 - Pola `id`, `created_at`, `edited_at` są tylko do odczytu. Serwer ignoruje je w requestach albo zwraca 422.
@@ -44,7 +44,7 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 | słowniki | `/report-categories`, `/master-report-statuses` | list (tylko odczyt) |
 | local_government_offices | `/institution-contacts` | list, get (tylko odczyt) |
 | service_entities | `/service-entities` | list, get (tylko odczyt) |
-| inference | `/inference` | tłumaczenie i klasyfikacja tekstu z opcjonalnym zdjęciem |
+| inference | `/inference`, `/inference/service-entity` | tłumaczenie, klasyfikacja i wybór typu jednostki z opcjonalnym zdjęciem |
 
 ### Dostęp
 
@@ -378,10 +378,15 @@ Odpowiedź przy wyłączonych dostawcach i różnych językach:
 Przy zgodnych językach tłumaczenie ma status `unchanged` i zawiera wejściowy tekst.
 Podłączony tłumacz zwraca `translated`, a działający klasyfikator `classified` i odpowiedzi
 z polami `choice` i `scores`. Analiza nie tworzy reportów ani nie przypisuje instytucji.
-`POST /inference/service-entity` przyjmuje w polu formularza `payload` JSON z `title`,
-`description` i `source_language` (`pl` lub `en`) oraz opcjonalny plik `image`.
-Zwraca `entity_type`, `scores` i `translation`.
-Kontrakt, przykład requestu i podłączanie modeli opisuje [inference.md](inference.md).
+`POST /inference/service-entity` przyjmuje `payload` z `title` (do 300 znaków),
+`description` (do 4000 znaków) i `source_language` (`pl` domyślnie albo `en`),
+a także opcjonalny plik `image`. Zwraca `entity_type`, `scores` oraz `translation`.
+Lista opcji pochodzi z enuma API, nie od klienta. Także przy niepełnym lub
+wielowątkowym opisie model wybiera jedną opcję. Niedostępny model zwraca 503,
+a przekroczony limit tokenów modelu lub uszkodzone zdjęcie zwraca 422.
+Wynik określa typ, nie identyfikator konkretnej instytucji ani jej jurysdykcję.
+
+Kontrakt, przykład requestu, konfigurację modeli i pomiar trafności opisuje [inference.md](inference.md).
 
 ## Otwarte pytania
 
