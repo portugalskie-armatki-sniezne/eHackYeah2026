@@ -1,0 +1,20 @@
+{
+  "lockfileVersion": 2,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "ehackyeah2026",
+    },
+    "apps/api": {
+      "name": "@ehackyeah/api",
+    },
+    "apps/web": {
+      "name": "@ehackyeah/web",
+    },
+  },
+  "packages": {
+    "@ehackyeah/api": ["@ehackyeah/api@workspace:apps/api"],
+
+    "@ehackyeah/web": ["@ehackyeah/web@workspace:apps/web"],
+  }
+}

@@ -2,9 +2,11 @@
 
 ## Project overview
 
-- Project brief: we are creating application
-- Planned stack: React Native (Vite) in Type Scritfor the frontend, Python with FastAPI for the backend, PostgreSQL for the database, and Docker with Docker Compose.
-- Development environment: VS Code on macOS, Windows, and Linux. `.gitignore` should cover generated artifacts from the stack and development environments, as well as local secret files.
+- eHackYeah2026 is a web application for reporting civic issues, proposing citizen initiatives, and tracking their progress.
+- The repository is a scaffold with web and API workspaces. Application frameworks are not implemented yet.
+- PostgreSQL and dbmate are configured through Docker Compose in `infra/compose.yaml`.
+- `package.json` and `bun.lock` configure Bun workspaces and root commands. `TESTING.md` remains empty.
+- Development should work on macOS, Windows, and Linux. Keep tooling and shared editor configuration portable.
 
 ## Working rules
 
@@ -20,12 +22,24 @@
 
 ## Architecture and repository layout
 
-- `frontend/` contains the React Native application. It currently has only a `.gitkeep` placeholder.
-- `backend/` contains the Python FastAPI application. It currently has only a `.gitkeep` placeholder.
-- `db/migrations/` contains dbmate SQL migrations, with both `migrate:up` and `migrate:down` sections in each file. Dbmate writes the generated schema snapshot to `db/schema.sql`.
-- `docker-compose.yml` defines the PostgreSQL database and the one-shot dbmate migration service.
+- `apps/web/` and `apps/api/` are web and backend workspaces; application code is not implemented yet.
+- `db/migrations/` contains dbmate SQL with `-- migrate:up` and `-- migrate:down` sections.
+- `db/seeds/` is reserved for development and reference data.
+- `infra/compose.yaml` defines PostgreSQL on localhost and dbmate, with persistent database storage and schema dumps disabled.
+- `tooling/scripts/dev.ts` coordinates root development commands.
+- `tests/e2e/` is reserved for cross-application scenarios, and `tests/fixtures/` for shared behavioral examples. Keep application-specific tests near their application code when a test setup is introduced.
+- `.agents/skills/` is reserved for repository-local agent skills.
+- `.github/workflows/` is reserved for CI workflows; none are configured yet.
 - `.env` holds local environment values and is ignored by Git. `.env.example` documents the variables required by Docker Compose.
 - `README.md` is the top-level project documentation.
+- `TESTING.md` is the place to document test setup and commands once they exist.
+
+## Development command contract
+
+- Use Bun 1.4+ and keep root commands limited to `bun install` and `bun run setup|all|web|api` unless requested otherwise.
+- Workspaces provide `scripts.dev` and optional `scripts.setup`; API setup installs Python dependencies from its Python manifest. Keep setup repeatable and preserve `.env`.
+- Scripts run in their application directory with root `.env` values. Keep servers in the foreground and reloads scoped to each application.
+- The runner skips unimplemented applications and handles PostgreSQL and migrations before API startup.
 
 ## Validation
 
@@ -33,6 +47,8 @@
 - For documentation changes, check grammar, Markdown structure, and affected links or table-of-contents anchors.
 - For ignore-rule changes, check representative ignored and tracked paths with `git check-ignore`.
 - For code or Docker changes, run the relevant configured formatting, build, test, and configuration checks, including checks for affected callers or services. Add or update regression tests when behavior changes warrant them.
+- Validate Compose changes with `docker compose --env-file .env -f infra/compose.yaml config --quiet`. For configuration-only checks without a local `.env`, use `.env.example` instead. Avoid printing resolved configuration because it can contain credentials.
+- Run `bun test tooling/scripts/dev.test.ts` for runner changes. Application checks are not configured yet; report that gap.
 
 ## Secrets and local files
 

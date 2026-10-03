@@ -1,0 +1,14 @@
+{
+  "name": "ehackyeah2026",
+  "private": true,
+  "engines": {
+    "bun": ">=1.4.0"
+  },
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "setup": "bun run --no-orphans tooling/scripts/dev.ts setup",
+    "all": "bun run --no-orphans tooling/scripts/dev.ts all",
+    "web": "bun run --no-orphans tooling/scripts/dev.ts web",
+    "api": "bun run --no-orphans tooling/scripts/dev.ts api"
+  }
+}
