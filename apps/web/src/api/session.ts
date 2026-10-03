@@ -37,14 +37,22 @@ if (state.status === "checking") {
   );
 }
 
-export async function signIn(login: string, password: string) {
-  setToken(await authApi.login(login, password));
+async function startSession(token: string) {
+  setToken(token);
   try {
     setState({ status: "signed-in", user: await authApi.me() });
   } catch (error) {
     setToken(null);
     throw error;
   }
+}
+
+export async function signIn(login: string, password: string) {
+  await startSession(await authApi.login(login, password));
+}
+
+export async function signInWithGoogle(credential: string) {
+  await startSession(await authApi.googleLogin(credential));
 }
 
 export function signOut() {
