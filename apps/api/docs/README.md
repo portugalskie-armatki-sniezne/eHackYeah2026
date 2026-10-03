@@ -25,8 +25,29 @@ Wstępny design API CRUD dla tabel z `db/migrations/`. Dokumentacja jest po pols
 | `mock` | działa na danych testowych |
 | `done` | działa na bazie, są testy |
 
+## Testy
+
+Testy w `apps/api/tests/` działają na bazie z `.env` i wycofują zmiany po każdym teście. Bez dostępnej bazy są pomijane.
+
+```sh
+task db
+cd apps/api
+uv run --env-file ../../.env pytest
+```
+
+## Role
+
+Nowe konto ma rolę `user`. Rolę istniejącego konta, na przykład pierwszego administratora, nadaje skrypt:
+
+```sh
+cd apps/api
+uv run --env-file ../../.env python -m app.set_role anna@example.com admin
+```
+
+Dostępne role to `user`, `office` i `admin`. Później role może zmieniać `admin` przez `PATCH /users/{id}`.
+
 ## Zakres
 
 Model danych obejmuje tabele z migracji: `users`, `report_categories`, `master_report_statuses`, `master_reports`, `reports`, `report_photos`, `master_report_comments`, `master_report_comment_likes`, `institution_contacts`. Master przechowuje wspólny stan i dyskusję, a pojedynczy report może czekać na klasyfikację bez mastera.
 
-Plan API opisuje podstawowy CRUD. Endpointy słowników, komentarzy i polubień wymagają osobnego projektu. Inicjatywy i role nie mają jeszcze tabel i pozostają poza zakresem.
+Plan API opisuje podstawowy CRUD. Endpointy słowników, komentarzy i polubień wymagają osobnego projektu. Inicjatywy nie mają jeszcze tabel i pozostają poza zakresem.

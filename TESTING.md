@@ -51,10 +51,11 @@ are populated by migration 04. Each photo row contains a persistent storage key;
 the API/storage layer owns file upload, access,
 and deletion. Deleting a report removes its photo rows and preserves its master and
 the shared discussion. A master with linked reports cannot be deleted.
-`reports.edited_at` and `master_reports.edited_at` are maintained by database
-triggers; `users.edited_at` has a default value but no update trigger. Users must
-provide at least one nonblank email or phone number; email remains unique. The API must
-store a complete encoded password hash (including its salt) in `users.password_hash`.
+`users.edited_at`, `reports.edited_at`, and `master_reports.edited_at` are maintained
+by database triggers. Users must provide at least one nonblank email or phone number;
+email and phone are unique. `users.role` is `user`, `office`, or `admin` and defaults
+to `user`. The API must store a complete encoded password hash (including its salt)
+in `users.password_hash`.
 
 Migrations 01 and 02 create the tables, migration 03 adds constraints, and migration
 04 inserts the initial categories (`improvement`, `issue`) and master report statuses.
