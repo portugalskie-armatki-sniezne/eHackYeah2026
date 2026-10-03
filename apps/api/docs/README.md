@@ -8,6 +8,7 @@ API w FastAPI do zgłaszania problemów, łączenia podobnych zgłoszeń w maste
 | --- | --- |
 | [data-model.md](data-model.md) | ERD (Mermaid), tabele kolumn, relacje i reguły usuwania |
 | [api.md](api.md) | konwencje, dostęp, endpointy, dopasowanie do mastera, przykłady JSON, kody błędów |
+| [inference.md](inference.md) | podstawa tłumaczenia i klasyfikacji, opcjonalne zdjęcia i podłączanie modeli |
 
 ## Zasady dla agentów i ludzi
 
@@ -25,7 +26,7 @@ API w FastAPI do zgłaszania problemów, łączenia podobnych zgłoszeń w maste
 | `mock` | działa na danych testowych |
 | `done` | działa na bazie, są testy |
 
-Wszystkie endpointy z [api.md](api.md) mają status `done`. Dopasowanie reportów do masterów też działa na bazie i ma testy, ale jest tymczasową heurystyką, którą zastąpi klasyfikator LLM.
+Endpointy CRUD z [api.md](api.md) mają status `done`. `/inference` udostępnia podstawę analizy z pustymi implementacjami dostawców. Dopasowanie reportów do masterów też działa na bazie i ma testy, ale jest tymczasową heurystyką, którą zastąpi klasyfikator LLM.
 
 ## Uruchomienie
 
@@ -35,7 +36,7 @@ Z katalogu głównego repozytorium:
 task api
 ```
 
-Polecenie uruchamia bazę, migracje i import seeda, a potem API pod <http://127.0.0.1:8000>. Interaktywna dokumentacja jest pod `/docs`. API wymaga `JWT_SECRET` w `.env`, a ustawienia bazy czyta z tych samych zmiennych co Docker Compose.
+Polecenie uruchamia bazę, migracje i import seeda, a potem API pod <http://127.0.0.1:8000>. Interaktywna dokumentacja jest pod `/docs`. API wymaga `JWT_SECRET` w `.env`, a ustawienia bazy czyta z tych samych zmiennych co Docker Compose. Logowanie przez Google działa po ustawieniu opcjonalnego `GOOGLE_CLIENT_ID`.
 
 ## Struktura kodu
 
@@ -43,7 +44,7 @@ Polecenie uruchamia bazę, migracje i import seeda, a potem API pod <http://127.
 | --- | --- |
 | `main.py` | aplikacja FastAPI, routery i otwarcie puli połączeń |
 | `db.py` | pula połączeń z PostgreSQL |
-| `security.py` | hashowanie haseł i tokeny JWT |
+| `security.py` | hashowanie haseł, tokeny JWT i weryfikacja tokenów Google |
 | `auth.py` | `/auth` i zależności dostępu: `CurrentUser`, `OptionalUser`, `StaffUser` (`office`, `admin`), `AdminUser` |
 | `models.py` | model użytkownika i role |
 | `common.py` | wspólne typy i SQL: lokalizacja, paginacja, filtr po okolicy, częściowy `UPDATE` |
@@ -56,16 +57,17 @@ Polecenie uruchamia bazę, migracje i import seeda, a potem API pod <http://127.
 | `comments.py` | komentarze i polubienia masterów |
 | `reference.py` | `/report-categories` i `/master-report-statuses` |
 | `institution_contacts.py` | `/institution-contacts` |
+| `inference/` | `/inference`, wymienny tłumacz, klasyfikator i adapter Laya |
 | `set_role.py` | skrypt nadający rolę użytkownikowi |
 
 ## Testy
 
-Testy w `apps/api/tests/` działają na bazie z `.env` i wycofują zmiany po każdym teście. Zdjęcia zapisują w katalogu tymczasowym. Bez dostępnej bazy są pomijane.
+Testy w `apps/api/tests/` automatycznie wczytują główny `.env` przed importem aplikacji. Zmienne ustawione w środowisku mają pierwszeństwo. Testy działają na wskazanej bazie i wycofują zmiany po każdym teście. Zdjęcia zapisują w katalogu tymczasowym. Bez dostępnej bazy są pomijane.
 
 ```sh
 task db
 cd apps/api
-uv run --env-file ../../.env pytest
+uv run pytest
 ```
 
 ## Role

@@ -37,7 +37,8 @@
 - `docker-compose.app.yaml` defines the `api`, `web`, and `notify` containers, which run published images selected by `API_IMAGE_TAG`, `WEB_IMAGE_TAG`, and `NOTIFY_IMAGE_TAG`. The `api` container reaches the database through the external network named by `DB_NETWORK` and stores report photos on the `api_uploads` volume.
 - `notify` shares the application network with `api` and exposes only an internal HTTP port selected by `NOTIFY_PORT`. It sends mail through Gmail SMTP using `SMTP_USER` and `SMTP_PASSWORD`. `SMTP_MOCK=true` redirects every mail to `SMTP_MOCK_DESTINATION`; an invalid test destination blocks sending.
 - `notify/templates/` contains Markdown templates for `issue` and `improvement`, rendered to HTML with a text alternative. `POST /send` inserts `description` and the reporter's `first_name` and `last_name`; `anonymous=true` omits their name. Optional `location` generates a Google Maps link, and `photos` uses API `storage_key` values from the shared `api_uploads` volume mounted read-only.
-- `tooling/seed/` contains the XLS importer with its `Dockerfile`, `pyproject.toml`, and `uv.lock`.
+- `tooling/seed/` contains the XLS importer with its `Dockerfile`, `pyproject.toml`, and `uv.lock`, and the mock demo data importer with its photos.
+- `docker compose run --rm mock-seeder` replaces mock demo data in Kraków; its `mock` profile keeps it out of `docker compose up`.
 - `Taskfile.yml` at the repository root defines root development commands. `mise.toml` pins Bun, Task, and uv, and `setup-dev-env.sh` installs mise, the pinned tools, and dependencies.
 - `tests/e2e/` is reserved for cross-application scenarios, and `tests/fixtures/` for shared behavioral examples.
 - `.agents/skills/` is reserved for repository-local agent skills.

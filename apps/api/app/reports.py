@@ -180,7 +180,6 @@ def create_report(
 
 @router.get("")
 def list_reports(
-    _: CurrentUser,
     connection: Connection,
     near: NearFilter,
     user_id: UUID | None = None,
@@ -212,7 +211,7 @@ def list_reports(
 
 
 @router.get("/{report_id}")
-def get_report(report_id: UUID, _: CurrentUser, connection: Connection) -> Report:
+def get_report(report_id: UUID, connection: Connection) -> Report:
     return fetch_report(report_id, connection)
 
 
@@ -290,7 +289,7 @@ def add_photos(
 
 
 @router.get("/{report_id}/photos")
-def list_photos(report_id: UUID, _: CurrentUser, connection: Connection) -> list[Photo]:
+def list_photos(report_id: UUID, connection: Connection) -> list[Photo]:
     return fetch_report(report_id, connection).photos
 
 

@@ -2,8 +2,10 @@
    on paper, lifted off an amber block, laid over a dimmed sheet of paper. */
 .pin-dialog {
   width: min(100% - 2rem, 26rem);
+  max-height: calc(100dvh - 2rem);
   margin: auto;
   padding: 0;
+  overflow: auto;
   border: var(--scaffold-line) solid var(--ink);
   border-radius: var(--scaffold-radius);
   background: var(--paper);
@@ -185,5 +187,24 @@
 @media (prefers-reduced-motion: reduce) {
   .pin-dialog__button {
     transition: none;
+  }
+}
+
+/* Phones: the sheet rises from the bottom edge, above the home bar, and the
+   two actions share the width so both are thumb-sized. */
+@media (max-width: 40rem) {
+  .pin-dialog {
+    width: calc(100% - 1.5rem);
+    max-height: calc(100dvh - 1.5rem - var(--safe-bottom));
+    margin: auto auto calc(0.75rem + var(--safe-bottom));
+    box-shadow: 4px 4px 0 var(--amber);
+  }
+
+  .pin-dialog__form {
+    padding: 1rem;
+  }
+
+  .pin-dialog__actions > * {
+    flex: 1;
   }
 }

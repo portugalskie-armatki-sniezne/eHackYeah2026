@@ -18,7 +18,7 @@ export type PinDraft = {
 type PinDialogProps = {
   lngLat: [number, number];
   onClose: () => void;
-  onAdd: (draft: PinDraft) => void;
+  onAdd: (draft: PinDraft) => Promise<void>;
 };
 
 function formatLngLat([lng, lat]: [number, number]): string {
@@ -36,6 +36,9 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const savingRef = useRef(false);
   // the preview URL is handed to the pin on add, so it is only revoked here
   // when the sheet is closed without adding
   const addedRef = useRef(false);
@@ -64,14 +67,27 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
     setImageUrl(file ? URL.createObjectURL(file) : null);
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmed = description.trim();
-    if (!trimmed) {
+    if (!trimmed || savingRef.current) {
       return;
     }
-    addedRef.current = true;
-    onAdd({ description: trimmed, image, imageUrl });
+    savingRef.current = true;
+    setSaving(true);
+    setError(null);
+    try {
+      await onAdd({ description: trimmed, image, imageUrl });
+      addedRef.current = true;
+      onClose();
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Could not save the report.",
+      );
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
   };
 
   const canAdd = description.trim().length > 0;
@@ -82,6 +98,9 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
       className="pin-dialog"
       aria-labelledby={`${id}-title`}
       onClose={onClose}
+      onCancel={(event) => {
+        if (savingRef.current) event.preventDefault();
+      }}
     >
       <form
         className="pin-dialog__form"
@@ -95,6 +114,8 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
           <p className="pin-dialog__coords">{formatLngLat(lngLat)}</p>
         </header>
 
+        {error && <p role="alert">{error}</p>}
+
         <div className="pin-dialog__field">
           <label className="pin-dialog__label" htmlFor={`${id}-description`}>
             Description
@@ -105,6 +126,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
             name="description"
             rows={4}
             required
+            disabled={saving}
             placeholder="What is happening here?"
             value={description}
             onChange={(event) => setDescription(event.target.value)}
@@ -133,7 +155,8 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
                 className="visually-hidden"
                 type="file"
                 name="image"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp"
+                disabled={saving}
                 aria-labelledby={`${id}-image-label`}
                 onChange={handleImageChange}
               />
@@ -146,15 +169,16 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
             type="button"
             className="pin-dialog__button"
             onClick={() => dialogRef.current?.close()}
+            disabled={saving}
           >
             Close
           </button>
           <button
             type="submit"
             className="pin-dialog__button pin-dialog__button--primary"
-            disabled={!canAdd}
+            disabled={!canAdd || saving}
           >
-            Add marker
+            {saving ? "Saving..." : "Add marker"}
           </button>
         </footer>
       </form>

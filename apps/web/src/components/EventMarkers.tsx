@@ -158,6 +158,19 @@ function pinElement(
   return element;
 }
 
+// whether two versions of a pin draw the same marker; the element is built once,
+// so a change in any of these means building it again
+function sameMarker(a: EventPin, b: EventPin): boolean {
+  return (
+    a.description === b.description &&
+    a.imageUrl === b.imageUrl &&
+    a.category === b.category &&
+    a.reportCount === b.reportCount &&
+    a.lngLat[0] === b.lngLat[0] &&
+    a.lngLat[1] === b.lngLat[1]
+  );
+}
+
 function pinLabel(pin: EventPin, index: number): string {
   const kind = pin.category === "improvement" ? "Improvement" : "Fault";
   const aggregate = pin.reportCount > 1 ? `, ${pin.reportCount} reports` : "";
@@ -176,7 +189,9 @@ export default function EventMarkers({
   ungroupedIds,
   draftLngLat,
 }: EventMarkersProps) {
-  const markersRef = useRef(new globalThis.Map<string, Marker>());
+  const markersRef = useRef(
+    new globalThis.Map<string, { marker: Marker; pin: EventPin }>(),
+  );
   const draftRef = useRef<Marker | null>(null);
 
   useEffect(() => {
@@ -194,9 +209,13 @@ export default function EventMarkers({
         .map((pin) => pin.id),
     );
 
-    for (const [id, marker] of markers) {
-      if (!wanted.has(id)) {
-        marker.remove();
+    const current = new globalThis.Map(pins.map((pin) => [pin.id, pin]));
+    // A marker also comes down when its pin changed, say because another filing
+    // joined its master and the count went up, and is built afresh below.
+    for (const [id, entry] of markers) {
+      const pin = current.get(id);
+      if (!wanted.has(id) || !pin || !sameMarker(entry.pin, pin)) {
+        entry.marker.remove();
         markers.delete(id);
       }
     }
@@ -216,7 +235,7 @@ export default function EventMarkers({
       })
         .setLngLat(pin.lngLat)
         .addTo(map);
-      markers.set(pin.id, marker);
+      markers.set(pin.id, { marker, pin });
     });
   }, [mapRef, pins, styleReady, ungroupedIds]);
 
@@ -244,8 +263,8 @@ export default function EventMarkers({
   useEffect(() => {
     const markers = markersRef.current;
     return () => {
-      for (const marker of markers.values()) {
-        marker.remove();
+      for (const entry of markers.values()) {
+        entry.marker.remove();
       }
       markers.clear();
     };

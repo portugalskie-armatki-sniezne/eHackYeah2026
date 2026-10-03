@@ -102,6 +102,17 @@ def main():
         query((ROOT / "tests/fixtures/check_reports.sql").read_text())
         query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
         print("PASS: master reports, statuses, institutions, comments, likes, and constraints", flush=True)
+        query("INSERT INTO users (first_name, last_name, email, google_sub) "
+              "VALUES ('Rollback', 'Check', 'rollback-check@example.invalid', 'rollback-check');")
+        compose("run", "--rm", "--no-deps", "db-migrator", "down")
+        sign_in = query("SELECT (SELECT password_hash FROM users WHERE email = 'rollback-check@example.invalid'), "
+                        "(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'public' "
+                        "AND table_name = 'users' AND column_name = 'google_sub'), "
+                        "(SELECT is_nullable FROM information_schema.columns WHERE table_schema = 'public' "
+                        "AND table_name = 'users' AND column_name = 'password_hash');")
+        if sign_in != "!|0|NO":
+            raise RuntimeError("Google sign-in rollback did not restore the required password hash")
+        print("PASS: Google sign-in rollback kept accounts without a password", flush=True)
         query("INSERT INTO report_categories (name) VALUES ('rollback_check_category'); "
               "INSERT INTO master_report_statuses (name) VALUES ('rollback_check_status');")
         compose("run", "--rm", "--no-deps", "db-migrator", "down")
@@ -139,7 +150,7 @@ def main():
             raise RuntimeError("Service entity import after migration rollback failed")
         query((ROOT / "tests/fixtures/check_reports.sql").read_text())
         query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
-        print("PASS: all four migrations rolled back and reapplied successfully", flush=True)
+        print("PASS: all five migrations rolled back and reapplied successfully", flush=True)
     except Exception:
         print(compose("logs", "--no-color", "--tail", "50", check=False), flush=True)
         raise

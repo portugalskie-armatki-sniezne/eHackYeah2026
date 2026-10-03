@@ -22,7 +22,7 @@ eHackYeah2026/
 │   ├── teaser-en.png                # angielski teaser projektu
 │   └── teaser-pl.png                # polski teaser projektu
 ├── tooling/
-│   └── seed/                        # importer XLS i jego obraz Dockera
+│   └── seed/                        # importer XLS, importer danych demo i ich obraz Dockera
 ├── tests/
 │   ├── e2e/                         # scenariusze obejmujące całą aplikację
 │   └── fixtures/                    # wspólne przykłady do testów
@@ -71,10 +71,13 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 
 > Przy uruchamianiu bazy importowany jest arkusz urzędów JST i zestaw danych jednostek usługowych z oficjalnych źródeł. `task db` kończy działanie po zakończeniu importu.
 
+> Na potrzeby prezentacji `docker compose run --rm mock-seeder` podmienia przykładowych użytkowników, zgłoszenia, zdjęcia i dyskusje w Krakowie. Szczegóły i konta demo opisuje sekcja [mock demo data](TESTING.md#mock-demo-data).
+
 #### Aplikacja API
 
-- Podczas konfiguracji `uv sync` instaluje zależności w `apps/api/.venv`. uv pobiera Pythona 3.10 lub nowszego, jeśli go brakuje, i korzysta z tego samego środowiska przy kolejnych uruchomieniach.
+- Konfiguracja uruchamia `uv sync --extra inference`, instaluje zależności w `apps/api/.venv` i pobiera przypięte wersje Laya oraz tłumacza polsko-angielskiego do `apps/api/models` (około 1,1 GB, poza Gitem). Pierwsze uruchomienie wymaga Gita i internetu. Kolejne korzystają z kompletnych pobranych modeli. uv pobiera Pythona 3.10 lub nowszego, jeśli go brakuje.
 - Dokumentacja API jest dostępna pod adresem <http://127.0.0.1:8000/docs>. `GET /health` sprawdza działanie aplikacji bez odpytywania PostgreSQL.
+- `POST /inference` wymaga zalogowania i przyjmuje tekst, pytania klasyfikacyjne oraz opcjonalne zdjęcie. `POST /inference/service-entity` wybiera typ jednostki usługowej na podstawie tytułu, opisu i opcjonalnego zdjęcia. Ścieżki modeli w `.env.example` włączają lokalną analizę. Do istniejącego `.env` dodaj `LAYA_MODEL_PATH=models/laya-vision` i `TRANSLATION_MODEL_PATH=models/opus-mt-pl-en`; konfiguracja zachowuje istniejące wartości. Zobacz [konfigurację modeli i dostawców](apps/api/docs/inference.md).
 - Zmiany w `apps/api/app` automatycznie przeładowują API.
 - Uruchom `task be:lint`, aby sprawdzić API za pomocą Ruff, lub `task be:lint:fix`, aby zastosować poprawki i formatowanie.
 
@@ -91,10 +94,11 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
    ```
 
 3. Gotowy build trafia do `apps/web/dist`.
+4. Aplikacja łączy się z API pod adresem `VITE_API_URL` z głównego `.env`. Bez tej zmiennej zapytania trafiają pod `/api`, skąd serwer deweloperski Vite przekazuje je do `http://127.0.0.1:8000` albo do `API_PROXY_TARGET`. Dodanie zgłoszenia wymaga zalogowania.
 
 ### Automatyczne wdrożenie
 
-1. W środowiskach GitHub `dev` i `prod` ustaw `VITE_API_URL` (adres backendu zapisany w buildzie frontendu) i `DEPLOY_DIR` (katalog wdrożenia na serwerze).
+1. W środowiskach GitHub `dev` i `prod` ustaw `VITE_API_URL` (adres backendu zapisany w buildzie frontendu), `VITE_GOOGLE_CLIENT_ID` (identyfikator klienta OAuth do logowania przez Google, ten sam co `GOOGLE_CLIENT_ID` w `.env` środowiska) i `DEPLOY_DIR` (katalog wdrożenia na serwerze).
 2. Skopiuj `docker-compose.app.yaml` do `DEPLOY_DIR/docker-compose.yaml` i umieść obok `.env` danego środowiska. Baza działa w osobnym projekcie Compose; `DB_NETWORK` wskazuje jej sieć (domyślnie `ehackyeah2026_default`), a `POSTGRES_HOST` jej host (domyślnie `db`). Plik `.env` musi być poprawny zarówno dla Compose, jak i powłoki, a dane logowania do bazy muszą nadawać się do użycia w URL. Skonfiguruj Gmaila i wysyłkę testową dla `notify` według [instrukcji konfiguracji maili](apps/notify/docs/deployment.md).
 3. W GitHub Actions uruchom `[1] Deploy`, aby wdrożyć `web`, `api` lub `notify` na `dev` albo `prod`. Push do `main` wdraża zmienione usługi na `dev`; zmiany w `db/migrations` wdrażają `api`. Workflow buduje obrazy z `apps/web/Dockerfile`, `apps/api/Dockerfile` i `apps/notify/Dockerfile`, a następnie publikuje je w `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web`, `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api` i `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-notify` z tagami środowiska oraz `<environment>-<commit SHA>`.
 4. Runner na serwerze aktualizuje `WEB_IMAGE_TAG`, `API_IMAGE_TAG` lub `NOTIFY_IMAGE_TAG` w `DEPLOY_DIR/.env`, pobiera obrazy, stosuje migracje przed restartem `api` i uruchamia ponownie wybrane usługi. Jeśli migracja się nie powiedzie, poprzedni kontener API działa dalej. Wdrożenie nie importuje danych referencyjnych. Nie używaj runnerów na własnym serwerze w workflow uruchamianych przez pull requesty.

@@ -12,6 +12,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-app_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_dev_password}
       JWT_SECRET: ${JWT_SECRET:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       # report photos, the image creates this directory for its unprivileged user
       UPLOAD_DIR: /app/uploads
     ports:

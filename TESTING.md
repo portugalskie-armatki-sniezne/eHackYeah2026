@@ -39,7 +39,7 @@ BIP filtering, distinct transport roles, stable IDs, atomic upserts, spatial
 distance queries, reports saved before classification, master report links and independent
 content, statuses, assignment to either an office or a service entity, exclusive assignment,
 referenced entity deletion restrictions, shared comments and likes, photo relationships,
-edit timestamps, and reference data rollback. All four migrations are rolled back and
+edit timestamps, and reference data rollback. All five migrations are rolled back and
 reapplied. Its containers, volume, and local image tag are removed afterward.
 
 Report locations use `geography(Point, 4326)`. Supply longitude before latitude, for
@@ -62,14 +62,61 @@ the shared discussion. A master with linked reports cannot be deleted.
 by database triggers. Users must provide at least one nonblank email or phone number;
 email and phone are unique. `users.role` is `user`, `office`, or `admin` and defaults
 to `user`. The API must store a complete encoded password hash (including its salt)
-in `users.password_hash`.
+in `users.password_hash`. An account needs a password hash, a linked Google account in
+the unique `users.google_sub`, or both.
 
 Migrations 01 and 02 create the tables, migration 03 adds constraints, and migration
 04 inserts the initial categories (`improvement`, `issue`) and master report statuses.
+Migration 05 adds Google sign-in to users; its rollback gives accounts without a password
+the hash `!`, which no password matches.
 The statuses mean: `created` is saved in the application, `reported` is successfully
 sent to the responsible institution, `inprogress` has confirmed work in progress,
 and `finished` has confirmed completion. The backend owns classification, master
 creation and assignment, and status transitions.
+
+## API tests
+
+Start the database with `task db`, then run the API tests from their workspace:
+
+```sh
+cd apps/api
+uv run pytest
+```
+
+The test configuration loads the repository's `.env` before importing the application.
+Existing environment variables take precedence. This keeps plain `pytest` runs on the
+same configured database as the API, rather than silently using the local defaults.
+Each database test rolls back its transaction; photo files use temporary directories.
+Database tests are skipped when the configured database is unavailable.
+
+## Mock demo data
+
+To show the application with data, run from the repository root:
+
+```sh
+docker compose run --rm mock-seeder
+```
+
+The `mock-seeder` service uses the `mock` profile, so `docker compose up` and `task db`
+do not start it. It waits for `db-seeder`, then runs `tooling/seed/populate_mock_data.py`
+with content from `tooling/seed/mock_data.py`. It creates 30 users, 63 master reports
+in Kraków with 136 reports, comments, and likes over the last 90 days. Hand-written
+scenarios at known places are combined with reports generated from topic templates
+with a fixed random seed. Reports of one master lie within 25 meters and share the
+master's category, so they stay consistent with the API matching. Older masters have
+further statuses; from `reported` on, they are assigned to the matching Kraków service
+entity, such as ZDMK, ZZM, MPO, or ZTP, or to the city office.
+
+Report photos are AI-generated images from `tooling/seed/mock_photos/`. They are
+written to `apps/api/uploads`, the default `UPLOAD_DIR` of `task api`. The container
+runs as root and gives new files the owner of `apps/api`.
+
+All mock users have `@mock.ehackyeah.pl` emails. Each run deletes them together with
+their reports, photos, comments, likes, and masters left without reports, then inserts
+the data again in one transaction. Other users and their data are kept. The demo
+accounts `user@mock.ehackyeah.pl`, `office@mock.ehackyeah.pl`, and
+`admin@mock.ehackyeah.pl` have the roles `user`, `office`, and `admin`. All mock users
+share the local demo password `mock_demo_password`, stored as a fixed argon2 hash.
 
 ## Reference data import and refresh
 

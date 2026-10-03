@@ -22,7 +22,7 @@ eHackYeah2026/
 │   ├── teaser-en.png                # English project teaser
 │   └── teaser-pl.png                # Polish project teaser
 ├── tooling/
-│   └── seed/                        # XLS importer and its Docker image
+│   └── seed/                        # XLS importer, mock data importer, and their Docker image
 ├── tests/
 │   ├── e2e/                         # cross-application scenarios
 │   └── fixtures/                    # shared behavioral examples
@@ -48,7 +48,7 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 
 ### Prerequisites
 
-1. Install `Node.js 22.12` or newer and `Docker` with `Compose`. Keep Docker running.
+1. Install `Docker` with `Compose`. Keep Docker running.
 2. Run the setup script from the repository root. The script installs [mise](https://mise.jdx.dev), the Bun, Task, and uv versions pinned in `mise.toml`, and runs `task setup` to install project dependencies. Restart your shell if prompted. On Windows, install mise manually, then run `mise install` and `task setup`.
 
    ```sh
@@ -71,10 +71,13 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 
 > Database startup imports the local government office workbook and the official service entity snapshot. `task db` returns after seed import finishes.
 
+> For demos, `docker compose run --rm mock-seeder` replaces mock users, reports, photos, and discussions in Kraków. See [mock demo data](TESTING.md#mock-demo-data) for details and demo accounts.
+
 #### API Application
 
-- Setup runs `uv sync` to install dependencies in `apps/api/.venv`. uv downloads Python 3.10 or newer if needed and reuses the environment on subsequent runs.
+- Setup runs `uv sync --extra inference` to install dependencies in `apps/api/.venv` and downloads pinned Laya and Polish-English translation checkpoints into `apps/api/models` (about 1.1 GB, excluded from Git). The first run requires Git and internet access. Later runs reuse complete downloads. uv downloads Python 3.10 or newer if needed.
 - API documentation is available at <http://127.0.0.1:8000/docs>. `GET /health` checks the application without querying PostgreSQL.
+- Authenticated `POST /inference` accepts text, supplied classification questions, and an optional photo. `POST /inference/service-entity` classifies a title, description, and optional photo into one service entity type. The model paths in `.env.example` enable local inference. For an existing `.env`, add `LAYA_MODEL_PATH=models/laya-vision` and `TRANSLATION_MODEL_PATH=models/opus-mt-pl-en`; setup preserves existing values. See [model setup and provider configuration](apps/api/docs/inference.md).
 - Changes under `apps/api/app` reload the API automatically.
 - Run `task be:lint` to check the API with Ruff, or `task be:lint:fix` to apply fixes and formatting.
 
@@ -92,9 +95,15 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 
 3. The build output is written to `apps/web/dist`.
 
+#### Report Connection
+
+The map loads pins from `GET /master-reports` and files new reports with `POST /reports` through [`reports.ts`](apps/web/src/api/reports.ts). Every request goes through `apiFetch` in [`client.ts`](apps/web/src/api/client.ts), which adds the stored token and drops it on a 401. Reading reports, masters and categories needs no token. Filing a report needs the signed-in session from [`session.ts`](apps/web/src/api/session.ts); signed out, adding a marker opens the sign-in dialog. The form has no title or category field yet, so the title is taken from the start of the description and the category is `issue`. Reports and image files are really saved, so use a development database.
+
+In development Vite proxies `/api` to `http://127.0.0.1:8000`; `API_PROXY_TARGET` in the root `.env` can select another local API. Deployed builds get the API origin from `VITE_API_URL` at build time, so configure a same-origin proxy or CORS there.
+
 ### Automated Deployment
 
-1. Configure the GitHub environments `dev` and `prod` with `VITE_API_URL` (the backend URL included in the frontend build) and `DEPLOY_DIR` (the deployment directory on the target machine).
+1. Configure the GitHub environments `dev` and `prod` with `VITE_API_URL` (the backend URL included in the frontend build), `VITE_GOOGLE_CLIENT_ID` (the OAuth client ID for Google sign-in, also set as `GOOGLE_CLIENT_ID` in the environment's `.env`), and `DEPLOY_DIR` (the deployment directory on the target machine).
 2. Copy `docker-compose.app.yaml` to `DEPLOY_DIR/docker-compose.yaml` and place the environment's `.env` alongside it. The database runs in a separate Compose project; `DB_NETWORK` selects its network (default `ehackyeah2026_default`) and `POSTGRES_HOST` selects its host (default `db`). Keep `.env` valid for both Compose and a shell script, with database credentials safe to use in a URL. Configure Gmail and test delivery for `notify` using the [mail setup instructions](apps/notify/docs/deployment.md).
 3. Use `[1] Deploy` in GitHub Actions to deploy `web`, `api`, or `notify` to `dev` or `prod`. Pushes to `main` deploy changed services to `dev`; changes to `db/migrations` deploy `api`. The workflow builds images from `apps/web/Dockerfile`, `apps/api/Dockerfile`, and `apps/notify/Dockerfile` and publishes them to `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web`, `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api`, and `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-notify`, tagged with the environment and `<environment>-<commit SHA>`.
 4. The self-hosted runner updates `WEB_IMAGE_TAG`, `API_IMAGE_TAG`, or `NOTIFY_IMAGE_TAG` in `DEPLOY_DIR/.env`, pulls images, applies migrations before restarting `api`, and restarts the selected services. A failed migration leaves the previous API container running. Deployment does not import seed data. Keep self-hosted runners out of workflows triggered by pull requests.

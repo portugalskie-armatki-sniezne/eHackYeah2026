@@ -1,8 +1,8 @@
 .navbar {
   position: fixed;
-  top: var(--pill-inset);
-  left: var(--pill-inset);
-  right: calc(var(--pill-inset) + var(--scaffold-offset));
+  top: calc(var(--pill-inset) + var(--safe-top));
+  left: calc(var(--pill-inset) + var(--safe-left));
+  right: calc(var(--pill-inset) + var(--scaffold-offset) + var(--safe-right));
   z-index: 20;
   display: flex;
   justify-content: center;
@@ -38,7 +38,7 @@
   gap: 0.5rem 2rem;
   width: min(100%, 62rem);
   min-height: 58px;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1.5rem;
   border: var(--scaffold-line) solid var(--ink);
   border-radius: var(--scaffold-radius);
   background: var(--paper);
@@ -67,6 +67,67 @@
 
 .navbar__brand-accent {
   color: var(--ink-soft);
+}
+
+/* The hamburger: the same outlined tile as a link, holding three ink bars.
+   Only drawn on narrow screens; see the media query below. */
+.navbar__toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-left: auto;
+  padding: 0;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+}
+
+.navbar__toggle:hover {
+  background: var(--amber-ghost);
+  box-shadow: 4px 4px 0 var(--amber);
+  transform: translate(-1px, -1px);
+}
+
+.navbar__toggle[aria-expanded="true"] {
+  background: var(--amber);
+  box-shadow: 3px 3px 0 var(--ink);
+  transform: translate(-1px, -1px);
+}
+
+.navbar__burger {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 1.125rem;
+}
+
+.navbar__burger-bar {
+  height: var(--scaffold-line);
+  background: var(--ink);
+  transition:
+    transform 150ms ease,
+    opacity 150ms ease;
+}
+
+/* Open, the bars fold into a cross. */
+.navbar__toggle[aria-expanded="true"] .navbar__burger-bar:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.navbar__toggle[aria-expanded="true"] .navbar__burger-bar:nth-child(2) {
+  opacity: 0;
+}
+
+.navbar__toggle[aria-expanded="true"] .navbar__burger-bar:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
 }
 
 .navbar__divider {
@@ -125,25 +186,111 @@
   transform: translate(-1px, -1px);
 }
 
+/* The account corner: the user's name and an outlined tile to sign in or out. */
+.navbar__account {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbar__user {
+  max-width: 10rem;
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navbar__button {
+  background: var(--paper);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.navbar__button--primary {
+  background: var(--amber);
+}
+
+.navbar__button--primary:hover {
+  background: var(--amber);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
 :where(.navbar a):focus-visible {
   outline: var(--scaffold-line) solid var(--focus);
   outline-offset: 3px;
   border-radius: var(--scaffold-radius);
 }
 
+:where(.navbar button):focus-visible {
+  outline: var(--scaffold-line) solid var(--focus);
+  outline-offset: 3px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .navbar__skip,
-  .navbar__link {
+  .navbar__link,
+  .navbar__toggle,
+  .navbar__burger-bar {
     transition: none;
   }
 }
 
+/* Narrow screens: the brand and the hamburger share one row, and the list
+   drops below them inside the same frame once the hamburger is pressed. */
 @media (max-width: 40rem) {
   .navbar__frame {
+    gap: 0.75rem;
+    min-height: 0;
+    padding: 0.5rem 1rem;
     box-shadow: 4px 4px 0 var(--amber);
   }
 
-  .navbar__wordmark {
+  .navbar__brand {
+    font-size: 1rem;
+  }
+
+  .navbar__toggle {
+    display: inline-flex;
+  }
+
+  .navbar__nav {
     display: none;
+    flex-basis: 100%;
+    padding-top: 0.75rem;
+    border-top: var(--scaffold-line) solid var(--ink);
+  }
+
+  .navbar__frame--open .navbar__nav {
+    display: block;
+  }
+
+  .navbar__account {
+    display: none;
+    flex-basis: 100%;
+    padding-top: 0.75rem;
+    border-top: var(--scaffold-line) solid var(--ink);
+  }
+
+  .navbar__frame--open .navbar__account {
+    display: flex;
+  }
+
+  .navbar__list {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .navbar__divider {
+    display: none;
+  }
+
+  .navbar__link {
+    display: block;
+    padding: 0.625rem 0.875rem;
+    text-align: center;
   }
 }

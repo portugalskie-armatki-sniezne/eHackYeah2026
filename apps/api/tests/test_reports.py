@@ -189,7 +189,7 @@ def test_create_report_validates_input(client: TestClient, signed_in):
         assert client.post("/reports", data=form | invalid, headers=headers).status_code == 422
 
 
-def test_list_and_get_reports_require_login(client: TestClient, signed_in):
+def test_list_and_get_reports_are_public(client: TestClient, signed_in):
     user, headers = signed_in("user")
     _, other_headers = signed_in("user")
     location = random_location()
@@ -198,17 +198,15 @@ def test_list_and_get_reports_require_login(client: TestClient, signed_in):
     other = create_report(client, other_headers, moved(location, north_m=1000))
 
     def ids(**params: object) -> set[str]:
-        page = client.get("/reports", params=params | {"limit": 200}, headers=headers).json()
+        page = client.get("/reports", params=params | {"limit": 200}).json()
         return {report["id"] for report in page["items"]}
 
-    assert client.get("/reports").status_code == 401
-    assert client.get(f"/reports/{first['id']}").status_code == 401
-    assert client.get(f"/reports/{other['id']}", headers=headers).json() == other
-    assert client.get(f"/reports/{uuid4()}", headers=headers).status_code == 404
+    assert client.get(f"/reports/{other['id']}").json() == other
+    assert client.get(f"/reports/{uuid4()}").status_code == 404
     assert ids(user_id=user["id"]) == {first["id"], second["id"]}
     assert ids(master_report_id=first["master_report_id"]) == {first["id"], second["id"]}
     assert ids(**location, radius_m=100) == {first["id"], second["id"]}
-    assert client.get("/reports", params=location, headers=headers).status_code == 422
+    assert client.get("/reports", params=location).status_code == 422
 
 
 def test_update_report(client: TestClient, signed_in):
@@ -288,11 +286,10 @@ def test_report_photos(client: TestClient, signed_in, upload_dir):
     added = client.post(url, files=[("photos", ("a.png", PNG))], headers=headers)
     assert added.status_code == 201
     photo = added.json()[0]
-    assert len(client.get(url, headers=headers).json()) == 5
-    assert client.get(url).status_code == 401
+    assert len(client.get(url).json()) == 5
 
     assert client.delete(f"{url}/{photo['id']}", headers=other_headers).status_code == 403
     assert client.delete(f"{url}/{photo['id']}", headers=headers).status_code == 204
     assert not (upload_dir / photo["storage_key"]).exists()
     assert client.delete(f"{url}/{photo['id']}", headers=headers).status_code == 404
-    assert client.get(f"/reports/{uuid4()}/photos", headers=headers).status_code == 404
+    assert client.get(f"/reports/{uuid4()}/photos").status_code == 404
