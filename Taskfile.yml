@@ -23,6 +23,7 @@ tasks:
             cp .env.example .env
             echo "Created .env from .env.example. Review its values before starting the API."
           fi
+          
 
   web:
     desc: Start the frontend
