@@ -74,6 +74,35 @@ sent to the responsible institution, `inprogress` has confirmed work in progress
 and `finished` has confirmed completion. The backend owns classification, master
 creation and assignment, and status transitions.
 
+## Mock demo data
+
+To show the application with data, run from the repository root:
+
+```sh
+docker compose run --rm mock-seeder
+```
+
+The `mock-seeder` service uses the `mock` profile, so `docker compose up` and `task db`
+do not start it. It waits for `db-seeder`, then runs `tooling/seed/populate_mock_data.py`
+with content from `tooling/seed/mock_data.py`. It creates 30 users, 63 master reports
+in Kraków with 136 reports, comments, and likes over the last 90 days. Hand-written
+scenarios at known places are combined with reports generated from topic templates
+with a fixed random seed. Reports of one master lie within 25 meters and share the
+master's category, so they stay consistent with the API matching. Older masters have
+further statuses; from `reported` on, they are assigned to the matching Kraków service
+entity, such as ZDMK, ZZM, MPO, or ZTP, or to the city office.
+
+Report photos are AI-generated images from `tooling/seed/mock_photos/`. They are
+written to `apps/api/uploads`, the default `UPLOAD_DIR` of `task api`. The container
+runs as root and gives new files the owner of `apps/api`.
+
+All mock users have `@mock.ehackyeah.pl` emails. Each run deletes them together with
+their reports, photos, comments, likes, and masters left without reports, then inserts
+the data again in one transaction. Other users and their data are kept. The demo
+accounts `user@mock.ehackyeah.pl`, `office@mock.ehackyeah.pl`, and
+`admin@mock.ehackyeah.pl` have the roles `user`, `office`, and `admin`. All mock users
+share the local demo password `mock_demo_password`, stored as a fixed argon2 hash.
+
 ## Reference data import and refresh
 
 The [data model](apps/api/docs/data-model.md#źródła-danych) lists official sources,

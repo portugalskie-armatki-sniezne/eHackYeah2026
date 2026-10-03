@@ -21,7 +21,7 @@ eHackYeah2026/
 │   ├── teaser-en.png                # English project teaser
 │   └── teaser-pl.png                # Polish project teaser
 ├── tooling/
-│   └── seed/                        # XLS importer and its Docker image
+│   └── seed/                        # XLS importer, mock data importer, and their Docker image
 ├── tests/
 │   ├── e2e/                         # cross-application scenarios
 │   └── fixtures/                    # shared behavioral examples
@@ -69,6 +69,8 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 > We recommend running `task web` and `task api` in separate terminals. The API is available at <http://127.0.0.1:8000>; Vite prints the frontend URL. Ctrl+C stops the application in that terminal; PostgreSQL remains running on `127.0.0.1:POSTGRES_PORT`.
 
 > Database startup imports the local government office workbook and the official service entity snapshot. `task db` returns after seed import finishes.
+
+> For demos, `docker compose run --rm mock-seeder` replaces mock users, reports, photos, and discussions in Kraków. See [mock demo data](TESTING.md#mock-demo-data) for details and demo accounts.
 
 #### API Application
 

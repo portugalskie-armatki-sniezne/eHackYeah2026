@@ -62,5 +62,27 @@ services:
     command: ["/seeds/teleaddr_base_16042026.xls", "/seeds/service_entities.json"]
     restart: "no"
 
+  # replaces mock demo data in Kraków, run with: docker compose run --rm mock-seeder
+  mock-seeder:
+    container_name: mock-seeder
+    build: ./tooling/seed
+    profiles: ["mock"]
+    depends_on:
+      db-seeder:
+        condition: service_completed_successfully
+    environment:
+      PGHOST: db
+      PGPORT: ${POSTGRES_PORT:-5432}
+      PGDATABASE: ${POSTGRES_DB:-app_db}
+      PGUSER: ${POSTGRES_USER:-app_user}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-local_dev_password}
+    # root writes report photos to the default UPLOAD_DIR and gives them to the owner of apps/api
+    user: "0:0"
+    volumes:
+      - ./apps/api:/api
+    entrypoint: ["python", "/app/populate_mock_data.py"]
+    command: ["/api/uploads"]
+    restart: "no"
+
 volumes:
   postgres_data:
