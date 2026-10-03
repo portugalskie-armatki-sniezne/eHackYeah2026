@@ -9,6 +9,7 @@ import MapCursor from "./MapCursor";
 import UserPosition from "./UserPosition";
 import useUserPosition from "./useUserPosition";
 import EventMarkers, { type EventPin } from "./EventMarkers";
+import PinDialog, { type PinDraft } from "./PinDialog";
 import { createTiltPrewarmer } from "./mapPrewarm";
 import "./Map.css";
 
@@ -348,6 +349,8 @@ export default function Map() {
   const [tilted, setTilted] = useState(false);
   const [styleReady, setStyleReady] = useState(false);
   const [pins, setPins] = useState<EventPin[]>([]);
+  // the clicked point while its marker sheet is open
+  const [draftLngLat, setDraftLngLat] = useState<[number, number] | null>(null);
   const nextPinIdRef = useRef(1);
   const { fix } = useUserPosition();
   // The camera eases to the first fix so the dot isn't off-screen, then leaves
@@ -391,20 +394,16 @@ export default function Map() {
       }
     });
     map.on("idle", prewarmer.prewarm);
-    // A click on the sheet drops an event pin. MapLibre only fires click when the
-    // pointer hasn't moved past its tolerance, so drags never leave pins behind.
+    // A click on the sheet opens the marker sheet for that point. MapLibre only
+    // fires click when the pointer hasn't moved past its tolerance, so drags
+    // never open it.
     map.on("click", (event) => {
       const target = event.originalEvent.target as Element | null;
       // clicks land on the map even when they hit an existing pin
       if (target?.closest(".maplibregl-marker")) {
         return;
       }
-      const id = String(nextPinIdRef.current);
-      nextPinIdRef.current += 1;
-      setPins((current) => [
-        ...current,
-        { id, lngLat: [event.lngLat.lng, event.lngLat.lat] },
-      ]);
+      setDraftLngLat([event.lngLat.lng, event.lngLat.lat]);
     });
 
     map
@@ -442,6 +441,20 @@ export default function Map() {
     }
   }, [fix, flyToFix]);
 
+  const handleCloseDraft = useCallback(() => setDraftLngLat(null), []);
+  const handleAddPin = useCallback(
+    (draft: PinDraft) => {
+      if (!draftLngLat) {
+        return;
+      }
+      const id = String(nextPinIdRef.current);
+      nextPinIdRef.current += 1;
+      setPins((current) => [...current, { id, lngLat: draftLngLat, ...draft }]);
+      setDraftLngLat(null);
+    },
+    [draftLngLat],
+  );
+
   const handleZoomIn = useCallback(() => mapRef.current?.zoomIn(), []);
   const handleZoomOut = useCallback(() => mapRef.current?.zoomOut(), []);
   const handleRecenter = useCallback(() => {
@@ -475,7 +488,19 @@ export default function Map() {
         canRecenterOnMe={fix !== null}
       />
       <UserPosition mapRef={mapRef} styleReady={styleReady} fix={fix} />
-      <EventMarkers mapRef={mapRef} styleReady={styleReady} pins={pins} />
+      <EventMarkers
+        mapRef={mapRef}
+        styleReady={styleReady}
+        pins={pins}
+        draftLngLat={draftLngLat}
+      />
+      {draftLngLat && (
+        <PinDialog
+          lngLat={draftLngLat}
+          onClose={handleCloseDraft}
+          onAdd={handleAddPin}
+        />
+      )}
       <MapCursor targetRef={frameRef} />
     </section>
   );

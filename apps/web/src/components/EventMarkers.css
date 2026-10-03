@@ -37,6 +37,16 @@
   fill: var(--ink);
 }
 
+/* A pin still being described is pencilled in: dashed outline, no block yet. */
+.event-pin--draft .event-pin__line {
+  stroke-dasharray: 4 3;
+  fill: var(--amber-ghost);
+}
+
+.event-pin--draft .event-pin__block {
+  fill: var(--amber-soft);
+}
+
 /* Dropped from just above the sheet and settling onto its point. */
 @keyframes event-pin-drop {
   from {

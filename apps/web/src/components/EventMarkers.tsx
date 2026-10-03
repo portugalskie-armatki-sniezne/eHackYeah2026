@@ -5,6 +5,9 @@ import "./EventMarkers.css";
 export type EventPin = {
   id: string;
   lngLat: [number, number];
+  description: string;
+  image: File | null;
+  imageUrl: string | null;
 };
 
 type EventMarkersProps = {
@@ -12,16 +15,18 @@ type EventMarkersProps = {
   /** Flipped on style.load, by which point the map instance exists. */
   styleReady: boolean;
   pins: EventPin[];
+  /** Where the pin being described will land; shown faint until it is added. */
+  draftLngLat: [number, number] | null;
 };
 
 // A drawn survey pin: a paper head outlined in ink, lifted off an amber block
 // like the brand mark, tapering to the point it was dropped on. The origin of
 // the viewBox is the tip, so the marker's bottom anchor lands on the ground.
-function pinElement(index: number): HTMLElement {
+function pinElement(label: string, draft = false): HTMLElement {
   const element = document.createElement("div");
-  element.className = "event-pin";
+  element.className = draft ? "event-pin event-pin--draft" : "event-pin";
   element.setAttribute("role", "img");
-  element.setAttribute("aria-label", `Event pin ${index}`);
+  element.setAttribute("aria-label", label);
   element.innerHTML = `
     <svg class="event-pin__mark" viewBox="-16 -40 32 40" aria-hidden="true" focusable="false">
       <rect class="event-pin__block" x="-8" y="-36" width="24" height="24" />
@@ -41,8 +46,10 @@ export default function EventMarkers({
   mapRef,
   styleReady,
   pins,
+  draftLngLat,
 }: EventMarkersProps) {
   const markersRef = useRef(new globalThis.Map<string, Marker>());
+  const draftRef = useRef<Marker | null>(null);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -65,7 +72,7 @@ export default function EventMarkers({
         return;
       }
       const marker = new Marker({
-        element: pinElement(index + 1),
+        element: pinElement(`Event pin ${index + 1}: ${pin.description}`),
         anchor: "bottom",
       })
         .setLngLat(pin.lngLat)
@@ -73,6 +80,24 @@ export default function EventMarkers({
       markers.set(pin.id, marker);
     });
   }, [mapRef, pins, styleReady]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!styleReady || !map || !draftLngLat) {
+      return;
+    }
+    const marker = new Marker({
+      element: pinElement("New pin", true),
+      anchor: "bottom",
+    })
+      .setLngLat(draftLngLat)
+      .addTo(map);
+    draftRef.current = marker;
+    return () => {
+      marker.remove();
+      draftRef.current = null;
+    };
+  }, [draftLngLat, mapRef, styleReady]);
 
   useEffect(() => {
     const markers = markersRef.current;
