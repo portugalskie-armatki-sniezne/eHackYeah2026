@@ -1,3 +1,4 @@
+import BrandMark from "./BrandMark";
 import "./Navbar.css";
 
 type NavItem = {
@@ -18,14 +19,18 @@ export default function Navbar() {
       <a className="navbar__skip" href="#main">
         Skip to map
       </a>
-      <div className="navbar__pill">
+      <div className="navbar__frame">
         <a className="navbar__brand" href="#map">
-          eHackYeah<span className="navbar__brand-accent">2026</span>
+          <BrandMark className="navbar__mark" />
+          <span className="navbar__wordmark">
+            eHackYeah<span className="navbar__brand-accent">2026</span>
+          </span>
         </a>
         <nav aria-label="Main">
           <ul className="navbar__list">
             {items.map((item, index) => (
-              <li key={item.href}>
+              <li key={item.href} className="navbar__item">
+                {index > 0 && <span className="navbar__divider" aria-hidden="true" />}
                 <a
                   className="navbar__link"
                   href={item.href}

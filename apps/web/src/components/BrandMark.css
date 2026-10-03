@@ -1,0 +1,16 @@
+.brand-mark {
+  display: block;
+  overflow: visible;
+}
+
+.brand-mark__block {
+  fill: var(--amber);
+  stroke: none;
+}
+
+.brand-mark__line {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}

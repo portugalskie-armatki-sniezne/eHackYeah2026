@@ -1,0 +1,70 @@
+/* Anchored at the viewport origin and moved with a transform from MapCursor, so
+   the hotspot is the element's own (0, 0). It must sit outside .map__frame, whose
+   overflow clipping would cut it off at the edges. */
+.map-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 30;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform;
+}
+
+.map-cursor--visible {
+  opacity: 1;
+}
+
+/* Drafting crosshair: ink ticks on a paper halo so it reads over ink map lines. */
+.map-cursor__reticle {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 20px;
+  height: 20px;
+  overflow: visible;
+}
+
+.map-cursor__reticle-halo,
+.map-cursor__reticle-line {
+  fill: none;
+  stroke-linecap: square;
+}
+
+.map-cursor__reticle-halo {
+  stroke: var(--paper);
+  stroke-width: 4;
+}
+
+.map-cursor__reticle-line {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.map-cursor__reticle-dot {
+  fill: var(--ink);
+}
+
+/* The skyline tile rides bottom-right of the hotspot like a tool badge. */
+.map-cursor__mark {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 28px;
+  height: 17.5px;
+}
+
+.map-cursor .brand-mark__line {
+  transition: transform 120ms ease;
+}
+
+/* Dragging pushes the tile down onto its amber block, as the toolbar buttons do. */
+.map-cursor--pressed .brand-mark__line {
+  transform: translate(4px, 4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-cursor .brand-mark__line {
+    transition: none;
+  }
+}

@@ -9,6 +9,7 @@ DECLARE
     category_id BIGINT;
     created_status_id BIGINT;
     institution_id BIGINT;
+    service_entity_id BIGINT;
     contact RECORD;
 BEGIN
     FOR contact IN SELECT * FROM (VALUES
@@ -132,7 +133,7 @@ BEGIN
     EXCEPTION WHEN not_null_violation THEN NULL;
     END;
     BEGIN
-        UPDATE master_reports SET responsible_institution_id = 0 WHERE id = master_id;
+        UPDATE master_reports SET responsible_office_id = 0 WHERE id = master_id;
         RAISE EXCEPTION 'Unknown responsible institution accepted';
     EXCEPTION WHEN foreign_key_violation THEN NULL;
     END;
@@ -141,13 +142,43 @@ BEGIN
         RAISE EXCEPTION 'Referenced master report status could be deleted';
     EXCEPTION WHEN foreign_key_violation THEN NULL;
     END;
-    SELECT id INTO institution_id FROM institution_contacts ORDER BY id LIMIT 1;
-    UPDATE master_reports SET responsible_institution_id = institution_id WHERE id = master_id;
+    SELECT id INTO institution_id FROM local_government_offices ORDER BY id LIMIT 1;
+    UPDATE master_reports SET responsible_office_id = institution_id WHERE id = master_id;
     BEGIN
-        DELETE FROM institution_contacts WHERE id = institution_id;
+        DELETE FROM local_government_offices WHERE id = institution_id;
         RAISE EXCEPTION 'Responsible institution could be deleted while referenced';
+    EXCEPTION WHEN restrict_violation THEN NULL;
+    END;
+
+    SELECT id INTO service_entity_id FROM service_entities ORDER BY id LIMIT 1;
+    BEGIN
+        UPDATE master_reports SET responsible_service_entity_id = service_entity_id WHERE id = master_id;
+        RAISE EXCEPTION 'Two responsible parties accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
+    BEGIN
+        UPDATE master_reports SET responsible_office_id = NULL, responsible_service_entity_id = 0
+        WHERE id = master_id;
+        RAISE EXCEPTION 'Unknown responsible service entity accepted';
     EXCEPTION WHEN foreign_key_violation THEN NULL;
     END;
+    UPDATE master_reports
+    SET responsible_office_id = NULL, responsible_service_entity_id = service_entity_id
+    WHERE id = master_id;
+    IF (SELECT responsible_service_entity_id FROM master_reports WHERE id = master_id)
+       IS DISTINCT FROM service_entity_id THEN
+        RAISE EXCEPTION 'Service entity assignment was not saved';
+    END IF;
+    BEGIN
+        DELETE FROM service_entities WHERE id = service_entity_id;
+        RAISE EXCEPTION 'Responsible service entity could be deleted while referenced';
+    EXCEPTION WHEN restrict_violation THEN NULL;
+    END;
+    UPDATE master_reports SET responsible_service_entity_id = NULL WHERE id = master_id;
+    IF EXISTS (SELECT FROM master_reports WHERE id = master_id
+               AND (responsible_office_id IS NOT NULL OR responsible_service_entity_id IS NOT NULL)) THEN
+        RAISE EXCEPTION 'Responsible party could not be unassigned';
+    END IF;
 
     INSERT INTO reports (user_id, master_report_id, report_category_id, title, description, location)
     VALUES (author_id, master_id, category_id, 'More benches', 'Add benches near the park',
@@ -238,18 +269,18 @@ BEGIN
     END;
 
     BEGIN
-        INSERT INTO institution_contacts (teryt_code, local_government_name) VALUES ('invalid', 'Test');
+        INSERT INTO local_government_offices (teryt_code, local_government_name) VALUES ('invalid', 'Test');
         RAISE EXCEPTION 'Invalid TERYT code accepted';
     EXCEPTION WHEN check_violation THEN NULL;
     END;
     BEGIN
-        INSERT INTO institution_contacts (teryt_code, local_government_name) VALUES ('9999999', '   ');
+        INSERT INTO local_government_offices (teryt_code, local_government_name) VALUES ('9999999', '   ');
         RAISE EXCEPTION 'Blank local government name accepted';
     EXCEPTION WHEN check_violation THEN NULL;
     END;
     BEGIN
-        INSERT INTO institution_contacts (teryt_code, local_government_name)
-        SELECT teryt_code, local_government_name FROM institution_contacts LIMIT 1;
+        INSERT INTO local_government_offices (teryt_code, local_government_name)
+        SELECT teryt_code, local_government_name FROM local_government_offices LIMIT 1;
         RAISE EXCEPTION 'Duplicate TERYT code accepted';
     EXCEPTION WHEN unique_violation THEN NULL;
     END;

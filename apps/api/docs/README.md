@@ -91,6 +91,6 @@ Pliki zdjęć trafiają do katalogu z opcjonalnej zmiennej `UPLOAD_DIR`. Domyśl
 
 ## Zakres
 
-Model danych obejmuje tabele z migracji: `users`, `report_categories`, `master_report_statuses`, `master_reports`, `reports`, `report_photos`, `master_report_comments`, `master_report_comment_likes`, `institution_contacts`.
+Model danych obejmuje tabele z migracji: `users`, `report_categories`, `master_report_statuses`, `master_reports`, `reports`, `report_photos`, `master_report_comments`, `master_report_comment_likes`, `local_government_offices`, `service_entities`.
 
 API obejmuje CRUD tych tabel, słowniki, komentarze i polubienia. Instytucje i słowniki są tylko do odczytu. Inicjatywy nie mają jeszcze tabel i pozostają poza zakresem.

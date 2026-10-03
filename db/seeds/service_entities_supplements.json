@@ -1,0 +1,261 @@
+[
+  {
+    "source_key": "bip:127777",
+    "short_name": "ZDMK",
+    "website": "https://zdmk.krakow.pl/",
+    "reporting_channel": "tel:+48126165555",
+    "reporting_channel_description": "Krakowskie Centrum Kontaktu, wybierz 4; poniedziałek-piątek 7:40-15:30, informacje o usługach ZDMK.",
+    "source_urls": [
+      "https://www.bip.krakow.pl/?bip_id=511&rNtd=10176"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "bip:129155",
+    "short_name": "ZTP",
+    "website": "https://ztp.krakow.pl/",
+    "reporting_channel": "tel:+48126168669",
+    "reporting_channel_description": "Całodobowa infolinia organizatora transportu publicznego.",
+    "source_urls": [
+      "https://www.bip.krakow.pl/?bip_id=616&mmi=15467"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "bip:122809",
+    "short_name": "MPK",
+    "street": "Jana Brożka",
+    "house_number": "3",
+    "postal_code": "30-347",
+    "phone_number": "+48 12 254 10 00",
+    "website": "https://mpk.krakow.pl/",
+    "reporting_channel": "https://mpk.krakow.pl/zgloszenie-dotyczace-uslugi",
+    "reporting_channel_description": "Zastrzeżenia dotyczące usług, jakości obsługi lub pracowników operatora MPK.",
+    "source_urls": [
+      "https://mpk.krakow.pl/zalatwianie-spraw",
+      "https://mpk.krakow.pl/kontakt",
+      "https://mpk.krakow.pl/zgloszenie-dotyczace-uslugi"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "official:mobilis-krakow",
+    "name": "Mobilis Sp. z o.o. - Zajezdnia Kraków",
+    "short_name": "Mobilis",
+    "entity_type": "transport_operator",
+    "teryt_code": "1261011",
+    "locality": "Kraków",
+    "postal_code": "31-752",
+    "street": "Makuszyńskiego",
+    "house_number": "13",
+    "phone_number": "698 233 100",
+    "email": "krakow@mobilis.pl",
+    "website": "https://mobilis.pl/",
+    "reporting_channel": "https://mobilis.pl/kontakt-krakow/",
+    "reporting_channel_description": "Formularz kontaktowy zajezdni Kraków operatora Mobilis.",
+    "source_urls": [
+      "https://mobilis.pl/kontakt-krakow/"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "official:mpo-krakow",
+    "name": "Miejskie Przedsiębiorstwo Oczyszczania Sp. z o.o. w Krakowie",
+    "short_name": "MPO",
+    "entity_type": "waste_management",
+    "teryt_code": "1261011",
+    "locality": "Kraków",
+    "postal_code": "31-580",
+    "street": "Nowohucka",
+    "house_number": "1",
+    "phone_number": "+48 12 646 22 22",
+    "email": "mpo@mpo.krakow.pl",
+    "website": "https://mpo.krakow.pl/",
+    "bip_url": "https://bip.mpo.krakow.pl/",
+    "reporting_channel": "https://mpo.krakow.pl/formularz-zgloszeniowy/",
+    "reporting_channel_description": "Sprawy dotyczące zagospodarowania odpadów i utrzymania czystości.",
+    "source_urls": [
+      "https://bip.mpo.krakow.pl/",
+      "https://mpo.krakow.pl/formularz-zgloszeniowy/"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "bip:120701",
+    "short_name": "ZZM",
+    "website": "https://zzm.krakow.pl/",
+    "reporting_channel": "tel:+48126165555",
+    "reporting_channel_description": "Krakowskie Centrum Kontaktu: interwencje w sprawach utrzymania zieleni.",
+    "source_urls": [
+      "https://zzm.krakow.pl/pl/kontakt.html"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "bip:127442",
+    "short_name": "ZIW",
+    "website": "https://ziw.krakow.pl/",
+    "reporting_channel": "tel:+48126167555",
+    "reporting_channel_description": "Całodobowe interwencje dotyczące odwodnienia, niedrożnych studzienek i ryzyka powodziowego.",
+    "source_urls": [
+      "https://ziw.krakow.pl/dane-adresowe/",
+      "https://ziw.krakow.pl/bezpieczny-krakow/numery-alarmowe/"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "official:wodociagi-krakow",
+    "name": "Wodociągi Miasta Krakowa S.A.",
+    "short_name": "WMK",
+    "entity_type": "water_sewage_utility",
+    "teryt_code": "1261011",
+    "locality": "Kraków",
+    "postal_code": "30-106",
+    "street": "Senatorska",
+    "house_number": "1",
+    "phone_number": "+48 12 620 33 20",
+    "email": "biuro@wodociagi.krakow.pl",
+    "website": "https://wodociagi.krakow.pl/",
+    "bip_url": "https://bip.wodociagi.krakow.pl/",
+    "reporting_channel": "tel:+48124242303",
+    "reporting_channel_description": "Całodobowe pogotowie wodociągowo-kanalizacyjne; dostępny także lokalny numer 994.",
+    "source_urls": [
+      "https://bip.wodociagi.krakow.pl/artykul/369/5/godziny-pracy"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "official:mpec-krakow",
+    "name": "Miejskie Przedsiębiorstwo Energetyki Cieplnej S.A. w Krakowie",
+    "short_name": "MPEC",
+    "entity_type": "heating_utility",
+    "teryt_code": "1261011",
+    "locality": "Kraków",
+    "postal_code": "31-564",
+    "street": "al. Pokoju",
+    "house_number": "81",
+    "phone_number": "+48 12 646 55 33",
+    "email": "mpec@mpec.krakow.pl",
+    "website": "https://www.mpec.krakow.pl/",
+    "bip_url": "https://bip.mpec.krakow.pl/",
+    "reporting_channel": "tel:+48126441872",
+    "reporting_channel_description": "Całodobowe pogotowie techniczne MPEC; dostępny także lokalny numer 993.",
+    "source_urls": [
+      "https://bip.mpec.krakow.pl/artykul/80/86/pogotowie-techniczne"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "bip:102074",
+    "short_name": "SMMK",
+    "website": "https://strazmiejska.krakow.pl/",
+    "reporting_channel": "tel:986",
+    "reporting_channel_description": "Bezpłatny całodobowy lokalny numer interwencyjny Straży Miejskiej w Krakowie.",
+    "source_urls": [
+      "https://strazmiejska.krakow.pl/195281,artykul,kontakt.html",
+      "https://strazmiejska.krakow.pl/214252,artykul,zglos-interwencje.html"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "bip:113198",
+    "short_name": "ZBK",
+    "website": "https://zbk-krakow.pl/",
+    "source_urls": [
+      "https://www.bip.krakow.pl/?bip_id=32"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "bip:102700",
+    "short_name": "ZCK",
+    "website": "http://www.zck-krakow.pl/",
+    "source_urls": [
+      "https://www.bip.krakow.pl/?bip_id=489"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "bip:103246",
+    "short_name": "ZIS",
+    "locality": "Kraków",
+    "website": "https://www.zis.krakow.pl/",
+    "source_urls": [
+      "https://www.bip.krakow.pl/ZIS"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "bip:102889",
+    "short_name": "ZIM",
+    "website": "https://www.zim.krakow.pl/",
+    "source_urls": [
+      "https://www.bip.krakow.pl/ZIM"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "malopolska:4267",
+    "locality": "Bochnia",
+    "postal_code": "32-700",
+    "street": "Regis",
+    "house_number": "2",
+    "phone_number": "+48 14 611 84 05",
+    "email": "straz@straznicy.bochnia.pl",
+    "website": "https://www.straznicy.bochnia.pl/",
+    "reporting_channel": "tel:986",
+    "reporting_channel_description": "Lokalne zgłoszenia interwencji w godzinach pracy Straży Miejskiej w Bochni.",
+    "source_urls": [
+      "https://www.straznicy.bochnia.pl/kontakt",
+      "https://www.straznicy.bochnia.pl/zgloszenie-interwencji"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "malopolska:4927",
+    "street": "Ogrody",
+    "house_number": "101/1A",
+    "phone_number": "+48 12 276 29 73",
+    "email": "strazmiejska@gminaskawina.pl",
+    "source_urls": [
+      "https://bip.malopolska.pl/api/articles/2612458"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "malopolska:3499",
+    "website": "http://strazmiejska.tarnow.pl/",
+    "reporting_channel": "tel:986",
+    "reporting_channel_description": "Całodobowy lokalny telefon alarmowy Straży Miejskiej w Tarnowie.",
+    "source_urls": [
+      "https://bip.malopolska.pl/api/articles/942310"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "bip:107401",
+    "replaces": [
+      "malopolska:5041"
+    ],
+    "website": "http://www.zgzir.nowytarg.pl/",
+    "bip_url": "https://bip.malopolska.pl/zgzirnowytarg",
+    "source_urls": [
+      "https://bip.malopolska.pl/api/contexts/zgzirnowytarg"
+    ],
+    "verified_on": "2026-10-03"
+  },
+  {
+    "source_key": "malopolska:3549",
+    "replaces": [
+      "malopolska:4791"
+    ],
+    "phone_number": "+48 32 613 44 12",
+    "email": "gkbabice@o2.pl",
+    "source_urls": [
+      "https://bip.malopolska.pl/api/contexts/gkwbabicach",
+      "https://bip.malopolska.pl/api/contexts/gkbabice",
+      "https://bip.malopolska.pl/api/articles/955521"
+    ],
+    "verified_on": "2026-10-03"
+  }
+]

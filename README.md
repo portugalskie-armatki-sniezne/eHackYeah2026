@@ -18,6 +18,7 @@ eHackYeah2026/
 │   ├── e2e/                         # cross-application scenarios
 │   └── fixtures/                    # shared behavioral examples
 ├── docker-compose.yaml              # database, migrations, and seed import
+├── docker-compose.app.yaml          # api and web containers from published images
 ├── Taskfile.yml                     # development commands
 ├── mise.toml                        # pinned Bun, Task, and uv versions
 ├── setup-dev-env.sh                 # installs mise, pinned tools, and dependencies
@@ -36,7 +37,7 @@ From the repository root, start the database with:
 task db
 ```
 
-Compose starts PostGIS, applies migrations, and imports the institution contacts workbook. Defaults are provided for local development; create `.env` from `.env.example` only if you want to override them. The importer image is built from `tooling/seed/Dockerfile` and installs dependencies with uv from `tooling/seed/pyproject.toml` and `tooling/seed/uv.lock`.
+Compose starts PostGIS, applies migrations, and imports the local government office workbook and the official service entity snapshot. Defaults are provided for local development; create `.env` from `.env.example` only if you want to override them. The importer image is built from `tooling/seed/Dockerfile` and installs dependencies with uv from `tooling/seed/pyproject.toml` and `tooling/seed/uv.lock`.
 
 ## Development commands
 
@@ -85,6 +86,21 @@ bun run preview
 ```
 
 The build output is written to `apps/web/dist`.
+
+## Deployment
+
+The `[1] Deploy` workflow builds and pushes the web and API images, then deploys them to one environment:
+
+| Trigger | Services | Environment |
+| --- | --- | --- |
+| Push to `main` that changes `apps/web` or `apps/api`. | The services that changed. | `dev` |
+| Manual run from the Actions tab. | `web` or `api`, chosen when starting the run. | `dev` or `prod`, chosen when starting the run. |
+
+The images are built from `apps/web/Dockerfile` and `apps/api/Dockerfile` with the repository root as the build context and pushed to `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web` and `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api`. Builds are tagged with the environment name and with `<environment>-<commit SHA>`, for example `dev` and `dev-<commit SHA>`. To build an image locally, run `docker build -f apps/web/Dockerfile -t ehackyeah-web .` or `docker build -f apps/api/Dockerfile -t ehackyeah-api .` from the repository root.
+
+The workflow reads its configuration from the GitHub environments `dev` and `prod`. Each environment needs two variables: `VITE_API_URL`, the backend URL that Vite inlines into the frontend bundle, and `DEPLOY_DIR`, a directory on the target machine that holds the Compose file and the `.env` file of that environment. Deployment runs on a self-hosted runner: it writes the built tag to `WEB_IMAGE_TAG` or `API_IMAGE_TAG` in `DEPLOY_DIR/.env`, then runs `docker compose pull` and `docker compose up -d` for the deployed services in that directory. Do not use this runner in workflows triggered by pull requests, because the repository is public.
+
+`docker-compose.app.yaml` is the template for the Compose file on the target machine. It defines only the `api` and `web` services, which run published images selected by `API_IMAGE_TAG` and `WEB_IMAGE_TAG`. The database runs in a separate Compose project. The `api` service joins that project's network, named by `DB_NETWORK` (default `ehackyeah2026_default`, the network of the root `docker-compose.yaml`), and connects to `POSTGRES_HOST` (default `db`).
 
 ## Shared agent skills
 

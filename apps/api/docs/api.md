@@ -38,7 +38,7 @@ Wszystkie endpointy opisane poniżej mają status `done`. Nazwy pól są takie s
 | master_reports | `/master-reports` | list, get, update, delete; tworzy je backend |
 | master_report_comments | `/master-reports/{id}/comments`, `/comments/{id}` | create, list, delete, like, unlike |
 | słowniki | `/report-categories`, `/master-report-statuses` | list (tylko odczyt) |
-| institution_contacts | `/institution-contacts` | list, get (tylko odczyt) |
+| local_government_offices | `/institution-contacts` | list, get (tylko odczyt) |
 
 ### Dostęp
 
@@ -230,7 +230,8 @@ Odpowiedź `GET /master-reports/{id}`:
   "id": "5d1f7a52-3c3e-4a7e-8b0a-1f6d2d9e7a20",
   "report_category_id": 2,
   "status_id": 2,
-  "responsible_institution_id": 17,
+  "responsible_office_id": null,
+  "responsible_service_entity_id": 17,
   "title": "Dziura w jezdni przy ul. Długiej",
   "description": "Dziura w jezdni przy ul. Długiej 5.",
   "location": { "longitude": 19.9449, "latitude": 50.0647 },
@@ -285,6 +286,8 @@ Oba endpointy są publiczne i zwracają listę `[{"id": 1, "name": "improvement"
 
 ## institution-contacts
 
+Katalog czyta tabelę `local_government_offices`; nazwa ścieżki API pozostaje bez zmian. `service_entities` jest na tym etapie katalogiem DB i nie ma endpointów.
+
 Dane referencyjne z seeda, tylko odczyt i publiczne. Id to liczba całkowita, nie UUID.
 
 | Metoda | Ścieżka | Opis | Sukces | Błędy |
@@ -298,7 +301,7 @@ Filtry: `teryt_code`, `province`, `county`, `local_government_type` (dokładnie)
 
 | Nr | Pytanie | Wpływ |
 | --- | --- | --- |
-| 1 | Jak master trafia do odpowiedzialnej jednostki i jak potwierdzane są postęp oraz zakończenie? Relację przechowuje `responsible_institution_id`, obecnie ustawiane ręcznie przez `office` lub `admin`. | obsługa wysyłki i statusów |
+| 1 | Jak master trafia do odpowiedzialnej jednostki i jak potwierdzane są postęp oraz zakończenie? Relację przechowuje `responsible_office_id` albo `responsible_service_entity_id`, obecnie ustawiane ręcznie przez `office` lub `admin`. | obsługa wysyłki i statusów |
 | 2 | Kiedy mock dopasowania zastąpi klasyfikator LLM, który porówna też opisy i zdjęcia? | `POST /reports` |
 | 3 | Czy `limit/offset` wystarcza, czy potrzebna paginacja kursorowa? | wszystkie listy |
 | 4 | Czy komentarze mają pokazywać imię autora? Teraz zwracają tylko `user_id`. | `/master-reports/{id}/comments` |
