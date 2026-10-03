@@ -26,6 +26,7 @@ erDiagram
         text email UK
         text phone UK
         text password_hash
+        text google_sub UK
         text role
         timestamptz edited_at
         timestamptz created_at
@@ -112,12 +113,13 @@ API przypina każdy nowy report do mastera w tej samej transakcji: do podobnego 
 | last_name | text | NOT NULL |
 | email | text | NULL, UNIQUE |
 | phone | text | NULL, UNIQUE |
-| password_hash | text | NOT NULL, nigdy nie zwracany w API |
+| password_hash | text | NULL dla konta bez hasła, nigdy nie zwracany w API |
+| google_sub | text | NULL, UNIQUE, identyfikator połączonego konta Google, API zwraca tylko `google_linked` |
 | role | text | NOT NULL, domyślnie `'user'`, CHECK: `user`, `office` lub `admin` |
 | edited_at | timestamptz | NOT NULL, domyślnie `NOW()`, ustawiane triggerem przy UPDATE |
 | created_at | timestamptz | NOT NULL, domyślnie `NOW()` |
 
-Ograniczenie: co najmniej jedno z pól `email` lub `phone` musi być niepuste po przycięciu spacji.
+Ograniczenia: co najmniej jedno z pól `email` lub `phone` musi być niepuste po przycięciu spacji. Konto musi mieć `password_hash` albo `google_sub`.
 
 ### report_categories
 

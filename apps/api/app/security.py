@@ -12,6 +12,14 @@ DUMMY_HASH = password_hash.hash("dummy-password")
 TOKEN_ALGORITHM = "HS256"
 TOKEN_LIFETIME = timedelta(hours=24)
 
+GOOGLE_ISSUERS = ("https://accounts.google.com", "accounts.google.com")
+# the keys are fetched on first use and cached, so the API starts without network access.
+google_keys = jwt.PyJWKClient("https://www.googleapis.com/oauth2/v3/certs", timeout=5)
+
+
+class GoogleUnavailableError(Exception):
+    pass
+
 
 def hash_password(password: str) -> str:
     return password_hash.hash(password)
@@ -42,4 +50,25 @@ def read_access_token(token: str) -> UUID | None:
         payload = jwt.decode(token, jwt_secret(), algorithms=[TOKEN_ALGORITHM], options={"require": ["sub", "exp"]})
         return UUID(payload["sub"])
     except (jwt.InvalidTokenError, ValueError):
+        return None
+
+
+def google_client_id() -> str | None:
+    return os.environ.get("GOOGLE_CLIENT_ID") or None
+
+
+def read_google_token(credential: str, client_id: str) -> dict | None:
+    try:
+        key = google_keys.get_signing_key_from_jwt(credential)
+        return jwt.decode(
+            credential,
+            key.key,
+            algorithms=["RS256"],
+            audience=client_id,
+            issuer=GOOGLE_ISSUERS,
+            options={"require": ["sub", "aud", "iss", "exp"]},
+        )
+    except jwt.PyJWKClientConnectionError as error:
+        raise GoogleUnavailableError from error
+    except jwt.PyJWTError:
         return None
