@@ -57,6 +57,10 @@ Commands are defined in `Taskfile.yml` and need mise activated in your shell; ot
 | `task web` | Start the frontend. |
 | `task db` | Start the database, apply migrations, and wait for seed import. |
 | `task api` | Start the database and seed services, then start the API. |
+| `task fe:lint` | Check the frontend with ESLint and Prettier. |
+| `task fe:lint:fix` | Fix the frontend with ESLint and Prettier. |
+| `task be:lint` | Check the API with Ruff. |
+| `task be:lint:fix` | Fix the API with Ruff. |
 
 The current web workspace is a React/Vite scaffold. The API workspace is a FastAPI placeholder. Web and API start separately, so run `task web` and `task api` in separate terminals. Both `task db` and `task api` require Docker with Compose running. The database command returns after seed import finishes and leaves PostgreSQL running. Setup preserves `.env`. PostgreSQL is published on `127.0.0.1:POSTGRES_PORT`. Ctrl+C stops applications; the database remains running.
 
@@ -68,6 +72,16 @@ task api
 ```
 
 Setup runs `uv sync`, which creates `apps/api/.venv` and installs Python dependencies from `apps/api/pyproject.toml` and `apps/api/uv.lock`. uv downloads Python 3.10 or newer when none is available. Repeating setup reuses the virtual environment. The API starts after migrations and seed import finish, at <http://127.0.0.1:8000>. The placeholder provides `GET /` and `GET /health`, with interactive API documentation at <http://127.0.0.1:8000/docs>. The health endpoint checks the application only; it does not query PostgreSQL. Edit `apps/api/app/main.py`; changes under `apps/api/app` reload the API automatically.
+
+Ruff lints and formats the API code with the rules in `apps/api/pyproject.toml`:
+
+```sh
+cd apps/api
+uv run ruff check .
+uv run ruff format --check .
+```
+
+`uv run ruff check --fix .` applies the safe fixes and `uv run ruff format .` rewrites the files.
 
 ## Web application
 
@@ -81,9 +95,13 @@ Open the local URL printed by Vite. Edit `apps/web/src/App.tsx` for the UI and `
 ```sh
 cd apps/web
 bun run typecheck
+bun run lint
+bun run format:check
 bun run build
 bun run preview
 ```
+
+`bun run lint` runs ESLint and `bun run format:check` runs Prettier; `bun run format` rewrites the files with Prettier. ESLint needs the TypeScript 6 API, so the `typescript` package resolves to TypeScript 6, while `tsc` comes from TypeScript 7 installed as `@typescript/native`.
 
 The build output is written to `apps/web/dist`.
 
@@ -93,7 +111,7 @@ The `[1] Deploy` workflow builds and pushes the web and API images, then deploys
 
 | Trigger | Services | Environment |
 | --- | --- | --- |
-| Push to `main` that changes `apps/web` or `apps/api`. | The services that changed. | `dev` |
+| Push to `main` that changes `apps/web`, `apps/api`, or `db/migrations`. | The services that changed. A migration change deploys `api`. | `dev` |
 | Manual run from the Actions tab. | `web` or `api`, chosen when starting the run. | `dev` or `prod`, chosen when starting the run. |
 | Call from the `[2] Release` workflow. | Both. | `prod` |
 
@@ -103,7 +121,13 @@ The images are built from `apps/web/Dockerfile` and `apps/api/Dockerfile` with t
 
 The workflow reads its configuration from the GitHub environments `dev` and `prod`. Each environment needs two variables: `VITE_API_URL`, the backend URL that Vite inlines into the frontend bundle, and `DEPLOY_DIR`, a directory on the target machine that holds the Compose file and the `.env` file of that environment. Deployment runs on a self-hosted runner: it writes the built tag to `WEB_IMAGE_TAG` or `API_IMAGE_TAG` in `DEPLOY_DIR/.env`, then runs `docker compose pull` and `docker compose up -d` for the deployed services in that directory. Do not use this runner in workflows triggered by pull requests, because the repository is public.
 
-`docker-compose.app.yaml` is the template for the Compose file on the target machine. It defines only the `api` and `web` services, which run published images selected by `API_IMAGE_TAG` and `WEB_IMAGE_TAG`. The database runs in a separate Compose project. The `api` service joins that project's network, named by `DB_NETWORK` (default `ehackyeah2026_default`, the network of the root `docker-compose.yaml`), and connects to `POSTGRES_HOST` (default `db`).
+Every deployment of `api` applies the database migrations between the pull and the restart. The workflow checks out the deployed commit on the runner and runs dbmate, in the same version and with the same settings as the `db-migrator` service of the root `docker-compose.yaml`, on `db/migrations`. It reads `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `DB_NETWORK` from `DEPLOY_DIR/.env` with the same defaults as `docker-compose.app.yaml`, so the values must be valid in both a Compose `.env` file and a shell script, and the user and password must be safe to place in a URL. A failed migration stops the deployment before the restart, so the previous `api` container keeps running. Deployment does not import seed data.
+
+The `[4] Seed` workflow imports the reference data from `db/seeds` into the database of one environment. Start it manually from the Actions tab and choose `dev` or `prod`. It checks out the chosen ref on the self-hosted runner, builds the importer image from `tooling/seed`, and runs it with the same files as the `db-seeder` service of the root `docker-compose.yaml`, using the database settings from `DEPLOY_DIR/.env`. The import needs the migrations to be applied, so run it after a deployment of `api`. It shares the concurrency group of deployments to the same environment, so it never runs during a migration. Repeating the import is safe: rows are matched by TERYT code or source key, unchanged rows are left alone, and existing IDs do not change. The seed files remain the source of truth, so manual edits to seeded rows are overwritten, and rows removed from the seed files are not deleted from the database.
+
+`docker-compose.app.yaml` is the template for the Compose file on the target machine. It defines only the `api` and `web` services, which run published images selected by `API_IMAGE_TAG` and `WEB_IMAGE_TAG`. The database runs in a separate Compose project. The `api` service joins that project's network, named by `DB_NETWORK` (default `ehackyeah2026_default`, the network of the root `docker-compose.yaml`), and connects to `POSTGRES_HOST` (default `db`). The API stores report photos in `UPLOAD_DIR`, which the template sets to `/app/uploads` on the named volume `api_uploads`, so photos survive deployments. When the template changes, update the Compose file in `DEPLOY_DIR` as well.
+
+The `[3] Lint` workflow runs ESLint and Prettier for the web workspace and Ruff for the API workspace on every pull request and on every push to `main`. It uses GitHub-hosted runners.
 
 ## Shared agent skills
 

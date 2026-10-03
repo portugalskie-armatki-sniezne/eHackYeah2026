@@ -99,7 +99,7 @@ erDiagram
 
 Na diagramie pokazano tylko wybrane kolumny `local_government_offices` i `service_entities`, pełne listy są niżej.
 
-Pojedynczy report jest zapisywany przed klasyfikacją, więc może nie mieć mastera. Backend po klasyfikacji tworzy master na podstawie pierwszego reportu albo przypina report do istniejącego mastera. Treść mastera jest niezależna; wspólny status, odpowiedź, odpowiedzialna jednostka, komentarze i polubienia należą do mastera.
+API przypina każdy nowy report do mastera w tej samej transakcji: do podobnego otwartego mastera w pobliżu albo do nowego mastera utworzonego z treści reportu (reguły w [api.md](api.md#dopasowanie-do-mastera)). Kolumna `master_report_id` pozostaje w schemacie nullable dla przyszłej klasyfikacji w tle. Treść mastera jest niezależna; wspólny status, odpowiedź, odpowiedzialna jednostka, komentarze i polubienia należą do mastera.
 
 ## Tabele
 
@@ -144,7 +144,7 @@ Migracja 04 wstawia:
 | inprogress | potwierdzone rozpoczęcie prac |
 | finished | potwierdzone zakończenie |
 
-Backend ustawia status i obsługuje przejścia między statusami. Baza nie nadaje domyślnego statusu.
+Backend ustawia status `created` przy tworzeniu mastera, a później status zmienia `office` lub `admin` bez ograniczeń przejść. Baza nie nadaje domyślnego statusu.
 
 ### master_reports
 
@@ -299,7 +299,7 @@ Indeksy: `teryt_code`, `entity_type`.
 | --- | --- |
 | users | błąd, jeśli istnieją jego reporty lub komentarze; polubienia usuwane kaskadowo |
 | master_reports | błąd, jeśli istnieją powiązane reporty; w pozostałych przypadkach komentarze i polubienia usuwane kaskadowo |
-| reports | zdjęcia usuwane kaskadowo; master i dyskusja pozostają |
+| reports | zdjęcia usuwane kaskadowo; master i dyskusja pozostają, chyba że był to ostatni report mastera, wtedy API usuwa też master |
 | report_photos | brak zależności |
 | master_report_comments | polubienia usuwane kaskadowo |
 | master_report_comment_likes | brak zależności |

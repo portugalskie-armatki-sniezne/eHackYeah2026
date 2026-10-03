@@ -2,13 +2,6 @@ import "./MapToolbar.css";
 
 export type BasemapId = "streets";
 
-type BasemapOption = {
-  id: BasemapId;
-  label: string;
-};
-
-const basemaps: BasemapOption[] = [{ id: "streets", label: "Streets" }];
-
 type MapToolbarProps = {
   tilted: boolean;
   onToggleTilt: () => void;
