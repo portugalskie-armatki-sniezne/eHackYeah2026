@@ -63,17 +63,22 @@ async function setup() {
   }
 }
 
+async function startDatabase() {
+  if (!Bun.which("docker")) throw new Error("Install Docker with Compose and start Docker before running the database.");
+  const compose = ["docker", "compose"];
+  await run([...compose, "up", "-d", "db-seeder"]);
+  await run([...compose, "wait", "db-seeder"]);
+}
+
 async function start(app: App) {
-  if (!(await hasScript(app, "dev"))) {
+  const implemented = await hasScript(app, "dev");
+  if (app === "api") {
+    if (implemented && !existsSync(envFile)) throw new Error("Run bun run setup to create .env first.");
+    await startDatabase();
+  }
+  if (!implemented) {
     console.log(`[${app}] Not implemented yet. Add a dev script to apps/${app}/package.json.`);
     return;
-  }
-  if (app === "api") {
-    if (!existsSync(envFile)) throw new Error("Run bun run setup to create .env first.");
-    if (!Bun.which("docker")) throw new Error("Install Docker with Compose and start Docker before running the API.");
-    const compose = ["docker", "compose"];
-    await run([...compose, "up", "-d", "db-seeder"]);
-    await run([...compose, "wait", "db-seeder"]);
   }
   console.log(`[${app}] Starting development server.`);
   await runScript(app, "dev");
@@ -93,8 +98,11 @@ try {
     case "api":
       await start(Bun.argv[2] as App);
       break;
+    case "db":
+      await startDatabase();
+      break;
     default:
-      throw new Error("Use bun run setup, all, web, or api.");
+      throw new Error("Use bun run setup, all, web, db, or api.");
   }
 } catch (error) {
   stop();
