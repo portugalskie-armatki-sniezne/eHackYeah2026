@@ -12,16 +12,6 @@ tasks:
             echo "Created .env from .env.example. Review its values before starting the API."
           fi
 
-  all:
-    desc: Run setup and start web and API
-    cmds:
-      - task: setup
-      - task: start
-
-  start:
-    internal: true
-    deps: [web, api]
-
   web:
     desc: Start the frontend
     dir: apps/web
@@ -32,7 +22,7 @@ tasks:
   db:
     desc: Start the database, apply migrations, and wait for seed import
     preconditions:
-      - sh: command -v docker
+      - sh: docker compose version
         msg: Install Docker with Compose and start Docker before running the database.
     cmds:
       - docker compose up -d db-seeder

@@ -53,12 +53,11 @@ Commands are defined in `Taskfile.yml` and need mise activated in your shell; ot
 | Command | Purpose |
 | --- | --- |
 | `task setup` | Install JavaScript, TypeScript, and Python dependencies, and create missing `.env`. |
-| `task all` | Run setup and start web and API. |
 | `task web` | Start the frontend. |
 | `task db` | Start the database, apply migrations, and wait for seed import. |
 | `task api` | Start the database and seed services, then start the API. |
 
-The current web workspace is a React/Vite scaffold. The API workspace is a FastAPI placeholder. Both `task db` and `task api` require Docker with Compose running, as does `task all`. The database command returns after seed import finishes and leaves PostgreSQL running. Setup preserves `.env`. PostgreSQL is published on `127.0.0.1:POSTGRES_PORT`. Ctrl+C stops applications; the database remains running.
+The current web workspace is a React/Vite scaffold. The API workspace is a FastAPI placeholder. Web and API start separately, so run `task web` and `task api` in separate terminals. Both `task db` and `task api` require Docker with Compose running. The database command returns after seed import finishes and leaves PostgreSQL running. Setup preserves `.env`. PostgreSQL is published on `127.0.0.1:POSTGRES_PORT`. Ctrl+C stops applications; the database remains running.
 
 ## API application
 
@@ -68,8 +67,6 @@ task api
 ```
 
 Setup runs `uv sync`, which creates `apps/api/.venv` and installs Python dependencies from `apps/api/pyproject.toml` and `apps/api/uv.lock`. uv downloads Python 3.10 or newer when none is available. Repeating setup reuses the virtual environment. The API starts after migrations and seed import finish, at <http://127.0.0.1:8000>. The placeholder provides `GET /` and `GET /health`, with interactive API documentation at <http://127.0.0.1:8000/docs>. The health endpoint checks the application only; it does not query PostgreSQL. Edit `apps/api/app/main.py`; changes under `apps/api/app` reload the API automatically.
-
-To set up and start both applications together, run `task all`.
 
 ## Web application
 
