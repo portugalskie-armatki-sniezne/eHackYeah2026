@@ -1,0 +1,12 @@
+# ci/cd and github configuration
+/.github/ @portugalskie-armatki-sniezne/platform
+
+# container images and compose files
+Dockerfile @portugalskie-armatki-sniezne/platform
+/docker-compose*.yaml @portugalskie-armatki-sniezne/platform
+/.dockerignore @portugalskie-armatki-sniezne/platform
+
+# development tooling
+/mise.toml @portugalskie-armatki-sniezne/platform
+/Taskfile.yml @portugalskie-armatki-sniezne/platform
+/setup-dev-env.sh @portugalskie-armatki-sniezne/platform
