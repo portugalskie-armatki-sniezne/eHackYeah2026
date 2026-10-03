@@ -68,8 +68,9 @@ def login(client: TestClient, username: str, password: str = "tajne-haslo") -> d
 
 
 @pytest.fixture
-def signed_in(client: TestClient, connection: psycopg.Connection
-              ) -> Callable[[str], tuple[dict[str, object], dict[str, str]]]:
+def signed_in(
+    client: TestClient, connection: psycopg.Connection
+) -> Callable[[str], tuple[dict[str, object], dict[str, str]]]:
     """create a user with the given role and return it with authorization headers."""
 
     def sign_in(role: str = "user") -> tuple[dict[str, object], dict[str, str]]:

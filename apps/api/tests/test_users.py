@@ -96,8 +96,9 @@ def test_admin_accesses_any_account(client: TestClient, signed_in):
 def test_update_own_account(client: TestClient, signed_in, connection: psycopg.Connection):
     user, headers = signed_in("user")
 
-    response = client.patch(f"/users/{user['id']}", headers=headers,
-                            json={"last_name": "Kowalska", "phone": None, "password": "nowe-haslo"})
+    response = client.patch(
+        f"/users/{user['id']}", headers=headers, json={"last_name": "Kowalska", "phone": None, "password": "nowe-haslo"}
+    )
 
     assert response.status_code == 200
     updated = response.json()

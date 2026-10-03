@@ -38,3 +38,17 @@ tasks:
     cmds:
       - task: db
       - uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload --reload-dir app
+
+  fe:lint:
+    desc: Check the frontend with ESLint and Prettier
+    dir: apps/web
+    cmds:
+      - bun run lint
+      - bun run format:check
+
+  be:lint:
+    desc: Check the API with Ruff
+    dir: apps/api
+    cmds:
+      - uv run ruff check .
+      - uv run ruff format --check .

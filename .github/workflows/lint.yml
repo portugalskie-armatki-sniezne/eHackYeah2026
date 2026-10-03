@@ -1,0 +1,52 @@
+name: "[3] Lint"
+
+# checks the lint rules and formatting of the web and api workspaces
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: Lint web
+    # pull requests must stay on hosted runners, because the repository is public
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # installs the tool versions pinned in mise.toml
+      - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: ESLint
+        working-directory: apps/web
+        run: bun run lint
+
+      - name: Prettier
+        working-directory: apps/web
+        run: bun run format:check
+
+  api:
+    name: Lint api
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
+
+      - name: Install dependencies
+        working-directory: apps/api
+        run: uv sync --locked
+
+      - name: Ruff lint
+        working-directory: apps/api
+        run: uv run ruff check .
+
+      - name: Ruff format
+        working-directory: apps/api
+        run: uv run ruff format --check .
