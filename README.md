@@ -47,7 +47,7 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 
 ### Prerequisites
 
-1. Install `Node.js 22.12` or newer and `Docker` with `Compose`. Keep Docker running.
+1. Install `Docker` with `Compose`. Keep Docker running.
 2. Run the setup script from the repository root. The script installs [mise](https://mise.jdx.dev), the Bun, Task, and uv versions pinned in `mise.toml`, and runs `task setup` to install project dependencies. Restart your shell if prompted. On Windows, install mise manually, then run `mise install` and `task setup`.
 
    ```sh
