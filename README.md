@@ -36,7 +36,7 @@ From the repository root, start the database with:
 task db
 ```
 
-Compose starts PostGIS, applies migrations, and imports the institution contacts workbook. Defaults are provided for local development; create `.env` from `.env.example` only if you want to override them. The importer image is built from `tooling/seed/Dockerfile` and installs dependencies with uv from `tooling/seed/pyproject.toml` and `tooling/seed/uv.lock`.
+Compose starts PostGIS, applies migrations, and imports the local government office workbook and the official service entity snapshot. Defaults are provided for local development; create `.env` from `.env.example` only if you want to override them. The importer image is built from `tooling/seed/Dockerfile` and installs dependencies with uv from `tooling/seed/pyproject.toml` and `tooling/seed/uv.lock`.
 
 ## Development commands
 
@@ -86,6 +86,19 @@ bun run preview
 
 The build output is written to `apps/web/dist`.
 
+## Deployment
+
+The `[1] Deploy web` workflow builds and pushes the web image, then deploys it to one environment:
+
+| Trigger | Environment |
+| --- | --- |
+| Push to `main` that changes the frontend. | `dev` |
+| Manual run from the Actions tab. | `dev` or `prod`, chosen when starting the run. |
+
+The web image is built from `apps/web/Dockerfile` with the repository root as the build context and pushed to `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web`. Builds are tagged with the environment name and with `<environment>-<commit SHA>`, for example `dev` and `dev-<commit SHA>`. To build the image locally, run `docker build -f apps/web/Dockerfile -t ehackyeah-web .` from the repository root.
+
+The workflow reads its configuration from the GitHub environments `dev` and `prod`. Each environment needs two variables: `VITE_API_URL`, the backend URL that Vite inlines into the frontend bundle, and `DEPLOY_DIR`, the directory with the Compose file on the target machine. Deployment runs `docker compose pull` and `docker compose up -d` on a self-hosted runner labeled `dev` or `prod`. Do not use these runners in workflows triggered by pull requests, because the repository is public.
+
 ## Shared agent skills
 
 Repository-local skills live in `.agents/skills/` and are versioned with the
@@ -105,6 +118,6 @@ the linked `SKILL.md` instructions directly.
 
 ## Data model
 
-Reports store their geographical point using PostGIS `geography(Point, 4326)`. Each report can optionally belong to one report group with a shared response. Photos are represented by rows in `report_photos`; each row stores a persistent `storage_key` that refers to a file managed by the API/storage layer. The workbook contains institution addresses, but no coordinates or boundary polygons.
+Reports store their geographical point using PostGIS `geography(Point, 4326)`. Reports are saved before classification, so `reports.master_report_id` can be `NULL`. After classification, the backend creates or links a master report. Master reports keep independent content, a shared status and response, and an optional responsible institution. Comments and likes belong to master reports. Photos are represented by rows in `report_photos`; each row stores a persistent `storage_key` that refers to a file managed by the API/storage layer. The workbook contains institution addresses, but no coordinates or boundary polygons.
 
 See [TESTING.md](TESTING.md) for data import behavior and database validation.

@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resultset>
+  <row>
+    <communeTercCode>
+      <code>1416022</code>
+    </communeTercCode>
+    <email>gmina@andrzejewo.pl</email>
+    <id>119319</id>
+    <name>Urząd Gminy Andrzejewo</name>
+    <number>36</number>
+    <phone>+48 86 271 70 03</phone>
+    <place>Andrzejewo</place>
+    <street>ul. Warszawska</street>
+    <url>http://andrzejewo.bip.gov.pl</url>
+    <zipCode>07-305</zipCode>
+  </row>
+  <row>
+    <communeTercCode>
+      <code>1261011</code>
+    </communeTercCode>
+    <email>smkrak@strazmiejska.krakow.pl</email>
+    <id>102074</id>
+    <name>Straż Miejska Miasta Krakowa</name>
+    <number>188</number>
+    <phone>+48 12 411 00 45</phone>
+    <place>Kraków</place>
+    <street>Al. Jana Pawła II</street>
+    <url>https://www.bip.krakow.pl/?bip_id=33</url>
+    <zipCode>31-982</zipCode>
+  </row>
+  <row>
+    <communeTercCode>
+      <code>1261011</code>
+    </communeTercCode>
+    <email>zarzad@mpk.krakow.pl</email>
+    <id>122809</id>
+    <name>Miejskie Przedsiębiorstwo Komunikacyjne S.A. w Krakowie</name>
+    <number>13</number>
+    <phone>+48 12 254 10 10</phone>
+    <place>Kraków</place>
+    <street>Ul. Św. Wawrzyńca </street>
+    <url>https://bip.mpk.krakow.pl/</url>
+    <zipCode>31-060</zipCode>
+  </row>
+  <row>
+    <communeTercCode>
+      <code>1261011</code>
+    </communeTercCode>
+    <email>km1@psp.krakow.pl</email>
+    <id>101721</id>
+    <name>Komenda Miejska Państwowej Straży Pożarnej w Krakowie</name>
+    <number>19</number>
+    <phone>+48 47 835 93 00</phone>
+    <place>Kraków</place>
+    <street>Westerplatte</street>
+    <url>https://www.gov.pl/web/kmpsp-krakow</url>
+    <zipCode>31-033</zipCode>
+  </row>
+  <row>
+    <communeTercCode>
+      <code>1261011</code>
+    </communeTercCode>
+    <email>sekretariat@ztp.krakow.pl</email>
+    <id>129155</id>
+    <name>Zarząd Transportu Publicznego w Krakowie</name>
+    <number>1</number>
+    <phone>+48 12 616 86 02</phone>
+    <place>Kraków</place>
+    <street>Wielopole</street>
+    <url>https://www.bip.krakow.pl/ztp</url>
+    <zipCode>31-072</zipCode>
+  </row>
+  <row>
+    <communeTercCode>
+      <code>1261011</code>
+    </communeTercCode>
+    <email>sekretariat@zdmk.krakow.pl</email>
+    <id>127777</id>
+    <name>Zarząd Dróg Miasta Krakowa</name>
+    <number>53</number>
+    <phone>+48 12 616 74 16</phone>
+    <place>Kraków</place>
+    <street>Centralna</street>
+    <url>https://bip.krakow.pl/zdmk</url>
+    <zipCode>31-586</zipCode>
+  </row>
+</resultset>
