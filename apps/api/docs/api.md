@@ -20,18 +20,20 @@ Wszystkie endpointy opisane poniżej mają status `done`. Nazwy pól są takie s
 
 | Kod | Kiedy |
 | --- | --- |
+| 400 | nieprawidłowy token Google przy łączeniu konta |
 | 401 | brak tokenu, token nieważny lub wygasły, użytkownik z tokenu nie istnieje |
 | 403 | rola nie pozwala na operację |
 | 404 | brak zasobu o podanym id albo brak kategorii, statusu, urzędu, jednostki usługowej lub mastera wskazanego w body |
 | 409 | naruszenie unikalności albo klucza obcego przy usuwaniu |
 | 413 | zdjęcie większe niż 10 MB |
 | 422 | niepoprawne dane (typ, pusty `title` lub `description`, brak kontaktu użytkownika, zły zakres współrzędnych, zły format lub za dużo zdjęć) |
+| 503 | logowanie przez Google nie jest skonfigurowane albo nie udało się pobrać kluczy Google |
 
 ## Przegląd endpointów
 
 | Zasób | Ścieżka bazowa | Operacje |
 | --- | --- | --- |
-| auth | `/auth` | login, me |
+| auth | `/auth` | login, google, google link, me |
 | users | `/users` | create, list, get, update, delete |
 | reports | `/reports` | create z dopasowaniem do mastera, list, get, update, delete, move |
 | report_photos | `/reports/{report_id}/photos`, `/photos/{id}/file` | create, list, delete, pobranie pliku (bez update) |
@@ -46,7 +48,7 @@ Wszystkie endpointy opisane poniżej mają status `done`. Nazwy pól są takie s
 | Kto | Co może |
 | --- | --- |
 | publiczny | rejestracja, logowanie, mastery, komentarze, słowniki, urzędy, jednostki usługowe, pliki zdjęć |
-| zalogowany | odczyt reportów i metadanych zdjęć, dodawanie reportów, komentarzy i polubień |
+| zalogowany | odczyt reportów i metadanych zdjęć, dodawanie reportów, komentarzy i polubień, połączenie własnego konta z Google |
 | autor reportu | edycja i usuwanie reportu oraz jego zdjęć |
 | autor komentarza | usuwanie komentarza |
 | `office` | jak zalogowany oraz edycja masterów, przepinanie reportów, usuwanie dowolnych komentarzy |
@@ -59,6 +61,8 @@ Logowanie zwraca token JWT (HS256, ważny 24 godziny, podpisany `JWT_SECRET` z `
 | Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
 | --- | --- | --- | --- | --- | --- |
 | POST | `/auth/login` | logowanie | publiczny | 200 | 401, 422 |
+| POST | `/auth/google` | logowanie przez Google | publiczny | 200 | 401, 403, 409, 422, 503 |
+| POST | `/auth/google/link` | połączenie konta z kontem Google | zalogowany | 200 | 400, 401, 409, 422, 503 |
 | GET | `/auth/me` | zalogowany użytkownik | zalogowany | 200 | 401 |
 
 Request `POST /auth/login` to form-data zgodne z OAuth2 (`application/x-www-form-urlencoded`). Pole `username` zawiera email albo telefon:
@@ -77,6 +81,34 @@ Odpowiedź:
 ```
 
 `GET /auth/me` zwraca użytkownika w tym samym formacie co `GET /users/{id}`. W `/docs` przycisk Authorize loguje przez `/auth/login`.
+
+### Logowanie przez Google
+
+Oba endpointy przyjmują token ID, który Google wydał klientowi (Google Identity Services):
+
+```json
+{
+  "credential": "eyJhbGciOiJSUzI1NiIsImtpZCI6..."
+}
+```
+
+API sprawdza podpis tokenu kluczami Google, wystawcę, termin ważności i odbiorcę, którym musi być `GOOGLE_CLIENT_ID` z `.env`. Bez tej zmiennej oba endpointy zwracają 503. Ten sam kod oznacza, że nie udało się pobrać kluczy Google.
+
+`POST /auth/google` zwraca taki sam token jak `POST /auth/login`:
+
+- Konto jest wyszukiwane po identyfikatorze konta Google (`sub`), a nie po emailu, więc zmiana adresu w Google nie odcina użytkownika od konta.
+- Pierwsze logowanie zakłada konto z rolą `user`, emailem z Google i bez hasła. Imię i nazwisko pochodzą z Google. Gdy Google nie poda imienia, API bierze pełną nazwę albo część emaila przed `@`, a brakujące nazwisko zapisuje jako pusty tekst.
+- Jeśli email z Google należy już do istniejącego konta, API zwraca 409 i niczego nie łączy. Wielkość liter w emailu nie ma znaczenia. Właściciel takiego konta loguje się hasłem i sam łączy je z Google w ustawieniach profilu.
+- Nieprawidłowy token Google zwraca 401, a konto Google bez potwierdzonego emaila 403.
+
+`POST /auth/google/link` łączy konto zalogowanego użytkownika z kontem Google z tokenu i zwraca użytkownika:
+
+- Email w Google może być inny niż email konta.
+- Ponowne połączenie zastępuje poprzednie konto Google.
+- Konto Google połączone już z innym użytkownikiem zwraca 409.
+- Nieprawidłowy token Google zwraca 400, a nie 401, bo sesja użytkownika pozostaje ważna.
+
+Konto bez hasła nie zaloguje się przez `POST /auth/login`, dopóki właściciel nie ustawi hasła przez `PATCH /users/{id}`. Pole `google_linked` użytkownika mówi, czy konto jest połączone z Google.
 
 ## users
 
@@ -112,6 +144,7 @@ Odpowiedź:
   "email": "anna@example.com",
   "phone": "+48123456789",
   "role": "user",
+  "google_linked": false,
   "edited_at": "2026-04-16T10:00:00Z",
   "created_at": "2026-04-16T10:00:00Z"
 }

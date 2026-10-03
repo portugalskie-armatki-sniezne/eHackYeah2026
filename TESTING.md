@@ -39,7 +39,7 @@ BIP filtering, distinct transport roles, stable IDs, atomic upserts, spatial
 distance queries, reports saved before classification, master report links and independent
 content, statuses, assignment to either an office or a service entity, exclusive assignment,
 referenced entity deletion restrictions, shared comments and likes, photo relationships,
-edit timestamps, and reference data rollback. All four migrations are rolled back and
+edit timestamps, and reference data rollback. All five migrations are rolled back and
 reapplied. Its containers, volume, and local image tag are removed afterward.
 
 Report locations use `geography(Point, 4326)`. Supply longitude before latitude, for
@@ -62,10 +62,13 @@ the shared discussion. A master with linked reports cannot be deleted.
 by database triggers. Users must provide at least one nonblank email or phone number;
 email and phone are unique. `users.role` is `user`, `office`, or `admin` and defaults
 to `user`. The API must store a complete encoded password hash (including its salt)
-in `users.password_hash`.
+in `users.password_hash`. An account needs a password hash, a linked Google account in
+the unique `users.google_sub`, or both.
 
 Migrations 01 and 02 create the tables, migration 03 adds constraints, and migration
 04 inserts the initial categories (`improvement`, `issue`) and master report statuses.
+Migration 05 adds Google sign-in to users; its rollback gives accounts without a password
+the hash `!`, which no password matches.
 The statuses mean: `created` is saved in the application, `reported` is successfully
 sent to the responsible institution, `inprogress` has confirmed work in progress,
 and `finished` has confirmed completion. The backend owns classification, master
