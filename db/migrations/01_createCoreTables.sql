@@ -8,6 +8,7 @@ CREATE TABLE users (
     email TEXT NOT NULL UNIQUE,
     phone TEXT,
     password_hash TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'office', 'admin')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

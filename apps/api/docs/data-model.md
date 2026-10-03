@@ -17,6 +17,7 @@ erDiagram
         text email UK
         text phone
         text password_hash
+        text role
         timestamptz created_at
     }
     report_groups {
@@ -62,6 +63,7 @@ erDiagram
 | email | text | NOT NULL, UNIQUE |
 | phone | text | NULL |
 | password_hash | text | NOT NULL, nigdy nie zwracany w API |
+| role | text | NOT NULL, domyślnie `'user'`, CHECK: `user`, `office` lub `admin` |
 | created_at | timestamptz | NOT NULL, domyślnie `NOW()` |
 
 ### report_groups

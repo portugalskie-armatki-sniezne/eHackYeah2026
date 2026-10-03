@@ -1,6 +1,6 @@
 # API CRUD
 
-Wszystkie endpointy mają status `planned`. Nazwy pól są takie same jak kolumny w [data-model.md](data-model.md).
+Endpointy `auth` i `users` mają status `done`, pozostałe `planned`. Nazwy pól są takie same jak kolumny w [data-model.md](data-model.md).
 
 ## Konwencje
 
@@ -17,6 +17,8 @@ Wszystkie endpointy mają status `planned`. Nazwy pól są takie same jak kolumn
 
 | Kod | Kiedy |
 | --- | --- |
+| 401 | brak tokenu, token nieważny lub wygasły, użytkownik z tokenu nie istnieje |
+| 403 | rola nie pozwala na operację |
 | 404 | brak zasobu o podanym id |
 | 409 | naruszenie unikalności albo klucza obcego przy usuwaniu |
 | 422 | niepoprawne dane (typ, pusty `description`, zły zakres współrzędnych) |
@@ -25,21 +27,50 @@ Wszystkie endpointy mają status `planned`. Nazwy pól są takie same jak kolumn
 
 | Zasób | Ścieżka bazowa | Operacje |
 | --- | --- | --- |
+| auth | `/auth` | login, me |
 | users | `/users` | create, list, get, update, delete |
 | report_groups | `/report-groups` | create, list, get, update, delete |
 | reports | `/reports` | create, list, get, update, delete |
 | report_photos | `/reports/{report_id}/photos` | create, list, delete (bez update) |
 | institution_contacts | `/institution-contacts` | list, get (tylko odczyt) |
 
+## auth
+
+Logowanie zwraca token JWT (HS256, ważny 24 godziny, podpisany `JWT_SECRET` z `.env`). Chronione endpointy wymagają nagłówka `Authorization: Bearer <token>`. Token zawiera tylko id użytkownika. Rola jest czytana z bazy przy każdym zapytaniu, więc zmiana roli i usunięcie konta działają od razu. Wylogowanie polega na usunięciu tokenu po stronie klienta.
+
+| Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
+| --- | --- | --- | --- | --- | --- |
+| POST | `/auth/login` | logowanie | publiczny | 200 | 401, 422 |
+| GET | `/auth/me` | zalogowany użytkownik | zalogowany | 200 | 401 |
+
+Request `POST /auth/login` to form-data zgodne z OAuth2 (`application/x-www-form-urlencoded`). Pole `username` zawiera email:
+
+```text
+username=anna@example.com&password=tajne-haslo
+```
+
+Odpowiedź:
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer"
+}
+```
+
+`GET /auth/me` zwraca użytkownika w tym samym formacie co `GET /users/{id}`. W `/docs` przycisk Authorize loguje przez `/auth/login`.
+
 ## users
 
-| Metoda | Ścieżka | Opis | Sukces | Błędy |
-| --- | --- | --- | --- | --- |
-| POST | `/users` | utworzenie | 201 | 409 (email zajęty), 422 |
-| GET | `/users` | lista | 200 | - |
-| GET | `/users/{id}` | pobranie | 200 | 404 |
-| PATCH | `/users/{id}` | aktualizacja | 200 | 404, 409, 422 |
-| DELETE | `/users/{id}` | usunięcie | 204 | 404, 409 (ma zgłoszenia) |
+| Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
+| --- | --- | --- | --- | --- | --- |
+| POST | `/users` | rejestracja | publiczny | 201 | 409 (email zajęty), 422 |
+| GET | `/users` | lista | `admin` | 200 | 401, 403, 422 |
+| GET | `/users/{id}` | pobranie | właściciel konta, `admin` | 200 | 401, 403, 404 |
+| PATCH | `/users/{id}` | aktualizacja | właściciel konta, `admin` | 200 | 401, 403, 404, 409, 422 |
+| DELETE | `/users/{id}` | usunięcie | właściciel konta, `admin` | 204 | 401, 403, 404, 409 (ma zgłoszenia) |
+
+Role `user` i `office` mają ten sam dostęp: tylko do własnego konta. Dla cudzego lub nieistniejącego id zwracają 403, żeby nie ujawniać, które konta istnieją.
 
 Request `POST /users`:
 
@@ -62,11 +93,18 @@ Odpowiedź:
   "last_name": "Nowak",
   "email": "anna@example.com",
   "phone": "+48123456789",
+  "role": "user",
   "created_at": "2026-04-16T10:00:00Z"
 }
 ```
 
-Pola `PATCH`: `first_name`, `last_name`, `email`, `phone`, `password`.
+Pola `PATCH`: `first_name`, `last_name`, `email`, `phone`, `password`, `role` (tylko `admin`).
+
+- `first_name` i `last_name` są przycinane i nie mogą być puste. `password` ma co najmniej 8 znaków i jest hashowane Argon2.
+- Nowy użytkownik dostaje rolę `user`, a `role` w `POST` zwraca 422. Rolę w `PATCH` zmienia tylko `admin`, a dla innych ról zwraca 403.
+- Pierwszego administratora tworzy skrypt z [README.md](README.md#role).
+- Nieznane pola w `POST` i `PATCH` zwracają 422.
+- `PATCH` z `null` jest dozwolony tylko dla `phone`.
 
 ## report-groups
 
@@ -178,7 +216,7 @@ Na te pytania nie odpowiada obecny schemat. Do czasu decyzji nie implementujemy 
 
 | Nr | Pytanie | Wpływ |
 | --- | --- | --- |
-| 1 | Jak działa logowanie (JWT, sesje) i kto może edytować cudze zasoby? W bazie nie ma ról. | wszystkie endpointy poza odczytem kontaktów |
+| 1 | Logowanie (JWT) i dostęp do `users` są gotowe. Kto może edytować cudze zgłoszenia i grupy (`office`, `admin`)? | `/reports`, `/report-groups` |
 | 2 | Kto tworzy `report_groups` i zapisuje `response` (moderator, urząd, automat)? | `/report-groups` |
 | 3 | Jak zgłoszenie trafia do urzędu z `institution_contacts`? Brak relacji w schemacie. | zmiana migracji |
 | 4 | Jak wgrywane są pliki zdjęć (multipart w API, presigned URL)? | `/reports/{id}/photos` |
