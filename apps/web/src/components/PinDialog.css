@@ -1,0 +1,189 @@
+/* The marker sheet is the same drawn tile as the nav and toolbar: ink outline
+   on paper, lifted off an amber block, laid over a dimmed sheet of paper. */
+.pin-dialog {
+  width: min(100% - 2rem, 26rem);
+  margin: auto;
+  padding: 0;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--scaffold-shadow);
+}
+
+.pin-dialog::backdrop {
+  background: rgba(253, 252, 249, 0.72);
+}
+
+.pin-dialog__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.pin-dialog__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: var(--scaffold-line) solid var(--ink);
+}
+
+.pin-dialog__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Survey note: the dropped point's coordinates in a monospace hand. */
+.pin-dialog__coords {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.pin-dialog__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.pin-dialog__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pin-dialog__textarea {
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  resize: vertical;
+}
+
+.pin-dialog__textarea::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.7;
+}
+
+.pin-dialog__image {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* The thumbnail is framed like the map: ink rule, inner neatline via inset shadow. */
+.pin-dialog__preview,
+.pin-dialog__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 5rem;
+  height: 5rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--surface-section);
+}
+
+.pin-dialog__preview {
+  object-fit: cover;
+}
+
+.pin-dialog__placeholder {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background-image:
+    linear-gradient(to right, rgba(20, 20, 20, 0.07) 1px, transparent 0),
+    linear-gradient(to bottom, rgba(20, 20, 20, 0.07) 1px, transparent 0);
+  background-size: 0.75rem 0.75rem;
+}
+
+.pin-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: var(--scaffold-line) solid var(--ink);
+}
+
+/* Buttons are the toolbar's outlined tiles on amber blocks. */
+.pin-dialog__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.25rem;
+  padding: 0 0.875rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+}
+
+.pin-dialog__button:hover {
+  background: var(--amber-ghost);
+  box-shadow: 4px 4px 0 var(--amber);
+  transform: translate(-1px, -1px);
+}
+
+.pin-dialog__button:active {
+  box-shadow: 0 0 0 var(--amber);
+  transform: translate(2px, 2px);
+}
+
+.pin-dialog__button--primary {
+  background: var(--amber);
+  box-shadow: var(--scaffold-shadow-ink);
+  transform: translate(-1px, -1px);
+}
+
+.pin-dialog__button--primary:hover {
+  background: var(--amber);
+  box-shadow: var(--scaffold-shadow-ink);
+}
+
+.pin-dialog__button:disabled {
+  background: var(--paper);
+  box-shadow: none;
+  color: var(--ink-soft);
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+.pin-dialog__textarea:focus-visible,
+.pin-dialog__button:focus-visible,
+.pin-dialog__file:has(:focus-visible) {
+  outline: var(--scaffold-line) solid var(--focus);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pin-dialog__button {
+    transition: none;
+  }
+}
