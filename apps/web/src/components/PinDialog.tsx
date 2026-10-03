@@ -83,7 +83,11 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
       aria-labelledby={`${id}-title`}
       onClose={onClose}
     >
-      <form className="pin-dialog__form" method="dialog" onSubmit={handleSubmit}>
+      <form
+        className="pin-dialog__form"
+        method="dialog"
+        onSubmit={handleSubmit}
+      >
         <header className="pin-dialog__header">
           <h2 id={`${id}-title`} className="pin-dialog__title">
             New marker

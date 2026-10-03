@@ -23,8 +23,7 @@ def main() -> int:
             ).rowcount
     except psycopg.Error as error:
         # connection error messages can contain credentials or connection details.
-        print(f"Setting role failed: database error ({error.sqlstate or 'connection failure'})",
-              file=sys.stderr)
+        print(f"Setting role failed: database error ({error.sqlstate or 'connection failure'})", file=sys.stderr)
         return 1
     if not updated:
         print(f"No user with email {args.email}", file=sys.stderr)
