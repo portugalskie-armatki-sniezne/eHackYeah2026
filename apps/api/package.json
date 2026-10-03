@@ -1,4 +1,8 @@
 {
   "name": "@ehackyeah/api",
-  "private": true
+  "private": true,
+  "scripts": {
+    "setup": "bun run --no-orphans scripts.ts setup",
+    "dev": "bun run --no-orphans scripts.ts dev"
+  }
 }
