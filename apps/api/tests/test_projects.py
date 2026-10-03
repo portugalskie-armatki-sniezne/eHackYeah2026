@@ -91,8 +91,7 @@ def sample_projects(connection: psycopg.Connection):
 
     # insert sample chunk
     connection.execute(
-        "INSERT INTO project_chunks (project_slug, chunk_index, source_file, content) "
-        "VALUES (%s, %s, %s, %s)",
+        "INSERT INTO project_chunks (project_slug, chunk_index, source_file, content) VALUES (%s, %s, %s, %s)",
         (
             f"bawita_{token}",
             0,
