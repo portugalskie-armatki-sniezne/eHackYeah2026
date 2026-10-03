@@ -84,7 +84,7 @@ test("all installs the workspaces and prepares the unimplemented outline", async
   expect(result.stdout).toContain("[api] Not implemented yet.");
 });
 
-test.skipIf(process.platform === "win32")("API starts the database and applies migrations before its dev script", async () => {
+test.skipIf(process.platform === "win32")("API starts the database and seed services before its dev script", async () => {
   const root = await fixture();
   await fakeDocker(root);
   await manifest(root, "api", { dev: "bun run dev.ts" });
@@ -92,8 +92,8 @@ test.skipIf(process.platform === "win32")("API starts the database and applies m
   await command(root, "setup");
   expect((await command(root, "api")).code).toBe(0);
   const calls = (await Bun.file(join(root, "calls.log")).text()).trim().split("\n");
-  expect(JSON.parse(calls[0]).slice(-4)).toEqual(["up", "-d", "--wait", "db"]);
-  expect(JSON.parse(calls[1]).slice(-3)).toEqual(["run", "--rm", "dbmate"]);
+  expect(JSON.parse(calls[0])).toEqual(["compose", "up", "-d", "db-seeder"]);
+  expect(JSON.parse(calls[1])).toEqual(["compose", "wait", "db-seeder"]);
   expect(calls[2]).toBe("api");
 });
 
