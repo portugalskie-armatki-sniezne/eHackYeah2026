@@ -71,9 +71,9 @@ async function start(app: App) {
   if (app === "api") {
     if (!existsSync(envFile)) throw new Error("Run bun run setup to create .env first.");
     if (!Bun.which("docker")) throw new Error("Install Docker with Compose and start Docker before running the API.");
-    const compose = ["docker", "compose", "--env-file", envFile, "-f", resolve(root, "infra/compose.yaml")];
-    await run([...compose, "up", "-d", "--wait", "db"]);
-    await run([...compose, "run", "--rm", "dbmate"]);
+    const compose = ["docker", "compose"];
+    await run([...compose, "up", "-d", "db-seeder"]);
+    await run([...compose, "wait", "db-seeder"]);
   }
   console.log(`[${app}] Starting development server.`);
   await runScript(app, "dev");
