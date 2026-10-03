@@ -46,9 +46,25 @@ tasks:
       - bun run lint
       - bun run format:check
 
+  fe:lint:fix:
+    desc: Fix the frontend with ESLint and Prettier
+    dir: apps/web
+    cmds:
+      # formatting runs last, even when problems that need a manual fix remain
+      - defer: bun run format
+      - bun run lint --fix
+
   be:lint:
     desc: Check the API with Ruff
     dir: apps/api
     cmds:
       - uv run ruff check .
       - uv run ruff format --check .
+
+  be:lint:fix:
+    desc: Fix the API with Ruff
+    dir: apps/api
+    cmds:
+      # formatting runs last, even when problems that need a manual fix remain
+      - defer: uv run ruff format .
+      - uv run ruff check --fix .

@@ -27,7 +27,7 @@
 - `db/migrations/` contains dbmate SQL migrations, with `-- migrate:up` and `-- migrate:down` sections.
 - `db/seeds/` contains development and reference data, including the institution contacts workbook.
 - `docker-compose.yaml` at the repository root defines the PostGIS database, dbmate migrations, and the seed importer. Run `docker compose up`; optional root `.env` values override local defaults.
-- `docker-compose.app.yaml` defines only the `api` and `web` containers, which run published images selected by `API_IMAGE_TAG` and `WEB_IMAGE_TAG`. The `api` container reaches the database through the external network named by `DB_NETWORK`.
+- `docker-compose.app.yaml` defines only the `api` and `web` containers, which run published images selected by `API_IMAGE_TAG` and `WEB_IMAGE_TAG`. The `api` container reaches the database through the external network named by `DB_NETWORK` and stores report photos on the `api_uploads` volume.
 - `tooling/seed/` contains the XLS importer with its `Dockerfile`, `pyproject.toml`, and `uv.lock`.
 - `Taskfile.yml` at the repository root defines root development commands. `mise.toml` pins Bun, Task, and uv, and `setup-dev-env.sh` installs mise, the pinned tools, and dependencies.
 - `tests/e2e/` is reserved for cross-application scenarios, and `tests/fixtures/` for shared behavioral examples.
@@ -39,7 +39,7 @@
 
 ## Development command contract
 
-- Use the Bun, Task, and uv versions pinned in `mise.toml` and keep root commands limited to `./setup-dev-env.sh` and `task setup|web|db|api|fe:lint|be:lint` unless requested otherwise.
+- Use the Bun, Task, and uv versions pinned in `mise.toml` and keep root commands limited to `./setup-dev-env.sh` and `task setup|web|db|api|fe:lint|fe:lint:fix|be:lint|be:lint:fix` unless requested otherwise.
 - The web workspace provides `scripts.dev`; API setup installs Python dependencies from its Python manifest with uv. Keep setup repeatable and preserve `.env`.
 - Tasks run applications in their directory with root `.env` values. Keep servers in the foreground and reloads scoped to each application.
 - Both `db` and `api` start the database, migrations, and seed import.

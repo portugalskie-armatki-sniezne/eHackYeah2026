@@ -58,7 +58,9 @@ Commands are defined in `Taskfile.yml` and need mise activated in your shell; ot
 | `task db` | Start the database, apply migrations, and wait for seed import. |
 | `task api` | Start the database and seed services, then start the API. |
 | `task fe:lint` | Check the frontend with ESLint and Prettier. |
+| `task fe:lint:fix` | Fix the frontend with ESLint and Prettier. |
 | `task be:lint` | Check the API with Ruff. |
+| `task be:lint:fix` | Fix the API with Ruff. |
 
 The current web workspace is a React/Vite scaffold. The API workspace is a FastAPI placeholder. Web and API start separately, so run `task web` and `task api` in separate terminals. Both `task db` and `task api` require Docker with Compose running. The database command returns after seed import finishes and leaves PostgreSQL running. Setup preserves `.env`. PostgreSQL is published on `127.0.0.1:POSTGRES_PORT`. Ctrl+C stops applications; the database remains running.
 
@@ -119,7 +121,7 @@ The images are built from `apps/web/Dockerfile` and `apps/api/Dockerfile` with t
 
 The workflow reads its configuration from the GitHub environments `dev` and `prod`. Each environment needs two variables: `VITE_API_URL`, the backend URL that Vite inlines into the frontend bundle, and `DEPLOY_DIR`, a directory on the target machine that holds the Compose file and the `.env` file of that environment. Deployment runs on a self-hosted runner: it writes the built tag to `WEB_IMAGE_TAG` or `API_IMAGE_TAG` in `DEPLOY_DIR/.env`, then runs `docker compose pull` and `docker compose up -d` for the deployed services in that directory. Do not use this runner in workflows triggered by pull requests, because the repository is public.
 
-`docker-compose.app.yaml` is the template for the Compose file on the target machine. It defines only the `api` and `web` services, which run published images selected by `API_IMAGE_TAG` and `WEB_IMAGE_TAG`. The database runs in a separate Compose project. The `api` service joins that project's network, named by `DB_NETWORK` (default `ehackyeah2026_default`, the network of the root `docker-compose.yaml`), and connects to `POSTGRES_HOST` (default `db`).
+`docker-compose.app.yaml` is the template for the Compose file on the target machine. It defines only the `api` and `web` services, which run published images selected by `API_IMAGE_TAG` and `WEB_IMAGE_TAG`. The database runs in a separate Compose project. The `api` service joins that project's network, named by `DB_NETWORK` (default `ehackyeah2026_default`, the network of the root `docker-compose.yaml`), and connects to `POSTGRES_HOST` (default `db`). The API stores report photos in `UPLOAD_DIR`, which the template sets to `/app/uploads` on the named volume `api_uploads`, so photos survive deployments. When the template changes, update the Compose file in `DEPLOY_DIR` as well.
 
 The `[3] Lint` workflow runs ESLint and Prettier for the web workspace and Ruff for the API workspace on every pull request and on every push to `main`. It uses GitHub-hosted runners.
 
