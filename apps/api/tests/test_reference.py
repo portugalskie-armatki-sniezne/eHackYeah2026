@@ -13,25 +13,25 @@ def test_reference_data_is_public(client: TestClient):
     assert all(isinstance(item["id"], int) for item in categories + statuses)
 
 
-def test_institution_contacts(client: TestClient, connection: psycopg.Connection):
+def test_institution_contacts_read_offices(client: TestClient, connection: psycopg.Connection):
     name = f"Gmina 100%_{uuid4().hex}"
     teryt_code = f"{uuid4().int % 10**7:07d}"
-    institution_id = connection.execute(
-        "INSERT INTO institution_contacts (teryt_code, local_government_name, province, local_government_type) "
+    office_id = connection.execute(
+        "INSERT INTO local_government_offices (teryt_code, local_government_name, province, local_government_type) "
         "VALUES (%s, %s, 'małopolskie', 'GM') RETURNING id",
         (teryt_code, name),
     ).fetchone()["id"]
 
-    institution = client.get(f"/institution-contacts/{institution_id}").json()
+    office = client.get(f"/institution-contacts/{office_id}").json()
 
-    assert institution["teryt_code"] == teryt_code
-    assert institution["local_government_name"] == name
-    assert institution["email"] is None
-    assert client.get("/institution-contacts", params={"teryt_code": teryt_code}).json()["items"] == [institution]
+    assert office["teryt_code"] == teryt_code
+    assert office["local_government_name"] == name
+    assert office["email"] is None
+    assert client.get("/institution-contacts", params={"teryt_code": teryt_code}).json()["items"] == [office]
     # % and _ in q are matched literally.
-    assert client.get("/institution-contacts", params={"q": name[6:].upper()}).json()["items"] == [institution]
+    assert client.get("/institution-contacts", params={"q": name[6:].upper()}).json()["items"] == [office]
     assert client.get("/institution-contacts", params={"q": "100__"}).json()["total"] == 0
     page = client.get("/institution-contacts",
                       params={"province": "małopolskie", "local_government_type": "GM", "limit": 200}).json()
-    assert institution in page["items"]
+    assert office in page["items"]
     assert client.get("/institution-contacts/0").status_code == 404

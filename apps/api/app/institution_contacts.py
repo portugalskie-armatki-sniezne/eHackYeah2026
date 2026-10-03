@@ -4,10 +4,11 @@ from pydantic import BaseModel
 
 from app.common import Connection, Limit, Offset, Page, fetch_page
 
+# the path keeps its planned name, the catalog reads local_government_offices.
 router = APIRouter(prefix="/institution-contacts", tags=["institution contacts"])
 
 
-class InstitutionContact(BaseModel):
+class LocalGovernmentOffice(BaseModel):
     id: int
     teryt_code: str
     local_government_name: str
@@ -24,20 +25,17 @@ class InstitutionContact(BaseModel):
     phone_number: str | None
     alternate_phone_number: str | None
     phone_extension: str | None
-    fax_area_code: str | None
-    fax_number: str | None
-    fax_extension: str | None
     email: str | None
     website: str | None
     electronic_inbox: str | None
     electronic_delivery_address: str | None
 
 
-INSTITUTION_COLUMNS = sql.SQL(", ").join(sql.Identifier(field) for field in InstitutionContact.model_fields)
+OFFICE_COLUMNS = sql.SQL(", ").join(sql.Identifier(field) for field in LocalGovernmentOffice.model_fields)
 
 
 @router.get("")
-def list_institution_contacts(
+def list_local_government_offices(
     connection: Connection,
     teryt_code: str | None = None,
     province: str | None = None,
@@ -46,7 +44,7 @@ def list_institution_contacts(
     q: str | None = None,
     limit: Limit = 50,
     offset: Offset = 0,
-) -> Page[InstitutionContact]:
+) -> Page[LocalGovernmentOffice]:
     conditions, params = [], {}
     for column, value in (("teryt_code", teryt_code), ("province", province), ("county", county),
                           ("local_government_type", local_government_type)):
@@ -57,18 +55,18 @@ def list_institution_contacts(
         # q matches a fragment of the authority name, % and _ are matched literally.
         conditions.append(sql.SQL("local_government_name ILIKE %(q)s ESCAPE '\\'"))
         params["q"] = "%" + q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
-    total, rows = fetch_page(connection, INSTITUTION_COLUMNS, sql.SQL("institution_contacts"), conditions,
+    total, rows = fetch_page(connection, OFFICE_COLUMNS, sql.SQL("local_government_offices"), conditions,
                              params, sql.SQL("id"), limit, offset)
-    return Page[InstitutionContact](items=[InstitutionContact.model_validate(row) for row in rows],
+    return Page[LocalGovernmentOffice](items=[LocalGovernmentOffice.model_validate(row) for row in rows],
                                     total=total, limit=limit, offset=offset)
 
 
-@router.get("/{institution_id}")
-def get_institution_contact(institution_id: int, connection: Connection) -> InstitutionContact:
+@router.get("/{office_id}")
+def get_local_government_office(office_id: int, connection: Connection) -> LocalGovernmentOffice:
     row = connection.execute(
-        sql.SQL("SELECT {} FROM institution_contacts WHERE id = %s").format(INSTITUTION_COLUMNS),
-        (institution_id,),
+        sql.SQL("SELECT {} FROM local_government_offices WHERE id = %s").format(OFFICE_COLUMNS),
+        (office_id,),
     ).fetchone()
     if row is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Institution not found")
-    return InstitutionContact.model_validate(row)
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Office not found")
+    return LocalGovernmentOffice.model_validate(row)

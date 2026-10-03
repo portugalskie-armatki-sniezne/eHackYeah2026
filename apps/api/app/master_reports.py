@@ -14,7 +14,8 @@ from app.photos import PHOTO_COLUMNS, PHOTO_ORDER, Photo
 router = APIRouter(prefix="/master-reports", tags=["master reports"])
 
 MASTER_REPORT_COLUMNS = sql.SQL(
-    "m.id, m.report_category_id, m.status_id, m.responsible_institution_id, m.title, m.description, "
+    "m.id, m.report_category_id, m.status_id, m.responsible_office_id, m.responsible_service_entity_id, "
+    "m.title, m.description, "
     "{location} AS location, m.response, "
     "(SELECT count(*) FROM reports r WHERE r.master_report_id = m.id) AS report_count, "
     "m.edited_at, m.created_at"
@@ -23,15 +24,19 @@ MASTER_REPORT_COLUMNS = sql.SQL(
 FOREIGN_KEY_ERRORS = {
     "master_reports_report_category_id_fkey": "Report category not found",
     "master_reports_status_id_fkey": "Status not found",
-    "master_reports_responsible_institution_id_fkey": "Institution not found",
+    "master_reports_responsible_office_id_fkey": "Office not found",
+    "master_reports_responsible_service_entity_id_fkey": "Service entity not found",
 }
+ONE_RESPONSIBLE_PARTY = "Set responsible_office_id or responsible_service_entity_id, not both"
 
 
 class MasterReport(BaseModel):
     id: UUID
     report_category_id: int
     status_id: int
-    responsible_institution_id: int | None
+    # at most one responsible party is set.
+    responsible_office_id: int | None
+    responsible_service_entity_id: int | None
     title: str
     description: str
     location: Location
@@ -51,7 +56,8 @@ class MasterReportUpdate(BaseModel):
 
     report_category_id: int | None = None
     status_id: int | None = None
-    responsible_institution_id: int | None = None
+    responsible_office_id: int | None = None
+    responsible_service_entity_id: int | None = None
     title: Text | None = None
     description: Text | None = None
     location: Location | None = None
@@ -59,8 +65,10 @@ class MasterReportUpdate(BaseModel):
 
     @model_validator(mode="after")
     def reject_null_required_fields(self) -> "MasterReportUpdate":
-        # responsible_institution_id and response can be cleared with null.
+        # the responsible party ids and response can be cleared with null.
         reject_nulls(self, ("report_category_id", "status_id", "title", "description", "location"))
+        if self.responsible_office_id is not None and self.responsible_service_entity_id is not None:
+            raise ValueError(ONE_RESPONSIBLE_PARTY)
         return self
 
 
@@ -90,13 +98,15 @@ def list_master_reports(
     near: NearFilter,
     status_id: int | None = None,
     report_category_id: int | None = None,
-    responsible_institution_id: int | None = None,
+    responsible_office_id: int | None = None,
+    responsible_service_entity_id: int | None = None,
     limit: Limit = 50,
     offset: Offset = 0,
 ) -> Page[MasterReport]:
     conditions, params = [], {}
     for column, value in (("status_id", status_id), ("report_category_id", report_category_id),
-                          ("responsible_institution_id", responsible_institution_id)):
+                          ("responsible_office_id", responsible_office_id),
+                          ("responsible_service_entity_id", responsible_service_entity_id)):
         if value is not None:
             conditions.append(sql.SQL("m.{} = {}").format(sql.Identifier(column), sql.Placeholder(column)))
             params[column] = value
@@ -118,6 +128,7 @@ def get_master_report(master_report_id: UUID, connection: Connection) -> MasterR
 def update_master_report(master_report_id: UUID, body: MasterReportUpdate, _: StaffUser,
                          connection: Connection) -> MasterReportDetail:
     # status changes are not restricted, office or admin can set any status.
+    # changing the responsible party to the other kind needs both ids, one of them null.
     changes = body.model_dump(exclude_unset=True)
     if changes:
         clause, params = assignments(changes)
@@ -129,6 +140,10 @@ def update_master_report(master_report_id: UUID, body: MasterReportUpdate, _: St
                 ).rowcount
         except errors.ForeignKeyViolation as error:
             raise foreign_key_error(error, FOREIGN_KEY_ERRORS) from None
+        except errors.CheckViolation as error:
+            if error.diag.constraint_name != "master_reports_responsible_party_check":
+                raise
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, ONE_RESPONSIBLE_PARTY) from None
         if not updated:
             raise master_report_not_found()
     return fetch_master_report(master_report_id, connection)

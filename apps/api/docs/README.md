@@ -77,11 +77,11 @@ cd apps/api
 uv run --env-file ../../.env python -m app.set_role anna@example.com admin
 ```
 
-Dostępne role to `user`, `office` i `admin`. Później role może zmieniać `admin` przez `PATCH /users/{id}`. `office` zarządza masterami: zmienia status, odpowiedź i instytucję oraz przepina reporty. `admin` może dodatkowo edytować i usuwać dowolne reporty i mastery. Pełna tabela jest w [api.md](api.md#dostęp).
+Dostępne role to `user`, `office` i `admin`. Później role może zmieniać `admin` przez `PATCH /users/{id}`. `office` zarządza masterami: zmienia status, odpowiedź i odpowiedzialny podmiot oraz przepina reporty. `admin` może dodatkowo edytować i usuwać dowolne reporty i mastery. Pełna tabela jest w [api.md](api.md#dostęp).
 
 ## Reporty i mastery
 
-Report to pojedyncze zgłoszenie użytkownika. Master to wspólna sprawa dla podobnych reportów: ma status, odpowiedź, odpowiedzialną instytucję, komentarze i polubienia.
+Report to pojedyncze zgłoszenie użytkownika. Master to wspólna sprawa dla podobnych reportów: ma status, odpowiedź, odpowiedzialny podmiot (urząd albo jednostkę usługową), komentarze i polubienia.
 
 `POST /reports` od razu przypina nowy report do mastera. Kandydaci to mastery z tą samą kategorią, ze statusem innym niż `finished`, do 50 m od punktu mastera. Spośród nich wygrywa ten o najbardziej podobnym tytule. Jeśli żaden nie przekroczy progu podobieństwa, report tworzy nowy master. Gdy master straci ostatni report, API usuwa go razem z dyskusją. Szczegóły są w [api.md](api.md#dopasowanie-do-mastera), a promień i próg w `app/matching.py`.
 
@@ -93,4 +93,4 @@ Pliki zdjęć trafiają do katalogu z opcjonalnej zmiennej `UPLOAD_DIR`. Domyśl
 
 Model danych obejmuje tabele z migracji: `users`, `report_categories`, `master_report_statuses`, `master_reports`, `reports`, `report_photos`, `master_report_comments`, `master_report_comment_likes`, `local_government_offices`, `service_entities`.
 
-API obejmuje CRUD tych tabel, słowniki, komentarze i polubienia. Instytucje i słowniki są tylko do odczytu. Inicjatywy nie mają jeszcze tabel i pozostają poza zakresem.
+API obejmuje CRUD tych tabel, słowniki, komentarze i polubienia. Urzędy (`/institution-contacts`) i słowniki są tylko do odczytu, a `service_entities` nie ma jeszcze endpointów. Inicjatywy nie mają jeszcze tabel i pozostają poza zakresem.

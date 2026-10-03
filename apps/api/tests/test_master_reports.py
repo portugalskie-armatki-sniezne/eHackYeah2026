@@ -7,12 +7,20 @@ from fastapi.testclient import TestClient
 from conftest import JPEG, PNG, create_report, moved, random_location, reference_id
 
 
-def create_institution(connection: psycopg.Connection, **values: str) -> int:
-    values = {"teryt_code": f"{uuid4().int % 10**7:07d}", "local_government_name": "Gmina Testowa"} | values
+def create_office(connection: psycopg.Connection) -> int:
     return connection.execute(
-        "INSERT INTO institution_contacts (teryt_code, local_government_name, province, county) "
-        "VALUES (%(teryt_code)s, %(local_government_name)s, %(province)s, %(county)s) RETURNING id",
-        {"province": None, "county": None} | values,
+        "INSERT INTO local_government_offices (teryt_code, local_government_name) VALUES (%s, 'Gmina Testowa') "
+        "RETURNING id",
+        (f"{uuid4().int % 10**7:07d}",),
+    ).fetchone()["id"]
+
+
+def create_service_entity(connection: psycopg.Connection) -> int:
+    return connection.execute(
+        "INSERT INTO service_entities (source_key, name, entity_type, source_urls, verified_on) "
+        "VALUES (%s, 'Zarząd Dróg Testowych', 'road_manager', ARRAY['https://example.com'], CURRENT_DATE) "
+        "RETURNING id",
+        (f"test:{uuid4().hex}",),
     ).fetchone()["id"]
 
 
@@ -38,10 +46,13 @@ def test_list_master_reports_with_filters(client: TestClient, signed_in, connect
     issue = create_report(client, headers, location)["master_report_id"]
     improvement = create_report(client, headers, moved(location, north_m=10), category="improvement",
                                 title="Nowa ławka")["master_report_id"]
-    institution_id = create_institution(connection)
+    office_id = create_office(connection)
+    service_entity_id = create_service_entity(connection)
     finished = reference_id(client, "/master-report-statuses", "finished")
     client.patch(f"/master-reports/{improvement}", headers=office_headers,
-                 json={"status_id": finished, "responsible_institution_id": institution_id})
+                 json={"status_id": finished, "responsible_office_id": office_id})
+    client.patch(f"/master-reports/{issue}", headers=office_headers,
+                 json={"responsible_service_entity_id": service_entity_id})
 
     def ids(**params: object) -> set[str]:
         page = client.get("/master-reports", params=params | {"limit": 200}).json()
@@ -51,7 +62,8 @@ def test_list_master_reports_with_filters(client: TestClient, signed_in, connect
     assert ids(**location, radius_m=100, status_id=finished) == {improvement}
     assert ids(**location, radius_m=100,
                report_category_id=reference_id(client, "/report-categories", "issue")) == {issue}
-    assert ids(responsible_institution_id=institution_id) == {improvement}
+    assert ids(responsible_office_id=office_id) == {improvement}
+    assert ids(responsible_service_entity_id=service_entity_id) == {issue}
     page = client.get("/master-reports", params={"limit": 1}).json()
     assert page["limit"] == 1 and page["total"] >= 2 and len(page["items"]) == 1
     assert "photos" not in page["items"][0]
@@ -64,27 +76,49 @@ def test_staff_updates_master_report(client: TestClient, signed_in, connection: 
     _, staff_headers = signed_in(role)
     report = create_report(client, headers, random_location())
     url = f"/master-reports/{report['master_report_id']}"
-    institution_id = create_institution(connection)
+    office_id = create_office(connection)
     finished = reference_id(client, "/master-report-statuses", "finished")
     created = reference_id(client, "/master-report-statuses", "created")
 
     response = client.patch(url, headers=staff_headers, json={
-        "status_id": finished, "responsible_institution_id": institution_id,
+        "status_id": finished, "responsible_office_id": office_id,
         "response": "  Naprawione.  ", "title": "Dziura przy Długiej"})
 
     assert response.status_code == 200
     master = response.json()
     assert master["status_id"] == finished
-    assert master["responsible_institution_id"] == institution_id
+    assert master["responsible_office_id"] == office_id
     assert master["response"] == "Naprawione."
     assert master["title"] == "Dziura przy Długiej"
     # the report keeps its own content.
     assert client.get(f"/reports/{report['id']}", headers=headers).json()["title"] == report["title"]
     # any status change is allowed, also back to created.
     cleared = client.patch(url, headers=staff_headers,
-                           json={"status_id": created, "response": None, "responsible_institution_id": None})
+                           json={"status_id": created, "response": None, "responsible_office_id": None})
     assert cleared.json()["status_id"] == created
-    assert cleared.json()["response"] is None and cleared.json()["responsible_institution_id"] is None
+    assert cleared.json()["response"] is None and cleared.json()["responsible_office_id"] is None
+
+
+def test_master_report_has_at_most_one_responsible_party(client: TestClient, signed_in,
+                                                         connection: psycopg.Connection):
+    _, headers = signed_in("user")
+    _, office_headers = signed_in("office")
+    url = f"/master-reports/{create_report(client, headers, random_location())['master_report_id']}"
+    office_id = create_office(connection)
+    service_entity_id = create_service_entity(connection)
+
+    both = {"responsible_office_id": office_id, "responsible_service_entity_id": service_entity_id}
+    assert client.patch(url, json=both, headers=office_headers).status_code == 422
+    assert client.patch(url, json={"responsible_office_id": office_id}, headers=office_headers).status_code == 200
+    # switching to the other kind of party without clearing the current one is rejected.
+    response = client.patch(url, json={"responsible_service_entity_id": service_entity_id}, headers=office_headers)
+    assert response.status_code == 422
+    assert response.json()["detail"] == "Set responsible_office_id or responsible_service_entity_id, not both"
+    switched = client.patch(url, headers=office_headers,
+                            json={"responsible_office_id": None, "responsible_service_entity_id": service_entity_id})
+    assert switched.status_code == 200
+    assert switched.json()["responsible_office_id"] is None
+    assert switched.json()["responsible_service_entity_id"] == service_entity_id
 
 
 def test_update_master_report_rejects_invalid_changes(client: TestClient, signed_in):
@@ -99,7 +133,8 @@ def test_update_master_report_rejects_invalid_changes(client: TestClient, signed
         assert client.patch(url, json=invalid, headers=office_headers).status_code == 422
     for missing, detail in (({"status_id": 0}, "Status not found"),
                             ({"report_category_id": 0}, "Report category not found"),
-                            ({"responsible_institution_id": 0}, "Institution not found")):
+                            ({"responsible_office_id": 0}, "Office not found"),
+                            ({"responsible_service_entity_id": 0}, "Service entity not found")):
         response = client.patch(url, json=missing, headers=office_headers)
         assert response.status_code == 404 and response.json()["detail"] == detail
     assert client.patch(f"/master-reports/{uuid4()}", json={"title": "X"},

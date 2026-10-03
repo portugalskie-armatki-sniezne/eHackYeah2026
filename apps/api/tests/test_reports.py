@@ -24,7 +24,8 @@ def test_first_report_creates_master(client: TestClient, signed_in):
     assert report["title"] == "Dziura w jezdni"
     assert report["location"] == pytest.approx(location)
     assert master["status_id"] == reference_id(client, "/master-report-statuses", "created")
-    assert master["responsible_institution_id"] is None and master["response"] is None
+    assert master["responsible_office_id"] is None and master["responsible_service_entity_id"] is None
+    assert master["response"] is None
     assert master["report_count"] == 1
     assert {key: master[key] for key in ("report_category_id", "title", "description")} == {
         key: report[key] for key in ("report_category_id", "title", "description")}

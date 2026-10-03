@@ -4,7 +4,7 @@ Wszystkie endpointy opisane poniżej mają status `done`. Nazwy pól są takie s
 
 ## Konwencje
 
-- Format: JSON, pola w snake_case. Identyfikatory użytkowników, masterów, reportów, zdjęć i komentarzy jako UUID w postaci tekstu; identyfikatory kategorii, statusów i instytucji jako liczby całkowite.
+- Format: JSON, pola w snake_case. Identyfikatory użytkowników, masterów, reportów, zdjęć i komentarzy jako UUID w postaci tekstu; identyfikatory kategorii, statusów, urzędów i jednostek usługowych jako liczby całkowite.
 - Wyjątek: `POST /reports` i `POST /reports/{id}/photos` przyjmują `multipart/form-data`, bo zawierają pliki zdjęć.
 - Daty: ISO 8601 z strefą czasową (UTC).
 - Pola `id`, `created_at`, `edited_at` są tylko do odczytu. Serwer ignoruje je w requestach albo zwraca 422.
@@ -22,7 +22,7 @@ Wszystkie endpointy opisane poniżej mają status `done`. Nazwy pól są takie s
 | --- | --- |
 | 401 | brak tokenu, token nieważny lub wygasły, użytkownik z tokenu nie istnieje |
 | 403 | rola nie pozwala na operację |
-| 404 | brak zasobu o podanym id albo brak kategorii, statusu, instytucji lub mastera wskazanego w body |
+| 404 | brak zasobu o podanym id albo brak kategorii, statusu, urzędu, jednostki usługowej lub mastera wskazanego w body |
 | 409 | naruszenie unikalności albo klucza obcego przy usuwaniu |
 | 413 | zdjęcie większe niż 10 MB |
 | 422 | niepoprawne dane (typ, pusty `title` lub `description`, brak kontaktu użytkownika, zły zakres współrzędnych, zły format lub za dużo zdjęć) |
@@ -44,7 +44,7 @@ Wszystkie endpointy opisane poniżej mają status `done`. Nazwy pól są takie s
 
 | Kto | Co może |
 | --- | --- |
-| publiczny | rejestracja, logowanie, mastery, komentarze, słowniki, instytucje, pliki zdjęć |
+| publiczny | rejestracja, logowanie, mastery, komentarze, słowniki, urzędy, pliki zdjęć |
 | zalogowany | odczyt reportów i metadanych zdjęć, dodawanie reportów, komentarzy i polubień |
 | autor reportu | edycja i usuwanie reportu oraz jego zdjęć |
 | autor komentarza | usuwanie komentarza |
@@ -218,10 +218,10 @@ Request `POST /reports/{id}/move`:
 | --- | --- | --- | --- | --- | --- |
 | GET | `/master-reports` | lista z filtrami | publiczny | 200 | 422 |
 | GET | `/master-reports/{id}` | pobranie ze zdjęciami | publiczny | 200 | 404 |
-| PATCH | `/master-reports/{id}` | aktualizacja | `office`, `admin` | 200 | 401, 403, 404 (brak mastera, kategorii, statusu lub instytucji), 422 |
+| PATCH | `/master-reports/{id}` | aktualizacja | `office`, `admin` | 200 | 401, 403, 404 (brak mastera, kategorii, statusu, urzędu lub jednostki usługowej), 422 |
 | DELETE | `/master-reports/{id}` | usunięcie mastera bez reportów wraz z dyskusją | `admin` | 204 | 401, 403, 404, 409 (ma reporty) |
 
-Mastery tworzy wyłącznie backend przy dodawaniu lub przepinaniu reportu, dlatego nie ma `POST`. Filtry `GET /master-reports`: `status_id`, `report_category_id`, `responsible_institution_id` oraz `longitude`, `latitude`, `radius_m`. Lista jest posortowana od najnowszych.
+Mastery tworzy wyłącznie backend przy dodawaniu lub przepinaniu reportu, dlatego nie ma `POST`. Filtry `GET /master-reports`: `status_id`, `report_category_id`, `responsible_office_id`, `responsible_service_entity_id` oraz `longitude`, `latitude`, `radius_m`. Lista jest posortowana od najnowszych.
 
 Odpowiedź `GET /master-reports/{id}`:
 
@@ -245,7 +245,7 @@ Odpowiedź `GET /master-reports/{id}`:
 
 `photos` zawiera zdjęcia wszystkich reportów mastera i występuje tylko w szczegółach. Elementy listy mają te same pola bez `photos`. Reporty mastera zwraca `GET /reports?master_report_id=...`.
 
-Pola `PATCH`: `report_category_id`, `status_id`, `responsible_institution_id`, `title`, `description`, `location`, `response`. `null` jest dozwolony tylko dla `responsible_institution_id` i `response`. Status można zmienić na dowolny, także wstecz. Zmiana treści mastera nie zmienia jego reportów. ID w przykładzie są ilustracyjne; wartości słowników należy pobrać z endpointów słowników.
+Pola `PATCH`: `report_category_id`, `status_id`, `responsible_office_id`, `responsible_service_entity_id`, `title`, `description`, `location`, `response`. `null` jest dozwolony tylko dla obu pól odpowiedzialnego podmiotu i `response`. Master wskazuje najwyżej jeden podmiot: urząd albo jednostkę usługową. Zmiana odbiorcy na podmiot innego rodzaju wymaga przesłania obu pól, na przykład `{"responsible_office_id": null, "responsible_service_entity_id": 17}`, inaczej API zwraca 422. Status można zmienić na dowolny, także wstecz. Zmiana treści mastera nie zmienia jego reportów. ID w przykładzie są ilustracyjne; wartości słowników należy pobrać z endpointów słowników.
 
 ## comments
 
