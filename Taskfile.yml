@@ -1,8 +1,19 @@
 version: "3"
 
 tasks:
+  # the pre-commit hook lints the workspaces with staged changes
+  # every task that sets up or starts the project enables it, so nobody has to remember to
+  hooks:
+    internal: true
+    silent: true
+    cmds:
+      - cmd: git config core.hooksPath .githooks
+        # a copy of the project without Git has no hooks to enable
+        ignore_error: true
+
   setup:
-    desc: Install dependencies, download inference models, and create missing .env
+    desc: Install dependencies, download inference models, enable Git hooks, and create missing .env
+    deps: [hooks]
     cmds:
       - bun install
       - uv sync --directory apps/api --extra inference
@@ -15,6 +26,7 @@ tasks:
 
   web:
     desc: Start the frontend
+    deps: [hooks]
     dir: apps/web
     dotenv: ["../../.env"]
     cmds:
@@ -22,6 +34,7 @@ tasks:
 
   db:
     desc: Start the database, apply migrations, and wait for seed import
+    deps: [hooks]
     preconditions:
       - sh: docker compose version
         msg: Install Docker with Compose and start Docker before running the database.
@@ -31,6 +44,7 @@ tasks:
 
   api:
     desc: Start the database and seed services, then start the API
+    deps: [hooks]
     dir: apps/api
     dotenv: ["../../.env"]
     preconditions:
