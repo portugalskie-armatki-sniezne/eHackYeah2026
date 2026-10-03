@@ -1,0 +1,66 @@
+name: ehackyeah2026
+
+services:
+  db:
+    container_name: db
+    image: postgis/postgis:18-3.6
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app_db}
+      POSTGRES_USER: ${POSTGRES_USER:-app_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_dev_password}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    expose:
+      - "${POSTGRES_PORT:-5432}"
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
+    command: ["postgres", "-p", "${POSTGRES_PORT:-5432}"]
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'pg_isready -p "$${POSTGRES_PORT}" -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  db-migrator:
+    container_name: db-migrator
+    image: amacneil/dbmate:2.34.1
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgres://${POSTGRES_USER:-app_user}:${POSTGRES_PASSWORD:-local_dev_password}@db:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-app_db}?sslmode=disable"
+      DBMATE_MIGRATIONS_DIR: /db/migrations
+      DBMATE_NO_DUMP_SCHEMA: "true"
+      DBMATE_STRICT: "true"
+    volumes:
+      - ./db:/db
+    command: ["--wait", "up"]
+    restart: "no"
+
+  db-seeder:
+    container_name: db-seeder
+    build: ./tooling/seed
+    depends_on:
+      db-migrator:
+        condition: service_completed_successfully
+    environment:
+      PGHOST: db
+      PGPORT: ${POSTGRES_PORT:-5432}
+      PGDATABASE: ${POSTGRES_DB:-app_db}
+      PGUSER: ${POSTGRES_USER:-app_user}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-local_dev_password}
+    volumes:
+      - ./db/seeds:/seeds:ro
+    command: ["/seeds/teleaddr_base_16042026.xls"]
+    restart: "no"
+
+volumes:
+  postgres_data:
