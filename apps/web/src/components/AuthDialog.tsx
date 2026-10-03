@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { authApi } from "../api/auth";
-import { signIn } from "../api/session";
+import { signIn, signInWithGoogle } from "../api/session";
+import GoogleButton from "./GoogleButton";
 import "./AuthDialog.css";
 
 type AuthMode = "sign-in" | "register";
@@ -14,6 +15,7 @@ const MIN_PASSWORD_LENGTH = 8;
 /**
  * The sign-in and registration sheet. Both forms share one native dialog with
  * a switch between them; a new account is signed in right after it is made.
+ * The Google button signs in from either form.
  */
 export default function AuthDialog({ onClose }: AuthDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -68,8 +70,8 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
     }
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  // one request at a time, from the form and the Google button alike
+  const run = async (action: () => Promise<void>) => {
     if (busyRef.current) {
       return;
     }
@@ -77,7 +79,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
     setBusy(true);
     setError(null);
     try {
-      await submit();
+      await action();
       onClose();
     } catch (error) {
       setError(
@@ -87,6 +89,11 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
       busyRef.current = false;
       setBusy(false);
     }
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void run(submit);
   };
 
   const registering = mode === "register";
@@ -265,6 +272,14 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
             {busy ? "Please wait..." : title}
           </button>
         </footer>
+
+        <GoogleButton
+          className="auth-dialog__google"
+          onCredential={(credential) =>
+            void run(() => signInWithGoogle(credential))
+          }
+          onError={() => setError("Google sign-in failed.")}
+        />
       </form>
     </dialog>
   );

@@ -205,6 +205,12 @@
   outline-offset: -4px;
 }
 
+/* Google draws its own button, so it gets a row to itself under the actions. */
+.auth-dialog__google {
+  display: flex;
+  justify-content: center;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .auth-dialog__button {
     transition: none;

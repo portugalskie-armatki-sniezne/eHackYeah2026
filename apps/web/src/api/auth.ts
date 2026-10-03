@@ -34,6 +34,15 @@ export const authApi = {
     return token;
   },
 
+  // the credential is the ID token that the Google button returns
+  async googleLogin(credential: string): Promise<string> {
+    const { access_token: token } = await apiFetch<{ access_token: string }>(
+      "/auth/google",
+      { method: "POST", json: { credential }, auth: false },
+    );
+    return token;
+  },
+
   me(signal?: AbortSignal): Promise<User> {
     return apiFetch("/auth/me", { signal });
   },
