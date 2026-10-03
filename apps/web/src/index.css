@@ -1,20 +1,31 @@
 :root {
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.58);
-  --glass-shadow: 0 8px 24px rgba(20, 20, 20, 0.12);
-  --glass-blur: blur(10px) saturate(140%);
-  --pill-radius: 100px;
-  --pill-inset: 1rem;
+  --ink: #141414;
+  --ink-soft: #4a4a46;
+  --paper: #fdfcf9;
+  --amber: #efb33f;
+  --amber-soft: #f7dba6;
+  --amber-ghost: #fbeed2;
+
+  --surface: var(--paper);
+  --surface-section: #f1efe8;
+  --text: var(--ink);
+  --text-muted: var(--ink-soft);
+  --border: var(--ink);
+  --brand: var(--amber);
+  --link: var(--ink);
+  --focus: #1f6feb;
+
+  --scaffold-line: 2px;
+  --scaffold-radius: 4px;
+  --scaffold-offset: 6px;
+  --scaffold-shadow: var(--scaffold-offset) var(--scaffold-offset) 0
+    var(--amber);
+  --scaffold-shadow-ink: 4px 4px 0 var(--ink);
+  --pill-inset: 1.25rem;
 
   color-scheme: light;
   background: var(--surface);
   color: var(--text);
-}
-
-@supports not (backdrop-filter: blur(10px)) {
-  :root {
-    --glass-bg: rgba(255, 255, 255, 0.95);
-  }
 }
 
 * {
