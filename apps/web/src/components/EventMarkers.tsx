@@ -1,5 +1,6 @@
 import { useEffect, useRef, type RefObject } from "react";
 import { Marker, type Map as MapLibreMap } from "maplibre-gl";
+import type { ReportCategory } from "../data/reports";
 import "./EventMarkers.css";
 
 export type EventPin = {
@@ -8,7 +9,14 @@ export type EventPin = {
   description: string;
   image: File | null;
   imageUrl: string | null;
+  /** picks the head's pictogram: "!" for a fault, "+" for an improvement */
+  category: ReportCategory;
+  /** how many filings the pin stands for; above one it carries a count */
+  reportCount: number;
 };
+
+/** What a pin dropped on the map is until its category is chosen. */
+export const DEFAULT_PIN_CATEGORY: ReportCategory = "issue";
 
 type EventMarkersProps = {
   mapRef: RefObject<MapLibreMap | null>;
@@ -20,11 +28,29 @@ type EventMarkersProps = {
 };
 
 type PinElementOptions = {
+  category: ReportCategory;
   draft?: boolean;
   imageUrl?: string | null;
+  reportCount?: number;
 };
 
 const SVG_NS = "http://www.w3.org/2000/svg";
+
+// The head's centre mark doubles as the category pictogram, drawn on the head's
+// own grid around the point the plain reticle dot used to sit on: a bar and a dot
+// for a fault, a cross for an improvement. Both are struck with the outline's pen.
+const CATEGORY_GLYPHS: Record<ReportCategory, string> = {
+  // bar, gap, dot: an "!" 11.5 units tall, so it squares off against the cross.
+  // The dot is a stroke of the pen's own width rather than a filled square, so it
+  // keeps step with the bar instead of fattening as the head opens.
+  issue: `
+    <path class="event-pin__glyph" d="M0 -33.75 V-26.25 M0 -24.75 V-22.25" />
+  `,
+  // arms of that same length, crossed on the centre point
+  improvement: `
+    <path class="event-pin__glyph" d="M-5.75 -28 H5.75 M0 -33.75 V-22.25" />
+  `,
+};
 
 // One layer of the head, drawn on the head's own grid: the viewBox is exactly
 // the paper rect, so stretching the element opens the drawing off a bottom edge
@@ -40,7 +66,12 @@ function headPlate(className: string, content: string): SVGSVGElement {
 
 function pinElement(
   label: string,
-  { draft = false, imageUrl = null }: PinElementOptions = {},
+  {
+    category,
+    draft = false,
+    imageUrl = null,
+    reportCount = 1,
+  }: PinElementOptions,
 ): HTMLElement {
   const element = document.createElement("div");
   element.className = draft ? "event-pin event-pin--draft" : "event-pin";
@@ -63,7 +94,7 @@ function pinElement(
     "event-pin__head",
     `
     <rect class="event-pin__paper" x="-12" y="-40" width="24" height="24" />
-    <rect class="event-pin__dot" x="-2.5" y="-30.5" width="5" height="5" />
+    ${CATEGORY_GLYPHS[category]}
   `,
   );
 
@@ -106,8 +137,26 @@ function pinElement(
   // Back to front: amber block, then the needle over its overhang, then the head
   // over the needle's, since the photo now reaches the head's bottom edge.
   drop.append(blocks, needle, head);
+
+  // An aggregate carries the number of filings behind it. Outside the head's
+  // plates, so the figure keeps its size however far the head stretches; the
+  // count is already in the marker's label, so the badge itself is not read out.
+  if (reportCount > 1) {
+    const count = document.createElement("span");
+    count.className = "event-pin__count";
+    count.setAttribute("aria-hidden", "true");
+    count.textContent = String(reportCount);
+    drop.append(count);
+  }
+
   element.append(drop);
   return element;
+}
+
+function pinLabel(pin: EventPin, index: number): string {
+  const kind = pin.category === "improvement" ? "Improvement" : "Fault";
+  const aggregate = pin.reportCount > 1 ? `, ${pin.reportCount} reports` : "";
+  return `${kind} pin ${index + 1}${aggregate}: ${pin.description}`;
 }
 
 /**
@@ -145,8 +194,10 @@ export default function EventMarkers({
         return;
       }
       const marker = new Marker({
-        element: pinElement(`Event pin ${index + 1}: ${pin.description}`, {
+        element: pinElement(pinLabel(pin, index), {
+          category: pin.category,
           imageUrl: pin.imageUrl,
+          reportCount: pin.reportCount,
         }),
         anchor: "bottom",
       })
@@ -162,7 +213,10 @@ export default function EventMarkers({
       return;
     }
     const marker = new Marker({
-      element: pinElement("New pin", { draft: true }),
+      element: pinElement("New pin", {
+        category: DEFAULT_PIN_CATEGORY,
+        draft: true,
+      }),
       anchor: "bottom",
     })
       .setLngLat(draftLngLat)

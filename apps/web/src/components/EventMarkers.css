@@ -8,6 +8,9 @@
   width: 32px;
   height: 40px;
   cursor: default;
+  /* how far the head is open; hover drives it, and the layers pinned to the
+     head's corners are measured off it */
+  --pin-head: 28px;
 }
 
 /* Carries the drop, which maplibre's own transform on .event-pin cannot.
@@ -30,19 +33,25 @@
   bottom: 16px;
   left: 50%;
   translate: -50% 0;
-  width: 28px;
-  height: 28px;
+  width: var(--pin-head);
+  height: var(--pin-head);
   overflow: visible;
   transition:
     width 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2),
     height 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
 
+/* Every pin lifts under the pointer, photo or not: the head opens far enough to
+   bring the category pictogram forward, well short of the photo stretch. Declared
+   ahead of the photo rule, which matches at the same weight and has to win. */
+.event-pin:hover {
+  --pin-head: 38px;
+}
+
 /* Stretched to frame the photo, which fills the head rect and so is exactly this
    size: about 61px on a 1440 × 900 screen, against 24px of head at rest. */
-.event-pin--photo:hover .event-pin__plate {
-  width: calc(2.6vw + 2.6vh);
-  height: calc(2.6vw + 2.6vh);
+.event-pin--photo:hover {
+  --pin-head: calc(2.6vw + 2.6vh);
 }
 
 /* The block is the pin's drawn shadow at rest; stretched open into a photo frame
@@ -104,9 +113,46 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* The same square dot as the cursor's reticle marks the head's centre. */
-.event-pin__dot {
-  fill: var(--ink);
+/* The category pictogram is struck with the outline's pen and left square at the
+   ends, so the bar of the "!" and the dot under it are cut the same way. Like the
+   outline it keeps that one pen however far the head opens, rather than inking a
+   thicker line, which is why the dot is a stroke and not a filled square. */
+.event-pin__glyph {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+}
+
+/* How many filings the pin stands for: the chrome's amber tile, straddling the
+   head's top-right corner. The plates put that corner at 16px + half the head
+   across and 24px - the head down, so a 15px tile centred on it works out as
+   below and rides the head as it opens. The tile itself never stretches, and on
+   a photo pin it steps aside the way the block does. */
+.event-pin__count {
+  position: absolute;
+  top: calc(16.5px - var(--pin-head));
+  right: calc(8.5px - var(--pin-head) / 2);
+  min-width: 15px;
+  padding: 0 1px;
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+  background: var(--amber);
+  color: var(--ink);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  /* a fixed line box keeps the tile square whatever the figure is */
+  line-height: 11px;
+  text-align: center;
+  transition:
+    opacity 140ms ease 140ms,
+    top 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2),
+    right 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.event-pin--photo:hover .event-pin__count {
+  opacity: 0;
+  transition: none;
 }
 
 /* A pin still being described is pencilled in: dashed outline, no block yet. */
@@ -143,6 +189,7 @@
   /* the hover states still apply, they just arrive without easing */
   .event-pin__plate,
   .event-pin__blocks,
+  .event-pin__count,
   .event-pin__photo {
     transition: none;
   }

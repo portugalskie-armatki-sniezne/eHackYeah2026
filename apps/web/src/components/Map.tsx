@@ -10,7 +10,10 @@ import MapToolbar, { type BasemapId } from "./MapToolbar";
 import MapCursor from "./MapCursor";
 import UserPosition from "./UserPosition";
 import useUserPosition from "./useUserPosition";
-import EventMarkers, { type EventPin } from "./EventMarkers";
+import EventMarkers, {
+  DEFAULT_PIN_CATEGORY,
+  type EventPin,
+} from "./EventMarkers";
 import PinDialog, { type PinDraft } from "./PinDialog";
 import { createTiltPrewarmer } from "./mapPrewarm";
 import "./Map.css";
@@ -454,7 +457,17 @@ export default function Map() {
       }
       const id = String(nextPinIdRef.current);
       nextPinIdRef.current += 1;
-      setPins((current) => [...current, { id, lngLat: draftLngLat, ...draft }]);
+      setPins((current) => [
+        ...current,
+        {
+          id,
+          lngLat: draftLngLat,
+          ...draft,
+          // the sheet has no category field yet, so a new pin starts as a fault
+          category: DEFAULT_PIN_CATEGORY,
+          reportCount: 1,
+        },
+      ]);
       setDraftLngLat(null);
     },
     [draftLngLat],
