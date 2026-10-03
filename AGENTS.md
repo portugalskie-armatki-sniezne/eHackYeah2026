@@ -26,8 +26,8 @@
 - `db/migrations/` contains dbmate SQL migrations, with `-- migrate:up` and `-- migrate:down` sections.
 - `db/seeds/` contains development and reference data, including the institution contacts workbook.
 - `docker-compose.yaml` at the repository root defines the PostGIS database, dbmate migrations, and the seed importer. Run `docker compose up`; optional root `.env` values override local defaults.
-- `tooling/seed/` contains the XLS importer with its `Dockerfile` and `requirements.txt`.
-- `tooling/scripts/dev.ts` coordinates root development commands.
+- `tooling/seed/` contains the XLS importer with its `Dockerfile`, `pyproject.toml`, and `uv.lock`.
+- `Taskfile.yml` at the repository root defines root development commands. `mise.toml` pins Bun, Task, and uv, and `setup-dev-env.sh` installs mise, the pinned tools, and dependencies.
 - `tests/e2e/` is reserved for cross-application scenarios, and `tests/fixtures/` for shared behavioral examples.
 - `.agents/skills/` is reserved for repository-local agent skills.
 - `.github/workflows/` is reserved for CI workflows.
@@ -37,10 +37,10 @@
 
 ## Development command contract
 
-- Use Bun 1.4+ and keep root commands limited to `bun install` and `bun run setup|all|web|db|api` unless requested otherwise.
-- Workspaces provide `scripts.dev` and optional `scripts.setup`; API setup installs Python dependencies from its Python manifest. Keep setup repeatable and preserve `.env`.
-- Scripts run in their application directory with root `.env` values. Keep servers in the foreground and reloads scoped to each application.
-- The runner skips unimplemented application servers. Both `db` and `api` start the database, migrations, and seed import, even when the API is unimplemented.
+- Use the Bun, Task, and uv versions pinned in `mise.toml` and keep root commands limited to `./setup-dev-env.sh` and `task setup|web|db|api` unless requested otherwise.
+- The web workspace provides `scripts.dev`; API setup installs Python dependencies from its Python manifest with uv. Keep setup repeatable and preserve `.env`.
+- Tasks run applications in their directory with root `.env` values. Keep servers in the foreground and reloads scoped to each application.
+- Both `db` and `api` start the database, migrations, and seed import.
 
 ## Validation
 
@@ -49,7 +49,7 @@
 - For ignore-rule changes, check representative ignored and tracked paths with `git check-ignore`.
 - For code or Docker changes, run the relevant configured formatting, build, test, and configuration checks, including checks for affected callers or services. Add or update regression tests when behavior changes warrant them.
 - Validate Compose changes with `docker compose config --quiet`. Avoid printing resolved configuration because it can contain credentials.
-- Run `bun test tooling/scripts/dev.test.ts` for runner changes and `python3 tests/check_database.py` for database changes. Report any unavailable checks.
+- Run `task --list-all` and the affected tasks for Taskfile changes and `python3 tests/check_database.py` for database changes. Report any unavailable checks.
 
 ## Secrets and local files
 
