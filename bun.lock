@@ -5,9 +5,6 @@
     "": {
       "name": "ehackyeah2026",
     },
-    "apps/api": {
-      "name": "@ehackyeah/api",
-    },
     "apps/web": {
       "name": "@ehackyeah/web",
       "dependencies": {
@@ -25,8 +22,6 @@
     },
   },
   "packages": {
-    "@ehackyeah/api": ["@ehackyeah/api@workspace:apps/api"],
-
     "@ehackyeah/web": ["@ehackyeah/web@workspace:apps/web"],
 
     "@oxc-project/types": ["@oxc-project/types@0.152.0", "", {}, "sha512-oM/5rLBm2tPkg0iBgkH/FOeR3PCDpY19GTgAZjMFM8h9WI9VW7cLgzp6nwtarYKmovavIQZ+Fe/RKX/8C8O/Rw=="],

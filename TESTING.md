@@ -3,11 +3,11 @@
 From the repository root, run:
 
 ```sh
-bun run db
+task db
 ```
 
 The command starts Compose services from the root `docker-compose.yaml` and waits for seed import to finish. PostgreSQL stays running afterward. Compose provides local defaults; `.env` is optional.
-The seed image uses `tooling/seed/Dockerfile` and `tooling/seed/requirements.txt`.
+The seed image uses `tooling/seed/Dockerfile`, `tooling/seed/pyproject.toml`, and `tooling/seed/uv.lock`.
 To inspect migration and import output, run `docker compose logs db-migrator db-seeder`.
 
 Startup waits for PostgreSQL, applies dbmate migrations, then imports

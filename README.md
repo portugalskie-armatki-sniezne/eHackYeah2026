@@ -13,13 +13,15 @@ eHackYeah2026/
 │   ├── migrations/                  # dbmate SQL migrations
 │   └── seeds/                       # reference data and the contacts workbook
 ├── tooling/
-│   ├── scripts/                     # development commands
 │   └── seed/                        # XLS importer and its Docker image
 ├── tests/
 │   ├── e2e/                         # cross-application scenarios
 │   └── fixtures/                    # shared behavioral examples
 ├── docker-compose.yaml              # database, migrations, and seed import
-├── package.json                     # root commands and Bun workspaces
+├── Taskfile.yml                     # development commands
+├── mise.toml                        # pinned Bun, Task, and uv versions
+├── setup-dev-env.sh                 # installs mise, pinned tools, and dependencies
+├── package.json                     # Bun workspaces
 ├── bun.lock
 ├── .env.example
 ├── AGENTS.md
@@ -31,41 +33,49 @@ eHackYeah2026/
 From the repository root, start the database with:
 
 ```sh
-bun run db
+task db
 ```
 
-Compose starts PostGIS, applies migrations, and imports the institution contacts workbook. Defaults are provided for local development; create `.env` from `.env.example` only if you want to override them. The importer image is built from `tooling/seed/Dockerfile` and installs dependencies from `tooling/seed/requirements.txt`.
+Compose starts PostGIS, applies migrations, and imports the institution contacts workbook. Defaults are provided for local development; create `.env` from `.env.example` only if you want to override them. The importer image is built from `tooling/seed/Dockerfile` and installs dependencies with uv from `tooling/seed/pyproject.toml` and `tooling/seed/uv.lock`.
 
 ## Development commands
 
-Install Bun 1.4 or newer, Node.js 22.12 or newer, and Python 3.10 or newer with venv support, then run commands from the repository root:
+Install Node.js 22.12 or newer and Docker with Compose, then set up the environment from the repository root:
+
+```sh
+./setup-dev-env.sh
+```
+
+The script installs [mise](https://mise.jdx.dev) when it is missing, installs the Bun, Task, and uv versions pinned in `mise.toml`, and runs `task setup`. Restart your shell when the script asks for it. On Windows, install mise manually, then run `mise install` and `task setup` instead.
+
+Commands are defined in `Taskfile.yml` and need mise activated in your shell; otherwise prefix them with `mise exec --`. Run them from the repository root:
 
 | Command | Purpose |
 | --- | --- |
-| `bun run setup` | Install JavaScript, TypeScript, and Python dependencies, and create missing `.env`. |
-| `bun run all` | Run setup and start web and API. |
-| `bun run web` | Start the frontend. |
-| `bun run db` | Start the database, apply migrations, and wait for seed import. |
-| `bun run api` | Start the database and seed services, then start the API. |
+| `task setup` | Install JavaScript, TypeScript, and Python dependencies, and create missing `.env`. |
+| `task all` | Run setup and start web and API. |
+| `task web` | Start the frontend. |
+| `task db` | Start the database, apply migrations, and wait for seed import. |
+| `task api` | Start the database and seed services, then start the API. |
 
-The current web workspace is a React/Vite scaffold. The API workspace is a FastAPI placeholder. Both `bun run db` and `bun run api` require Docker with Compose running, as does `bun run all`. The database command returns after seed import finishes and leaves PostgreSQL running. Setup preserves `.env`. PostgreSQL is published on `127.0.0.1:POSTGRES_PORT`. Ctrl+C stops applications; the database remains running.
+The current web workspace is a React/Vite scaffold. The API workspace is a FastAPI placeholder. Both `task db` and `task api` require Docker with Compose running, as does `task all`. The database command returns after seed import finishes and leaves PostgreSQL running. Setup preserves `.env`. PostgreSQL is published on `127.0.0.1:POSTGRES_PORT`. Ctrl+C stops applications; the database remains running.
 
 ## API application
 
 ```sh
-bun run setup
-bun run api
+task setup
+task api
 ```
 
-Setup creates `apps/api/.venv` and installs Python dependencies from `apps/api/requirements.txt`. Repeating setup reuses the virtual environment. The API starts after migrations and seed import finish, at <http://127.0.0.1:8000>. The placeholder provides `GET /` and `GET /health`, with interactive API documentation at <http://127.0.0.1:8000/docs>. The health endpoint checks the application only; it does not query PostgreSQL. Edit `apps/api/app/main.py`; changes under `apps/api/app` reload the API automatically.
+Setup runs `uv sync`, which creates `apps/api/.venv` and installs Python dependencies from `apps/api/pyproject.toml` and `apps/api/uv.lock`. uv downloads Python 3.10 or newer when none is available. Repeating setup reuses the virtual environment. The API starts after migrations and seed import finish, at <http://127.0.0.1:8000>. The placeholder provides `GET /` and `GET /health`, with interactive API documentation at <http://127.0.0.1:8000/docs>. The health endpoint checks the application only; it does not query PostgreSQL. Edit `apps/api/app/main.py`; changes under `apps/api/app` reload the API automatically.
 
-To set up and start both applications together, run `bun run all`.
+To set up and start both applications together, run `task all`.
 
 ## Web application
 
 ```sh
-bun run setup
-bun run web
+task setup
+task web
 ```
 
 Open the local URL printed by Vite. Edit `apps/web/src/App.tsx` for the UI and `apps/web/src/index.css` for styles. Run web checks and build commands from its workspace:
