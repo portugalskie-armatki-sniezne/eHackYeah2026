@@ -1,4 +1,5 @@
 import { useEffect, useId, useState } from "react";
+import type { SessionState } from "../api/useSession";
 import BrandMark from "./BrandMark";
 import "./Navbar.css";
 
@@ -14,7 +15,13 @@ const items: NavItem[] = [
   { href: "#about", label: "About" },
 ];
 
-export default function Navbar() {
+type NavbarProps = {
+  session: SessionState;
+  onSignIn: () => void;
+  onSignOut: () => void;
+};
+
+export default function Navbar({ session, onSignIn, onSignOut }: NavbarProps) {
   // only matters on narrow screens, where the list folds behind the hamburger
   const [open, setOpen] = useState(false);
   const menuId = useId();
@@ -81,6 +88,39 @@ export default function Navbar() {
             ))}
           </ul>
         </nav>
+        {session.status !== "checking" && (
+          <div className="navbar__account">
+            {session.status === "signed-in" ? (
+              <>
+                <span className="navbar__user">
+                  <span className="visually-hidden">Signed in as </span>
+                  {session.session.user.first_name}
+                </span>
+                <button
+                  type="button"
+                  className="navbar__link navbar__button"
+                  onClick={() => {
+                    setOpen(false);
+                    onSignOut();
+                  }}
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="navbar__link navbar__button navbar__button--primary"
+                onClick={() => {
+                  setOpen(false);
+                  onSignIn();
+                }}
+              >
+                Sign in
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </header>
   );
