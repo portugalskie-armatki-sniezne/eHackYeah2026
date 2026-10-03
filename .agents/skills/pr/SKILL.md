@@ -49,11 +49,12 @@ unavailable checks accurately.
 
 ## Write the title and description
 
-Follow documented title rules and established repository style. Use the emoji,
-type, scope, and breaking-change conventions from the
+Follow documented title rules and established repository style. Use the type,
+scope, and breaking-change conventions from the
 [commit skill](../commit/SKILL.md#write-the-message), based on the complete branch
-diff rather than the latest commit. Keep the title within 72 characters unless
-repository rules say otherwise. Use classic dashes (`-`).
+diff rather than the latest commit. Do not use emoji in the title or description.
+Keep the title within 72 characters unless repository rules say otherwise. Use
+classic dashes (`-`).
 
 Read any repository PR template and preserve its required fields. Lead with the
 concrete problem and resulting behavior. Include decisions, risks, migrations, or
