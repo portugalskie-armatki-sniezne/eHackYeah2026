@@ -127,6 +127,8 @@ jobs:
     # the self-hosted runner works on the target machine, so no inbound connection is needed
     runs-on: [self-hosted]
     environment: ${{ inputs.environment || 'dev' }}
+    permissions:
+      packages: read
     # do not let deployments overlap
     concurrency:
       group: deploy-${{ inputs.environment || 'dev' }}
@@ -148,6 +150,14 @@ jobs:
               echo "$variable=$IMAGE_TAG" >> "$ENV_FILE"
             fi
           done
+
+      # the images are private, so the machine needs a token to pull them
+      - name: Log in to GHCR
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull & restart services
         # the Compose file and .env of the environment live in this directory on the target machine
