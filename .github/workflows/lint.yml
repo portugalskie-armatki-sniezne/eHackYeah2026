@@ -32,21 +32,24 @@ jobs:
         run: bun run format:check
 
   api:
-    name: Lint api
+    name: Lint ${{ matrix.service }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [api, notify]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
 
       - name: Install dependencies
-        working-directory: apps/api
+        working-directory: apps/${{ matrix.service }}
         run: uv sync --locked
 
       - name: Ruff lint
-        working-directory: apps/api
+        working-directory: apps/${{ matrix.service }}
         run: uv run ruff check .
 
       - name: Ruff format
-        working-directory: apps/api
+        working-directory: apps/${{ matrix.service }}
         run: uv run ruff format --check .

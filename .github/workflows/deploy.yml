@@ -10,6 +10,7 @@ on:
     paths:
       - apps/web/**
       - apps/api/**
+      - apps/notify/**
       - db/migrations/**
       - package.json
       - bun.lock
@@ -24,6 +25,7 @@ on:
         options:
           - web
           - api
+          - notify
         default: web
       environment:
         description: "Environment to deploy"
@@ -67,7 +69,7 @@ jobs:
           BEFORE: ${{ github.event.before }}
         run: |
           if [ "$SERVICE" = all ]; then
-            services='"web","api"'
+            services='"web","api","notify"'
           elif [ -n "$SERVICE" ]; then
             services="\"$SERVICE\""
           else
@@ -81,6 +83,9 @@ jobs:
             # migrations are applied when api is deployed
             if echo "$changed" | grep -qE "^(apps/api/|db/migrations/|\.dockerignore$|$shared)"; then
               services="${services:+$services,}\"api\""
+            fi
+            if echo "$changed" | grep -qE "^(apps/notify/|\.dockerignore$|$shared)"; then
+              services="${services:+$services,}\"notify\""
             fi
           fi
           echo "services=[$services]" >> "$GITHUB_OUTPUT"
