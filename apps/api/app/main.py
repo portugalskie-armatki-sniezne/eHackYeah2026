@@ -16,6 +16,7 @@ from app import (
     users,
 )
 from app.db import pool
+from app.inference.router import router as inference_router
 from app.security import jwt_secret
 
 
@@ -40,6 +41,7 @@ app.include_router(comments.router)
 app.include_router(reference.router)
 app.include_router(institution_contacts.router)
 app.include_router(service_entities.router)
+app.include_router(inference_router)
 
 
 @app.get("/")

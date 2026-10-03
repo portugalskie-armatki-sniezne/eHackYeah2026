@@ -74,6 +74,21 @@ sent to the responsible institution, `inprogress` has confirmed work in progress
 and `finished` has confirmed completion. The backend owns classification, master
 creation and assignment, and status transitions.
 
+## API tests
+
+Start the database with `task db`, then run the API tests from their workspace:
+
+```sh
+cd apps/api
+uv run pytest
+```
+
+The test configuration loads the repository's `.env` before importing the application.
+Existing environment variables take precedence. This keeps plain `pytest` runs on the
+same configured database as the API, rather than silently using the local defaults.
+Each database test rolls back its transaction; photo files use temporary directories.
+Database tests are skipped when the configured database is unavailable.
+
 ## Mock demo data
 
 To show the application with data, run from the repository root:
