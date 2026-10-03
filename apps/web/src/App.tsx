@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { signOut, useSession } from "./api/session";
+import About from "./components/About";
 import AuthDialog from "./components/AuthDialog";
 import Map from "./components/Map";
 import Navbar from "./components/Navbar";
 import SignOutDialog from "./components/SignOutDialog";
+import useHashRoute from "./components/useHashRoute";
 
 export default function App() {
   const session = useSession();
+  const route = useHashRoute();
   const [authOpen, setAuthOpen] = useState(false);
   const [signOutOpen, setSignOutOpen] = useState(false);
 
@@ -17,7 +20,11 @@ export default function App() {
         onSignIn={() => setAuthOpen(true)}
         onSignOut={() => setSignOutOpen(true)}
       />
-      <Map onSignInRequired={() => setAuthOpen(true)} />
+      {route === "about" ? (
+        <About />
+      ) : (
+        <Map onSignInRequired={() => setAuthOpen(true)} />
+      )}
       {authOpen && <AuthDialog onClose={() => setAuthOpen(false)} />}
       {signOutOpen && (
         <SignOutDialog
