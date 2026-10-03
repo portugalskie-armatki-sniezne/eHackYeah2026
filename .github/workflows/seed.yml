@@ -1,0 +1,58 @@
+name: "[4] Seed"
+
+# imports the reference data from db/seeds into the database of the chosen environment
+# the import upserts rows by their natural keys, so repeating it does not duplicate or change existing rows
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to seed"
+        type: choice
+        options:
+          - dev
+          - prod
+        default: dev
+
+env:
+  # a local image, one per environment so that parallel runs do not replace each other's build
+  SEED_IMAGE: ehackyeah2026-seed:${{ inputs.environment }}
+
+jobs:
+  seed:
+    name: Seed ${{ inputs.environment }}
+    # the self-hosted runner works on the target machine, so no inbound connection is needed
+    runs-on: [self-hosted]
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+    # shares the group with deployments, so that the import never runs during a migration
+    concurrency:
+      group: deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+    env:
+      # holds the database settings of the target environment
+      ENV_FILE: ${{ vars.DEPLOY_DIR }}/.env
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build seeder image
+        run: docker build -t "$SEED_IMAGE" tooling/seed
+
+      - name: Import seed data
+        run: |
+          # the database settings of the environment, with the same defaults as in docker-compose.app.yaml
+          set -a
+          . "$ENV_FILE"
+          set +a
+          export PGHOST="${POSTGRES_HOST:-db}"
+          export PGPORT="${POSTGRES_PORT:-5432}"
+          export PGDATABASE="${POSTGRES_DB:-app_db}"
+          export PGUSER="${POSTGRES_USER:-app_user}"
+          export PGPASSWORD="${POSTGRES_PASSWORD:-local_dev_password}"
+          # the same files as the db-seeder service in docker-compose.yaml
+          # the connection settings are passed by name to keep the password out of the command line
+          docker run --rm \
+            --network "${DB_NETWORK:-ehackyeah2026_default}" \
+            -e PGHOST -e PGPORT -e PGDATABASE -e PGUSER -e PGPASSWORD \
+            -v "$GITHUB_WORKSPACE/db/seeds:/seeds:ro" \
+            "$SEED_IMAGE" /seeds/teleaddr_base_16042026.xls /seeds/service_entities.json
