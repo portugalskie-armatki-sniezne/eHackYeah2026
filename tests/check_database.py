@@ -102,6 +102,12 @@ def main():
         query((ROOT / "tests/fixtures/check_reports.sql").read_text())
         query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
         print("PASS: master reports, statuses, institutions, comments, likes, and constraints", flush=True)
+        compose("run", "--rm", "--no-deps", "db-migrator", "down")
+        if query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'public' "
+                 "AND table_name = 'reports' AND column_name IN "
+                 "('municipality_teryt', 'municipality_name', 'county_teryt', 'county_name');") != "0":
+            raise RuntimeError("Municipality rollback left report columns behind")
+        print("PASS: report municipality migration rolled back successfully", flush=True)
         query("INSERT INTO users (first_name, last_name, email, google_sub) "
               "VALUES ('Rollback', 'Check', 'rollback-check@example.invalid', 'rollback-check');")
         compose("run", "--rm", "--no-deps", "db-migrator", "down")
@@ -150,7 +156,7 @@ def main():
             raise RuntimeError("Service entity import after migration rollback failed")
         query((ROOT / "tests/fixtures/check_reports.sql").read_text())
         query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
-        print("PASS: all five migrations rolled back and reapplied successfully", flush=True)
+        print("PASS: all six migrations rolled back and reapplied successfully", flush=True)
     except Exception:
         print(compose("logs", "--no-color", "--tail", "50", check=False), flush=True)
         raise

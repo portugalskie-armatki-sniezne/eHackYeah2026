@@ -21,6 +21,10 @@ export type Report = {
   title: string;
   description: string;
   location: ReportLocation;
+  municipality_teryt: string | null;
+  municipality_name: string | null;
+  county_teryt: string | null;
+  county_name: string | null;
   photos: ReportPhoto[];
   edited_at: string;
   created_at: string;

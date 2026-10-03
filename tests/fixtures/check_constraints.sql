@@ -228,6 +228,45 @@ BEGIN
         RAISE EXCEPTION 'Report could not remain unclassified without a master';
     END IF;
     UPDATE reports SET master_report_id = master_id WHERE id = report_id;
+    UPDATE reports SET municipality_teryt = '1261011', municipality_name = 'Kraków',
+        county_teryt = '1261', county_name = 'powiat Kraków' WHERE id = report_id;
+    BEGIN
+        UPDATE reports SET municipality_teryt = 'invalid' WHERE id = report_id;
+        RAISE EXCEPTION 'Invalid municipality TERYT accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
+    BEGIN
+        UPDATE reports SET municipality_name = '   ' WHERE id = report_id;
+        RAISE EXCEPTION 'Blank municipality name accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
+    BEGIN
+        UPDATE reports SET municipality_teryt = NULL WHERE id = report_id;
+        RAISE EXCEPTION 'Municipality name without a code accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
+    BEGIN
+        UPDATE reports SET municipality_name = NULL WHERE id = report_id;
+        RAISE EXCEPTION 'Municipality code without a name accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
+    BEGIN
+        UPDATE reports SET county_teryt = '1206' WHERE id = report_id;
+        RAISE EXCEPTION 'County inconsistent with municipality accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
+    BEGIN
+        UPDATE reports SET municipality_teryt = '3064011', county_teryt = '3064' WHERE id = report_id;
+        RAISE EXCEPTION 'Municipality outside Malopolskie accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
+    BEGIN
+        UPDATE reports SET county_name = NULL WHERE id = report_id;
+        RAISE EXCEPTION 'Missing county name accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
+    UPDATE reports SET municipality_teryt = NULL, municipality_name = NULL,
+        county_teryt = NULL, county_name = NULL WHERE id = report_id;
     BEGIN
         UPDATE reports SET report_category_id = 0 WHERE id = report_id;
         RAISE EXCEPTION 'Unknown report category accepted';

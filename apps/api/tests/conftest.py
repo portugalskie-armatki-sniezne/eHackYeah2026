@@ -43,10 +43,16 @@ def connection() -> Iterator[psycopg.Connection]:
 
 
 @pytest.fixture
-def client(connection: psycopg.Connection) -> Iterator[TestClient]:
+def client(connection: psycopg.Connection, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
+    from app import municipalities
     from app.db import get_connection
     from app.main import app
 
+    monkeypatch.setattr(
+        municipalities,
+        "resolve_municipality",
+        lambda location: municipalities.Municipality("1261011", "Kraków (miasto)", "powiat Kraków"),
+    )
     app.dependency_overrides[get_connection] = lambda: connection
     # no context manager, so the lifespan does not open the shared pool.
     yield TestClient(app)

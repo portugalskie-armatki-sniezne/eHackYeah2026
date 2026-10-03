@@ -77,6 +77,7 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 
 - Konfiguracja uruchamia `uv sync --extra inference`, instaluje zależności w `apps/api/.venv` i pobiera przypięte wersje Laya oraz tłumacza polsko-angielskiego do `apps/api/models` (około 1,1 GB, poza Gitem). Pierwsze uruchomienie wymaga Gita i internetu. Kolejne korzystają z kompletnych pobranych modeli. uv pobiera Pythona 3.10 lub nowszego, jeśli go brakuje.
 - Dokumentacja API jest dostępna pod adresem <http://127.0.0.1:8000/docs>. `GET /health` sprawdza działanie aplikacji bez odpytywania PostgreSQL.
+- Zapis zgłoszenia lub zmiana jego współrzędnych wymaga dostępu do `https://uldk.gugik.gov.pl/`, aby ustalić gminę i powiat w Małopolsce. Jeśli usługa jest niedostępna, API zwraca błąd i użytkownik może ponowić próbę.
 - `POST /inference` wymaga zalogowania i przyjmuje tekst, pytania klasyfikacyjne oraz opcjonalne zdjęcie. `POST /inference/service-entity` wybiera typ jednostki usługowej na podstawie tytułu, opisu i opcjonalnego zdjęcia. Ścieżki modeli w `.env.example` włączają lokalną analizę. Do istniejącego `.env` dodaj `LAYA_MODEL_PATH=models/laya-vision` i `TRANSLATION_MODEL_PATH=models/opus-mt-pl-en`; konfiguracja zachowuje istniejące wartości. Zobacz [konfigurację modeli i dostawców](apps/api/docs/inference.md).
 - Zmiany w `apps/api/app` automatycznie przeładowują API.
 - Uruchom `task be:lint`, aby sprawdzić API za pomocą Ruff, lub `task be:lint:fix`, aby zastosować poprawki i formatowanie.
@@ -126,5 +127,6 @@ Wszystkie trzy skille wymagają Gita. `pr` i `babysit` wymagają też uwierzytel
 - Zgłoszenia główne mają własną treść, wspólny status i odpowiedź oraz opcjonalnie przypisaną instytucję. Komentarze i polubienia dotyczą zgłoszeń głównych.
 - Zdjęcia są zapisane w `report_photos`. Każdy rekord zawiera trwały `storage_key`, który wskazuje plik zarządzany przez API lub warstwę przechowywania danych.
 - Arkusz zawiera adresy instytucji, ale nie zawiera współrzędnych ani granic obszarów.
+- Nowe zgłoszenia są przyjmowane wyłącznie z Małopolski. Zapisują kody TERYT oraz nazwy gminy i powiatu ustalone ze współrzędnych na podstawie [granic PRG z GUGiK](https://uldk.gugik.gov.pl/opis.html). W starszych zgłoszeniach pola pozostają puste do czasu aktualizacji lokalizacji. Obszar administracyjny nie przesądza o tym, która instytucja odpowiada za problem.
 
 Opis importu danych i sprawdzania bazy znajdziesz w [TESTING.md](TESTING.md).

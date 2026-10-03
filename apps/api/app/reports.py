@@ -7,7 +7,7 @@ from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile, 
 from psycopg import errors, sql
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from app import matching, storage
+from app import matching, municipalities, storage
 from app.auth import CurrentUser, StaffUser
 from app.common import (
     POINT,
@@ -33,7 +33,7 @@ router = APIRouter(prefix="/reports", tags=["reports"])
 
 REPORT_COLUMNS = sql.SQL(
     "r.id, r.user_id, r.master_report_id, r.report_category_id, r.title, r.description, "
-    "{location} AS location, "
+    "{location} AS location, r.municipality_teryt, r.municipality_name, r.county_teryt, r.county_name, "
     "COALESCE((SELECT json_agg(json_build_object("
     "'id', p.id, 'report_id', p.report_id, 'storage_key', p.storage_key, 'created_at', p.created_at"
     ") ORDER BY {photo_order}) FROM report_photos p WHERE p.report_id = r.id), '[]'::json) AS photos, "
@@ -60,6 +60,10 @@ class Report(BaseModel):
     title: str
     description: str
     location: Location
+    municipality_teryt: str | None
+    municipality_name: str | None
+    county_teryt: str | None
+    county_name: str | None
     photos: list[Photo]
     edited_at: datetime
     created_at: datetime
@@ -88,6 +92,20 @@ class ReportMove(BaseModel):
 
 def report_not_found() -> HTTPException:
     return HTTPException(status.HTTP_404_NOT_FOUND, "Report not found")
+
+
+def municipality_for(location: Location) -> municipalities.Municipality:
+    try:
+        municipality = municipalities.resolve_municipality(location)
+    except municipalities.MunicipalityUnavailableError:
+        raise HTTPException(
+            status.HTTP_503_SERVICE_UNAVAILABLE, "Could not determine the municipality. Please try again."
+        ) from None
+    if municipality is None or not municipality.teryt.startswith("12"):
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT, "Reports are only supported in Małopolskie voivodeship"
+        )
+    return municipality
 
 
 def fetch_report(report_id: UUID, connection: psycopg.Connection) -> Report:
@@ -161,16 +179,30 @@ def create_report(
 ) -> Report:
     uploads = read_photos(photos or [])
     location = Location(longitude=longitude, latitude=latitude)
+    municipality = municipality_for(location)
     try:
         with storage.cleanup_on_error() as saved, connection.transaction():
             # the report joins a similar open master nearby or becomes the first report of a new one.
             master_report_id = matching.assign_master(connection, report_category_id, title, description, location)
             report_id = connection.execute(
                 sql.SQL(
-                    "INSERT INTO reports (user_id, master_report_id, report_category_id, title, description, location) "
-                    "VALUES (%s, %s, %s, %s, %s, {}) RETURNING id"
+                    "INSERT INTO reports (user_id, master_report_id, report_category_id, title, description, location, "
+                    "municipality_teryt, municipality_name, county_teryt, county_name) "
+                    "VALUES (%s, %s, %s, %s, %s, {}, %s, %s, %s, %s) RETURNING id"
                 ).format(POINT),
-                (user.id, master_report_id, report_category_id, title, description, longitude, latitude),
+                (
+                    user.id,
+                    master_report_id,
+                    report_category_id,
+                    title,
+                    description,
+                    longitude,
+                    latitude,
+                    municipality.teryt,
+                    municipality.name,
+                    municipality.county_teryt,
+                    municipality.county_name,
+                ),
             ).fetchone()["id"]
             save_photos(connection, report_id, uploads, saved)
     except errors.ForeignKeyViolation as error:
@@ -222,6 +254,14 @@ def update_report(report_id: UUID, body: ReportUpdate, user: CurrentUser, connec
     try:
         with connection.transaction():
             require_owner_or_admin(user, lock_report(report_id, connection))
+            if body.location is not None:
+                municipality = municipality_for(body.location)
+                changes |= {
+                    "municipality_teryt": municipality.teryt,
+                    "municipality_name": municipality.name,
+                    "county_teryt": municipality.county_teryt,
+                    "county_name": municipality.county_name,
+                }
             if changes:
                 clause, params = assignments(changes)
                 connection.execute(sql.SQL("UPDATE reports SET {} WHERE id = %s").format(clause), (*params, report_id))
