@@ -35,8 +35,10 @@ const COUNT_LAYER = "report-cluster-count";
 
 // Past this the groups break up and every report stands on its own pin.
 const CLUSTER_MAX_ZOOM = 15;
-// Roughly two pin heads across, so pins group once they would start to overlap.
-const CLUSTER_RADIUS = 56;
+// The width of .event-pin, so reports group only once their pins would actually
+// collide. Wider than this and the map gathers up pins with clear space between
+// them, which hides reports that could perfectly well be read where they are.
+const CLUSTER_RADIUS = 32;
 
 const GROUPED: FilterSpecification = ["has", "point_count"];
 const UNGROUPED: FilterSpecification = ["!", ["has", "point_count"]];
