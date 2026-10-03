@@ -137,8 +137,6 @@ jobs:
       IMAGE_TAG: ${{ inputs.environment || 'dev' }}-${{ github.sha }}
       SERVICES: ${{ join(fromJSON(needs.select.outputs.services), ' ') }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
       - name: Select image tags
         run: |
           for service in $SERVICES; do
@@ -152,6 +150,8 @@ jobs:
           done
 
       - name: Pull & restart services
+        # the Compose file and .env of the environment live in this directory on the target machine
+        working-directory: ${{ vars.DEPLOY_DIR }}
         run: |
           # SERVICES is unquoted on purpose so that each service is a separate argument
           docker compose pull $SERVICES
