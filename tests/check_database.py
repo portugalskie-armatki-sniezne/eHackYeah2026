@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
+    entity_count = len(json.loads((ROOT / "db/seeds/service_entities.json").read_text())["entities"])
     project = "ehack-db-check-" + uuid.uuid4().hex[:8]
     environment = os.environ | {
         "COMPOSE_PROJECT_NAME": project,
@@ -43,7 +44,9 @@ def main():
 
     def snapshot():
         return query("SELECT md5(string_agg(row_to_json(c)::text, '' ORDER BY teryt_code)) "
-                     "FROM institution_contacts c;")
+                     "FROM local_government_offices c; "
+                     "SELECT md5(string_agg(row_to_json(e)::text, '' ORDER BY source_key)) "
+                     "FROM service_entities e;")
 
     def seed_completed():
         compose("wait", "db-seeder")
@@ -70,9 +73,13 @@ def main():
         print("Building and starting isolated Compose services...", flush=True)
         compose("up", "-d")
         seed_completed()
-        if query("SELECT COUNT(*) FROM institution_contacts;") != "203":
+        if query("SELECT COUNT(*) FROM local_government_offices;") != "203":
             raise RuntimeError("The workbook import did not produce 203 contacts")
-        print("PASS: startup ran migrations and imported 203 contacts", flush=True)
+        if query("SELECT COUNT(*) FROM service_entities;") != str(entity_count):
+            raise RuntimeError("The service entity snapshot import is incomplete")
+        if query("SELECT to_regclass('institution_contacts') IS NULL;") != "t":
+            raise RuntimeError("The old institution table still exists")
+        print(f"PASS: startup imported 203 offices and {entity_count} service entities", flush=True)
         before = snapshot()
         categories_before = query("SELECT id, name FROM report_categories ORDER BY id;")
         statuses_before = query("SELECT id, name FROM master_report_statuses ORDER BY id;")
@@ -88,7 +95,10 @@ def main():
         print(compose("run", "--rm", "--no-deps", "-e", "PYTHONPATH=/app",
                       "-v", f"{ROOT / 'tests'}:/tests:ro", "--entrypoint", "python", "db-seeder",
                       "/tests/test_contact_import.py"), flush=True)
-        print("PASS: XLS parsing, upsert, and transaction rollback checks", flush=True)
+        print(compose("run", "--rm", "--no-deps", "-e", "PYTHONPATH=/app",
+                      "-v", f"{ROOT / 'tests'}:/tests:ro", "--entrypoint", "python", "db-seeder",
+                      "/tests/test_service_entity_import.py"), flush=True)
+        print("PASS: XLS, BIP parsing, entity roles, upserts, and transaction rollback checks", flush=True)
         query((ROOT / "tests/fixtures/check_reports.sql").read_text())
         query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
         print("PASS: master reports, statuses, institutions, comments, likes, and constraints", flush=True)
@@ -110,7 +120,7 @@ def main():
                             "WHERE n.nspname = 'public' AND c.contype IN ('f', 'u', 'c') "
                             "AND t.relname IN ('users', 'report_categories', 'master_report_statuses', "
                             "'master_reports', 'reports', 'report_photos', 'master_report_comments', "
-                            "'master_report_comment_likes', 'institution_contacts');")
+                            "'master_report_comment_likes', 'local_government_offices', 'service_entities');")
         if constraints != "0":
             raise RuntimeError("Constraint migration rollback left constraints behind")
         for _ in range(2):
@@ -118,13 +128,15 @@ def main():
         remaining = query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' "
                           "AND table_name IN ('users', 'report_categories', 'master_report_statuses', "
                           "'master_reports', 'reports', 'report_photos', 'master_report_comments', "
-                          "'master_report_comment_likes', 'institution_contacts');")
+                          "'master_report_comment_likes', 'local_government_offices', 'service_entities');")
         if remaining != "0":
             raise RuntimeError("Migration rollback left application tables behind")
         compose("run", "--rm", "--no-deps", "db-migrator", "up")
         compose("run", "--rm", "--no-deps", "db-seeder")
-        if query("SELECT COUNT(*) FROM institution_contacts;") != "203":
+        if query("SELECT COUNT(*) FROM local_government_offices;") != "203":
             raise RuntimeError("Import after migration rollback failed")
+        if query("SELECT COUNT(*) FROM service_entities;") != str(entity_count):
+            raise RuntimeError("Service entity import after migration rollback failed")
         query((ROOT / "tests/fixtures/check_reports.sql").read_text())
         query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
         print("PASS: all four migrations rolled back and reapplied successfully", flush=True)
