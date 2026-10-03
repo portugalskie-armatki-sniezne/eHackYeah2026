@@ -19,21 +19,94 @@ type EventMarkersProps = {
   draftLngLat: [number, number] | null;
 };
 
-// A drawn survey pin: a paper head outlined in ink, lifted off an amber block
-// like the brand mark, tapering to the point it was dropped on. The origin of
-// the viewBox is the tip, so the marker's bottom anchor lands on the ground.
-function pinElement(label: string, draft = false): HTMLElement {
+type PinElementOptions = {
+  draft?: boolean;
+  imageUrl?: string | null;
+};
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+// One layer of the head, drawn on the head's own grid: the viewBox is exactly
+// the paper rect, so stretching the element opens the drawing off a bottom edge
+// that stays where the needle leaves it.
+function headPlate(className: string, content: string): SVGSVGElement {
+  const plate = document.createElementNS(SVG_NS, "svg");
+  plate.setAttribute("class", `event-pin__plate ${className}`);
+  plate.setAttribute("viewBox", "-12 -40 24 24");
+  plate.setAttribute("aria-hidden", "true");
+  plate.innerHTML = content;
+  return plate;
+}
+
+function pinElement(
+  label: string,
+  { draft = false, imageUrl = null }: PinElementOptions = {},
+): HTMLElement {
   const element = document.createElement("div");
   element.className = draft ? "event-pin event-pin--draft" : "event-pin";
   element.setAttribute("role", "img");
   element.setAttribute("aria-label", label);
-  element.innerHTML = `
-    <svg class="event-pin__mark" viewBox="-16 -40 32 40" aria-hidden="true" focusable="false">
-      <rect class="event-pin__block" x="-8" y="-36" width="24" height="24" />
-      <path class="event-pin__line" d="M-12 -40 H12 V-16 H5 L0 0 L-5 -16 H-12 Z" />
-      <rect class="event-pin__dot" x="-2.5" y="-30.5" width="5" height="5" />
-    </svg>
+
+  // maplibre writes the marker's position onto `element`, so the drop animation
+  // needs a box of its own to transform.
+  const drop = document.createElement("div");
+  drop.className = "event-pin__drop";
+
+  // Its own layer, under the needle: the block overhangs the head's bottom edge,
+  // and the needle has to pass over that overhang, not under it.
+  const blocks = headPlate(
+    "event-pin__blocks",
+    `<rect class="event-pin__block" x="-8" y="-36" width="24" height="24" />`,
+  );
+
+  const head = headPlate(
+    "event-pin__head",
+    `
+    <rect class="event-pin__paper" x="-12" y="-40" width="24" height="24" />
+    <rect class="event-pin__dot" x="-2.5" y="-30.5" width="5" height="5" />
+  `,
+  );
+
+  if (imageUrl) {
+    // only a pin with something to frame stretches on hover
+    element.classList.add("event-pin--photo");
+    // built as a node rather than markup: the url is user-supplied
+    const photo = document.createElementNS(SVG_NS, "image");
+    photo.setAttribute("class", "event-pin__photo");
+    // Fills the head rect exactly. Any inset here is in viewBox units, so it
+    // would widen into a paper gap as the head stretches; instead the outline,
+    // drawn last and centred on this edge, laps over it.
+    photo.setAttribute("x", "-12");
+    photo.setAttribute("y", "-40");
+    photo.setAttribute("width", "24");
+    photo.setAttribute("height", "24");
+    // "slice" crops to fill, like object-fit: cover
+    photo.setAttribute("preserveAspectRatio", "xMidYMid slice");
+    photo.setAttribute("href", imageUrl);
+    head.append(photo);
+  }
+  // Last, and drawn open across the bottom centre, so the ink frames whatever
+  // the head holds without ruling a line over the join the needle comes out of.
+  head.insertAdjacentHTML(
+    "beforeend",
+    `<path class="event-pin__line" d="M5 -16 H12 V-40 H-12 V-16 H-5" />`,
+  );
+
+  const needle = document.createElementNS(SVG_NS, "svg");
+  needle.setAttribute("class", "event-pin__needle");
+  needle.setAttribute("viewBox", "-16 -40 32 40");
+  needle.setAttribute("aria-hidden", "true");
+  // Its paper runs well past the head's bottom edge so the two drawings cannot
+  // part along a hairline; the head covers the overlap.
+  needle.innerHTML = `
+    <path class="event-pin__paper" d="M-5 -18 V-16 L0 0 L5 -16 V-18 Z" />
+    <path class="event-pin__line" d="M-5 -16 L0 0 L5 -16" />
   `;
+
+  // Back to front: amber block, then the needle over its overhang, then the head
+  // over the needle's, since the photo now reaches the head's bottom edge.
+  drop.append(blocks, needle, head);
+  element.append(drop);
   return element;
 }
 
@@ -72,7 +145,9 @@ export default function EventMarkers({
         return;
       }
       const marker = new Marker({
-        element: pinElement(`Event pin ${index + 1}: ${pin.description}`),
+        element: pinElement(`Event pin ${index + 1}: ${pin.description}`, {
+          imageUrl: pin.imageUrl,
+        }),
         anchor: "bottom",
       })
         .setLngLat(pin.lngLat)
@@ -87,7 +162,7 @@ export default function EventMarkers({
       return;
     }
     const marker = new Marker({
-      element: pinElement("New pin", true),
+      element: pinElement("New pin", { draft: true }),
       anchor: "bottom",
     })
       .setLngLat(draftLngLat)
