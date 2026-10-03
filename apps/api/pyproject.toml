@@ -12,6 +12,17 @@ dependencies = [
     "uvicorn==0.54.0",
 ]
 
+[project.optional-dependencies]
+inference = [
+    "huggingface-hub>=1.33.0,<2",
+    "laya @ git+https://github.com/r33drichards/laya-vision.git@9e1e2419d855ad3e1a2af4d4bd1ef6be5418842c",
+    "transformers>=5.17.0,<5.20",
+    "torchvision>=0.27.0",
+    "pillow>=12.0.0",
+    "sentencepiece>=0.2.1",
+    "sacremoses>=0.1.1",
+]
+
 [dependency-groups]
 dev = [
     "httpx2==2.13.1",

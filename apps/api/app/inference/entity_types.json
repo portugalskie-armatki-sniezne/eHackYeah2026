@@ -1,0 +1,20 @@
+{
+  "instructions": "Choose the service provider best suited to resolve the reported problem or proposal. Select exactly one option even if information is incomplete. Focus on the requested action, not incidental objects or locations.",
+  "criteria": {
+    "road_manager": "Roads, potholes, sidewalks, road signs, street lighting and traffic signals.",
+    "transport_authority": "Public transport routes, timetables, fares, bus stops and service planning.",
+    "transport_operator": "Bus or tram vehicle faults, driver conduct and missed scheduled services.",
+    "green_space_manager": "Public parks, trees, grass, flowerbeds, park benches and park playgrounds.",
+    "water_infrastructure_manager": "Rainwater drainage, storm drains, drainage ditches, rivers and flood protection.",
+    "water_sewage_utility": "Drinking water supply, burst water pipes, sanitary sewers and sewage leaks.",
+    "water_sewage_authority": "Intermunicipal water and sewer governance, joint regulations and regional coordination.",
+    "heating_utility": "District heating supply, heating network pipes and heating outages.",
+    "waste_management": "Waste collection, overflowing bins, illegal dumps, litter and street cleaning.",
+    "municipal_services": "General communal facilities, public toilets and municipal services spanning several utilities.",
+    "municipal_guard": "Public order enforcement, illegal parking, noise and ongoing unlawful behavior.",
+    "housing_manager": "Municipal housing repairs, roofs, stairwells, lifts and building maintenance.",
+    "cemetery_manager": "Cemetery paths, graves, cemetery trees and burial facilities.",
+    "sports_infrastructure_manager": "Municipal sports fields, stadiums, swimming pools and sports equipment.",
+    "municipal_investment": "Major new municipal construction projects, investment planning and construction site works."
+  }
+}

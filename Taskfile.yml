@@ -2,10 +2,11 @@ version: "3"
 
 tasks:
   setup:
-    desc: Install JavaScript, TypeScript, and Python dependencies, and create missing .env
+    desc: Install dependencies, download inference models, and create missing .env
     cmds:
       - bun install
-      - uv sync --directory apps/api
+      - uv sync --directory apps/api --extra inference
+      - uv run --directory apps/api --extra inference python -m app.inference.download
       - cmd: |
           if [ ! -f .env ]; then
             cp .env.example .env

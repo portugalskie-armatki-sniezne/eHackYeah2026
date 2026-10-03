@@ -1,31 +1,14 @@
 from datetime import date
-from typing import Annotated, Literal
+from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query, status
 from psycopg import sql
 from pydantic import BaseModel
 
 from app.common import Connection, Limit, Offset, Page, fetch_page
+from app.service_entity_types import ServiceEntityType as ServiceEntityType
 
 router = APIRouter(prefix="/service-entities", tags=["service entities"])
-
-ServiceEntityType = Literal[
-    "road_manager",
-    "transport_authority",
-    "transport_operator",
-    "green_space_manager",
-    "water_infrastructure_manager",
-    "water_sewage_utility",
-    "water_sewage_authority",
-    "heating_utility",
-    "waste_management",
-    "municipal_services",
-    "municipal_guard",
-    "housing_manager",
-    "cemetery_manager",
-    "sports_infrastructure_manager",
-    "municipal_investment",
-]
 
 ENTITY_TYPE_DESCRIPTION = (
     "Typ jednostki, dopasowanie dokładne: "

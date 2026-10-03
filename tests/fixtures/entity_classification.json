@@ -1,0 +1,444 @@
+[
+  {
+    "id": "road_manager-1",
+    "split": "development",
+    "title": "Dziura w jezdni",
+    "description": "Na ulicy przed szkołą jest głęboka dziura. Samochody w nią wpadają.",
+    "source_language": "pl",
+    "expected": "road_manager"
+  },
+  {
+    "id": "road_manager-2",
+    "split": "holdout",
+    "title": "Krzywy chodnik",
+    "description": "Płyty chodnikowe wystają i można się potknąć. Proszę je wyrównać.",
+    "source_language": "pl",
+    "expected": "road_manager"
+  },
+  {
+    "id": "road_manager-3",
+    "split": "holdout",
+    "title": "Broken traffic signal",
+    "description": "The pedestrian crossing signal is completely dark. Please repair it.",
+    "source_language": "en",
+    "expected": "road_manager"
+  },
+  {
+    "id": "transport_authority-1",
+    "split": "development",
+    "title": "Za mało autobusów",
+    "description": "Prosimy o zwiększenie częstotliwości linii 139 w godzinach szczytu.",
+    "source_language": "pl",
+    "expected": "transport_authority"
+  },
+  {
+    "id": "transport_authority-2",
+    "split": "holdout",
+    "title": "Brak przystanku",
+    "description": "Proponuję nowy przystanek autobusowy przy osiedlu, obecny jest bardzo daleko.",
+    "source_language": "pl",
+    "expected": "transport_authority"
+  },
+  {
+    "id": "transport_authority-3",
+    "split": "holdout",
+    "title": "Bus timetable",
+    "description": "Please move the last departure later so residents can get home after work.",
+    "source_language": "en",
+    "expected": "transport_authority"
+  },
+  {
+    "id": "transport_operator-1",
+    "split": "development",
+    "title": "Zepsute drzwi autobusu",
+    "description": "W autobusie linii 144 tylne drzwi nie działają. Pojazd wymaga naprawy.",
+    "source_language": "pl",
+    "expected": "transport_operator"
+  },
+  {
+    "id": "transport_operator-2",
+    "split": "holdout",
+    "title": "Kierowca nie zatrzymał się",
+    "description": "Autobus przejechał obok przystanku mimo że czekali pasażerowie i machali.",
+    "source_language": "pl",
+    "expected": "transport_operator"
+  },
+  {
+    "id": "transport_operator-3",
+    "split": "holdout",
+    "title": "Broken tram heating",
+    "description": "The tram carriage has no heating and passengers are freezing.",
+    "source_language": "en",
+    "expected": "transport_operator"
+  },
+  {
+    "id": "green_space_manager-1",
+    "split": "development",
+    "title": "Uschnięte drzewo",
+    "description": "W parku nad alejką wisi suchy konar. Proszę przyciąć drzewo.",
+    "source_language": "pl",
+    "expected": "green_space_manager"
+  },
+  {
+    "id": "green_space_manager-2",
+    "split": "holdout",
+    "title": "Zaniedbany skwer",
+    "description": "Na skwerze trawa sięga kolan, proszę o koszenie i pielęgnację zieleni.",
+    "source_language": "pl",
+    "expected": "green_space_manager"
+  },
+  {
+    "id": "green_space_manager-3",
+    "split": "holdout",
+    "title": "Broken park bench",
+    "description": "A wooden bench in the public park has snapped boards and needs repair.",
+    "source_language": "en",
+    "expected": "green_space_manager"
+  },
+  {
+    "id": "water_infrastructure_manager-1",
+    "split": "development",
+    "title": "Zatkany odpływ deszczowy",
+    "description": "Po deszczu ulica stoi w wodzie. Kratka kanalizacji deszczowej jest zapchana liśćmi.",
+    "source_language": "pl",
+    "expected": "water_infrastructure_manager"
+  },
+  {
+    "id": "water_infrastructure_manager-2",
+    "split": "holdout",
+    "title": "Rów melioracyjny",
+    "description": "Rów odprowadzający deszczówkę zarósł i woda zalewa posesje. Proszę go udrożnić.",
+    "source_language": "pl",
+    "expected": "water_infrastructure_manager"
+  },
+  {
+    "id": "water_infrastructure_manager-3",
+    "split": "holdout",
+    "title": "Flood embankment",
+    "description": "The river flood protection embankment is damaged and needs repair.",
+    "source_language": "en",
+    "expected": "water_infrastructure_manager"
+  },
+  {
+    "id": "water_sewage_utility-1",
+    "split": "development",
+    "title": "Pęknięta rura",
+    "description": "Z pękniętego wodociągu wypływa woda na chodnik. W pobliskich domach nie ma wody.",
+    "source_language": "pl",
+    "expected": "water_sewage_utility"
+  },
+  {
+    "id": "water_sewage_utility-2",
+    "split": "holdout",
+    "title": "Awaria kanalizacji",
+    "description": "Ze studzienki kanalizacji sanitarnej wylewają się ścieki i bardzo śmierdzi.",
+    "source_language": "pl",
+    "expected": "water_sewage_utility"
+  },
+  {
+    "id": "water_sewage_utility-3",
+    "split": "holdout",
+    "title": "No tap water",
+    "description": "There is no drinking water in several streets after a water main burst.",
+    "source_language": "en",
+    "expected": "water_sewage_utility"
+  },
+  {
+    "id": "water_sewage_authority-1",
+    "split": "development",
+    "title": "Związek wodociągowy",
+    "description": "Proszę międzygminny związek wodociągów i kanalizacji o wyjaśnienie wspólnych zasad dla gmin.",
+    "source_language": "pl",
+    "expected": "water_sewage_authority"
+  },
+  {
+    "id": "water_sewage_authority-2",
+    "split": "holdout",
+    "title": "Współpraca gmin",
+    "description": "Wnioskujemy o skoordynowanie polityki wodociągowej i kanalizacyjnej pomiędzy gminami w związku.",
+    "source_language": "pl",
+    "expected": "water_sewage_authority"
+  },
+  {
+    "id": "water_sewage_authority-3",
+    "split": "holdout",
+    "title": "Joint water regulations",
+    "description": "Please ask the intermunicipal water and sewer authority to clarify regulations shared by its member municipalities.",
+    "source_language": "en",
+    "expected": "water_sewage_authority"
+  },
+  {
+    "id": "heating_utility-1",
+    "split": "development",
+    "title": "Awaria ciepłociągu",
+    "description": "Z rury sieci ciepłowniczej wydobywa się para. Całe osiedle nie ma ogrzewania.",
+    "source_language": "pl",
+    "expected": "heating_utility"
+  },
+  {
+    "id": "heating_utility-2",
+    "split": "holdout",
+    "title": "Zimne kaloryfery",
+    "description": "Po awarii miejskiej sieci ciepłowniczej kilka bloków nie ma ogrzewania.",
+    "source_language": "pl",
+    "expected": "heating_utility"
+  },
+  {
+    "id": "heating_utility-3",
+    "split": "holdout",
+    "title": "District heating outage",
+    "description": "District heating is down throughout the neighborhood after a heating pipeline failure.",
+    "source_language": "en",
+    "expected": "heating_utility"
+  },
+  {
+    "id": "waste_management-1",
+    "split": "development",
+    "title": "Przepełnione kosze",
+    "description": "Śmieci wysypują się z koszy na ulicy. Proszę o ich opróżnienie.",
+    "source_language": "pl",
+    "expected": "waste_management"
+  },
+  {
+    "id": "waste_management-2",
+    "split": "holdout",
+    "title": "Dzikie wysypisko",
+    "description": "Przy drodze leżą stare opony i worki ze śmieciami. Proszę je wywieźć.",
+    "source_language": "pl",
+    "expected": "waste_management"
+  },
+  {
+    "id": "waste_management-3",
+    "split": "holdout",
+    "title": "Missed rubbish collection",
+    "description": "Our household rubbish bins have not been emptied for two weeks.",
+    "source_language": "en",
+    "expected": "waste_management"
+  },
+  {
+    "id": "municipal_services-1",
+    "split": "development",
+    "title": "Toaleta publiczna",
+    "description": "Miejska toaleta przy rynku jest niesprawna. Proszę przywrócić jej działanie.",
+    "source_language": "pl",
+    "expected": "municipal_services"
+  },
+  {
+    "id": "municipal_services-2",
+    "split": "holdout",
+    "title": "Usługi komunalne",
+    "description": "Proszę zakład usług komunalnych o skoordynowanie obsługi kilku ogólnodostępnych obiektów miejskich.",
+    "source_language": "pl",
+    "expected": "municipal_services"
+  },
+  {
+    "id": "municipal_services-3",
+    "split": "holdout",
+    "title": "Public toilet maintenance",
+    "description": "The municipal public toilet is broken and needs maintenance.",
+    "source_language": "en",
+    "expected": "municipal_services"
+  },
+  {
+    "id": "municipal_guard-1",
+    "split": "development",
+    "title": "Zastawiony chodnik",
+    "description": "Samochód stoi na chodniku i blokuje przejście. Proszę o interwencję i ukaranie kierowcy.",
+    "source_language": "pl",
+    "expected": "municipal_guard"
+  },
+  {
+    "id": "municipal_guard-2",
+    "split": "holdout",
+    "title": "Nocny hałas",
+    "description": "Pod oknami ktoś codziennie nocą puszcza głośną muzykę. Proszę o patrol.",
+    "source_language": "pl",
+    "expected": "municipal_guard"
+  },
+  {
+    "id": "municipal_guard-3",
+    "split": "holdout",
+    "title": "Illegal parking",
+    "description": "Cars are illegally parked on the zebra crossing. Please send an enforcement patrol.",
+    "source_language": "en",
+    "expected": "municipal_guard"
+  },
+  {
+    "id": "housing_manager-1",
+    "split": "development",
+    "title": "Cieknący dach",
+    "description": "W kamienicy komunalnej przecieka dach nad mieszkaniami. Proszę zarządcę o naprawę.",
+    "source_language": "pl",
+    "expected": "housing_manager"
+  },
+  {
+    "id": "housing_manager-2",
+    "split": "holdout",
+    "title": "Zepsuta winda",
+    "description": "W komunalnym bloku nie działa winda, starsi mieszkańcy nie mogą wyjść z domu.",
+    "source_language": "pl",
+    "expected": "housing_manager"
+  },
+  {
+    "id": "housing_manager-3",
+    "split": "holdout",
+    "title": "Stairwell lights",
+    "description": "The lights in the stairwell of our municipal apartment building are broken.",
+    "source_language": "en",
+    "expected": "housing_manager"
+  },
+  {
+    "id": "cemetery_manager-1",
+    "split": "development",
+    "title": "Alejka na cmentarzu",
+    "description": "Na cmentarzu komunalnym zapadła się alejka pomiędzy grobami. Proszę ją naprawić.",
+    "source_language": "pl",
+    "expected": "cemetery_manager"
+  },
+  {
+    "id": "cemetery_manager-2",
+    "split": "holdout",
+    "title": "Brama cmentarza",
+    "description": "Brama na cmentarzu miejskim jest uszkodzona i nie można jej zamknąć.",
+    "source_language": "pl",
+    "expected": "cemetery_manager"
+  },
+  {
+    "id": "cemetery_manager-3",
+    "split": "holdout",
+    "title": "Cemetery tree",
+    "description": "A dead tree overhangs graves in the municipal cemetery. Please make it safe.",
+    "source_language": "en",
+    "expected": "cemetery_manager"
+  },
+  {
+    "id": "sports_infrastructure_manager-1",
+    "split": "development",
+    "title": "Zniszczone boisko",
+    "description": "Na miejskim boisku bramki są uszkodzone, a siatki porwane. Proszę o naprawę.",
+    "source_language": "pl",
+    "expected": "sports_infrastructure_manager"
+  },
+  {
+    "id": "sports_infrastructure_manager-2",
+    "split": "holdout",
+    "title": "Awaria basenu",
+    "description": "Na miejskim basenie nie działają prysznice w szatni.",
+    "source_language": "pl",
+    "expected": "sports_infrastructure_manager"
+  },
+  {
+    "id": "sports_infrastructure_manager-3",
+    "split": "holdout",
+    "title": "Stadium floodlights",
+    "description": "The floodlights at the municipal sports stadium have failed. Please repair them.",
+    "source_language": "en",
+    "expected": "sports_infrastructure_manager"
+  },
+  {
+    "id": "municipal_investment-1",
+    "split": "development",
+    "title": "Nowa hala miejska",
+    "description": "Proponujemy budowę nowej hali miejskiej. Proszę o uwzględnienie inwestycji w wieloletnim planie.",
+    "source_language": "pl",
+    "expected": "municipal_investment"
+  },
+  {
+    "id": "municipal_investment-2",
+    "split": "holdout",
+    "title": "Plac budowy centrum",
+    "description": "Na placu budowy nowego miejskiego centrum pozostawiono niezabezpieczony wykop. Proszę o zabezpieczenie inwestycji.",
+    "source_language": "pl",
+    "expected": "municipal_investment"
+  },
+  {
+    "id": "municipal_investment-3",
+    "split": "holdout",
+    "title": "New civic center",
+    "description": "Residents propose constructing a new municipal civic center. Please include it in the capital investment plan.",
+    "source_language": "en",
+    "expected": "municipal_investment"
+  },
+  {
+    "id": "negation-road",
+    "split": "holdout",
+    "title": "Nie chodzi o śmieci",
+    "description": "Śmieci już zabrano. Proszę jedynie naprawić głęboką dziurę w asfalcie na jezdni.",
+    "source_language": "pl",
+    "expected": "road_manager"
+  },
+  {
+    "id": "typos-road",
+    "split": "holdout",
+    "title": "Dziura w drodze",
+    "description": "Wielka dziora w asfalcie na jezdni, prosze naprawic bo auta uszkadzaja kola.",
+    "source_language": "pl",
+    "expected": "road_manager"
+  },
+  {
+    "id": "park-waste",
+    "split": "holdout",
+    "title": "Śmieci przy parku",
+    "description": "Proszę wywieźć worki ze śmieciami porzucone przy wejściu do parku.",
+    "source_language": "pl",
+    "expected": "waste_management"
+  },
+  {
+    "id": "bus-road",
+    "split": "holdout",
+    "title": "Dziura przy przystanku",
+    "description": "Asfalt jezdni obok przystanku autobusowego zapadł się. Proszę naprawić nawierzchnię drogi.",
+    "source_language": "pl",
+    "expected": "road_manager"
+  },
+  {
+    "id": "guard-dumping",
+    "split": "holdout",
+    "title": "Ktoś wyrzuca odpady",
+    "description": "Właśnie widzę kierowcę wyrzucającego gruz do lasu. Proszę wysłać patrol i ukarać sprawcę.",
+    "source_language": "pl",
+    "expected": "municipal_guard"
+  },
+  {
+    "id": "sparse",
+    "split": "contract",
+    "title": "Problem",
+    "description": "Coś tu nie działa, proszę pomóc.",
+    "source_language": "pl",
+    "expected": null
+  },
+  {
+    "id": "outside-domain",
+    "split": "contract",
+    "title": "Internet",
+    "description": "My private home internet connection is slow.",
+    "source_language": "en",
+    "expected": null
+  },
+  {
+    "id": "multiple-issues",
+    "split": "contract",
+    "title": "Kilka usterek",
+    "description": "Na drodze jest dziura, kosze są pełne, a w parku uschło drzewo.",
+    "source_language": "pl",
+    "expected": null
+  },
+  {
+    "id": "photo-pothole",
+    "split": "holdout",
+    "title": "Uszkodzona jezdnia",
+    "description": "Na zdjęciu widać dziurę w jezdni. Proszę o naprawę nawierzchni.",
+    "source_language": "pl",
+    "expected": "road_manager",
+    "image": "tooling/seed/mock_photos/pothole.jpg"
+  },
+  {
+    "id": "photo-waste",
+    "split": "holdout",
+    "title": "Porzucone odpady",
+    "description": "Proszę wywieźć śmieci widoczne na zdjęciu.",
+    "source_language": "pl",
+    "expected": "waste_management",
+    "image": "tooling/seed/mock_photos/illegal_dump.jpg"
+  }
+]

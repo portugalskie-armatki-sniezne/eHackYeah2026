@@ -196,7 +196,9 @@ def test_request_rejects_missing_content_and_unknown_fields(changes):
 
 
 @pytest.fixture
-def inference_client():
+def inference_client(monkeypatch):
+    monkeypatch.delenv("LAYA_MODEL_PATH", raising=False)
+    monkeypatch.delenv("TRANSLATION_MODEL_PATH", raising=False)
     previous = app.dependency_overrides.copy()
     app.dependency_overrides[get_current_user] = lambda: object()
     yield TestClient(app)
