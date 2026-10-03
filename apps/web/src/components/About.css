@@ -1,0 +1,283 @@
+/* The about page is the map's tile with words on it: the same drawn frame,
+   inset so the navbar sits just inside its outline, scrolling on its own
+   because the body never does. */
+.about {
+  --about-inset: 0.75rem;
+
+  position: fixed;
+  inset: 0;
+  padding: calc(var(--about-inset) + var(--safe-top))
+    calc(var(--about-inset) + var(--scaffold-offset) + var(--safe-right))
+    calc(var(--about-inset) + var(--scaffold-offset) + var(--safe-bottom))
+    calc(var(--about-inset) + var(--safe-left));
+  background: var(--paper);
+}
+
+/* Parchment with the map's drafting grid, so the page reads as a sheet from
+   the same pad as the map. */
+.about__frame {
+  height: 100%;
+  overflow: auto;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background-color: #efe8d6;
+  background-image:
+    linear-gradient(to right, rgba(20, 20, 20, 0.07) 1px, transparent 0),
+    linear-gradient(to bottom, rgba(20, 20, 20, 0.07) 1px, transparent 0);
+  background-size: 2rem 2rem;
+  box-shadow: var(--scaffold-shadow);
+}
+
+/* The column is as wide as the navbar and starts below it. */
+.about__sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: min(100%, 62rem);
+  margin: 0 auto;
+  padding: calc(6.5rem + var(--safe-top)) 1.5rem 3rem;
+}
+
+.about__header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  box-shadow: var(--scaffold-shadow);
+}
+
+/* Colours come from BrandMark.css; the page only sizes it. */
+.about__mark {
+  width: 80px;
+  height: 50px;
+}
+
+.about__eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.about__title {
+  margin: 0;
+  font-size: clamp(2.25rem, 6vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.about__lede {
+  max-width: 38rem;
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+/* The way back to the map is the toolbar's outlined tile: it lifts off an
+   amber block on hover and presses back down onto it when clicked. */
+.about__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.25rem;
+  margin-top: 0.5rem;
+  padding: 0 0.875rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+}
+
+.about__button:hover {
+  background: var(--amber-ghost);
+  box-shadow: 4px 4px 0 var(--amber);
+  transform: translate(-1px, -1px);
+}
+
+.about__button:active {
+  box-shadow: 0 0 0 var(--amber);
+  transform: translate(2px, 2px);
+}
+
+/* Three outlined tiles on amber blocks, one per thing the platform is for. */
+.about__pillars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.about__tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  box-shadow: 4px 4px 0 var(--amber);
+}
+
+.about__tile-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.about__tile-text,
+.about__step-text,
+.about__text {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.about__section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  box-shadow: var(--scaffold-shadow);
+}
+
+/* Section titles are ruled off like the dialog headers. */
+.about__heading {
+  margin: 0;
+  padding-bottom: 0.75rem;
+  border-bottom: var(--scaffold-line) solid var(--ink);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.about__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.about__step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+/* The step number is a small pressed tile, like the active 3D toggle. */
+.about__step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--amber);
+  font-size: 0.9375rem;
+  font-weight: 800;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.about__step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.25rem;
+}
+
+.about__step-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.about__text {
+  max-width: 44rem;
+}
+
+.about__footer {
+  padding: 1.25rem 1.5rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--amber-ghost);
+  box-shadow: 4px 4px 0 var(--amber);
+}
+
+.about__link {
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--amber);
+  text-decoration-thickness: var(--scaffold-line);
+  text-underline-offset: 0.2em;
+}
+
+.about__link:hover {
+  text-decoration-color: var(--ink);
+}
+
+.about__button:focus-visible,
+.about__link:focus-visible {
+  outline: var(--scaffold-line) solid var(--focus);
+  outline-offset: 3px;
+  border-radius: var(--scaffold-radius);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about__button {
+    transition: none;
+  }
+}
+
+/* Phones: the same inset and lighter shadow as the map, and the column starts
+   just under the folded navbar. */
+@media (max-width: 40rem) {
+  .about {
+    --about-inset: 0.5rem;
+  }
+
+  .about__frame {
+    box-shadow: 4px 4px 0 var(--amber);
+  }
+
+  .about__sheet {
+    gap: 1.25rem;
+    padding: calc(5.5rem + var(--safe-top)) 1rem 2rem;
+  }
+
+  .about__header,
+  .about__section {
+    padding: 1.25rem 1rem;
+    box-shadow: 4px 4px 0 var(--amber);
+  }
+
+  .about__footer {
+    padding: 1rem;
+  }
+}
