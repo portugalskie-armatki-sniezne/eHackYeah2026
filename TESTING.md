@@ -3,10 +3,10 @@
 From the repository root, run:
 
 ```sh
-docker compose up
+bun run db
 ```
 
-Compose discovers the root `docker-compose.yaml`. It provides local defaults; `.env` is optional.
+The command starts Compose services from the root `docker-compose.yaml` and waits for seed import to finish. PostgreSQL stays running afterward. Compose provides local defaults; `.env` is optional.
 The seed image uses `tooling/seed/Dockerfile` and `tooling/seed/requirements.txt`.
 To inspect migration and import output, run `docker compose logs db-migrator db-seeder`.
 

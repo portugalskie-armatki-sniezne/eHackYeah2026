@@ -31,7 +31,7 @@ eHackYeah2026/
 From the repository root, start the database with:
 
 ```sh
-docker compose up
+bun run db
 ```
 
 Compose starts PostGIS, applies migrations, and imports the institution contacts workbook. Defaults are provided for local development; create `.env` from `.env.example` only if you want to override them. The importer image is built from `tooling/seed/Dockerfile` and installs dependencies from `tooling/seed/requirements.txt`.
@@ -46,9 +46,10 @@ Install Bun 1.4 or newer and Node.js 22.12 or newer, then run commands from the 
 | `bun run setup` | Create missing `.env` and run application setup. |
 | `bun run all` | Install, set up, and start web and API. |
 | `bun run web` | Start the frontend. |
+| `bun run db` | Start the database, apply migrations, and wait for seed import. |
 | `bun run api` | Start the database and seed services, then start the API. |
 
-The current web workspace is a React/Vite scaffold. The API workspace is not implemented yet. Setup preserves `.env`. PostgreSQL is published on `127.0.0.1:POSTGRES_PORT`. Ctrl+C stops applications; the database remains running.
+The current web workspace is a React/Vite scaffold. The API workspace is not implemented yet; `bun run api` still starts the database. Both `bun run db` and `bun run api` require Docker with Compose running. The database command returns after seed import finishes and leaves PostgreSQL running. Setup preserves `.env`. PostgreSQL is published on `127.0.0.1:POSTGRES_PORT`. Ctrl+C stops applications; the database remains running.
 
 ## Web application
 

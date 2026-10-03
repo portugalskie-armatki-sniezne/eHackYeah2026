@@ -63,25 +63,59 @@ test("setup creates configuration, preserves existing values, and runs app setup
   expect(await Bun.file(join(root, "apps/api/setup-result")).text()).toBe("preserved");
 });
 
-test("unimplemented applications do not start Docker", async () => {
+test("unimplemented web does not start Docker", async () => {
   const root = await fixture();
   await fakeDocker(root);
-  for (const app of ["web", "api"]) {
-    const result = await command(root, app);
-    expect(result.code).toBe(0);
-    expect(result.stdout).toContain(`[${app}] Not implemented yet.`);
-  }
+  const result = await command(root, "web");
+  expect(result.code).toBe(0);
+  expect(result.stdout).toContain("[web] Not implemented yet.");
   expect(await Bun.file(join(root, "calls.log")).exists()).toBe(false);
 });
 
-test("all installs the workspaces and prepares the unimplemented outline", async () => {
+test.skipIf(process.platform === "win32")("database and unimplemented API start database services without .env", async () => {
+  for (const name of ["db", "api"]) {
+    const root = await fixture();
+    await fakeDocker(root);
+    const result = await command(root, name);
+    expect(result.code).toBe(0);
+    const calls = (await Bun.file(join(root, "calls.log")).text()).trim().split("\n").map((call) => JSON.parse(call));
+    expect(calls).toEqual([
+      ["compose", "up", "-d", "db-seeder"],
+      ["compose", "wait", "db-seeder"],
+    ]);
+    expect(await Bun.file(join(root, ".env")).exists()).toBe(false);
+    if (name === "api") expect(result.stdout).toContain("[api] Not implemented yet.");
+  }
+});
+
+test.skipIf(process.platform === "win32")("all installs the workspaces and starts the database for the unimplemented API", async () => {
   const root = await fixture();
+  await fakeDocker(root);
   const result = await command(root, "all");
   expect(result.code).toBe(0);
   expect(await Bun.file(join(root, "bun.lock")).exists()).toBe(true);
   expect(await Bun.file(join(root, ".env")).exists()).toBe(true);
   expect(result.stdout).toContain("[web] Not implemented yet.");
   expect(result.stdout).toContain("[api] Not implemented yet.");
+  const calls = (await Bun.file(join(root, "calls.log")).text()).trim().split("\n").map((call) => JSON.parse(call));
+  expect(calls).toEqual([
+    ["compose", "up", "-d", "db-seeder"],
+    ["compose", "wait", "db-seeder"],
+  ]);
+});
+
+test.skipIf(process.platform === "win32")("database command propagates startup and seed failures", async () => {
+  for (const failure of ["up", "wait"]) {
+    const root = await fixture();
+    const executable = join(root, "bin/docker");
+    await Bun.write(executable, `#!/usr/bin/env bun
+process.exit(process.argv[3] === "${failure}" ? 1 : 0);
+`);
+    chmodSync(executable, 0o755);
+    const result = await command(root, "db");
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain("docker failed (exit 1).");
+  }
 });
 
 test.skipIf(process.platform === "win32")("API starts the database and seed services before its dev script", async () => {

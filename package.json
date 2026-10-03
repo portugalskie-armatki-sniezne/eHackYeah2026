@@ -9,6 +9,7 @@
     "setup": "bun run --no-orphans tooling/scripts/dev.ts setup",
     "all": "bun run --no-orphans tooling/scripts/dev.ts all",
     "web": "bun run --no-orphans tooling/scripts/dev.ts web",
+    "db": "bun run --no-orphans tooling/scripts/dev.ts db",
     "api": "bun run --no-orphans tooling/scripts/dev.ts api"
   }
 }

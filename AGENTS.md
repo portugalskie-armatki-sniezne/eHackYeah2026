@@ -37,10 +37,10 @@
 
 ## Development command contract
 
-- Use Bun 1.4+ and keep root commands limited to `bun install` and `bun run setup|all|web|api` unless requested otherwise.
+- Use Bun 1.4+ and keep root commands limited to `bun install` and `bun run setup|all|web|db|api` unless requested otherwise.
 - Workspaces provide `scripts.dev` and optional `scripts.setup`; API setup installs Python dependencies from its Python manifest. Keep setup repeatable and preserve `.env`.
 - Scripts run in their application directory with root `.env` values. Keep servers in the foreground and reloads scoped to each application.
-- The runner skips unimplemented applications and starts the database, migrations, and seed import before API startup.
+- The runner skips unimplemented application servers. Both `db` and `api` start the database, migrations, and seed import, even when the API is unimplemented.
 
 ## Validation
 
