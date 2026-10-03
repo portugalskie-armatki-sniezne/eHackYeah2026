@@ -62,12 +62,12 @@ Polecenie uruchamia bazę, migracje i import seeda, a potem API pod <http://127.
 
 ## Testy
 
-Testy w `apps/api/tests/` działają na bazie z `.env` i wycofują zmiany po każdym teście. Zdjęcia zapisują w katalogu tymczasowym. Bez dostępnej bazy są pomijane.
+Testy w `apps/api/tests/` automatycznie wczytują główny `.env` przed importem aplikacji. Zmienne ustawione w środowisku mają pierwszeństwo. Testy działają na wskazanej bazie i wycofują zmiany po każdym teście. Zdjęcia zapisują w katalogu tymczasowym. Bez dostępnej bazy są pomijane.
 
 ```sh
 task db
 cd apps/api
-uv run --env-file ../../.env pytest
+uv run pytest
 ```
 
 ## Role
