@@ -7,7 +7,7 @@
 *.pfx
 *.jks
 *.keystore
-!/frontend/android/app/debug.keystore
+!/apps/mobile/android/app/debug.keystore
 
 # Python dependencies, bytecode, and tooling caches
 __pycache__/
@@ -58,14 +58,14 @@ coverage/
 .expo/
 .metro-health-check*
 *.jsbundle
-/frontend/web-build/
+/apps/mobile/web-build/
 
 # Android local configuration and generated files
 .gradle/
 .kotlin/
 .cxx/
 .externalNativeBuild/
-/frontend/android/local.properties
+/apps/mobile/android/local.properties
 *.apk
 *.aab
 
@@ -89,7 +89,7 @@ xcuserdata/
 *.dSYM/
 .xcode.env.local
 .bundle/
-/frontend/vendor/bundle/
+/apps/mobile/vendor/bundle/
 **/fastlane/report.xml
 **/fastlane/Preview.html
 **/fastlane/screenshots/
