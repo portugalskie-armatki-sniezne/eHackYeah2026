@@ -35,9 +35,35 @@ pobranie można wznowić tym samym poleceniem. `.env` jest zachowywany.
 predykcji. Języki tłumacza ustalają `TRANSLATION_SOURCE_LANGUAGE` oraz
 `TRANSLATION_TARGET_LANGUAGE`; pobierany checkpoint obsługuje parę `pl` i `en`.
 
-Podstawowy obraz Docker API nadal instaluje tylko zależności podstawowe.
-Uruchomienie modeli w kontenerze wymaga obrazu z zestawem `inference`,
-udostępnienia checkpointów w kontenerze oraz przekazania powyższych zmiennych.
+## Wdrożenie na VPS
+
+Workflow `[1] Deploy` buduje obraz API z zestawem `inference` i bibliotekami
+PyTorch dla CPU. Pobiera przypięte checkpointy do `/app/models` w osobnej
+warstwie obrazu, zachowywanej w cache przy zmianach kodu aplikacji.
+Gotowy obraz trafia do GHCR, a VPS pobiera go podczas zwykłego wdrożenia.
+Modele nie wymagają ręcznego pobierania, wolumenu ani dodatkowych sekretów.
+Tag obrazu wskazuje jednocześnie wersję aplikacji i modeli.
+
+Budowanie obrazu wykonuje próbną klasyfikację polskiego tekstu jako użytkownik
+kontenera, z wyłączonym dostępem bibliotek modeli do Hugging Face.
+Sprawdza w ten sposób tłumaczenie, katalog typów i klasyfikację.
+Nie sprawdza konkretnej etykiety, ponieważ jest to test działania modeli,
+a nie pomiar trafności. Błąd przerywa build przed publikacją obrazu.
+
+Compose ustawia `INFERENCE_REQUIRED=true`, `LAYA_DEVICE=cpu` oraz ścieżki
+`LAYA_MODEL_PATH=/app/models/laya-vision` i
+`TRANSLATION_MODEL_PATH=/app/models/opus-mt-pl-en` na dev i prod.
+API ładuje modele i wykonuje tę samą próbę przed przyjęciem ruchu.
+Pozostają one w pamięci pojedynczego procesu Uvicorn.
+Lokalne `task api` zachowuje ładowanie przy pierwszym żądaniu, chyba że
+ustawisz `INFERENCE_REQUIRED=true`.
+
+`GET /ready` potwierdza zakończenie startu, w tym próbę modeli, gdy są wymagane.
+Healthcheck odczytuje ten stan bez powtarzania predykcji.
+`GET /health` nadal sprawdza wyłącznie działanie aplikacji.
+Workflow czeka do 600 sekund na zdrowy kontener. Nieudany start oznacza
+nieudane wdrożenie; workflow nie przywraca automatycznie poprzedniego obrazu.
+Push do `main` wdraża dev, a `[2] Release` korzysta z tego samego mechanizmu na prod.
 
 ## Request API
 
