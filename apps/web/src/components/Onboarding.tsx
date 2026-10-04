@@ -41,7 +41,7 @@ type OnboardingProps = {
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
-// the gap kept between the card, its target, and the screen's edges
+// the gap the card keeps from its target, and from the screen's edges
 const GAP = 14;
 const EDGE = 12;
 
@@ -503,45 +503,52 @@ function placeSpot(spot: HTMLElement | null, rect: DOMRect | null) {
   spot.style.height = `${rect.height + 12}px`;
 }
 
+type Corner = "bottom-right" | "bottom-left" | "top-right" | "top-left";
+
+// in order of preference, when more than one corner leaves the target clear
+const CORNERS: Corner[] = [
+  "bottom-right",
+  "bottom-left",
+  "top-right",
+  "top-left",
+];
+
 /**
- * Puts the card next to its target without covering it: under or over it,
- * then beside it, and in the middle of the screen when there is no target.
- * On a phone it is docked to whichever edge is further from the target.
+ * Docks the card in a corner of the screen: bottom right by default, and
+ * otherwise the corner that covers the least of the target, so the card
+ * stays out of the way of what it points at. The corner only changes when
+ * the current one would cover the target, so the card does not jump about.
  */
 function placeCard(card: HTMLElement | null, rect: DOMRect | null) {
   if (!card) return;
   const width = card.offsetWidth;
   const height = card.offsetHeight;
-  const screenWidth = window.innerWidth;
-  const screenHeight = window.innerHeight;
-  const clampX = (x: number) =>
-    Math.max(EDGE, Math.min(x, screenWidth - width - EDGE));
-  const clampY = (y: number) =>
-    Math.max(EDGE, Math.min(y, screenHeight - height - EDGE));
-  let x = (screenWidth - width) / 2;
-  let y = (screenHeight - height) / 2;
+  const right = Math.max(EDGE, window.innerWidth - width - EDGE);
+  const bottom = Math.max(EDGE, window.innerHeight - height - EDGE);
+  const spots: Record<Corner, { x: number; y: number }> = {
+    "bottom-right": { x: right, y: bottom },
+    "bottom-left": { x: EDGE, y: bottom },
+    "top-right": { x: right, y: EDGE },
+    "top-left": { x: EDGE, y: EDGE },
+  };
+  const covered = (corner: Corner) => {
+    if (!rect) return 0;
+    const { x, y } = spots[corner];
+    const overlapX =
+      Math.min(x + width, rect.right + GAP) - Math.max(x, rect.left - GAP);
+    const overlapY =
+      Math.min(y + height, rect.bottom + GAP) - Math.max(y, rect.top - GAP);
+    return Math.max(0, overlapX) * Math.max(0, overlapY);
+  };
 
-  if (rect && width >= screenWidth - 2 * EDGE - 1) {
-    const targetMiddle = rect.top + rect.height / 2;
-    y = targetMiddle > screenHeight / 2 ? EDGE : screenHeight - height - EDGE;
-  } else if (rect) {
-    const centredX = clampX(rect.left + rect.width / 2 - width / 2);
-    if (rect.bottom + GAP + height <= screenHeight - EDGE) {
-      x = centredX;
-      y = rect.bottom + GAP;
-    } else if (rect.top - GAP - height >= EDGE) {
-      x = centredX;
-      y = rect.top - GAP - height;
-    } else if (rect.right + GAP + width <= screenWidth - EDGE) {
-      x = rect.right + GAP;
-      y = clampY(rect.top);
-    } else if (rect.left - GAP - width >= EDGE) {
-      x = rect.left - GAP - width;
-      y = clampY(rect.top);
-    } else {
-      x = screenWidth - width - EDGE;
-      y = screenHeight - height - EDGE;
-    }
+  const current = card.dataset.corner as Corner | undefined;
+  let corner = current ?? CORNERS[0];
+  if (covered(corner) > 0) {
+    corner = CORNERS.reduce((best, candidate) =>
+      covered(candidate) < covered(best) ? candidate : best,
+    );
   }
+  card.dataset.corner = corner;
+  const { x, y } = spots[corner];
   card.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
 }
