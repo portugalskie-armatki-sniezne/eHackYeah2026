@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar";
 import NotificationsPage from "./components/NotificationsPage";
 import ProjectsCatalog from "./components/ProjectsCatalog";
 import ProfileDialog from "./components/ProfileDialog";
+import Onboarding from "./components/Onboarding";
 import ReportsPage from "./components/ReportsPage";
 import SignOutDialog from "./components/SignOutDialog";
 import useHashRoute from "./components/useHashRoute";
@@ -60,6 +61,7 @@ export default function App() {
           onConfirm={signOut}
         />
       )}
+      <Onboarding session={session} onSignIn={() => setAuthOpen(true)} />
     </main>
   );
 }

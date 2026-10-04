@@ -3,6 +3,7 @@ import { useUnreadCount } from "../api/notifications";
 import type { SessionState } from "../api/session";
 import { useMessages } from "../i18n/locale";
 import type { Messages } from "../i18n/messages";
+import { openTourChooser, useTourActive } from "./onboardingState";
 import BrandMark from "./BrandMark";
 import useHashRoute from "./useHashRoute";
 import "./Navbar.css";
@@ -45,8 +46,10 @@ export default function Navbar({
   // the map is current for every hash that is not its own page
   const current = `#${useHashRoute()}`;
   const unread = useUnreadCount();
+  const tourActive = useTourActive();
   const shown = items.filter(
-    (item) => !item.signedInOnly || session.status === "signed-in",
+    (item) =>
+      !item.signedInOnly || session.status === "signed-in" || tourActive,
   );
 
   useEffect(() => {
@@ -124,6 +127,17 @@ export default function Navbar({
                         </span>
                       </>
                     )}
+                    {item.label === "notifications" &&
+                      session.status !== "signed-in" &&
+                      tourActive && (
+                        <span
+                          className="navbar__badge"
+                          aria-hidden="true"
+                          title="demo"
+                        >
+                          *
+                        </span>
+                      )}
                   </a>
                 </li>
               ))}
@@ -133,6 +147,20 @@ export default function Navbar({
         {session.status !== "checking" && (
           <div className="navbar__account">
             <div className="navbar__fold">
+              <button
+                type="button"
+                className="navbar__link navbar__button navbar__guide"
+                aria-label={t.nav.guide}
+                title={t.nav.guide}
+                data-tour="guide"
+                onClick={() => {
+                  setOpen(false);
+                  openTourChooser();
+                }}
+              >
+                <span aria-hidden="true">?</span>
+                <span className="navbar__guide-label"> {t.nav.guide}</span>
+              </button>
               {session.status === "signed-in" ? (
                 <AccountMenu
                   name={session.user.first_name}
