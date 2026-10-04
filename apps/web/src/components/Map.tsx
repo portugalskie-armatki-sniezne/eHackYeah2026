@@ -21,6 +21,7 @@ import EventMarkers, {
   type EventPin,
 } from "./EventMarkers";
 import PinDialog, { type PinDraft } from "./PinDialog";
+import MarkerDialog from "./MarkerDialog";
 import ReportClusters from "./ReportClusters";
 import { isClusterAt } from "./reportClusterHit";
 import { createTiltPrewarmer } from "./mapPrewarm";
@@ -450,6 +451,8 @@ export default function Map({ onSignInRequired }: MapProps) {
   );
   // the clicked point while its marker sheet is open
   const [draftLngLat, setDraftLngLat] = useState<[number, number] | null>(null);
+  // the clicked pin's master while its report sheet is open
+  const [openPinId, setOpenPinId] = useState<string | null>(null);
   const { fix } = useUserPosition();
   // The camera eases to the first fix so the dot isn't off-screen, then leaves
   // the view alone: later fixes only move the dot.
@@ -617,6 +620,11 @@ export default function Map({ onSignInRequired }: MapProps) {
   }, [fix, flyToFix]);
 
   const handleCloseDraft = useCallback(() => setDraftLngLat(null), []);
+  const handleClosePin = useCallback(() => setOpenPinId(null), []);
+  // the sheet is keyed by the master, and takes the pin's category with it
+  const openPin = openPinId
+    ? (pins.find((pin) => pin.id === openPinId) ?? null)
+    : null;
   // The sheet has no category field yet, so a new report starts in the default
   // category, looked up by name from the categories the first load brought, or
   // fetched now when it has not run yet. The client sends the user's token.
@@ -752,12 +760,21 @@ export default function Map({ onSignInRequired }: MapProps) {
         pins={pins}
         ungroupedIds={ungroupedIds}
         draftLngLat={draftLngLat}
+        onPinClick={setOpenPinId}
       />
       {draftLngLat && (
         <PinDialog
           lngLat={draftLngLat}
           onClose={handleCloseDraft}
           onAdd={handleAddPin}
+        />
+      )}
+      {openPin && (
+        <MarkerDialog
+          masterId={openPin.id}
+          category={openPin.category}
+          onClose={handleClosePin}
+          onSignInRequired={onSignInRequired}
         />
       )}
       <MapCursor targetRef={frameRef} />

@@ -1,4 +1,4 @@
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useEffectEvent, useRef, type RefObject } from "react";
 import { Marker, type Map as MapLibreMap } from "maplibre-gl";
 import type { ReportCategoryName } from "../api/reports";
 import "./EventMarkers.css";
@@ -30,6 +30,8 @@ type EventMarkersProps = {
   ungroupedIds: ReadonlySet<string> | null;
   /** Where the pin being described will land; shown faint until it is added. */
   draftLngLat: [number, number] | null;
+  /** Called with the pin's id when it is clicked or picked with the keyboard. */
+  onPinClick?: (id: string) => void;
 };
 
 type PinElementOptions = {
@@ -37,6 +39,8 @@ type PinElementOptions = {
   draft?: boolean;
   imageUrl?: string | null;
   reportCount?: number;
+  /** makes the pin a button that opens its sheet; a draft pin has none */
+  onOpen?: () => void;
 };
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -76,12 +80,30 @@ function pinElement(
     draft = false,
     imageUrl = null,
     reportCount = 1,
+    onOpen,
   }: PinElementOptions,
 ): HTMLElement {
   const element = document.createElement("div");
   element.className = draft ? "event-pin event-pin--draft" : "event-pin";
-  element.setAttribute("role", "img");
   element.setAttribute("aria-label", label);
+  if (onOpen) {
+    // the map's own click handler steps aside for marker elements, so the pin
+    // answers the pointer itself and is reachable from the keyboard too
+    element.setAttribute("role", "button");
+    element.tabIndex = 0;
+    element.addEventListener("click", (event) => {
+      event.stopPropagation();
+      onOpen();
+    });
+    element.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        onOpen();
+      }
+    });
+  } else {
+    element.setAttribute("role", "img");
+  }
 
   // maplibre writes the marker's position onto `element`, so the drop animation
   // needs a box of its own to transform.
@@ -188,11 +210,14 @@ export default function EventMarkers({
   pins,
   ungroupedIds,
   draftLngLat,
+  onPinClick,
 }: EventMarkersProps) {
   const markersRef = useRef(
     new globalThis.Map<string, { marker: Marker; pin: EventPin }>(),
   );
   const draftRef = useRef<Marker | null>(null);
+  // read through an event so a new handler does not rebuild every marker
+  const openPin = useEffectEvent((id: string) => onPinClick?.(id));
 
   useEffect(() => {
     const map = mapRef.current;
@@ -230,6 +255,7 @@ export default function EventMarkers({
           category: pin.category,
           imageUrl: pin.imageUrl,
           reportCount: pin.reportCount,
+          onOpen: () => openPin(pin.id),
         }),
         anchor: "bottom",
       })

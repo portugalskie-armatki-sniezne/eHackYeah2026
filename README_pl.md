@@ -56,6 +56,7 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
    ```
 
    > `task setup` tworzy `.env` z `.env.example`, jeśli plik nie istnieje. Zachowuje istniejący plik.
+   > `task setup`, `task web`, `task db` i `task api` włączają hook pre-commit z `.githooks`, który uruchamia `task fe:lint` albo `task be:lint`, gdy commit zmienia `apps/web` lub `apps/api`.
 
 3. Sprawdź ustawienia bazy danych i uzupełnij wartości w `.env`. Przed uruchomieniem API ustaw losowy `JWT_SECRET`. Polecenie do jego wygenerowania znajdziesz w `.env.example`.
 
