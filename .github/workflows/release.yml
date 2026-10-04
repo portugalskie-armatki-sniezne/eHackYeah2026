@@ -1,6 +1,6 @@
 name: "[2] Release"
 
-# builds both images and deploys them to prod, then publishes a GitHub release when the deployment succeeds
+# builds all application images and deploys them to prod, then publishes a GitHub release when the deployment succeeds
 on:
   workflow_dispatch:
 

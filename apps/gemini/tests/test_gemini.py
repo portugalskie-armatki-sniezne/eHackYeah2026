@@ -78,6 +78,19 @@ def test_endpoint_runs_both_stages_with_all_reference_photos(client: MagicMock, 
     assert base64.b64decode(result["image_base64"]) == b"generated"
 
 
+@pytest.mark.parametrize("suffix", ["_generated", "_generated_7e8d9c0b-1a2f-4b3c-8d9e-0f1a2b3c4d5e"])
+def test_generated_reference_photo(client: MagicMock, payload: dict, tmp_path: Path, suffix: str):
+    key = KEY.removesuffix(".jpg") + suffix + ".jpg"
+    (tmp_path / KEY).rename(tmp_path / key)
+    payload["photos"] = [{"storage_key": key}]
+
+    response = TestClient(app).post("/generate", json=payload)
+
+    assert response.status_code == 200
+    for call in client.models.generate_content.call_args_list:
+        assert call.kwargs["contents"][1].inline_data.data == PHOTO
+
+
 @pytest.mark.parametrize("media_type", ["image/png", "image/jpeg", "image/webp"])
 def test_single_image_and_image_after_text_and_thought(client: MagicMock, payload: dict, media_type: str):
     client.models.generate_content.side_effect = [

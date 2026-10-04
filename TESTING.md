@@ -39,8 +39,9 @@ BIP filtering, distinct transport roles, stable IDs, atomic upserts, spatial
 distance queries, reports saved before classification, master report links and independent
 content, statuses, assignment to either an office or a service entity, exclusive assignment,
 referenced entity deletion restrictions, shared comments and likes, photo relationships,
-edit timestamps, and reference data rollback. All five migrations are rolled back and
-reapplied. Its containers, volume, and local image tag are removed afterward.
+visualization attempt cleanup, edit timestamps, and reference data rollback. All seven
+migrations are rolled back and reapplied. Its containers, volume, and local image tag are
+removed afterward.
 
 Report locations use `geography(Point, 4326)`. Supply longitude before latitude, for
 example `ST_SetSRID(ST_MakePoint(19.94, 50.06), 4326)::geography`. Validate longitude

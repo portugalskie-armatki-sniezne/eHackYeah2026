@@ -1,6 +1,6 @@
 name: ehackyeah2026-app
 
-# api and web run published images, the database lives in a separate Compose project
+# api, web, notify, and gemini run published images, the database lives in a separate Compose project
 services:
   api:
     image: ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api:${API_IMAGE_TAG:-dev}
@@ -38,6 +38,24 @@ services:
       - "${NOTIFY_PORT:-8000}"
     volumes:
       - api_uploads:/app/uploads:ro
+
+  gemini:
+    image: ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-gemini:${GEMINI_IMAGE_TAG:-dev}
+    restart: unless-stopped
+    user: "${GEMINI_UID:-65534}:${GEMINI_GID:-65534}"
+    environment:
+      GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT:-}
+      GOOGLE_CLOUD_LOCATION: ${GOOGLE_CLOUD_LOCATION:-global}
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gemini-service-account.json
+      UPLOAD_DIR: /app/uploads
+    expose:
+      - "8000"
+    volumes:
+      - api_uploads:/app/uploads:ro
+      - type: bind
+        source: ${GEMINI_CREDENTIALS_FILE:-./project-key.json}
+        target: /run/secrets/gemini-service-account.json
+        read_only: true
 
   web:
     image: ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web:${WEB_IMAGE_TAG:-dev}

@@ -12,7 +12,9 @@ app = FastAPI(title="eHackYeah2026 Gemini")
 class Photo(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    storage_key: str = Field(pattern=r"^reports/[0-9a-f-]{36}/[0-9a-f-]{36}\.(jpg|png|webp)$")
+    storage_key: str = Field(
+        pattern=r"^reports/[0-9a-f-]{36}/[0-9a-f-]{36}(?:_generated(?:_[0-9a-f-]{36})?)?\.(jpg|png|webp)$"
+    )
 
 
 class ImageRequest(BaseModel):

@@ -59,8 +59,7 @@ services:
       PGPASSWORD: ${POSTGRES_PASSWORD:-local_dev_password}
     volumes:
       - ./db/seeds:/seeds:ro
-    command:
-      ["/seeds/teleaddr_base_16042026.xls", "/seeds/service_entities.json"]
+    command: ["/seeds/teleaddr_base_16042026.xls", "/seeds/service_entities.json"]
     restart: "no"
 
   # replaces mock demo data in Kraków, run with: docker compose run --rm mock-seeder

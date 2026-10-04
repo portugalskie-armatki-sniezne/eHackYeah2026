@@ -1,9 +1,9 @@
 name: "[1] Deploy"
 
-# builds and deploys the web and api images
+# builds and deploys the application images
 # a merge to main deploys the changed services to dev, a manual run deploys the chosen service or all of them to the chosen environment
 # every api deployment applies the database migrations first
-# the release workflow calls it to deploy both services to prod
+# the release workflow calls it to deploy all services to prod
 on:
   push:
     branches: [main]
@@ -11,6 +11,7 @@ on:
       - apps/web/**
       - apps/api/**
       - apps/notify/**
+      - apps/gemini/**
       - db/migrations/**
       - package.json
       - bun.lock
@@ -27,6 +28,7 @@ on:
           - web
           - api
           - notify
+          - gemini
         default: web
       environment:
         description: "Environment to deploy"
@@ -38,7 +40,7 @@ on:
   workflow_call:
     inputs:
       service:
-        description: "Service to deploy, or all for both"
+        description: "Service to deploy, or all for every service"
         type: string
         required: true
       environment:
@@ -70,11 +72,11 @@ jobs:
           BEFORE: ${{ github.event.before }}
         run: |
           if [ "$SERVICE" = all ]; then
-            services='"web","api","notify"'
+            services='"web","api","notify","gemini"'
           elif [ -n "$SERVICE" ]; then
             services="\"$SERVICE\""
           else
-            # the compose file and this workflow affect both services
+            # the compose file and this workflow affect all services
             shared='docker-compose\.app\.yaml$|\.github/workflows/deploy\.yml$'
             changed="$(git diff --name-only "$BEFORE" "$GITHUB_SHA")"
             services=""
@@ -87,6 +89,9 @@ jobs:
             fi
             if echo "$changed" | grep -qE "^(apps/notify/|\.dockerignore$|$shared)"; then
               services="${services:+$services,}\"notify\""
+            fi
+            if echo "$changed" | grep -qE "^(apps/gemini/|\.dockerignore$|$shared)"; then
+              services="${services:+$services,}\"gemini\""
             fi
           fi
           echo "services=[$services]" >> "$GITHUB_OUTPUT"

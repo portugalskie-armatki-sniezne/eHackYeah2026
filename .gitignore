@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+client_secret*.json
 project-key.json
 gcp_service_account.json
 *.key

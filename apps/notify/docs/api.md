@@ -52,7 +52,7 @@ Request:
 | `last_name` | nazwisko, wymagane przy `anonymous=false` |
 | `anonymous` | boolean, domyślnie `false`; `true` ukrywa dane zgłaszającego |
 | `location` | opcjonalny obiekt z `longitude` (-180 do 180) i `latitude` (-90 do 90), WGS 84 |
-| `photos` | opcjonalna lista do 5 obiektów ze `storage_key` istniejącego zdjęcia; domyślnie `[]` |
+| `photos` | opcjonalna lista do 6 obiektów ze `storage_key` istniejącego zdjęcia; domyślnie `[]` |
 
 `issue` wybiera [issue.md](../templates/issue.md), a `improvement` [improvement.md](../templates/improvement.md). Szablony zawierają miejsca `{description}`, `{reporter}` i `{pin}`. Markdown szablonu jest renderowany przed wstawieniem danych. Opis i dane zgłaszającego są wstawiane dosłownie, z zachowaniem nowych linii; nie są interpretowane jako HTML, Markdown ani kolejny szablon.
 
@@ -92,7 +92,12 @@ Przy braku `location` lub wartości `null` szablon pokazuje `Przybliżona lokali
 
 Backend przekazuje `storage_key` z `report_photos` lub listę `photos` z odpowiedzi API. Dodatkowe pola zdjęcia (`id`, `report_id`, `created_at`, `url`) są pomijane. Przykładowe klucze powyżej są ilustracyjne.
 
-Klucz ma format `reports/{report_id}/{photo_id}.{ext}` stosowany przez API, z rozszerzeniem `jpg`, `png` albo `webp`. Notify odczytuje plik z katalogu `UPLOAD_DIR` i dodaje go jako załącznik. Nie korzysta z bazy ani nie pobiera plików przez HTTP. Compose montuje ten sam wolumen `api_uploads` co API, tylko do odczytu.
+Klucz ma format `reports/{report_id}/{photo_id}.{ext}` albo
+`reports/{report_id}/{source_photo_id}_generated_{generated_photo_id}.{ext}`, z
+rozszerzeniem `jpg`, `png` albo `webp`. API może dołączyć jedną wygenerowaną wizualizację do pięciu zdjęć
+źródłowych. Notify odczytuje plik z katalogu `UPLOAD_DIR` i dodaje go jako
+załącznik. Nie korzysta z bazy ani nie pobiera plików przez HTTP. Compose montuje
+ten sam wolumen `api_uploads` co API, tylko do odczytu.
 
 Dozwolone są JPEG, PNG i WebP do 10 MB na zdjęcie, tak jak w API. Łączny limit załączników jednego maila wynosi 20 MB. Brak zdjęcia, niepoprawny plik albo przekroczenie limitu blokuje całą wysyłkę przed połączeniem z SMTP.
 
