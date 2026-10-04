@@ -73,7 +73,7 @@ export default function Navbar({
         <a className="navbar__brand" href="#map">
           <BrandMark className="navbar__mark" />
           <span className="navbar__wordmark">
-            <span className="navbar__wordmark-caps">P</span>omoże
+            pomoże
             <span className="navbar__wordmark-caps">My</span>
             <span className="navbar__brand-accent"></span>
           </span>
