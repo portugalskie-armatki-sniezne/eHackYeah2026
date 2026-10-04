@@ -16,7 +16,9 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import MapToolbar, { type BasemapId } from "./MapToolbar";
 import MapCursor from "./MapCursor";
 import UserPosition from "./UserPosition";
+import useMyCases from "./useMyCases";
 import useUserPosition from "./useUserPosition";
+import { useHashTarget } from "./useHashRoute";
 import EventMarkers, {
   DEFAULT_PIN_CATEGORY,
   type EventPin,
@@ -114,6 +116,10 @@ function masterPin(
   // the list carries the master's first photo as a path; the detail has them all
   const photo = "photos" in master ? master.photos[0] : undefined;
   const photoPath = photo?.url ?? master.photo_url;
+  // A case with no photo of its own frames the one a resident offered for it,
+  // which the pin then marks with a question mark until its author takes it.
+  const pendingPath = photoPath ? null : master.pending_photo_url;
+  const framedPath = photoPath ?? pendingPath;
   return {
     id: master.id,
     lngLat: [master.location.longitude, master.location.latitude],
@@ -121,7 +127,9 @@ function masterPin(
     description: master.title,
     image: null,
     imageUrl:
-      imageUrl ?? (photoPath ? reportsApi.photoUrl({ url: photoPath }) : null),
+      imageUrl ??
+      (framedPath ? reportsApi.photoUrl({ url: framedPath }) : null),
+    imagePending: imageUrl === null && pendingPath !== null,
     category: categories.get(master.report_category_id) ?? DEFAULT_PIN_CATEGORY,
     status: statuses.get(master.status_id) ?? null,
     reportCount: master.report_count,
@@ -136,7 +144,15 @@ function upsertPin(pins: EventPin[], pin: EventPin): EventPin[] {
     return [...pins, pin];
   }
   const next = [...pins];
-  next[index] = { ...pin, imageUrl: pin.imageUrl ?? pins[index].imageUrl };
+  // a pin whose photo is not in the new version keeps the one it framed, and
+  // the question mark that went with it
+  next[index] = pin.imageUrl
+    ? pin
+    : {
+        ...pin,
+        imageUrl: pins[index].imageUrl,
+        imagePending: pins[index].imagePending,
+      };
   return next;
 }
 
@@ -467,8 +483,11 @@ export default function Map({ onSignInRequired }: MapProps) {
   const [tilted, setTilted] = useState(false);
   const [styleReady, setStyleReady] = useState(false);
   const [pins, setPins] = useState<EventPin[]>([]);
-  // which kinds and statuses the toolbar's filter list leaves on the map
+  // which kinds, statuses and author the toolbar's filter list leaves on the map
   const [filters, setFilters] = useState<MarkerFilters>(ALL_MARKERS);
+  // the viewer's own cases, which the filter list's author box narrows to;
+  // null while signed out or still being read
+  const { cases: myCases, note: noteMyCase } = useMyCases();
   // filled by the first load; a report saved before then falls back to the default
   const categoriesRef = useRef<CategoryNames>(new globalThis.Map());
   const statusesRef = useRef<StatusNames>(new globalThis.Map());
@@ -485,6 +504,9 @@ export default function Map({ onSignInRequired }: MapProps) {
   const [photoDraft, setPhotoDraft] = useState<PhotoDraft | null>(null);
   // the clicked pin's master while its report sheet is open
   const [openPinId, setOpenPinId] = useState<string | null>(null);
+  // the case the hash points at, and the last one the camera was sent to
+  const hashTarget = useHashTarget();
+  const flownToRef = useRef<string | null>(null);
   const { fix } = useUserPosition();
   // The camera eases to the first fix so the dot isn't off-screen, then leaves
   // the view alone: later fixes only move the dot.
@@ -653,21 +675,52 @@ export default function Map({ onSignInRequired }: MapProps) {
     }
   }, [fix, flyToFix]);
 
+  // A link to one case, say from a notification's button, points the hash at
+  // its master, and its sheet opens as soon as that pin is in.
+  const targetPin = hashTarget
+    ? (pins.find((pin) => pin.id === hashTarget) ?? null)
+    : null;
+
+  // the camera goes to a case the hash named, once for each one
+  useEffect(() => {
+    if (!targetPin || flownToRef.current === targetPin.id) {
+      return;
+    }
+    flownToRef.current = targetPin.id;
+    mapRef.current?.flyTo({ center: targetPin.lngLat, zoom: LOCATE_ZOOM });
+  }, [targetPin]);
+
   // The pins the filters let through, which are the only ones drawn: the
   // grouping is made of them too, so a disc tallies what is on the map rather
   // than what was filtered out of it. A pin whose sheet is open is looked up in
   // the full list, so a filter cannot shut the sheet from under the reader.
+  // Signing out takes the author box away with the list behind it, so the
+  // narrowing lifts with it rather than leaving the map bare with nothing to
+  // untick; signing back in restores whatever was ticked.
+  const shownFilters = useMemo(
+    () => (myCases ? filters : { ...filters, mineOnly: false }),
+    [filters, myCases],
+  );
+
   const visiblePins = useMemo(
-    () => pins.filter((pin) => matchesFilters(pin, filters)),
-    [pins, filters],
+    () => pins.filter((pin) => matchesFilters(pin, shownFilters, myCases)),
+    [pins, shownFilters, myCases],
   );
 
   const handleCloseDraft = useCallback(() => setDraftLngLat(null), []);
-  const handleClosePin = useCallback(() => setOpenPinId(null), []);
-  // the sheet is keyed by the master, and takes the pin's category with it
+  const handleClosePin = useCallback(() => {
+    setOpenPinId(null);
+    // a sheet opened from a link leaves the hash pointing at its case, which
+    // would reopen it; the map's own hash takes its place
+    if (window.location.hash.startsWith("#map/")) {
+      window.location.hash = "#map";
+    }
+  }, []);
+  // The sheet is keyed by the master and takes the pin's category with it. A
+  // clicked pin wins over the hash, and closing the sheet clears both.
   const openPin = openPinId
     ? (pins.find((pin) => pin.id === openPinId) ?? null)
-    : null;
+    : targetPin;
   // The sheet has no category field yet, so a new report starts in the default
   // category, looked up by name from the categories the first load brought, or
   // fetched now when it has not run yet. The client sends the user's token.
@@ -716,8 +769,9 @@ export default function Map({ onSignInRequired }: MapProps) {
       );
       const pin = await pinForSavedReport(report, draft.imageUrl);
       setPins((current) => upsertPin(current, pin));
+      noteMyCase(pin.id);
     },
-    [draftLngLat, saveReport, pinForSavedReport],
+    [draftLngLat, saveReport, pinForSavedReport, noteMyCase],
   );
 
   // The "+" tile takes the photo and hands it to its own sheet, which asks for
@@ -749,9 +803,10 @@ export default function Map({ onSignInRequired }: MapProps) {
       );
       const pin = await pinForSavedReport(report, photoUrl);
       setPins((current) => upsertPin(current, pin));
+      noteMyCase(pin.id);
       flyToFix(photoDraft.lngLat);
     },
-    [photoDraft, flyToFix, saveReport, pinForSavedReport],
+    [photoDraft, flyToFix, saveReport, pinForSavedReport, noteMyCase],
   );
 
   const handleZoomIn = useCallback(() => mapRef.current?.zoomIn(), []);
@@ -787,10 +842,11 @@ export default function Map({ onSignInRequired }: MapProps) {
         canRecenterOnMe={fix !== null}
         onPhotoReportStart={canStartReport}
         onPhotoReport={handlePhotoReport}
-        filters={filters}
+        filters={shownFilters}
         onFiltersChange={setFilters}
         shownPins={visiblePins.length}
         totalPins={pins.length}
+        canFilterMine={myCases !== null}
       />
       <UserPosition mapRef={mapRef} styleReady={styleReady} fix={fix} />
       <ReportClusters

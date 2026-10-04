@@ -5,6 +5,7 @@ import AuthDialog from "./components/AuthDialog";
 import LanguageCorner from "./components/LanguageCorner";
 import Map from "./components/Map";
 import Navbar from "./components/Navbar";
+import NotificationsPage from "./components/NotificationsPage";
 import ProjectsCatalog from "./components/ProjectsCatalog";
 import ProfileDialog from "./components/ProfileDialog";
 import ReportsPage from "./components/ReportsPage";
@@ -37,6 +38,11 @@ export default function App() {
         <ProjectsCatalog />
       ) : route === "reports" ? (
         <ReportsPage session={session} onSignIn={() => setAuthOpen(true)} />
+      ) : route === "notifications" ? (
+        <NotificationsPage
+          session={session}
+          onSignIn={() => setAuthOpen(true)}
+        />
       ) : (
         <Map onSignInRequired={() => setAuthOpen(true)} />
       )}

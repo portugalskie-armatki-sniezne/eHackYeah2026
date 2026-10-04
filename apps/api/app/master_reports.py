@@ -36,6 +36,8 @@ MASTER_REPORT_COLUMNS = sql.SQL(
     f"WHERE r.master_report_id = m.id ORDER BY {PHOTO_ORDER} LIMIT 1) AS photo_id, "
     "(SELECT pp.id FROM master_report_photo_proposals pp "
     "WHERE pp.master_report_id = m.id AND pp.state = 'pending' LIMIT 1) AS pending_photo_id, "
+    "(SELECT r.user_id FROM reports r WHERE r.master_report_id = m.id "
+    "ORDER BY r.created_at, r.id LIMIT 1) AS author_id, "
     "m.edited_at, m.created_at"
 ).format(location=location_json("m"))
 
@@ -63,12 +65,15 @@ class MasterReport(BaseModel):
     location: Location
     response: str | None
     report_count: int
+    # whoever filed the case first, who decides about a photo offered for it;
+    # null for a master whose last report is gone.
+    author_id: UUID | None
     # the earliest photo among the master's reports, which the map shows on the pin
     # without fetching every master's detail; the list carries it as photo_url only.
     photo_id: UUID | None = Field(exclude=True)
     # a photo a resident offered for a case that has none, which the map and the
     # case's sheet show under a question mark until its author decides about it.
-    pending_photo_id: UUID | None = Field(exclude=True)
+    pending_photo_id: UUID | None
     edited_at: datetime
     created_at: datetime
 

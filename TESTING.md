@@ -48,9 +48,10 @@ BIP filtering, distinct transport roles, stable IDs, atomic upserts, spatial
 distance queries, reports saved before classification, master report links and independent
 content, statuses, assignment to either an office or a service entity, exclusive assignment,
 referenced entity deletion restrictions, shared comments and likes, photo relationships,
-visualization attempt cleanup, edit timestamps, the innovation library import, and
-reference data rollback. All eleven migrations are rolled back and reapplied. Its
-containers, volume, and local image tag are removed afterward.
+visualization attempt cleanup, edit timestamps, the innovation library import, the one
+waiting photo proposal per master with its decision date, notification kinds and their
+cascades, and reference data rollback. All twelve migrations are rolled back and
+reapplied. Its containers, volume, and local image tag are removed afterward.
 
 Report locations use `geography(Point, 4326)`. Supply longitude before latitude, for
 example `ST_SetSRID(ST_MakePoint(19.94, 50.06), 4326)::geography`. Validate longitude
@@ -87,6 +88,11 @@ Migration 11 marks office and admin comments as highlighted. Migration 10 create
 ROPS innovation library tables `projects` and `project_chunks`, with a `polish` text search
 configuration copied from `simple` for the chunk index, and adds pgvector embedding columns
 only when the database image ships the extension; the PostGIS image does not.
+Migration 12 creates `master_report_photo_proposals` and `notifications`. A partial unique
+index allows one waiting proposal per master, and a check keeps `decided_at` set exactly
+when the state is not `pending`; a decided proposal frees the master for another photo.
+Notifications belong to their recipient and go with the user, master, or proposal they
+point at.
 The statuses mean: `created` is saved in the application, `reported` is successfully
 sent to the responsible institution, `inprogress` has confirmed work in progress,
 and `finished` has confirmed completion. The backend owns classification, master

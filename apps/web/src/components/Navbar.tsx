@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { useUnreadCount } from "../api/notifications";
 import type { SessionState } from "../api/session";
 import { useMessages } from "../i18n/locale";
 import type { Messages } from "../i18n/messages";
@@ -10,14 +11,17 @@ type NavItem = {
   href: string;
   label: keyof Pick<
     Messages["nav"],
-    "map" | "reports" | "initiatives" | "about"
+    "map" | "reports" | "initiatives" | "about" | "notifications"
   >;
+  /** only for a signed-in account, since it is that account's own page */
+  signedInOnly?: boolean;
 };
 
 const items: NavItem[] = [
   { href: "#map", label: "map" },
   { href: "#reports", label: "reports" },
   { href: "#initiatives", label: "initiatives" },
+  { href: "#notifications", label: "notifications", signedInOnly: true },
   { href: "#about", label: "about" },
 ];
 
@@ -40,6 +44,10 @@ export default function Navbar({
   const t = useMessages();
   // the map is current for every hash that is not its own page
   const current = `#${useHashRoute()}`;
+  const unread = useUnreadCount();
+  const shown = items.filter(
+    (item) => !item.signedInOnly || session.status === "signed-in",
+  );
 
   useEffect(() => {
     if (!open) {
@@ -86,7 +94,7 @@ export default function Navbar({
         </button>
         <nav id={menuId} className="navbar__nav" aria-label={t.nav.main}>
           <ul className="navbar__list">
-            {items.map((item, index) => (
+            {shown.map((item, index) => (
               <li key={item.href} className="navbar__item">
                 {index > 0 && (
                   <span className="navbar__divider" aria-hidden="true" />
@@ -98,6 +106,19 @@ export default function Navbar({
                   onClick={() => setOpen(false)}
                 >
                   {t.nav[item.label]}
+                  {/* the figure is also spelled out, so it is not read as part
+                      of the link's own name */}
+                  {item.label === "notifications" && unread > 0 && (
+                    <>
+                      <span className="navbar__badge" aria-hidden="true">
+                        {unread}
+                      </span>
+                      <span className="visually-hidden">
+                        {" "}
+                        {t.nav.unreadNotifications(unread)}
+                      </span>
+                    </>
+                  )}
                 </a>
               </li>
             ))}
