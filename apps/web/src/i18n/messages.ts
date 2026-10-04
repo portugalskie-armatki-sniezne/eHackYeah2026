@@ -86,7 +86,6 @@ const en = {
     noComments: "No comments yet.",
     official: "Official",
     office: "Office",
-    resident: "Resident",
     you: "You",
     deleteComment: "Delete",
     composeLabel: "New comment",
@@ -283,7 +282,6 @@ const en = {
     noComments: "Nobody has weighed in yet. Be the first.",
     you: "You",
     office: "Office",
-    resident: "Resident",
     official: "Official",
     likesUnlike: " likes, unlike",
     likesLike: " likes, like",
@@ -496,7 +494,7 @@ const pl: Messages = {
   },
   reports: {
     title: "Zgłoszenia",
-    lede: "Wszystkie sprawy z mapy na jednej liście, ze statusem i dyskusją pod każdą z nich. Konta urzędu i administratora zmieniają status i odpowiadają oficjalnymi komentarzami.",
+    lede: "Wszystkie zgłoszenia prosto z mapy na jednej liście, ze statusem i sekcją dyskusji pod każdym z nich. Konta urzędów, jednostek i administratorów mogą zmieniać status i udzielać oficjalnych odpowiedzi na zgłoszenia.",
     backToMap: "Wróć do mapy",
     signInToComment: "Zaloguj się, aby komentować",
     loading: "Wczytywanie spraw...",
@@ -529,7 +527,6 @@ const pl: Messages = {
     noComments: "Nie ma jeszcze komentarzy.",
     official: "Oficjalny",
     office: "Urząd",
-    resident: "Mieszkaniec",
     you: "Ty",
     deleteComment: "Usuń",
     composeLabel: "Nowy komentarz",
@@ -554,7 +551,7 @@ const pl: Messages = {
   },
   notifications: {
     title: "Powiadomienia",
-    lede: "Co zdarzyło się w zgłoszeniach, które wysłałeś: jak daleko zaszły, co pod nimi napisano i jakie zdjęcia proponują sąsiedzi.",
+    lede: "Co wydarzyło się ze zgłoszeniami, które wysłałeś: jak daleko zaszły, co pod nimi napisano i jakie zdjęcia proponują inni.",
     backToMap: "Wróć do mapy",
     loading: "Ładowanie powiadomień...",
     empty: "Pusto :((",
@@ -723,7 +720,6 @@ const pl: Messages = {
     noComments: "Nikt jeszcze nie zabrał głosu. Bądź pierwszy.",
     you: "Ty",
     office: "Urząd",
-    resident: "Mieszkaniec",
     official: "Oficjalny",
     likesUnlike: " polubień, cofnij polubienie",
     likesLike: " polubień, polub",
@@ -769,7 +765,7 @@ const pl: Messages = {
   },
   catalog: {
     title: "Biblioteka Innowacji Społecznych",
-    lede: "Sprawdzone modele i innowacje z biblioteki ROPS Kraków. Zainspiruj się i zaproponuj ich realizację w swojej okolicy.",
+    lede: "Pomysły i innowacje z biblioteki ROPS Kraków. Zainspiruj się i zaproponuj ich realizację w swojej okolicy. Jeśli masz własny pomysł, również możesz go zgłosić.",
     backToMap: "Wróć do mapy",
     search: "Szukaj",
     searchPlaceholder:
@@ -797,48 +793,48 @@ const pl: Messages = {
     requestFailed: (status: number) => `Żądanie nie powiodło się (${status}).`,
   },
   about: {
-    lede: "Jedna platforma do zgłaszania lokalnych problemów, proponowania inicjatyw obywatelskich i śledzenia ich postępów. Zmieniaj swoje miasto bez zbędnych komplikacji.",
+    lede: "Jedna platforma do zgłaszania lokalnych problemów, proponowania inicjatyw obywatelskich i śledzenia ich postępów. Zmieniaj swoje miasto bez zbędnych komplikacji i nadmiernej biurokracji.",
     backToMap: "Wróć do mapy",
     pillars: [
       {
         title: "Zgłaszaj lokalne problemy",
-        text: "Zepsuta lampa, dziura w jezdni, przepełniony kosz. Zaznacz to na mapie, dodaj zdjęcie, a my skontaktujemy się z właściwymi służbami.",
+        text: "Zepsuta lampa, dziura w jezdni, przepełniony kosz. Zaznacz to na mapie, dodaj zdjęcie, a my znajdziemy właściwego adresata. W wersji demonstracyjnej wysyłamy zgłoszenia na adres testowy.",
       },
       {
-        title: "Proponuj inicjatywy",
+        title: "Wyjdź z inicjatywą",
         text: "Ławka, przejście dla pieszych, stojak na rowery. Umieść pomysł tam, gdzie jego miejsce, i pozwól sąsiadom go poprzeć.",
       },
       {
         title: "Śledź ich postępy",
-        text: "Każda sprawa ma wspólny status i odpowiedź instytucji, więc nikt nie musi pytać dwa razy.",
+        text: "Każda sprawa ma wspólny status i miejsce na odpowiedź instytucji, więc nikt nie musi pytać dwa razy.",
       },
     ],
     howHeading: "Jak wędruje zgłoszenie",
     steps: [
       {
         title: "Postaw pinezkę",
-        text: "Kliknij na mapie tam, gdzie coś jest nie tak, albo zrób zdjęcie z miejsca, w którym stoisz. Pinezka zapamięta pozycję GPS i zdjęcie.",
+        text: "Kliknij na mapie tam, gdzie coś jest nie tak, albo zrób zdjęcie z miejsca, w którym stoisz. Te dane posłużą jako podstawa twojego zgłoszenia.",
       },
       {
         title: "Opisz problem",
-        text: "Wystarczy jedno zdanie. Zgłoszenie zapisuje się od razu, zanim cokolwiek innego się z nim stanie.",
+        text: "Wystarczy jedno zdanie z krótkim opisem problemu lub proponowanej inicjatywy.",
       },
       {
-        title: "Pozwól maszynie znaleźć urząd",
-        text: "Deterministyczne klasyfikatory i modele generatywne czytają tekst i zdjęcie, ustalają, jakiego rodzaju służb wymaga problem, i wybierają odpowiedzialną instytucję z bazy zbudowanej z publicznie dostępnych informacji o instytucjach.",
+        title: "Pozwól nam znaleźć właściwego adresata",
+        text: "Deterministyczne klasyfikatory i modele generatywne czytają tekst i zdjęcie, ustalają, jaka instytucja lub służba powinna zająć się problemem, i wybierają odpowiedzialną instytucję lub służbę z naszej bazy zawierającej najpopularniejsze kontakty.",
       },
       {
         title: "Jeden problem, jedna sprawa",
-        text: "Zgłoszenia dotyczące tej samej rzeczy w tym samym miejscu są łączone w jedno zgłoszenie główne, więc jedna zepsuta lampa to jedna sprawa, a nie dwadzieścia.",
+        text: "Zgłoszenia dotyczące tej samej rzeczy w tym samym miejscu są łączone w jedno zgłoszenie główne, więc jedna zepsuta lampa to jedna sprawa, a nie dwadzieścia. Kolejne zgłoszenia tego samego problemu są grupowane i zliczane.",
       },
       {
         title: "Śledź dalej",
-        text: "Komentuj, polub i obserwuj zmiany statusu, aż sprawa zostanie zakończona.",
+        text: "Komentuj, reaguj i obserwuj zmiany statusu, aż sprawa zostanie zakończona. Jeśli sprawa się zakończy lub urzędnik albo administrator na nią odpowie, otrzymasz powiadomienie.",
       },
     ],
-    whyHeading: "Dlaczego istnieje",
+    whyHeading: "Po co jesteśmy",
     whyText:
-      "Powiadomienie właściwej instytucji publicznej o problemie nie powinno wymagać wiedzy, która to instytucja. Szukanie urzędu, formularza i adresu to praca, która powstrzymuje ludzi przed zgłaszaniem czegokolwiek, a ten sam problem zgłasza wielokrotnie każdy, kto się na to zdecyduje. pomożeMy trzyma mapę, zdjęcia i rozmowę w jednym miejscu, ustala, kto jest odpowiedzialny, i pozwala wszystkim zobaczyć, co wydarzyło się dalej.",
+      "Powiadomienie właściwej instytucji publicznej o problemie nie powinno być trudne ani nieintuicyjne. Szukanie urzędu, formularza i adresu, pod który można wysłać zgłoszenie, to dodatkowa praca, która często powstrzymuje ludzi przed zgłaszaniem czegokolwiek, a ten sam problem napotyka wiele osób. pomożeMy trzyma lokalizacje, zdjęcia i rozmowę w jednym miejscu, ustala, kto jest odpowiedzialny, i pozwala wszystkim zobaczyć, co wydarzyło się dalej. Nie trać czasu, zacznij pomagać w swojej małej ojczyźnie już dziś!",
   },
   toolbar: {
     zoom: "Powiększenie",
