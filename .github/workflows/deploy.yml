@@ -229,4 +229,5 @@ jobs:
         working-directory: ${{ vars.DEPLOY_DIR }}
         run: |
           docker compose up -d --wait --wait-timeout 600 $SERVICES
-          docker image prune -f
+          # -a also drops the tagged images of earlier deployments, which otherwise fill the disk
+          docker image prune -a -f
