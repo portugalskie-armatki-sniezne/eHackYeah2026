@@ -28,6 +28,7 @@ def entity(identifier=1, entity_type="road_manager"):
     values = dict.fromkeys(ServiceEntity.model_fields)
     values.update(
         id=identifier,
+        is_active=True,
         source_key=f"test:{identifier}",
         name="Jednostka",
         entity_type=entity_type,
@@ -166,6 +167,15 @@ def test_no_entities_does_not_geocode_or_change_type(client, connection, recomme
     assert response.json()["candidates_count"] == 0
     assert response.json()["entity_type"] == "road_manager"
     lookup.assert_not_called()
+
+
+def test_inactive_institution_remains_in_catalog_but_is_not_recommended(client, connection, recommendation_setup):
+    headers, ids, _, _ = recommendation_setup
+    connection.execute("UPDATE service_entities SET is_active = FALSE WHERE id = %s", (ids[0],))
+    assert client.get(f"/service-entities/{ids[0]}").json()["is_active"] is False
+    result = client.post(URL, headers=headers, data={"payload": json.dumps(PAYLOAD)}).json()
+    assert result["recommendation"]["entity"]["id"] == ids[1]
+    assert result["skipped_candidates_count"] == 2
 
 
 def test_changed_seat_address_is_excluded_until_geocoded_again(client, connection, recommendation_setup):

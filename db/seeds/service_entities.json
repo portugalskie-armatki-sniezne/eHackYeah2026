@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "retrieved_on": "2026-10-03",
+  "retrieved_on": "2026-10-04",
   "central_export_url": "https://www.gov.pl/web/bip/spis",
   "central_export_sha256": "a647b815ebe97b53a3ba5ebf69f46b243f82b80f17558404b78dd519c8b844f5",
   "central_total": 13367,
@@ -31,7 +31,8 @@
         "https://strazmiejska.krakow.pl/214252,artykul,zglos-interwencje.html",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:102700",
@@ -47,13 +48,14 @@
       "email": "sekretariat@zck-krakow.pl",
       "website": "http://www.zck-krakow.pl/",
       "bip_url": "https://www.bip.krakow.pl/?bip_id=489",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@zck-krakow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://www.bip.krakow.pl/?bip_id=489",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:102889",
@@ -69,13 +71,14 @@
       "email": "sekretariat@zim.krakow.pl",
       "website": "https://www.zim.krakow.pl/",
       "bip_url": "https://www.bip.krakow.pl/?bip_id=582",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@zim.krakow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://www.bip.krakow.pl/ZIM",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:102997",
@@ -91,14 +94,15 @@
       "email": "biuro@zwik.skawina.pl",
       "website": "http://www.zwik.skawina.pl",
       "bip_url": "https://bip.malopolska.pl/zwikskawina/",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@zwik.skawina.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1076781",
         "https://bip.malopolska.pl/api/contexts/zwikskawina",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:103164",
@@ -114,15 +118,16 @@
       "email": "bok@mzwik-kalwaria.com",
       "website": "http://www.mzwik-kalwaria.pl",
       "bip_url": "http://bip.malopolska.pl/mzwikszokzebrzydowskiej",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:bok@mzwik-kalwaria.com",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/145784",
         "https://bip.malopolska.pl/api/articles/145792",
         "https://bip.malopolska.pl/api/contexts/mzwikszokzebrzydowskiej",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:103201",
@@ -138,14 +143,15 @@
       "email": "ekoskawa_makowpodh@vp.pl",
       "website": "https://www.ekoskawa.pl/",
       "bip_url": "http://bip.malopolska.pl/ekoskawa",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:ekoskawa_makowpodh@vp.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1662171",
         "https://bip.malopolska.pl/api/contexts/ekoskawa",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:103246",
@@ -161,13 +167,14 @@
       "email": "sekretariat@zis.krakow.pl",
       "website": "https://www.zis.krakow.pl/",
       "bip_url": "http://www.bip.krakow.pl/ZIS",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@zis.krakow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://www.bip.krakow.pl/ZIS",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:105713",
@@ -183,15 +190,16 @@
       "email": "mzgk@szczawnica.pl",
       "website": "http://www.mzgk.szczawnica.pl",
       "bip_url": "https://bip.malopolska.pl/mzgkomunalnej",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mzgk@szczawnica.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/842906",
         "https://bip.malopolska.pl/api/articles/842909",
         "https://bip.malopolska.pl/api/contexts/mzgkomunalnej",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:107401",
@@ -207,13 +215,14 @@
       "email": "zgzir@nowytarg.pl",
       "website": "http://www.zgzir.nowytarg.pl/",
       "bip_url": "https://bip.malopolska.pl/zgzirnowytarg",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgzir@nowytarg.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/contexts/zgzirnowytarg",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:107548",
@@ -229,15 +238,16 @@
       "email": "pwik@pwik.oswiecim.pl",
       "website": "http://www.pwik.oswiecim.pl",
       "bip_url": "https://bip.malopolska.pl/pwikszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:pwik@pwik.oswiecim.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/721361",
         "https://bip.malopolska.pl/api/articles/721369",
         "https://bip.malopolska.pl/api/contexts/pwikszoo",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:108503",
@@ -253,14 +263,15 @@
       "email": "administracja@zk-suchab.pl",
       "website": "http://www.zk-suchab.pl",
       "bip_url": "https://bip.malopolska.pl/zkwsbeskidzkiej",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:administracja@zk-suchab.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/561711",
         "https://bip.malopolska.pl/api/contexts/zkwsbeskidzkiej",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:108746",
@@ -276,14 +287,15 @@
       "email": "zukal@alwernia.pl",
       "website": "http://www.zuk-alwernia.pl",
       "bip_url": "https://bip.malopolska.pl/zukalwernia",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zukal@alwernia.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1888740",
         "https://bip.malopolska.pl/api/contexts/zukalwernia",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:111259",
@@ -299,14 +311,15 @@
       "email": "sekretariat@zdw.krakow.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zdwwkrakowie/",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@zdw.krakow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/181813",
         "https://bip.malopolska.pl/api/contexts/zdwwkrakowie",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:111775",
@@ -322,12 +335,13 @@
       "email": "biuro@mzwikmyslenice.com.pl",
       "website": null,
       "bip_url": "https://mzwik-myslenice.bip.gov.pl/",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@mzwikmyslenice.com.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:113198",
@@ -343,13 +357,14 @@
       "email": "zbk@zbk.krakow.pl",
       "website": "https://zbk-krakow.pl/",
       "bip_url": "https://www.bip.krakow.pl/?bip_id=32",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zbk@zbk.krakow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://www.bip.krakow.pl/?bip_id=32",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:116669",
@@ -365,14 +380,15 @@
       "email": "mzzk@chrzanow.pl",
       "website": "https://mzzk.chrzanow.pl/",
       "bip_url": "https://bip.malopolska.pl/mzzkwchrzanowie/",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mzzk@chrzanow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/368548",
         "https://bip.malopolska.pl/api/contexts/mzzkwchrzanowie",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:119315",
@@ -388,14 +404,15 @@
       "email": "mzukgorlice@op.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/mzukgorlice",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mzukgorlice@op.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2448962",
         "https://bip.malopolska.pl/api/contexts/mzukgorlice",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:120701",
@@ -417,7 +434,8 @@
         "https://www.gov.pl/web/bip/spis",
         "https://zzm.krakow.pl/pl/kontakt.html"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:122809",
@@ -441,7 +459,8 @@
         "https://mpk.krakow.pl/zgloszenie-dotyczace-uslugi",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:122998",
@@ -457,12 +476,13 @@
       "email": "mzc@mzc.tarnow.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/mzctarnow",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mzc@mzc.tarnow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:125024",
@@ -478,15 +498,16 @@
       "email": "sekretariat@pzd-chrzanow.pl",
       "website": "http://www.pzd-chrzanow.pl",
       "bip_url": "https://bip.malopolska.pl/pzdwchrzanowie,m,60225",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@pzd-chrzanow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/261598",
         "https://bip.malopolska.pl/api/articles/261604",
         "https://bip.malopolska.pl/api/contexts/pzdwchrzanowie",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:127442",
@@ -509,7 +530,8 @@
         "https://ziw.krakow.pl/bezpieczny-krakow/numery-alarmowe/",
         "https://ziw.krakow.pl/dane-adresowe/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:127777",
@@ -531,7 +553,8 @@
         "https://www.bip.krakow.pl/?bip_id=511&rNtd=10176",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:127785",
@@ -547,12 +570,13 @@
       "email": "mzk@nowytarg.pl",
       "website": null,
       "bip_url": "https://mzk.nowytarg.pl/bip",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mzk@nowytarg.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:129155",
@@ -574,7 +598,8 @@
         "https://www.bip.krakow.pl/?bip_id=616&mmi=15467",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:131102",
@@ -590,14 +615,15 @@
       "email": "biuro@pzdns.pl",
       "website": "http://pzd.nowy-sacz.pl",
       "bip_url": "https://bip.malopolska.pl/pzdnowysacz",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@pzdns.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/380955",
         "https://bip.malopolska.pl/api/contexts/pzdnowysacz",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:131670",
@@ -613,12 +639,13 @@
       "email": "mzk@mzk.oswiecim.pl",
       "website": null,
       "bip_url": "https://mzk.oswiecim.pl/pl/bip-strona-glowna",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mzk@mzk.oswiecim.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "bip:140168",
@@ -634,14 +661,15 @@
       "email": "gzk@tomice.pl",
       "website": "https://gzk.tomice.pl",
       "bip_url": "http://bip.malopolska.pl/gzkwtomicach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:gzk@tomice.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/163927",
         "https://bip.malopolska.pl/api/contexts/gzkwtomicach",
         "https://www.gov.pl/web/bip/spis"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1036",
@@ -649,21 +677,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Trzebinia",
+      "postal_code": "32-540",
+      "street": "Rynek",
+      "house_number": "18",
       "phone_number": null,
       "email": null,
       "website": null,
       "bip_url": "https://bip.malopolska.pl/ukszoo",
       "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel_description": "Spółka w likwidacji od 1 sierpnia 2016 r. Dane archiwalne; nie kierować zgłoszeń.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/365781",
-        "https://bip.malopolska.pl/api/contexts/ukszoo"
+        "https://bip.malopolska.pl/api/contexts/ukszoo",
+        "https://trzebinia.pl/administracja-miasto-i-gmina/jednostki-organizacyjne-i-spolki-z-udzialem-gminy/uslugi-komunalne-trzebinia-sp-z-o-o-w-likwidacji"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": false
     },
     {
       "source_key": "malopolska:1210",
@@ -679,13 +709,14 @@
       "email": "biuro@puk-zielonki.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/pukwzszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@puk-zielonki.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/489957",
         "https://bip.malopolska.pl/api/contexts/pukwzszoo"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1295",
@@ -693,22 +724,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Zabierzów",
+      "postal_code": "32-080",
+      "street": "Kolejowa",
+      "house_number": "38",
       "phone_number": "122853671",
       "email": "biuro@pukzabierzow.pl",
       "website": "https://www.pukzabierzow.pl",
       "bip_url": "https://bip.malopolska.pl/pukszowzabierzowie",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@pukzabierzow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/489409",
         "https://bip.malopolska.pl/api/articles/489474",
         "https://bip.malopolska.pl/api/contexts/pukszowzabierzowie"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1366",
@@ -718,43 +750,45 @@
       "teryt_code": null,
       "locality": "Krzeszowice",
       "postal_code": "32-065",
-      "street": "Franciszka Kulczyckiego",
+      "street": "plac Franciszka Kulczyckiego",
       "house_number": "1",
       "phone_number": "122821340",
       "email": "biuro@zabk-krzeszowice.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zabkomunalnych",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@zabk-krzeszowice.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/477800",
         "https://bip.malopolska.pl/api/articles/477822",
         "https://bip.malopolska.pl/api/contexts/zabkomunalnych"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1369",
-      "name": "Usługi Komunalne Krzeszowiece Sp. z o. o.",
+      "name": "Usługi Komunalne Krzeszowice Sp. z o.o.",
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Krzeszowice",
+      "postal_code": "32-065",
+      "street": "plac Franciszka Kulczyckiego",
+      "house_number": "1",
       "phone_number": "122820165",
       "email": "sekretariat@ukkrzeszowice.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/ukomunalne",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@ukkrzeszowice.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1083745",
         "https://bip.malopolska.pl/api/articles/477698",
         "https://bip.malopolska.pl/api/contexts/ukomunalne"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1370",
@@ -762,21 +796,22 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Krzeszowice",
+      "postal_code": "32-065",
+      "street": "Stanisława Czycza",
+      "house_number": "2A",
       "phone_number": null,
       "email": "sekretariat@wikkrzeszowice.pl",
       "website": "http://wikkrzeszowice.pl",
       "bip_url": "https://bip.malopolska.pl/wikkrzeszowice",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@wikkrzeszowice.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/477646",
         "https://bip.malopolska.pl/api/contexts/wikkrzeszowice"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1416",
@@ -792,14 +827,15 @@
       "email": "biuro@mzgkim.limanowa.pl",
       "website": "http://www.mzgkim.limanowa.pl",
       "bip_url": "https://bip.malopolska.pl/mzgkimszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@mzgkim.limanowa.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/568035",
         "https://bip.malopolska.pl/api/articles/568093",
         "https://bip.malopolska.pl/api/contexts/mzgkimszoo"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1458",
@@ -807,21 +843,22 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Biertowice",
+      "postal_code": "32-440",
+      "street": "Królewska",
+      "house_number": "305",
       "phone_number": null,
       "email": "biuro@zgksulkowice.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkwsulkowicach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@zgksulkowice.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/615104",
         "https://bip.malopolska.pl/api/contexts/zgkwsulkowicach"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1503",
@@ -834,16 +871,18 @@
       "street": "Papieska",
       "house_number": "2",
       "phone_number": null,
-      "email": null,
+      "email": "zgkim@chelmiec.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkimieszkaniowej",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgkim@chelmiec.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/641933",
-        "https://bip.malopolska.pl/api/contexts/zgkimieszkaniowej"
+        "https://bip.malopolska.pl/api/contexts/zgkimieszkaniowej",
+        "https://chelmiec.pl/zgkim-rodo/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1595",
@@ -851,21 +890,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Grybów",
+      "postal_code": "33-330",
+      "street": "Ogrodowa",
+      "house_number": "4",
       "phone_number": null,
-      "email": null,
+      "email": "mpgk@mpgkgrybow.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/mpgkszoowgrybowie",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mpgk@mpgkgrybow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/642729",
-        "https://bip.malopolska.pl/api/contexts/mpgkszoowgrybowie"
+        "https://bip.malopolska.pl/api/contexts/mpgkszoowgrybowie",
+        "https://labowa.pl/pl/200792/0/wykaz-firm-posiadajacych-zezwolenie-na-oproznianie-zbiornikow-bezodplywowych-i-osadnikow-w-instalacjach-przydomowych-oczyszczalni-sciekow.html"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1618",
@@ -873,21 +914,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Piwniczna-Zdrój",
+      "postal_code": "33-350",
+      "street": "Krakowska",
+      "house_number": "26",
       "phone_number": null,
-      "email": null,
+      "email": "mzgkim@piwniczna.pl",
       "website": "https://mzgkim.piwniczna.pl/",
       "bip_url": "https://bip.malopolska.pl/mzgkimwpzdroju",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mzgkim@piwniczna.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1220689",
         "https://bip.malopolska.pl/api/articles/771869",
         "https://bip.malopolska.pl/api/contexts/mzgkimwpzdroju"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1642",
@@ -895,21 +938,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Łącko",
+      "postal_code": "33-390",
       "street": null,
-      "house_number": null,
+      "house_number": "755",
       "phone_number": null,
-      "email": null,
+      "email": "zgk@lacko.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkwlacku",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgk@lacko.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/645865",
-        "https://bip.malopolska.pl/api/contexts/zgkwlacku"
+        "https://bip.malopolska.pl/api/contexts/zgkwlacku",
+        "https://www.uglacko.pl/strona/239-zaklad-gospodarki-komunalnej-w-lacku"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1655",
@@ -922,39 +967,42 @@
       "street": "Gorczańska",
       "house_number": "3",
       "phone_number": null,
-      "email": null,
+      "email": "zgkmaniowy@czorsztyn.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkwmaniowach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgkmaniowy@czorsztyn.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1656545",
-        "https://bip.malopolska.pl/api/contexts/zgkwmaniowach"
+        "https://bip.malopolska.pl/api/contexts/zgkwmaniowach",
+        "https://czorsztyn.pl/files/files/Wiesci%20z%20Gminy%20Czorsztyn%20nr%2063.pdf"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1716",
-      "name": "Zakład Wodociągów i Kanalizacji w Grybowie",
+      "name": "Zakład Wodociągów i Kanalizacji w Białej Niżnej",
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Biała Niżna",
+      "postal_code": "33-330",
       "street": null,
-      "house_number": null,
+      "house_number": "431",
       "phone_number": "182622123",
       "email": "zwik@gminagrybow.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zwikwgrybowie",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zwik@gminagrybow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/659234",
         "https://bip.malopolska.pl/api/articles/659253",
         "https://bip.malopolska.pl/api/contexts/zwikwgrybowie"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1773",
@@ -962,22 +1010,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Jabłonka",
+      "postal_code": "34-480",
+      "street": "3 Maja",
+      "house_number": "1",
       "phone_number": null,
       "email": "zuk@jablonka.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zukomunalnych",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zuk@jablonka.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/671905",
         "https://bip.malopolska.pl/api/articles/672047",
         "https://bip.malopolska.pl/api/contexts/zukomunalnych"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1797",
@@ -985,22 +1034,24 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Krościenko nad Dunajcem",
+      "postal_code": "34-450",
+      "street": "Jana III Sobieskiego",
+      "house_number": "3F",
       "phone_number": "182625726",
-      "email": null,
+      "email": "zgk@kroscienko.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkomunalnej3",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgk@kroscienko.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/773917",
         "https://bip.malopolska.pl/api/articles/773924",
-        "https://bip.malopolska.pl/api/contexts/zgkomunalnej3"
+        "https://bip.malopolska.pl/api/contexts/zgkomunalnej3",
+        "https://kroscienko.pl/pl/835/0/dane-teleadresowe-zgk.html"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1840",
@@ -1008,21 +1059,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Brzeszcze",
+      "postal_code": "32-620",
+      "street": "Kościelna",
+      "house_number": "7",
       "phone_number": null,
-      "email": null,
+      "email": "ak@akbrzeszcze.pl",
       "website": "http://agencjakomunalna.brzeszcze.pl/",
       "bip_url": "https://bip.malopolska.pl/akszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:ak@akbrzeszcze.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/715978",
+        "https://bip.malopolska.pl/api/articles/715993",
         "https://bip.malopolska.pl/api/contexts/akszoo"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1856",
@@ -1035,17 +1088,18 @@
       "street": "Zaryte",
       "house_number": "141A",
       "phone_number": null,
-      "email": null,
+      "email": "poczta@zwik-rabka.pl",
       "website": "http://www.zwik.rabka.pl",
       "bip_url": "https://bip.malopolska.pl/zwikszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:poczta@zwik-rabka.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/687548",
         "https://bip.malopolska.pl/api/articles/687591",
         "https://bip.malopolska.pl/api/contexts/zwikszoo"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1858",
@@ -1053,22 +1107,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": "Rabka Zdrój",
+      "locality": "Rabka-Zdrój",
       "postal_code": "34-700",
-      "street": "Zaryte",
-      "house_number": "141b",
+      "street": "Kilińskiego",
+      "house_number": "46b",
       "phone_number": null,
-      "email": null,
+      "email": "zkkasa@gmail.com",
       "website": "http://www.zk.rabka.pl/",
       "bip_url": "https://bip.malopolska.pl/zkszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zkkasa@gmail.com",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1863297",
         "https://bip.malopolska.pl/api/articles/779016",
         "https://bip.malopolska.pl/api/contexts/zkszoo"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1893",
@@ -1081,17 +1136,18 @@
       "street": "Długa",
       "house_number": "166",
       "phone_number": null,
-      "email": null,
+      "email": "gzwik@gzwik.przeciszow.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/gzwwprzeciszowej",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:gzwik@gzwik.przeciszow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/782978",
         "https://bip.malopolska.pl/api/articles/783008",
         "https://bip.malopolska.pl/api/contexts/gzwwprzeciszowej"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1922",
@@ -1099,22 +1155,24 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Bolesław",
+      "postal_code": "32-329",
+      "street": "Osadowa",
+      "house_number": "1",
       "phone_number": "326461148",
       "email": "biuro@zgkboleslaw.com",
       "website": "http://zgkboleslaw.com/",
       "bip_url": "https://bip.malopolska.pl/zgkbszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@zgkboleslaw.com",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/710714",
         "https://bip.malopolska.pl/api/articles/788204",
-        "https://bip.malopolska.pl/api/contexts/zgkbszoo"
+        "https://bip.malopolska.pl/api/contexts/zgkbszoo",
+        "https://zgkboleslaw.com/kontakt/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:1927",
@@ -1122,21 +1180,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
-      "phone_number": null,
-      "email": null,
-      "website": "https://osiek.pl/gospodarka-komunalna/",
+      "locality": "Osiek",
+      "postal_code": "32-608",
+      "street": "Ceglana",
+      "house_number": "2",
+      "phone_number": "+48 33 841 10 08",
+      "email": "gzgk@osiek.pl",
+      "website": "https://gzgk.osiek.pl/",
       "bip_url": "https://bip.malopolska.pl/gzgkwosieku",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:gzgk@osiek.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/719651",
-        "https://bip.malopolska.pl/api/contexts/gzgkwosieku"
+        "https://bip.malopolska.pl/api/contexts/gzgkwosieku",
+        "https://gzgk.osiek.pl/kontakt/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2029",
@@ -1144,22 +1204,23 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Krynica-Zdrój",
+      "postal_code": "33-380",
+      "street": "Józefa Ignacego Kraszewskiego",
+      "house_number": "37",
       "phone_number": null,
       "email": "zwik.krynica@poczta.onet.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zwikwkrynicyzdroju",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zwik.krynica@poczta.onet.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/695513",
         "https://bip.malopolska.pl/api/articles/695530",
         "https://bip.malopolska.pl/api/contexts/zwikwkrynicyzdroju"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:203",
@@ -1175,13 +1236,14 @@
       "email": "sekretariat@zkgkm.pl",
       "website": "http://zkgkm-olkusz.pl",
       "bip_url": "https://bip.malopolska.pl/zkgkmolkusz",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@zkgkm.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/303425",
         "https://bip.malopolska.pl/api/contexts/zkgkmolkusz"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2030",
@@ -1189,22 +1251,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Krynica-Zdrój",
+      "postal_code": "33-380",
+      "street": "Józefa Ignacego Kraszewskiego",
+      "house_number": "37",
       "phone_number": null,
       "email": "mpgk@mpgk-krynica.pl",
       "website": "http://www.mpgk-krynica.pl",
       "bip_url": "https://bip.malopolska.pl/mpgkszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mpgk@mpgk-krynica.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/695359",
         "https://bip.malopolska.pl/api/articles/695373",
         "https://bip.malopolska.pl/api/contexts/mpgkszoo"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2049",
@@ -1220,14 +1283,15 @@
       "email": "kontakt@mzgk.miastobukowno.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/mzgkwbukownie",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:kontakt@mzgk.miastobukowno.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/714158",
         "https://bip.malopolska.pl/api/articles/714177",
         "https://bip.malopolska.pl/api/contexts/mzgkwbukownie"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:205",
@@ -1235,21 +1299,22 @@
       "short_name": null,
       "entity_type": "transport_authority",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Chrzanów",
+      "postal_code": "32-500",
+      "street": "Aleja Henryka",
+      "house_number": "20",
       "phone_number": null,
       "email": "biuro@zkkm.pl",
       "website": "http://www.zkkm.pl",
       "bip_url": "https://bip.malopolska.pl/zkkkmchrzanow",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@zkkm.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/352346",
         "https://bip.malopolska.pl/api/contexts/zkkkmchrzanow"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2070",
@@ -1257,20 +1322,22 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Zator",
+      "postal_code": "32-640",
+      "street": "Zamkowa",
+      "house_number": "4",
       "phone_number": null,
-      "email": null,
+      "email": "sekretariat@zgk-zator.pl",
       "website": "http://www.zgk-zator.pl",
       "bip_url": "https://bip.malopolska.pl/zgkszowzatorze",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@zgk-zator.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
+        "https://bip.malopolska.pl/api/articles/853678",
         "https://bip.malopolska.pl/api/contexts/zgkszowzatorze"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2125",
@@ -1280,20 +1347,21 @@
       "teryt_code": null,
       "locality": "Chełmek",
       "postal_code": "32-660",
-      "street": null,
-      "house_number": null,
+      "street": "Piastowska",
+      "house_number": "18",
       "phone_number": null,
       "email": "sekretariat@mzgk.chelmek.aanet.pl",
       "website": "http://www.mzgk.chelmek.aanet.pl/",
       "bip_url": "https://bip.malopolska.pl/mzgkwcszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@mzgk.chelmek.aanet.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/719045",
         "https://bip.malopolska.pl/api/articles/719056",
         "https://bip.malopolska.pl/api/contexts/mzgkwcszoo"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2141",
@@ -1303,20 +1371,21 @@
       "teryt_code": null,
       "locality": "Wolbrom",
       "postal_code": "32-340",
-      "street": null,
-      "house_number": null,
+      "street": "Wrzosowa",
+      "house_number": "18",
       "phone_number": null,
       "email": "sekretariat@wodociagiwolbrom.pl",
       "website": "http://www.wodociagiwolbrom.pl/",
       "bip_url": "https://bip.malopolska.pl/wzwikanalizacji",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@wodociagiwolbrom.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/721100",
         "https://bip.malopolska.pl/api/articles/721118",
         "https://bip.malopolska.pl/api/contexts/wzwikanalizacji"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2278",
@@ -1324,43 +1393,46 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Wietrzychowice",
+      "postal_code": "33-270",
       "street": null,
-      "house_number": null,
+      "house_number": "19",
       "phone_number": null,
-      "email": null,
+      "email": "zeukiw@wietrzychowice.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zeukiwwwietrzychowicach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zeukiw@wietrzychowice.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
+        "https://bip.malopolska.pl/api/articles/21879",
         "https://bip.malopolska.pl/api/articles/792864",
         "https://bip.malopolska.pl/api/contexts/zeukiwwwietrzychowicach"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2304",
-      "name": "Gminny Zakład Komunalny w Bukowine Tatrzańskiej",
+      "name": "Gminny Zakład Komunalny w Bukowinie Tatrzańskiej",
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Czarna Góra",
+      "postal_code": "34-532",
+      "street": "Podgórska",
+      "house_number": "46",
       "phone_number": "182082040",
-      "email": null,
+      "email": "bukowina@gzkbt.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/gzkwbtatrzanskiej",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:bukowina@gzkbt.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/91083",
         "https://bip.malopolska.pl/api/contexts/gzkwbtatrzanskiej"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2336",
@@ -1368,21 +1440,24 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Pleśna",
+      "postal_code": "33-171",
       "street": null,
-      "house_number": null,
+      "house_number": "240",
       "phone_number": null,
-      "email": null,
+      "email": "zgk@plesna.pl",
       "website": "https://bip.malopolska.pl/zgkomunalnej4",
       "bip_url": "https://bip.malopolska.pl/zgkomunalnej4",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "tel:+48882064244",
+      "reporting_channel_description": "Numer alarmowy w przypadku awarii.",
       "source_urls": [
+        "https://bip.malopolska.pl/api/articles/734469",
         "https://bip.malopolska.pl/api/articles/734471",
-        "https://bip.malopolska.pl/api/contexts/zgkomunalnej4"
+        "https://bip.malopolska.pl/api/contexts/zgkomunalnej4",
+        "https://www.plesna.pl/gmina/jednostki-organizacyjne/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2389",
@@ -1390,21 +1465,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Szerzyny",
+      "postal_code": "38-246",
       "street": null,
-      "house_number": null,
+      "house_number": "594",
       "phone_number": null,
-      "email": null,
+      "email": "gzgk@szerzyny.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/gzgkwszerzynach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:gzgk@szerzyny.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
+        "https://bip.malopolska.pl/api/articles/14598",
         "https://bip.malopolska.pl/api/articles/14601",
         "https://bip.malopolska.pl/api/contexts/gzgkwszerzynach"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2462",
@@ -1414,20 +1491,21 @@
       "teryt_code": null,
       "locality": "Poronin",
       "postal_code": "34-520",
-      "street": "Piłsudskiego",
+      "street": "Józefa Piłsudskiego",
       "house_number": "9",
       "phone_number": null,
-      "email": null,
+      "email": "zgk@poronin.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkwporoninie",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgk@poronin.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/108673",
         "https://bip.malopolska.pl/api/articles/108679",
         "https://bip.malopolska.pl/api/contexts/zgkwporoninie"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2468",
@@ -1440,17 +1518,18 @@
       "street": "Jana",
       "house_number": "3",
       "phone_number": null,
-      "email": null,
+      "email": "mgzgk.zabno@poczta.fm",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/mzgkomunalnej1",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mgzgk.zabno@poczta.fm",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/36312",
         "https://bip.malopolska.pl/api/articles/36315",
         "https://bip.malopolska.pl/api/contexts/mzgkomunalnej1"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2568",
@@ -1458,21 +1537,22 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Niegowić",
+      "postal_code": "32-420",
       "street": null,
-      "house_number": null,
+      "house_number": "90",
       "phone_number": null,
       "email": "biuro@zgkgdow.pl",
       "website": "http://www.gdow.pl",
       "bip_url": "https://bip.malopolska.pl/zgkomunalnej5",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@zgkgdow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/163002",
         "https://bip.malopolska.pl/api/contexts/zgkomunalnej5"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2633",
@@ -1482,19 +1562,20 @@
       "teryt_code": null,
       "locality": "Wieprz",
       "postal_code": "34-122",
-      "street": null,
-      "house_number": null,
+      "street": "Pogodna",
+      "house_number": "10",
       "phone_number": null,
       "email": "biuro@gzwik.wieprz.pl",
       "website": "https://bip.malopolska.pl/gzwwwzswwieprzu",
       "bip_url": "https://bip.malopolska.pl/gzwwwzswwieprzu",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@gzwik.wieprz.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/165424",
         "https://bip.malopolska.pl/api/contexts/gzwwwzswwieprzu"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2672",
@@ -1504,19 +1585,20 @@
       "teryt_code": null,
       "locality": "Miechów",
       "postal_code": "32-200",
-      "street": null,
-      "house_number": null,
+      "street": "Warszawska",
+      "house_number": "11",
       "phone_number": null,
-      "email": null,
+      "email": "zarzaddrog@zdpmiechow.pl",
       "website": "http://zdpmiechow.pl",
       "bip_url": "https://bip.malopolska.pl/zdpwmiechowie",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zarzaddrog@zdpmiechow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/284843",
         "https://bip.malopolska.pl/api/contexts/zdpwmiechowie"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2717",
@@ -1524,21 +1606,22 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Wadowice",
+      "postal_code": "34-100",
       "street": "Młyńska",
       "house_number": "110",
       "phone_number": null,
       "email": "sekretariat@wpwik.com",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/wpwikszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@wpwik.com",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/170281",
         "https://bip.malopolska.pl/api/contexts/wpwikszoo"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2722",
@@ -1548,19 +1631,21 @@
       "teryt_code": null,
       "locality": "Wieliczka",
       "postal_code": "32-020",
-      "street": "Skulimowskiego",
+      "street": "plac Mieczysława Skulimowskiego",
       "house_number": "2",
       "phone_number": "+48122782105",
       "email": "straz@wieliczka.eu",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/smwwieliczce",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:straz@wieliczka.eu",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/194590",
+        "https://bip.malopolska.pl/api/articles/845661",
         "https://bip.malopolska.pl/api/contexts/smwwieliczce"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2734",
@@ -1568,22 +1653,23 @@
       "short_name": null,
       "entity_type": "road_manager",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Jakubowice",
+      "postal_code": "32-100",
       "street": null,
-      "house_number": null,
+      "house_number": "75",
       "phone_number": "123862013",
       "email": "zdp@zdp.proszowice.pl",
       "website": "http://www.zdp.proszowice.pl",
       "bip_url": "https://bip.malopolska.pl/zdpwproszowicach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zdp@zdp.proszowice.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/286103",
         "https://bip.malopolska.pl/api/articles/812178",
         "https://bip.malopolska.pl/api/contexts/zdpwproszowicach"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2755",
@@ -1593,20 +1679,21 @@
       "teryt_code": null,
       "locality": "Brzesko",
       "postal_code": "32-800",
-      "street": "Wyszyńskiego",
+      "street": "Stefana Wyszyńskiego",
       "house_number": "6",
       "phone_number": null,
       "email": "zdp@powiatbrzeski.pl",
       "website": "http://www.zdp.powiatbrzeski.pl/",
       "bip_url": "https://bip.malopolska.pl/zdpowiatowych",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zdp@powiatbrzeski.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/194910",
         "https://bip.malopolska.pl/api/articles/194913",
         "https://bip.malopolska.pl/api/contexts/zdpowiatowych"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2806",
@@ -1614,21 +1701,23 @@
       "short_name": null,
       "entity_type": "housing_manager",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
-      "phone_number": null,
-      "email": null,
+      "locality": "Wieliczka",
+      "postal_code": "32-020",
+      "street": "Henryka Sienkiewicza",
+      "house_number": "26",
+      "phone_number": "+48 12 352 34 26",
+      "email": "zbk@wieliczka.eu",
       "website": "http://www.zbk.wieliczka.eu",
       "bip_url": "https://bip.malopolska.pl/zbkomunalnych",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zbk@wieliczka.eu",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/850209",
-        "https://bip.malopolska.pl/api/contexts/zbkomunalnych"
+        "https://bip.malopolska.pl/api/contexts/zbkomunalnych",
+        "https://zbk-wieliczka.wieliczka.eu/pl/202242/0/kontakt.html"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2811",
@@ -1641,17 +1730,18 @@
       "street": "Marszałka Józefa Piłsudskiego",
       "house_number": "38",
       "phone_number": "697123100",
-      "email": null,
+      "email": "cmentarz@zckwieliczka.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zckomunalnego",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:cmentarz@zckwieliczka.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1892315",
         "https://bip.malopolska.pl/api/articles/1895599",
         "https://bip.malopolska.pl/api/contexts/zckomunalnego"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2813",
@@ -1659,22 +1749,23 @@
       "short_name": null,
       "entity_type": "road_manager",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Wieliczka",
+      "postal_code": "32-020",
+      "street": "Winnicka",
+      "house_number": "12",
       "phone_number": "122782010",
-      "email": null,
+      "email": "gzd@gzd.wieliczka.eu",
       "website": "http://www.gzd.wieliczka.eu",
       "bip_url": "https://bip.malopolska.pl/gzdrog",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:gzd@gzd.wieliczka.eu",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1875087",
         "https://bip.malopolska.pl/api/articles/193806",
         "https://bip.malopolska.pl/api/contexts/gzdrog"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2829",
@@ -1687,17 +1778,18 @@
       "street": "Michalusa",
       "house_number": "18",
       "phone_number": "183524002",
-      "email": null,
+      "email": "pzdgorlice@pzdgorlice.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/pzdwgorlicach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:pzdgorlice@pzdgorlice.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/245706",
         "https://bip.malopolska.pl/api/articles/245712",
         "https://bip.malopolska.pl/api/contexts/pzdwgorlicach"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2868",
@@ -1713,13 +1805,14 @@
       "email": "sekretariat@pzd.bochnia.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/pzdwbochni",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@pzd.bochnia.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1905924",
         "https://bip.malopolska.pl/api/contexts/pzdwbochni"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2903",
@@ -1727,21 +1820,23 @@
       "short_name": null,
       "entity_type": "road_manager",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Dąbrowa Tarnowska",
+      "postal_code": "33-200",
+      "street": "Warszawska",
+      "house_number": "48",
       "phone_number": null,
-      "email": null,
+      "email": "sekretariat@zddt.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zdwdtarnowskiej",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@zddt.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1793279",
         "https://bip.malopolska.pl/api/articles/248704",
         "https://bip.malopolska.pl/api/contexts/zdwdtarnowskiej"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2938",
@@ -1757,13 +1852,14 @@
       "email": "zdp@zdp-myslenice.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zdpwmyslenicach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zdp@zdp-myslenice.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/302429",
         "https://bip.malopolska.pl/api/contexts/zdpwmyslenicach"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:2978",
@@ -1771,21 +1867,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
-      "phone_number": null,
-      "email": null,
+      "locality": "Andrychów",
+      "postal_code": "34-120",
+      "street": "Starowiejska",
+      "house_number": "22b",
+      "phone_number": "+48 33 875 31 68",
+      "email": "biuro@zomk.andrychow.eu",
       "website": "http://bip.malopolska.pl/zomkomunalnego",
       "bip_url": "https://bip.malopolska.pl/zomkomunalnego",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@zomk.andrychow.eu",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/126974",
-        "https://bip.malopolska.pl/api/contexts/zomkomunalnego"
+        "https://bip.malopolska.pl/api/contexts/zomkomunalnego",
+        "https://ezamowienia.gov.pl/mo-client-board/bzp/notice-details/id/08de5ffd-131a-8ed5-4c32-fc0001f1215b"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3032",
@@ -1801,14 +1899,15 @@
       "email": "sekretariat@pzd.limanowa.pl",
       "website": "http://www.pzd.limanowa.pl",
       "bip_url": "https://bip.malopolska.pl/pzdlimanowej",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@pzd.limanowa.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/252190",
         "https://bip.malopolska.pl/api/articles/252197",
         "https://bip.malopolska.pl/api/contexts/pzdlimanowej"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3084",
@@ -1824,14 +1923,15 @@
       "email": "sekretariat@zdpk.net",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zdpkrakowskiego",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@zdpk.net",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/266167",
         "https://bip.malopolska.pl/api/articles/266177",
         "https://bip.malopolska.pl/api/contexts/zdpkrakowskiego"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3176",
@@ -1839,21 +1939,23 @@
       "short_name": null,
       "entity_type": "road_manager",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Zgłobice",
+      "postal_code": "33-113",
+      "street": "Zgłobicka",
+      "house_number": "8",
       "phone_number": null,
-      "email": null,
+      "email": "sekretariat@pzdtarnow.pl",
       "website": "https://pzdtarnow.pl/",
       "bip_url": "https://bip.malopolska.pl/pzdtszglobicach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@pzdtarnow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/79828",
-        "https://bip.malopolska.pl/api/contexts/pzdtszglobicach"
+        "https://bip.malopolska.pl/api/contexts/pzdtszglobicach",
+        "https://pzdtarnow.pl/kontakt/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3262",
@@ -1861,21 +1963,22 @@
       "short_name": null,
       "entity_type": "heating_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": "700 - lecia",
+      "locality": "Kęty",
+      "postal_code": "32-650",
+      "street": "osiedle 700-lecia",
       "house_number": "10",
       "phone_number": null,
-      "email": null,
+      "email": "poczta@mzec.kety.pl",
       "website": "http://www.mzec.kety.pl",
       "bip_url": "https://bip.malopolska.pl/mzecszowketach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:poczta@mzec.kety.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/730239",
         "https://bip.malopolska.pl/api/contexts/mzecszowketach"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3264",
@@ -1883,20 +1986,22 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Kęty",
+      "postal_code": "32-650",
+      "street": "św. Maksymiliana Kolbe",
+      "house_number": "25a",
       "phone_number": null,
-      "email": null,
+      "email": "mzwik@mzwik-kety.com.pl",
       "website": "https://www.mzwik-kety.com.pl",
       "bip_url": "https://bip.malopolska.pl/mzwikszowketach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mzwik@mzwik-kety.com.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1069874",
         "https://bip.malopolska.pl/api/contexts/mzwikszowketach"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3265",
@@ -1904,21 +2009,22 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Kęty",
+      "postal_code": "32-650",
+      "street": "Adama Mickiewicza",
+      "house_number": "8",
       "phone_number": null,
-      "email": null,
+      "email": "komax@komax.pl",
       "website": "http://komax.pl",
       "bip_url": "https://bip.malopolska.pl/pkkszowketach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:komax@komax.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/730281",
         "https://bip.malopolska.pl/api/contexts/pkkszowketach"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3394",
@@ -1926,21 +2032,22 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": "Mucharz",
+      "locality": "Jaszczurowa",
       "postal_code": "34-106",
       "street": null,
-      "house_number": null,
+      "house_number": "357",
       "phone_number": null,
-      "email": null,
+      "email": "gzwik@mucharz.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/gzwikmucharz",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:gzwik@mucharz.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/872203",
         "https://bip.malopolska.pl/api/contexts/gzwikmucharz"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3499",
@@ -1962,7 +2069,8 @@
         "https://bip.malopolska.pl/api/articles/942310",
         "https://bip.malopolska.pl/api/contexts/smtarnow"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3543",
@@ -1970,25 +2078,27 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Łapsze Niżne",
+      "postal_code": "34-442",
+      "street": "Jana Pawła II",
+      "house_number": "20",
       "phone_number": null,
-      "email": null,
+      "email": "zgkm@lapszenizne.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkmlapszenizne",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgkm@lapszenizne.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/945327",
-        "https://bip.malopolska.pl/api/contexts/zgkmlapszenizne"
+        "https://bip.malopolska.pl/api/contexts/zgkmlapszenizne",
+        "https://lapszenizne.pl/instytucje/zespol-gospodarki-komunalnej-i-mieszkaniowej"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3547",
-      "name": "Przedsiębiorstwo Usług Komunalnych w Tarnowie",
+      "name": "Miejskie Przedsiębiorstwo Gospodarki Komunalnej Sp. z o.o. w Tarnowie - oddział Komunalna",
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
@@ -1997,16 +2107,19 @@
       "street": "Komunalna",
       "house_number": "31",
       "phone_number": "146258209",
-      "email": null,
-      "website": "http://www.puk.tarnow.pl",
+      "email": "mpgk@mpgk.tarnow.pl",
+      "website": "https://mpgk.tarnow.pl/",
       "bip_url": "https://bip.malopolska.pl/puktarnow",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mpgk@mpgk.tarnow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/955246",
-        "https://bip.malopolska.pl/api/contexts/puktarnow"
+        "https://bip.malopolska.pl/api/contexts/puktarnow",
+        "https://mpgk.tarnow.pl/kontakt/",
+        "https://mpgk.tarnow.pl/wp-content/uploads/2022/02/Plan-polaczenia.pdf"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3549",
@@ -2022,14 +2135,15 @@
       "email": "gkbabice@o2.pl",
       "website": "http://www.gkbabice.pl",
       "bip_url": "https://bip.malopolska.pl/gkwbabicach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:gkbabice@o2.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/955521",
         "https://bip.malopolska.pl/api/contexts/gkbabice",
         "https://bip.malopolska.pl/api/contexts/gkwbabicach"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3575",
@@ -2037,21 +2151,24 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Łężkowice",
+      "postal_code": "32-015",
       "street": null,
-      "house_number": null,
+      "house_number": "12",
       "phone_number": null,
-      "email": null,
-      "website": "http://wodociogiklaj.pl",
+      "email": "bok@wodociagiklaj.pl",
+      "website": "https://www.wodociagiklaj.pl/",
       "bip_url": "https://bip.malopolska.pl/gpkklaj",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:bok@wodociagiklaj.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/987578",
-        "https://bip.malopolska.pl/api/contexts/gpkklaj"
+        "https://bip.malopolska.pl/api/articles/988662",
+        "https://bip.malopolska.pl/api/contexts/gpkklaj",
+        "https://www.klaj.pl/samorzad/spolki-komunalne/wodociagi-gminy-klaj-sp-z-o-o"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3581",
@@ -2059,21 +2176,22 @@
       "short_name": null,
       "entity_type": "waste_management",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Oświęcim",
+      "postal_code": "32-600",
+      "street": "Nadwiślańska",
+      "house_number": "36",
       "phone_number": null,
       "email": "biuro@sok-oswiecim.biz",
       "website": "http://www.sok.serwisy.net",
       "bip_url": "https://bip.malopolska.pl/sokwoswiecimiu",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@sok-oswiecim.biz",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/990141",
         "https://bip.malopolska.pl/api/contexts/sokwoswiecimiu"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3582",
@@ -2089,14 +2207,15 @@
       "email": "sekretariat@zuk.oswiecim.pl",
       "website": "http://zuk.oswiecim.pl",
       "bip_url": "https://bip.malopolska.pl/zukoswiecim",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@zuk.oswiecim.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2024571",
         "https://bip.malopolska.pl/api/articles/2024595",
         "https://bip.malopolska.pl/api/contexts/zukoswiecim"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3617",
@@ -2106,19 +2225,20 @@
       "teryt_code": null,
       "locality": "Tarnów",
       "postal_code": "33-100",
-      "street": null,
-      "house_number": null,
+      "street": "Bernardyńska",
+      "house_number": "24",
       "phone_number": null,
-      "email": null,
+      "email": "zdik@zdik.tarnow.pl",
       "website": "http://zdik.tarnow.pl",
       "bip_url": "https://bip.malopolska.pl/zdik",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zdik@zdik.tarnow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1044264",
         "https://bip.malopolska.pl/api/contexts/zdik"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3646",
@@ -2134,13 +2254,14 @@
       "email": "sekretariat@mzd.nowysacz.pl",
       "website": "http://www.mzd.nowysacz.pl",
       "bip_url": "https://bip.malopolska.pl/mzdns",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@mzd.nowysacz.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1143054",
         "https://bip.malopolska.pl/api/contexts/mzdns"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3656",
@@ -2148,21 +2269,23 @@
       "short_name": null,
       "entity_type": "heating_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Nowy Sącz",
+      "postal_code": "33-300",
+      "street": "Jeremiego Wiśniowieckiego",
+      "house_number": "56",
       "phone_number": null,
-      "email": null,
+      "email": "sekretariat@mpecns.pl",
       "website": "http://www.mpecns.pl",
       "bip_url": "https://bip.malopolska.pl/mpecnowysacz",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@mpecns.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1157617",
+        "https://bip.malopolska.pl/api/articles/1157785",
         "https://bip.malopolska.pl/api/contexts/mpecnowysacz"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3667",
@@ -2170,22 +2293,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": "Oświęcim",
+      "locality": "Brzezinka",
       "postal_code": "32-600",
-      "street": null,
-      "house_number": null,
+      "street": "Czarna",
+      "house_number": "8",
       "phone_number": null,
-      "email": null,
+      "email": "zkgo@zkgo.gminaoswiecim.pl",
       "website": "http://www.zkgo.oswiecim-gmina.pl",
       "bip_url": "https://bip.malopolska.pl/zkgo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zkgo@zkgo.gminaoswiecim.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1172810",
         "https://bip.malopolska.pl/api/articles/1180860",
         "https://bip.malopolska.pl/api/contexts/zkgo"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3714",
@@ -2193,22 +2317,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Muszyna",
+      "postal_code": "33-370",
+      "street": "Józefa Piłsudskiego",
+      "house_number": "128",
       "phone_number": "184714197",
       "email": "sekretariat@pgk-muszyna.pl",
       "website": "http://www.pgk-muszyna.pl",
       "bip_url": "https://bip.malopolska.pl/pgkmuszyna",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@pgk-muszyna.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1236133",
         "https://bip.malopolska.pl/api/articles/2401764",
         "https://bip.malopolska.pl/api/contexts/pgkmuszyna"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3728",
@@ -2224,13 +2349,14 @@
       "email": "mpgk@mpgk.tarnow.pl",
       "website": "http://www.mpgk.tarnow.pl",
       "bip_url": "https://bip.malopolska.pl/mpgk",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mpgk@mpgk.tarnow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1249818",
         "https://bip.malopolska.pl/api/contexts/mpgk"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3734",
@@ -2240,19 +2366,21 @@
       "teryt_code": null,
       "locality": "Brzesko",
       "postal_code": "32-800",
-      "street": null,
-      "house_number": null,
+      "street": "Ludwika Solskiego",
+      "house_number": "13",
       "phone_number": null,
       "email": null,
       "website": "https://www.zmwik.brzesko.pl",
       "bip_url": "https://bip.malopolska.pl/zmwik",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "https://zmwik.brzesko.pl/kontakt/",
+      "reporting_channel_description": "Formularz kontaktowy związku. Siedziba: Solskiego 13; adres do kontaktu: Głowackiego 51.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1267704",
-        "https://bip.malopolska.pl/api/contexts/zmwik"
+        "https://bip.malopolska.pl/api/contexts/zmwik",
+        "https://zmwik.brzesko.pl/kontakt/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3740",
@@ -2260,21 +2388,23 @@
       "short_name": null,
       "entity_type": "transport_operator",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Nowy Sącz",
+      "postal_code": "33-310",
+      "street": "Stanisława Wyspiańskiego",
+      "house_number": "22",
       "phone_number": null,
-      "email": null,
+      "email": "sekretariat@mpk.nowysacz.pl",
       "website": "http://www.mpk.nowysacz.pl",
       "bip_url": "https://bip.malopolska.pl/mpknowysacz",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@mpk.nowysacz.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1275386",
+        "https://bip.malopolska.pl/api/articles/1275462",
         "https://bip.malopolska.pl/api/contexts/mpknowysacz"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3780",
@@ -2282,21 +2412,22 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Nowy Targ",
+      "postal_code": "34-400",
+      "street": "Długa",
+      "house_number": "21",
       "phone_number": null,
       "email": "mzwik@mzwik.nowytarg.pl",
       "website": "https://mzwik.nowytarg.pl",
       "bip_url": "https://bip.malopolska.pl/mzwiknowytarg",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mzwik@mzwik.nowytarg.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1321534",
         "https://bip.malopolska.pl/api/contexts/mzwiknowytarg"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3861",
@@ -2312,14 +2443,15 @@
       "email": "biuro@mzuk.oswiecim.pl",
       "website": "http://mzuk.oswiecim.pl",
       "bip_url": "https://bip.malopolska.pl/mzukoswiecim",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@mzuk.oswiecim.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1429100",
         "https://bip.malopolska.pl/api/articles/1758164",
         "https://bip.malopolska.pl/api/contexts/mzukoswiecim"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3862",
@@ -2327,20 +2459,22 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Jordanów",
+      "postal_code": "34-240",
+      "street": "Nad Skawą",
+      "house_number": "6A",
       "phone_number": null,
-      "email": null,
+      "email": "biuro@wodociagi-jordanow.pl",
       "website": "http://wodociagi-jordanow.pl/",
       "bip_url": "https://bip.malopolska.pl/wodociagijordanow",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@wodociagi-jordanow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
-        "https://bip.malopolska.pl/api/contexts/wodociagijordanow"
+        "https://bip.malopolska.pl/api/contexts/wodociagijordanow",
+        "https://wodociagi-jordanow.pl/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3882",
@@ -2348,21 +2482,22 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Wola Dębińska",
+      "postal_code": "32-852",
       "street": null,
-      "house_number": null,
+      "house_number": "240",
       "phone_number": "146318581",
       "email": "biuro@gpgkdebno.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/gpgkdebno",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@gpgkdebno.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1464435",
         "https://bip.malopolska.pl/api/contexts/gpgkdebno"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:391",
@@ -2370,22 +2505,23 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": "Łapczyca",
+      "locality": "Siedlec",
       "postal_code": "32-744",
       "street": null,
-      "house_number": null,
+      "house_number": "250",
       "phone_number": "146122270",
       "email": "biuro@gzwik-bochnia.pl",
       "website": "http://www.gzwik-bochnia.pl",
       "bip_url": "https://bip.malopolska.pl/gzwikwbochni",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@gzwik-bochnia.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/51735",
         "https://bip.malopolska.pl/api/articles/51743",
         "https://bip.malopolska.pl/api/contexts/gzwikwbochni"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3920",
@@ -2393,21 +2529,22 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Kamienica",
+      "postal_code": "34-608",
       "street": null,
-      "house_number": null,
-      "phone_number": null,
+      "house_number": "420",
+      "phone_number": "+48 18 334 76 06",
       "email": null,
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkwkamienicy",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "tel:+48183347606",
+      "reporting_channel_description": "Kontakt telefoniczny zakładu, opublikowany w BIP.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1471806",
         "https://bip.malopolska.pl/api/contexts/zgkwkamienicy"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3942",
@@ -2417,19 +2554,21 @@
       "teryt_code": null,
       "locality": "Szyce",
       "postal_code": "32-085",
-      "street": null,
-      "house_number": null,
+      "street": "plac Wspólnoty",
+      "house_number": "1",
       "phone_number": null,
-      "email": null,
+      "email": "gzk@gzk.wielka-wies.pl",
       "website": "http://www.gzk.wielka-wies.pl",
       "bip_url": "https://bip.malopolska.pl/gzkwielkawies",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:gzk@gzk.wielka-wies.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1489105",
-        "https://bip.malopolska.pl/api/contexts/gzkwielkawies"
+        "https://bip.malopolska.pl/api/contexts/gzkwielkawies",
+        "https://gzk.wielka-wies.pl/kontakt/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3968",
@@ -2445,14 +2584,15 @@
       "email": "zgk@kocmyrzow-luborzyca.ug.gov.pl",
       "website": "http://www.zgkkocmyrzow.pl",
       "bip_url": "https://bip.malopolska.pl/zgkkocmyrzow",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgk@kocmyrzow-luborzyca.ug.gov.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1556201",
         "https://bip.malopolska.pl/api/articles/1556550",
         "https://bip.malopolska.pl/api/contexts/zgkkocmyrzow"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:3988",
@@ -2462,19 +2602,20 @@
       "teryt_code": null,
       "locality": "Mszana Dolna",
       "postal_code": "34-730",
-      "street": null,
-      "house_number": null,
+      "street": "Krakowska",
+      "house_number": "27K",
       "phone_number": null,
       "email": "zgk@mszana-dolna.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkmszanadolna",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgk@mszana-dolna.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1599675",
         "https://bip.malopolska.pl/api/contexts/zgkmszanadolna"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4028",
@@ -2484,19 +2625,20 @@
       "teryt_code": null,
       "locality": "Dąbrowa Tarnowska",
       "postal_code": "33-200",
-      "street": null,
-      "house_number": null,
+      "street": "Rynek",
+      "house_number": "34",
       "phone_number": "146422775",
       "email": null,
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgdswikdabrowatarnowska",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "tel:+48146422775",
+      "reporting_channel_description": "Kontakt związku opublikowany w BIP.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1592252",
         "https://bip.malopolska.pl/api/contexts/zgdswikdabrowatarnowska"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4065",
@@ -2504,21 +2646,22 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Nowy Sącz",
+      "postal_code": "33-300",
+      "street": "Wincentego Pola",
+      "house_number": "22",
       "phone_number": null,
       "email": "biuro@swns.pl",
       "website": "http://www.swns.pl",
       "bip_url": "https://bip.malopolska.pl/sadeckiewodociagi",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@swns.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1605397",
         "https://bip.malopolska.pl/api/contexts/sadeckiewodociagi"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4129",
@@ -2529,18 +2672,19 @@
       "locality": "Sękowa",
       "postal_code": "38-307",
       "street": null,
-      "house_number": null,
+      "house_number": "181",
       "phone_number": null,
-      "email": null,
+      "email": "gzgk@sekowa.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/gzgksekowa",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:gzgk@sekowa.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1765828",
         "https://bip.malopolska.pl/api/contexts/gzgksekowa"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4191",
@@ -2548,21 +2692,23 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Andrychów",
+      "postal_code": "34-120",
+      "street": "Stefana Batorego",
+      "house_number": "68",
       "phone_number": null,
-      "email": null,
+      "email": "sekretariat@zwikandrychow.pl",
       "website": "http://zwik.andrychow.pl",
       "bip_url": "https://bip.malopolska.pl/zwikandrychow",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@zwikandrychow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1650500",
         "https://bip.malopolska.pl/api/articles/1652523",
         "https://bip.malopolska.pl/api/contexts/zwikandrychow"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4218",
@@ -2575,16 +2721,17 @@
       "street": "Berka Joselewicza",
       "house_number": "8",
       "phone_number": null,
-      "email": null,
+      "email": "mpkdt@op.pl",
       "website": "http://www.mpk-dt.pl",
       "bip_url": "https://bip.malopolska.pl/mpkdt",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mpkdt@op.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1684693",
         "https://bip.malopolska.pl/api/contexts/mpkdt"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4219",
@@ -2592,21 +2739,22 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Stryszów",
+      "postal_code": "34-146",
       "street": null,
-      "house_number": null,
+      "house_number": "600",
       "phone_number": null,
       "email": "biuro@oczyszczalniastryszow.pl",
       "website": "http://www.oczyszczalniastryszow.pl",
       "bip_url": "https://bip.malopolska.pl/spwksrodowisko",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@oczyszczalniastryszow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1683151",
         "https://bip.malopolska.pl/api/contexts/spwksrodowisko"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4221",
@@ -2616,20 +2764,21 @@
       "teryt_code": null,
       "locality": "Maszków",
       "postal_code": "32-095",
-      "street": null,
-      "house_number": null,
+      "street": "Królewska",
+      "house_number": "72",
       "phone_number": null,
       "email": "sekretariat@pkndiwanowice.pl",
       "website": "http://www.pkiwanowice.pl",
       "bip_url": "https://bip.malopolska.pl/pkiwanowice",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@pkndiwanowice.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1810585",
         "https://bip.malopolska.pl/api/articles/1830069",
         "https://bip.malopolska.pl/api/contexts/pkiwanowice"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4243",
@@ -2637,21 +2786,22 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Wola Łużańska",
+      "postal_code": "38-322",
       "street": null,
-      "house_number": null,
+      "house_number": "31",
       "phone_number": null,
       "email": "zgk@luzna.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkluzna",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgk@luzna.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1713836",
         "https://bip.malopolska.pl/api/contexts/zgkluzna"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4255",
@@ -2667,13 +2817,14 @@
       "email": "biuro@zwikmiechow.pl",
       "website": "http://www.zwikmiechow.pl",
       "bip_url": "https://bip.malopolska.pl/zwikmiechow",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@zwikmiechow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1729917",
         "https://bip.malopolska.pl/api/contexts/zwikmiechow"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4262",
@@ -2681,21 +2832,22 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Podegrodzie",
+      "postal_code": "33-386",
       "street": null,
-      "house_number": null,
+      "house_number": "248",
       "phone_number": null,
       "email": "sekretariat@zgk.podegrodzie.pl",
       "website": "http://www.podegrodzie.pl",
       "bip_url": "https://bip.malopolska.pl/zgkpodegrodzie",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@zgk.podegrodzie.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1734444",
         "https://bip.malopolska.pl/api/contexts/zgkpodegrodzie"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4265",
@@ -2703,21 +2855,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Mogilno",
+      "postal_code": "33-326",
       "street": null,
-      "house_number": null,
+      "house_number": "224",
       "phone_number": null,
-      "email": null,
+      "email": "puk@korzenna.pl",
       "website": "http://www.pukkorzenna.pl",
       "bip_url": "https://bip.malopolska.pl/pukkorzenna",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:puk@korzenna.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1736201",
+        "https://bip.malopolska.pl/api/articles/1986174",
         "https://bip.malopolska.pl/api/contexts/pukkorzenna"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4267",
@@ -2741,7 +2895,8 @@
         "https://www.straznicy.bochnia.pl/kontakt",
         "https://www.straznicy.bochnia.pl/zgloszenie-interwencji"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4311",
@@ -2749,20 +2904,22 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Szczurowa",
+      "postal_code": "32-820",
+      "street": "Rynek",
+      "house_number": "3C",
       "phone_number": null,
-      "email": null,
+      "email": "zgkim@szczurowa.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkimszczurowa",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgkim@szczurowa.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
-        "https://bip.malopolska.pl/api/contexts/zgkimszczurowa"
+        "https://bip.malopolska.pl/api/contexts/zgkimszczurowa",
+        "https://szczurowa.pl/strona/jednostki-organizacyjne"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4385",
@@ -2775,17 +2932,18 @@
       "street": "Długa",
       "house_number": "21",
       "phone_number": "146484812",
-      "email": null,
+      "email": "gzgk@rzezawa.pl",
       "website": "http://www.gzgk.rzezawa.pl",
       "bip_url": "https://bip.malopolska.pl/gzgkrzezawa",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:gzgk@rzezawa.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1830642",
         "https://bip.malopolska.pl/api/articles/1831576",
         "https://bip.malopolska.pl/api/contexts/gzgkrzezawa"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4396",
@@ -2793,20 +2951,22 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Ochotnica Dolna",
+      "postal_code": "34-452",
+      "street": "osiedle Hologówka",
+      "house_number": "191C",
       "phone_number": null,
-      "email": null,
+      "email": "biurozgk@ochotnica.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkochotnica",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biurozgk@ochotnica.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
-        "https://bip.malopolska.pl/api/contexts/zgkochotnica"
+        "https://bip.malopolska.pl/api/contexts/zgkochotnica",
+        "https://www.ochotnica.pl/aktualnosci/od-dnia-31-05-2025r-wchodza-w-zycie-nowe-stawki-za-uslugi-zbiorowego-odprowadzania-sciekow-na-terenie-gminy-ochotnica-dolna/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4405",
@@ -2822,14 +2982,15 @@
       "email": "zgk@zgk.wieliczka.eu",
       "website": "http://www.zgk.wieliczka.eu",
       "bip_url": "https://bip.malopolska.pl/zgkwieliczka",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgk@zgk.wieliczka.eu",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1863964",
         "https://bip.malopolska.pl/api/articles/1873266",
         "https://bip.malopolska.pl/api/contexts/zgkwieliczka"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4423",
@@ -2837,21 +2998,22 @@
       "short_name": null,
       "entity_type": "transport_operator",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Brzesko",
+      "postal_code": "32-800",
+      "street": "Bartosza Głowackiego",
+      "house_number": "67A",
       "phone_number": null,
-      "email": null,
+      "email": "mpk@brzesko.pl",
       "website": "http://www.mpkbrzesko.pl",
       "bip_url": "https://bip.malopolska.pl/mpkbrzesko",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mpk@brzesko.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2237145",
         "https://bip.malopolska.pl/api/contexts/mpkbrzesko"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4432",
@@ -2864,16 +3026,17 @@
       "street": "Juliusza Słowackiego",
       "house_number": "1",
       "phone_number": null,
-      "email": null,
+      "email": "zarzad@bzk.com.pl",
       "website": "http://www.bzk.com.pl",
       "bip_url": "https://bip.malopolska.pl/bzk",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zarzad@bzk.com.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1892123",
         "https://bip.malopolska.pl/api/contexts/bzk"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4445",
@@ -2889,13 +3052,14 @@
       "email": "biuro@wst.info.pl",
       "website": "http://www.wst.info.pl",
       "bip_url": "https://bip.malopolska.pl/wstwieliczka",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@wst.info.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1920055",
         "https://bip.malopolska.pl/api/contexts/wstwieliczka"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4460",
@@ -2903,21 +3067,22 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Zembrzyce",
+      "postal_code": "34-210",
       "street": null,
-      "house_number": null,
+      "house_number": "655",
       "phone_number": "338746133",
-      "email": null,
+      "email": "gzwikzembrzyce@op.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/gzwikzembrzyce",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:gzwikzembrzyce@op.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1910012",
         "https://bip.malopolska.pl/api/contexts/gzwikzembrzyce"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4556",
@@ -2925,21 +3090,22 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Wierzchosławice",
+      "postal_code": "33-122",
       "street": null,
-      "house_number": null,
+      "house_number": "39/3",
       "phone_number": "146797369",
-      "email": null,
+      "email": "wodociagi@wierzchoslawice.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/wodociagiwierzchoslawice",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:wodociagi@wierzchoslawice.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2055094",
         "https://bip.malopolska.pl/api/contexts/wodociagiwierzchoslawice"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4567",
@@ -2955,13 +3121,14 @@
       "email": "sekretariat@pukskala.pl",
       "website": "http://pukskala.pl",
       "bip_url": "https://bip.malopolska.pl/pukskala",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@pukskala.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1985714",
         "https://bip.malopolska.pl/api/contexts/pukskala"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4569",
@@ -2969,21 +3136,22 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Dąbrowa Tarnowska",
+      "postal_code": "33-200",
+      "street": "Zazamcze",
+      "house_number": "53",
       "phone_number": null,
-      "email": null,
+      "email": "rpwik_dt@poczta.okay.pl",
       "website": "https://rpwikdt.pl",
       "bip_url": "https://bip.malopolska.pl/rpwikdt",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:rpwik_dt@poczta.okay.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2057223",
         "https://bip.malopolska.pl/api/contexts/rpwikdt"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4572",
@@ -2991,21 +3159,22 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Łososina Dolna",
+      "postal_code": "33-314",
       "street": null,
-      "house_number": null,
+      "house_number": "418",
       "phone_number": "184448041",
       "email": "biuro@zgk.lososina.pl",
       "website": "https://www.lososina.pl/pl/228/0/zaklad-gospodarki-komunalnej-lososina-spolka-z-o-o.html",
       "bip_url": "https://bip.malopolska.pl/zgklososinadolna",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@zgk.lososina.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1995891",
         "https://bip.malopolska.pl/api/contexts/zgklososinadolna"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4573",
@@ -3018,16 +3187,18 @@
       "street": "Wodna",
       "house_number": "6",
       "phone_number": null,
-      "email": null,
+      "email": "biuro@gzkgromnik.pl",
       "website": "http://www.gzkgromnik.pl",
       "bip_url": "https://bip.malopolska.pl/gzkgromnik",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "tel:+48503030208",
+      "reporting_channel_description": "Telefon alarmowy zakładu.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1998479",
-        "https://bip.malopolska.pl/api/contexts/gzkgromnik"
+        "https://bip.malopolska.pl/api/contexts/gzkgromnik",
+        "https://www.gzkgromnik.pl/kontakt.html"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4596",
@@ -3043,13 +3214,14 @@
       "email": "biuro@zuk.zakliczyn.pl",
       "website": "http://zuk.zakliczyn.pl",
       "bip_url": "https://bip.malopolska.pl/zukzakliczyn",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@zuk.zakliczyn.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2113149",
         "https://bip.malopolska.pl/api/contexts/zukzakliczyn"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4600",
@@ -3057,20 +3229,22 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Jodłownik",
+      "postal_code": "34-620",
       "street": null,
-      "house_number": null,
+      "house_number": "198",
       "phone_number": null,
-      "email": null,
+      "email": "biurogsk@jodlownik.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/gskjodlownik",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biurogsk@jodlownik.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
-        "https://bip.malopolska.pl/api/contexts/gskjodlownik"
+        "https://bip.malopolska.pl/api/contexts/gskjodlownik",
+        "https://gsk.jodlownik.pl/pl/636/0/kontakt.html"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4639",
@@ -3078,21 +3252,22 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Stryszów",
+      "postal_code": "34-146",
       "street": null,
-      "house_number": null,
+      "house_number": "600",
       "phone_number": null,
-      "email": null,
+      "email": "niwa@stryszow.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/pkniwa",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:niwa@stryszow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2121368",
         "https://bip.malopolska.pl/api/contexts/pkniwa"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4724",
@@ -3100,20 +3275,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Gołcza",
+      "postal_code": "32-075",
       "street": null,
-      "house_number": null,
+      "house_number": "80",
       "phone_number": null,
-      "email": null,
+      "email": "zgk@golcza.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkgolcza",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgk@golcza.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
-        "https://bip.malopolska.pl/api/contexts/zgkgolcza"
+        "https://bip.malopolska.pl/api/contexts/zgkgolcza",
+        "https://golcza.pl/index.php/9-statyczne/42-zaklad-gospodarki-komunalnej",
+        "https://www.golcza.pl/images/przetargi/2015/15.05.2015/za%C5%82_10_Przedmiar-po%C5%9B.pdf"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4725",
@@ -3121,7 +3299,7 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": "Charsznica",
+      "locality": "Miechów-Charsznica",
       "postal_code": "32-250",
       "street": "Żarnowiecka",
       "house_number": "3",
@@ -3129,13 +3307,14 @@
       "email": "zuk@charsznica.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zukwcharsznicy",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zuk@charsznica.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2313632",
         "https://bip.malopolska.pl/api/contexts/zukwcharsznicy"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4839",
@@ -3143,20 +3322,22 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Budzów",
+      "postal_code": "34-211",
       "street": null,
-      "house_number": null,
+      "house_number": "766",
       "phone_number": null,
-      "email": null,
+      "email": "zgk@budzow.pl",
       "website": "https://budzow.pl/kategoria/zgkbudzow/",
       "bip_url": "https://bip.malopolska.pl/zgkbudzow",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgk@budzow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
-        "https://bip.malopolska.pl/api/contexts/zgkbudzow"
+        "https://bip.malopolska.pl/api/contexts/zgkbudzow",
+        "https://budzow.pl/kontakt-zgk/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4889",
@@ -3166,20 +3347,21 @@
       "teryt_code": null,
       "locality": "Tuchów",
       "postal_code": "33-170",
-      "street": null,
-      "house_number": null,
+      "street": "Jana III Sobieskiego",
+      "house_number": "69C",
       "phone_number": null,
       "email": "biuro@dorzeczebialej.pl",
       "website": "https://www.dorzeczebialej.pl/",
       "bip_url": "https://bip.malopolska.pl/dorzeczebialej",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@dorzeczebialej.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2590518",
         "https://bip.malopolska.pl/api/articles/2591901",
         "https://bip.malopolska.pl/api/contexts/dorzeczebialej"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4927",
@@ -3195,13 +3377,14 @@
       "email": "strazmiejska@gminaskawina.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/smskawina",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:strazmiejska@gminaskawina.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2612458",
         "https://bip.malopolska.pl/api/contexts/smskawina"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4959",
@@ -3209,21 +3392,23 @@
       "short_name": null,
       "entity_type": "heating_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Oświęcim",
+      "postal_code": "32-600",
+      "street": "Zaborska",
+      "house_number": "144",
       "phone_number": null,
-      "email": null,
+      "email": "pec@pec-oswiecim.com.pl",
       "website": "http://www.pec-oswiecim.com.pl",
       "bip_url": "https://bip.malopolska.pl/pecoswiecim",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:pec@pec-oswiecim.com.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2625231",
+        "https://bip.malopolska.pl/api/articles/2625551",
         "https://bip.malopolska.pl/api/contexts/pecoswiecim"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4964",
@@ -3231,21 +3416,23 @@
       "short_name": null,
       "entity_type": "transport_operator",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Andrychów",
+      "postal_code": "34-120",
+      "street": "Stefana Batorego",
+      "house_number": "24",
       "phone_number": null,
-      "email": null,
+      "email": "biuro@azk.andrychow.eu",
       "website": "http://www.azk.andrychow.eu",
       "bip_url": "https://bip.malopolska.pl/azkandrychow",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@azk.andrychow.eu",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2633866",
+        "https://bip.malopolska.pl/api/articles/2633867",
         "https://bip.malopolska.pl/api/contexts/azkandrychow"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4970",
@@ -3261,13 +3448,14 @@
       "email": "sekretariat@zdp.wieliczka.pl",
       "website": "https://zdp.wieliczka.pl",
       "bip_url": "https://bip.malopolska.pl/zdpwieliczka",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@zdp.wieliczka.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2641907",
         "https://bip.malopolska.pl/api/contexts/zdpwieliczka"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:4986",
@@ -3275,20 +3463,22 @@
       "short_name": null,
       "entity_type": "transport_operator",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Łapczyca",
+      "postal_code": "32-744",
       "street": null,
-      "house_number": null,
+      "house_number": "334",
       "phone_number": null,
-      "email": null,
+      "email": "biuro@rpk-bochnia.pl",
       "website": "http://www.rpk-bochnia.pl",
       "bip_url": "https://bip.malopolska.pl/rpk",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@rpk-bochnia.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2679401",
         "https://bip.malopolska.pl/api/contexts/rpk"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:500",
@@ -3298,19 +3488,21 @@
       "teryt_code": null,
       "locality": "Nowy Wiśnicz",
       "postal_code": "32-720",
-      "street": null,
-      "house_number": null,
+      "street": "Rynek",
+      "house_number": "16",
       "phone_number": null,
-      "email": null,
+      "email": "zuk@nowywisnicz.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zuk",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "tel:+48601140997",
+      "reporting_channel_description": "Zgłoszenia awarii.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/1047115",
-        "https://bip.malopolska.pl/api/contexts/zuk"
+        "https://bip.malopolska.pl/api/contexts/zuk",
+        "https://nowywisnicz.pl/321-kontakt.html"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:5003",
@@ -3318,21 +3510,22 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Tarnów",
+      "postal_code": "33-100",
+      "street": "Gabriela Narutowicza",
+      "house_number": "37",
       "phone_number": null,
       "email": "biuro@tw.tarnow.pl",
       "website": "http://www.tw.tarnow.pl",
       "bip_url": "https://bip.malopolska.pl/tw",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@tw.tarnow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2730767",
         "https://bip.malopolska.pl/api/contexts/tw"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:5032",
@@ -3340,21 +3533,23 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Michałowice",
+      "postal_code": "32-091",
+      "street": "plac Józefa Piłsudskiego",
+      "house_number": "1",
       "phone_number": null,
-      "email": null,
+      "email": "biuro@wodociagimichalowice.pl",
       "website": "http://wodociagimichalowice.pl",
       "bip_url": "https://bip.malopolska.pl/wodociagimichalowice",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@wodociagimichalowice.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2805390",
+        "https://bip.malopolska.pl/api/articles/2836174",
         "https://bip.malopolska.pl/api/contexts/wodociagimichalowice"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:5076",
@@ -3367,16 +3562,17 @@
       "street": "Bohaterów Bobowej",
       "house_number": "6A",
       "phone_number": "183514178",
-      "email": null,
+      "email": "gjuk@bobowa.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/gjukbobowa",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:gjuk@bobowa.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/2875286",
         "https://bip.malopolska.pl/api/contexts/gjukbobowa"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:525",
@@ -3384,21 +3580,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Olesno",
+      "postal_code": "33-210",
+      "street": "Władysława Jagiełły",
+      "house_number": "1",
       "phone_number": null,
-      "email": null,
+      "email": "gzgk_olesno@wp.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/gzgkwolesnie",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:gzgk_olesno@wp.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
+        "https://bip.malopolska.pl/api/articles/822041",
         "https://bip.malopolska.pl/api/articles/822053",
         "https://bip.malopolska.pl/api/contexts/gzgkwolesnie"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:580",
@@ -3406,21 +3604,24 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Wola Szczucińska",
+      "postal_code": "33-230",
       "street": null,
-      "house_number": null,
+      "house_number": "142",
       "phone_number": null,
-      "email": null,
+      "email": "zukszczucin@poczta.onet.pl",
       "website": "http://zuk-szczucin.pl/",
       "bip_url": "https://bip.malopolska.pl/zukwszczucinie",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zukszczucin@poczta.onet.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1685461",
         "https://bip.malopolska.pl/api/articles/385781",
-        "https://bip.malopolska.pl/api/contexts/zukwszczucinie"
+        "https://bip.malopolska.pl/api/contexts/zukwszczucinie",
+        "https://www.zuk-szczucin.pl/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:601",
@@ -3430,20 +3631,22 @@
       "teryt_code": null,
       "locality": "Radgoszcz",
       "postal_code": "33-207",
-      "street": "Witosa",
+      "street": "Wincentego Witosa",
       "house_number": "24",
       "phone_number": null,
-      "email": null,
+      "email": "gzgk@radgoszcz.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/ojednostce1",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:gzgk@radgoszcz.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/388842",
         "https://bip.malopolska.pl/api/articles/743024",
-        "https://bip.malopolska.pl/api/contexts/ojednostce1"
+        "https://bip.malopolska.pl/api/contexts/ojednostce1",
+        "https://radgoszcz.pl/wazna-informacja-gzgk/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:650",
@@ -3453,20 +3656,23 @@
       "teryt_code": null,
       "locality": "Biecz",
       "postal_code": "38-340",
-      "street": "Rynek",
-      "house_number": "18",
+      "street": "Załawie",
+      "house_number": "5",
       "phone_number": "134471040",
-      "email": null,
-      "website": null,
+      "email": "gkbiecz@gmail.com",
+      "website": "https://gkbiecz.pl/",
       "bip_url": "https://bip.malopolska.pl/mpgkwbszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "tel:+48605103860",
+      "reporting_channel_description": "Zgłoszenia awarii wodociągów i kanalizacji, całodobowo.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/391216",
         "https://bip.malopolska.pl/api/articles/391226",
-        "https://bip.malopolska.pl/api/contexts/mpgkwbszoo"
+        "https://bip.malopolska.pl/api/contexts/mpgkwbszoo",
+        "https://gkbiecz.pl/?page_id=36",
+        "https://www.biecz.pl/asp/urzedy-i-instytucje%2C51%2C%2C1"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:670",
@@ -3479,17 +3685,18 @@
       "street": "Krakowska",
       "house_number": "42",
       "phone_number": null,
-      "email": null,
+      "email": "mzkgorlice@op.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/mzkszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:mzkgorlice@op.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/394090",
         "https://bip.malopolska.pl/api/articles/394094",
         "https://bip.malopolska.pl/api/contexts/mzkszoo"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:673",
@@ -3497,22 +3704,24 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": "11-Listopada",
+      "locality": "Gorlice",
+      "postal_code": "38-300",
+      "street": "11 Listopada",
       "house_number": "54a",
       "phone_number": null,
-      "email": null,
+      "email": "biuro@mpgkgorlice.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/mpgkszowgorlicach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@mpgkgorlice.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/394027",
         "https://bip.malopolska.pl/api/articles/394035",
-        "https://bip.malopolska.pl/api/contexts/mpgkszowgorlicach"
+        "https://bip.malopolska.pl/api/contexts/mpgkszowgorlicach",
+        "https://mpgkgorlice.pl/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:707",
@@ -3522,20 +3731,21 @@
       "teryt_code": null,
       "locality": "Libiąż",
       "postal_code": "32-590",
-      "street": "Paderewskiego",
+      "street": "Ignacego Jana Paderewskiego",
       "house_number": "2",
       "phone_number": "326277338",
-      "email": null,
+      "email": "zmk@zmk.libiaz.pl",
       "website": "http://libiaz.pl",
       "bip_url": "https://bip.malopolska.pl/mzadarembiecha",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zmk@zmk.libiaz.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/349676",
         "https://bip.malopolska.pl/api/articles/349687",
         "https://bip.malopolska.pl/api/contexts/mzadarembiecha"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:727",
@@ -3543,21 +3753,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
+      "locality": "Wysowa-Zdrój",
+      "postal_code": "38-316",
       "street": null,
-      "house_number": null,
+      "house_number": "69",
       "phone_number": "183532005",
-      "email": null,
+      "email": "zgkim@usciegorlickie.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkimwwysowejzdroju",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgkim@usciegorlickie.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/535416",
-        "https://bip.malopolska.pl/api/contexts/zgkimwwysowejzdroju"
+        "https://bip.malopolska.pl/api/contexts/zgkimwwysowejzdroju",
+        "https://www.zgkimwysowa.pl/kontakt/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:768",
@@ -3567,20 +3779,21 @@
       "teryt_code": null,
       "locality": "Bochnia",
       "postal_code": "32-700",
-      "street": null,
-      "house_number": null,
+      "street": "Majora Bacy",
+      "house_number": "15",
       "phone_number": null,
       "email": "biuro@mpwikbochnia.pl",
       "website": "https://www.mpwikbochnia.pl/",
       "bip_url": "https://bip.malopolska.pl/mpwikwbszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@mpwikbochnia.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/45698",
         "https://bip.malopolska.pl/api/articles/45703",
         "https://bip.malopolska.pl/api/contexts/mpwikwbszoo"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:771",
@@ -3588,22 +3801,23 @@
       "short_name": null,
       "entity_type": "heating_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": "Ks. J. Poniatowskiego",
+      "locality": "Bochnia",
+      "postal_code": "32-700",
+      "street": "Księcia Józefa Poniatowskiego",
       "house_number": "24A",
       "phone_number": null,
-      "email": null,
+      "email": "sekretariat@mpec.bochnia.pl",
       "website": "http://www.mpec.bochnia.pl/",
       "bip_url": "https://bip.malopolska.pl/mpecszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:sekretariat@mpec.bochnia.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/750094",
         "https://bip.malopolska.pl/api/articles/750146",
         "https://bip.malopolska.pl/api/contexts/mpecszoo"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:772",
@@ -3613,20 +3827,21 @@
       "teryt_code": null,
       "locality": "Bochnia",
       "postal_code": "32-700",
-      "street": null,
-      "house_number": null,
+      "street": "20 Stycznia",
+      "house_number": "46",
       "phone_number": null,
-      "email": null,
+      "email": "bzuk@bochnia.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/bzukszoo",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:bzuk@bochnia.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/45691",
         "https://bip.malopolska.pl/api/articles/45694",
         "https://bip.malopolska.pl/api/contexts/bzukszoo"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:862",
@@ -3634,21 +3849,23 @@
       "short_name": null,
       "entity_type": "water_sewage_utility",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Jerzmanowice",
+      "postal_code": "32-048",
+      "street": "Rajska",
+      "house_number": "24",
       "phone_number": null,
-      "email": null,
+      "email": "biuro@zwgjerzmanowice.pl",
       "website": "http://www.zwgjerzmanowice.pl",
       "bip_url": "https://bip.malopolska.pl/zbwgwjerzmanowicach",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:biuro@zwgjerzmanowice.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1013134",
         "https://bip.malopolska.pl/api/articles/1901035",
         "https://bip.malopolska.pl/api/contexts/zbwgwjerzmanowicach"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:868",
@@ -3661,17 +3878,18 @@
       "street": "Tadeusza Kościuszki",
       "house_number": "64",
       "phone_number": null,
-      "email": null,
+      "email": "zgkim@slomniki.pl",
       "website": "http://www.zgkimslomniki.pl",
       "bip_url": "https://bip.malopolska.pl/ojednostce5",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgkim@slomniki.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/460276",
         "https://bip.malopolska.pl/api/articles/754029",
         "https://bip.malopolska.pl/api/contexts/ojednostce5"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "malopolska:922",
@@ -3679,22 +3897,23 @@
       "short_name": null,
       "entity_type": "municipal_services",
       "teryt_code": null,
-      "locality": null,
-      "postal_code": null,
-      "street": null,
-      "house_number": null,
+      "locality": "Czernichów",
+      "postal_code": "32-070",
+      "street": "Gminna",
+      "house_number": "1",
       "phone_number": null,
       "email": "zgk@czernichow.pl",
       "website": null,
       "bip_url": "https://bip.malopolska.pl/zgkwczernichowie",
-      "reporting_channel": null,
-      "reporting_channel_description": null,
+      "reporting_channel": "mailto:zgk@czernichow.pl",
+      "reporting_channel_description": "Ogólny kontakt z jednostką. Źródło nie wskazuje dedykowanego kanału interwencyjnego.",
       "source_urls": [
         "https://bip.malopolska.pl/api/articles/446433",
         "https://bip.malopolska.pl/api/articles/757198",
         "https://bip.malopolska.pl/api/contexts/zgkwczernichowie"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "official:mobilis-krakow",
@@ -3715,7 +3934,8 @@
       "source_urls": [
         "https://mobilis.pl/kontakt-krakow/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "official:mpec-krakow",
@@ -3736,7 +3956,8 @@
       "source_urls": [
         "https://bip.mpec.krakow.pl/artykul/80/86/pogotowie-techniczne"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "official:mpo-krakow",
@@ -3758,7 +3979,8 @@
         "https://bip.mpo.krakow.pl/",
         "https://mpo.krakow.pl/formularz-zgloszeniowy/"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     },
     {
       "source_key": "official:wodociagi-krakow",
@@ -3779,7 +4001,8 @@
       "source_urls": [
         "https://bip.wodociagi.krakow.pl/artykul/369/5/godziny-pracy"
       ],
-      "verified_on": "2026-10-03"
+      "verified_on": "2026-10-03",
+      "is_active": true
     }
   ]
 }

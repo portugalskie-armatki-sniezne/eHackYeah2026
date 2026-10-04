@@ -21,7 +21,7 @@ class GeocodingSummary:
 
 def geocode_entities(connection: psycopg.Connection, refresh: bool = False) -> GeocodingSummary:
     rows = connection.execute(
-        "SELECT id, locality, street, house_number FROM service_entities "
+        "SELECT id, locality, street, house_number, postal_code FROM service_entities "
         "WHERE %s OR seat_address IS DISTINCT FROM jsonb_build_array(locality, street, house_number) ORDER BY id",
         (refresh,),
     ).fetchall()
@@ -32,7 +32,7 @@ def geocode_entities(connection: psycopg.Connection, refresh: bool = False) -> G
         region = None
         try:
             if row["locality"] and row["house_number"]:
-                point = geocoding.address_point(row["locality"], row["street"], row["house_number"])
+                point = geocoding.address_point(row["locality"], row["street"], row["house_number"], row["postal_code"])
             if point is not None:
                 coordinates = connection.execute(
                     "SELECT ST_X(seat) AS longitude, ST_Y(seat) AS latitude "

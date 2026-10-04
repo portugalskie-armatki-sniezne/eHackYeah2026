@@ -37,7 +37,7 @@ def test_geocoding_is_persisted_and_unchanged_seats_are_not_requested_again(conn
     assert row["longitude"] == pytest.approx(20.006, abs=0.01)
     assert row["latitude"] == pytest.approx(50.064, abs=0.01)
     assert geocode_entities(connection).saved == 0
-    lookup.assert_called_once_with("Kraków", "Centralna", "53")
+    lookup.assert_called_once_with("Kraków", "Centralna", "53", None)
     assert resolve.call_count == 1
 
 
