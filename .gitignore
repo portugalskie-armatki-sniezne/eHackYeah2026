@@ -11,8 +11,6 @@ gcp_service_account.json
 *.jks
 *.keystore
 !/apps/mobile/android/app/debug.keystore
-/db/seeds/danerops
-*.jsonl
 
 # Python dependencies, bytecode, and tooling caches
 __pycache__/
