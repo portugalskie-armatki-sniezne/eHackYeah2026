@@ -31,6 +31,12 @@ type Powers = {
   admin: boolean;
 };
 
+// what an empty photo frame is stamped with, as on the map's sheet
+const KIND_GLYPHS: Record<ReportCategoryName, string> = {
+  issue: "!",
+  improvement: "+",
+};
+
 // the four statuses the badge knows, in the order a case moves through them
 const STATUS_ORDER: MasterReportStatusName[] = [
   "created",
@@ -296,102 +302,111 @@ function CaseCard({
 
   return (
     <article className="reports-page__case" aria-labelledby={`${id}-title`}>
-      <header className="reports-page__case-head">
-        <div className="reports-page__case-meta">
-          <StatusBadge status={statusName} />
-          {kind && <span className="reports-page__kind">{t.kinds[kind]}</span>}
-          <span className="reports-page__when">
-            <time dateTime={master.created_at}>
-              {new Intl.DateTimeFormat(locale, {
-                dateStyle: "medium",
-                timeStyle: "short",
-              }).format(new Date(master.created_at))}
-            </time>
-            {" · "}
-            {t.reportCount(master.report_count)}
-          </span>
-        </div>
-        <h2 id={`${id}-title`} className="reports-page__case-title">
-          {master.title}
-        </h2>
-        <p className="reports-page__case-text">{master.description}</p>
-      </header>
+      <div className="reports-page__case-grid">
+        <div className="reports-page__case-main">
+          <header className="reports-page__case-head">
+            <div className="reports-page__case-meta">
+              <StatusBadge status={statusName} />
+              {kind && (
+                <span className="reports-page__kind">{t.kinds[kind]}</span>
+              )}
+              <span className="reports-page__when">
+                <time dateTime={master.created_at}>
+                  {new Intl.DateTimeFormat(locale, {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  }).format(new Date(master.created_at))}
+                </time>
+                {" · "}
+                {t.reportCount(master.report_count)}
+              </span>
+            </div>
+            <h2 id={`${id}-title`} className="reports-page__case-title">
+              {master.title}
+            </h2>
+            <p className="reports-page__case-text">{master.description}</p>
+          </header>
 
-      {/* the institution's answer, shown the way the map's sheet shows it */}
-      {master.response && (
-        <aside
-          className="reports-page__response"
-          aria-label={t.officialResponse}
-        >
-          <span className="reports-page__response-label">
-            {t.officialResponse}
-          </span>
-          <p className="reports-page__response-text">{master.response}</p>
-        </aside>
-      )}
+          {/* the institution's answer, shown the way the map's sheet shows it */}
+          {master.response && (
+            <aside
+              className="reports-page__response"
+              aria-label={t.officialResponse}
+            >
+              <span className="reports-page__response-label">
+                {t.officialResponse}
+              </span>
+              <p className="reports-page__response-text">{master.response}</p>
+            </aside>
+          )}
 
-      {powers.staff && (
-        <div className="reports-page__actions">
-          <div
-            className="reports-page__switch"
-            role="group"
-            aria-label={t.setStatus}
-          >
-            {statuses.map((status) => (
-              <button
-                key={status.id}
-                type="button"
-                className="reports-page__tab"
-                aria-pressed={status.id === master.status_id}
-                disabled={busy}
-                onClick={() => {
-                  if (status.id !== master.status_id) void setStatus(status.id);
-                }}
+          {powers.staff && (
+            <div className="reports-page__actions">
+              <div
+                className="reports-page__switch"
+                role="group"
+                aria-label={t.setStatus}
               >
-                {statusLabel(status.name, t)}
-              </button>
-            ))}
-          </div>
-
-          {powers.admin &&
-            (confirming ? (
-              <div className="reports-page__confirm">
-                <span className="reports-page__hint">{t.removeHint}</span>
-                <button
-                  type="button"
-                  className="reports-page__button"
-                  disabled={busy}
-                  onClick={() => setConfirming(false)}
-                >
-                  {t.cancel}
-                </button>
-                <button
-                  type="button"
-                  className="reports-page__button reports-page__button--danger"
-                  disabled={busy}
-                  onClick={() => void remove()}
-                >
-                  {busy ? t.removing : t.confirmRemove}
-                </button>
+                {statuses.map((status) => (
+                  <button
+                    key={status.id}
+                    type="button"
+                    className="reports-page__tab"
+                    aria-pressed={status.id === master.status_id}
+                    disabled={busy}
+                    onClick={() => {
+                      if (status.id !== master.status_id)
+                        void setStatus(status.id);
+                    }}
+                  >
+                    {statusLabel(status.name, t)}
+                  </button>
+                ))}
               </div>
-            ) : (
-              <button
-                type="button"
-                className="reports-page__button reports-page__button--danger"
-                disabled={busy}
-                onClick={() => setConfirming(true)}
-              >
-                {t.remove}
-              </button>
-            ))}
-        </div>
-      )}
 
-      {error && (
-        <p className="reports-page__error" role="alert">
-          {error}
-        </p>
-      )}
+              {powers.admin &&
+                (confirming ? (
+                  <div className="reports-page__confirm">
+                    <span className="reports-page__hint">{t.removeHint}</span>
+                    <button
+                      type="button"
+                      className="reports-page__button"
+                      disabled={busy}
+                      onClick={() => setConfirming(false)}
+                    >
+                      {t.cancel}
+                    </button>
+                    <button
+                      type="button"
+                      className="reports-page__button reports-page__button--danger"
+                      disabled={busy}
+                      onClick={() => void remove()}
+                    >
+                      {busy ? t.removing : t.confirmRemove}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="reports-page__button reports-page__button--danger"
+                    disabled={busy}
+                    onClick={() => setConfirming(true)}
+                  >
+                    {t.remove}
+                  </button>
+                ))}
+            </div>
+          )}
+
+          {error && (
+            <p className="reports-page__error" role="alert">
+              {error}
+            </p>
+          )}
+        </div>
+
+        <CaseMedia master={master} kind={kind} />
+      </div>
 
       <Thread
         masterId={master.id}
@@ -400,6 +415,55 @@ function CaseCard({
         onSignIn={onSignIn}
       />
     </article>
+  );
+}
+
+type CaseMediaProps = {
+  master: MasterReport;
+  /** the case's category, or null while the list is unknown */
+  kind: ReportCategoryName | null;
+};
+
+/**
+ * The case's picture, which on a wide screen stands to the right of its text:
+ * the earliest photo among its filings, or, for a case that has none, the
+ * drafting frame with the way to offer one. Offering is a mockup for now.
+ */
+function CaseMedia({ master, kind }: CaseMediaProps) {
+  const t = useMessages().reports;
+  const [proposing, setProposing] = useState(false);
+
+  if (master.photo_url) {
+    return (
+      <figure className="reports-page__media">
+        <img
+          className="reports-page__photo"
+          src={reportsApi.photoUrl({ url: master.photo_url })}
+          alt={t.photoOf(master.title)}
+          loading="lazy"
+        />
+      </figure>
+    );
+  }
+
+  return (
+    <div className="reports-page__media">
+      <div className="reports-page__photo reports-page__photo--empty">
+        <span className="reports-page__photo-glyph" aria-hidden="true">
+          {kind ? KIND_GLYPHS[kind] : "?"}
+        </span>
+        <span className="reports-page__photo-text">{t.noPhoto}</span>
+      </div>
+      <button
+        type="button"
+        className="reports-page__button"
+        aria-expanded={proposing}
+        onClick={() => setProposing((current) => !current)}
+      >
+        {t.proposePhoto}
+      </button>
+      {proposing && <p className="reports-page__hint">{t.proposePhotoMock}</p>}
+    </div>
   );
 }
 

@@ -216,6 +216,12 @@
     right: calc(var(--pill-inset) + var(--scaffold-offset) + var(--safe-right));
   }
 
+  /* The filter tile leaves the row for the sheet's own corner here, so the
+     rule that parted it from the 3D toggle goes with it. */
+  .toolbar__divider--filters {
+    display: none;
+  }
+
   .toolbar__frame {
     flex-wrap: nowrap;
     gap: 0.25rem;

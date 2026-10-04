@@ -12,6 +12,8 @@ from app import (
     comments,
     institution_contacts,
     master_reports,
+    notifications,
+    photo_proposals,
     photos,
     projects,
     reference,
@@ -69,7 +71,9 @@ app.include_router(users.router)
 app.include_router(reports.router)
 app.include_router(photos.router)
 app.include_router(master_reports.router)
+app.include_router(photo_proposals.router)
 app.include_router(comments.router)
+app.include_router(notifications.router)
 app.include_router(reference.router)
 app.include_router(institution_contacts.router)
 app.include_router(service_entities.router)

@@ -7,7 +7,7 @@
 .event-pin {
   width: 32px;
   height: 40px;
-  cursor: pointer;
+  /* cursor: pointer; */
   /* how far the head is open; hover drives it, and the layers pinned to the
      head's corners are measured off it */
   --pin-head: 28px;

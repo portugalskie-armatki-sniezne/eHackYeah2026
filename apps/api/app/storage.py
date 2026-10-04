@@ -51,6 +51,13 @@ def save(storage_key: str, data: bytes) -> None:
     path.write_bytes(data)
 
 
+def move(source_key: str, target_key: str) -> None:
+    """rename a saved file, for a photo that moves from one key to another."""
+    target = file_path(target_key)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    file_path(source_key).replace(target)
+
+
 def delete(storage_keys: Iterable[str]) -> None:
     for storage_key in storage_keys:
         path = file_path(storage_key)
