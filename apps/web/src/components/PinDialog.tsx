@@ -137,7 +137,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
   const handleLinkToMatch = async () => {
     if (!detectedMatch) return;
     const trimmed = description.trim();
-    const finalDesc = `${trimmed}\n\n[Inicjatywa oparta na innowacji ROPS: ${detectedMatch.title} (${detectedMatch.url})]`;
+    const finalDesc = `${trimmed}\n\nInicjatywa oparta na innowacji ROPS: ${detectedMatch.title}\n${detectedMatch.url}`;
     await executeAdd(finalDesc, "improvement", null, null, detectedMatch.slug);
   };
 
