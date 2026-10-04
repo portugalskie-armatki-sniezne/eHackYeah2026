@@ -130,6 +130,23 @@
   overflow-y: auto;
 }
 
+.pin-dialog__match-quote {
+  margin: 0.25rem 0;
+  padding: 0.4rem 0.6rem;
+  border-left: 3px solid var(--amber);
+  background: rgba(0, 0, 0, 0.03);
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  border-radius: 0 var(--scaffold-radius) var(--scaffold-radius) 0;
+}
+
+.pin-dialog__match-quote-label {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--ink);
+}
+
 .pin-dialog__match-actions {
   display: flex;
   flex-direction: column;

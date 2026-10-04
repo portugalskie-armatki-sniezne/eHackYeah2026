@@ -26,7 +26,7 @@ API w FastAPI do zgłaszania problemów, łączenia podobnych zgłoszeń w maste
 | `mock` | działa na danych testowych |
 | `done` | działa na bazie, są testy |
 
-Endpointy CRUD z [api.md](api.md) mają status `done`. `/inference` udostępnia analizę z wymiennymi dostawcami. `/inference/service-entity` wybiera jeden typ jednostki po skonfigurowaniu modeli. Dopasowanie reportów do masterów też działa na bazie i ma testy, ale jest tymczasową heurystyką, którą zastąpi klasyfikator LLM.
+Endpointy CRUD z [api.md](api.md) oraz katalog innowacji `/projects` mają status `done`. `/inference` udostępnia analizę z wymiennymi dostawcami. `/inference/service-entity` wybiera jeden typ jednostki po skonfigurowaniu modeli. Dopasowanie reportów do masterów też działa na bazie i ma testy, ale jest tymczasową heurystyką, którą zastąpi klasyfikator LLM.
 
 ## Uruchomienie
 
@@ -57,6 +57,13 @@ Polecenie uruchamia bazę, migracje i import seeda, a potem API pod <http://127.
 | `comments.py` | komentarze i polubienia masterów |
 | `reference.py` | `/report-categories` i `/master-report-statuses` |
 | `institution_contacts.py` | `/institution-contacts` |
+| `service_entities.py` | `/service-entities` |
+| `service_entity_types.py` | typy jednostek usługowych |
+| `municipalities.py` | identyfikacja gminy i powiatu (ULDK GUGiK) |
+| `geocoding.py` | geokodowanie adresów |
+| `collect_service_entity_seats.py` | gromadzenie siedzib jednostek usługowych |
+| `geocode_service_entities.py` | geokodowanie siedzib jednostek usługowych |
+| `projects.py` | `/projects`, katalog innowacji społecznych ROPS i wyszukiwanie |
 | `inference/` | `/inference`, wymienny tłumacz, klasyfikator i adapter Laya |
 | `set_role.py` | skrypt nadający rolę użytkownikowi |
 
@@ -99,6 +106,6 @@ W kontenerze `docker-compose.app.yaml` ustawia `UPLOAD_DIR=/app/uploads` na nazw
 
 ## Zakres
 
-Model danych obejmuje tabele z migracji: `users`, `report_categories`, `master_report_statuses`, `master_reports`, `reports`, `report_photos`, `master_report_comments`, `master_report_comment_likes`, `local_government_offices`, `service_entities`.
+Model danych obejmuje tabele z migracji i seedów: `users`, `report_categories`, `master_report_statuses`, `master_reports`, `reports`, `report_photos`, `master_report_comments`, `master_report_comment_likes`, `local_government_offices`, `service_entities`, `service_entity_seats`, `projects`, `project_chunks`.
 
-API obejmuje CRUD tych tabel, słowniki, komentarze i polubienia. Urzędy (`/institution-contacts`) i słowniki są tylko do odczytu, a `service_entities` nie ma jeszcze endpointów. Inicjatywy nie mają jeszcze tabel i pozostają poza zakresem.
+API obejmuje CRUD zgłoszeń i masterów, słowniki, komentarze i polubienia, autentykację (hasło oraz Google SSO). Urzędy (`/institution-contacts`), jednostki usługowe (`/service-entities`) oraz innowacje społeczne ROPS (`/projects`) posiadają zaimplementowane, przetestowane endpointy odczytu i wyszukiwania semantycznego. Inicjatywy są rejestrowane jako kategoria zgłoszeń.

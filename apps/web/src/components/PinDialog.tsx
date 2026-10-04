@@ -30,7 +30,7 @@ function formatLngLat([lng, lat]: [number, number]): string {
   return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 }
 
-const SIMILARITY_THRESHOLD = 0.55;
+const SIMILARITY_THRESHOLD = 0.5;
 
 /**
  * The sheet that opens when a pin is dropped. Supports two modes:
@@ -295,10 +295,19 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
                 {detectedMatch.category}
               </span>
               <p className="pin-dialog__match-desc">
-                {detectedMatch.matched_snippet ||
+                {detectedMatch.summary ||
                   detectedMatch.description ||
-                  detectedMatch.summary}
+                  detectedMatch.matched_snippet}
               </p>
+              {detectedMatch.matched_snippet &&
+                detectedMatch.matched_snippet !== detectedMatch.summary && (
+                  <blockquote className="pin-dialog__match-quote">
+                    <span className="pin-dialog__match-quote-label">
+                      Fragment z dokumentacji:
+                    </span>{" "}
+                    {detectedMatch.matched_snippet}
+                  </blockquote>
+                )}
               <div className="pin-dialog__match-actions">
                 <button
                   type="button"
