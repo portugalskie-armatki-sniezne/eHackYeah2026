@@ -20,6 +20,7 @@ def test_comments_and_likes(client: TestClient, signed_in):
         "id": None,
         "master_report_id": master_id,
         "user_id": author["id"],
+        "author_first_name": author["first_name"],
         "content": "Potwierdzam",
         "like_count": 0,
         "liked_by_me": False,

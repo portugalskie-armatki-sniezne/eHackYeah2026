@@ -814,7 +814,13 @@ export default function MarkerDialog({
                               }
                               aria-hidden="true"
                             >
-                              {mine ? myInitial : official ? "!" : "R"}
+                              {mine
+                                ? myInitial
+                                : official
+                                  ? "!"
+                                  : (
+                                      comment.author_first_name[0] ?? "?"
+                                    ).toUpperCase()}
                             </span>
                             <div className="marker-dialog__bubble">
                               <div className="marker-dialog__comment-head">
@@ -823,7 +829,7 @@ export default function MarkerDialog({
                                     ? t.you
                                     : official
                                       ? t.office
-                                      : t.resident}
+                                      : comment.author_first_name}
                                   {official && (
                                     <span className="marker-dialog__official">
                                       {t.official}
