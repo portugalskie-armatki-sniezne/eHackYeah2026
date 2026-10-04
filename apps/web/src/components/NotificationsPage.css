@@ -131,6 +131,18 @@
   transform: none;
 }
 
+.notifications-page__demo-banner {
+  margin: 0;
+  padding: 0.625rem 0.875rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--amber-soft);
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
 /* A signed-out visitor gets one paper slip and the way in. */
 .notifications-page__notice {
   display: flex;

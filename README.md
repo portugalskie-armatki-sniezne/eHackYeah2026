@@ -61,6 +61,7 @@ Both environments run three containerized services configured via Docker Compose
 - **Institution Routing and Recommendation**: Match reports to competent public offices or municipal service entities using AI classification (Laya Vision) and nearest geocoded seat locations.
 - **ROPS Social Innovations Catalog**: Explore and search the Regional Center for Social Policy (ROPS) catalog of proven social initiatives. Features hybrid search combining vector embeddings (cosine similarity) and Polish stemming with dynamic relevance scoring.
 - **Official Mail Notifications**: Internal relay transforms verified issues and initiatives into structured official notifications and sends them directly to competent offices with photos and Google Maps links.
+- **Interactive Onboarding Tour**: Guided workflow walkthrough for new residents offering automated animation with simulated pointer movement or manual step-by-step guidance across map exploration, issue reporting, notifications, and social innovations, with zero production side effects.
 - **Authentication and Profiles**: Sign in using email/password or Google SSO, manage user profile, and track filed reports and comments.
 - **Bilingual Interface**: Full Polish and English language localization with on-the-fly switching.
 

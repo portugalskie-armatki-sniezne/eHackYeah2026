@@ -64,6 +64,14 @@ Aplikacja kliencka SPA dla platformy **pomożeMy**, zbudowana w technologii Reac
 - **Dostosowanie do smartfonów**: Wyśrodkowane dialogi, czytelne przyciski o odpowiedniej powierzchni dotykowej i obsługa gestów mapy na urządzeniach dotykowych.
 - **Strona "O projekcie" (`About.tsx`)**: Dedykowany widok przybliżający cele platformy, rolę sztucznej inteligencji w łączeniu spraw oraz współpracę z instytucjami.
 
+### 8. Interaktywny onboarding i samouczek
+
+- **Wybór trybu (`Onboarding.tsx`, `onboardingState.ts`)**: Przy pierwszej wizycie (lub po kliknięciu przycisku `?` w menu) użytkownik wybiera tryb:
+  - **Tryb automatyczny**: symulowany kursor płynnie przemieszcza się po elementach aplikacji, otwiera formularze, wpisuje przykładowy tekst i prezentuje pełny obieg sprawy bez wysyłania danych na serwer. Możliwość pauzowania, przewijania oraz natychmiastowego przejęcia sterowania ("Przejmij stery").
+  - **Tryb manualny**: prowadzenie krok po kroku z podświetleniem (spotlight) i dymkami wyjaśniającymi akcje (oczekiwanie na kliknięcie lub przycisk "Dalej").
+- **Dostosowanie do urządzeń**: Osobne ścieżki dla komputerów (zgłaszanie przez kliknięcie na mapie) i telefonów (zgłaszanie przez przycisk aparatu i formularz ze zdjęciem).
+- **Bezpieczeństwo danych produkcyjnych**: Wszelkie próby wysłania zgłoszenia w trakcie aktywnego przewodnika są przechwytywane po stronie klienta, nie generując zbędnych danych w bazie. Niezalogowani użytkownicy widzą przykładowe dane w podglądzie powiadomień.
+
 ## Struktura kodu
 
 ```text
@@ -87,6 +95,10 @@ apps/web/src/
 │   ├── MapToolbar.tsx           # przyciski kontrolne mapy (lokalizacja, warstwy)
 │   ├── MarkerDialog.tsx         # szczegóły zgłoszenia, dyskusja i karta ROPS
 │   ├── Navbar.tsx               # górny pasek nawigacji
+│   ├── Onboarding.tsx           # nakładka i karty przewodnika interaktywnego
+│   ├── onboardingPlayer.ts      # silnik symulacji kursora, wpisywania i scen
+│   ├── onboardingState.ts       # globalny stan przewodnika (kroki, tryb, mostek mapy)
+│   ├── onboardingSteps.ts       # definicje kroków dla urządzeń stacjonarnych i mobilnych
 │   ├── PinDialog.tsx            # formularz dodawania nowego zgłoszenia
 │   ├── ProfileDialog.tsx        # okno profilu zalogowanego użytkownika
 │   ├── ProjectsCatalog.tsx      # przeglądarka i wyszukiwarka innowacji ROPS (#projects)

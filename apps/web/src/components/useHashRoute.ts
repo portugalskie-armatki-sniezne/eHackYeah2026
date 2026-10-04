@@ -10,7 +10,7 @@ function hashParts(): string[] {
   return window.location.hash.replace(/^#/, "").split("/");
 }
 
-function readRoute(): Route {
+export function readRoute(): Route {
   const [name] = hashParts();
   if (name === "about") return "about";
   if (name === "initiatives") return "initiatives";

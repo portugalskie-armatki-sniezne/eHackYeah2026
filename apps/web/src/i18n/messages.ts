@@ -21,6 +21,34 @@ type NoticeKind =
   | "photo_approved"
   | "photo_rejected";
 
+/** The guide's steps, each with its own card. */
+export type TourStepId =
+  | "welcome"
+  | "zoom"
+  | "filters"
+  | "filterList"
+  | "tilt"
+  | "openCase"
+  | "caseSheet"
+  | "reportClick"
+  | "photoTile"
+  | "reportKind"
+  | "reportForm"
+  | "photoForm"
+  | "reportSend"
+  | "navReports"
+  | "reports"
+  | "navNotifications"
+  | "notifications"
+  | "navInitiatives"
+  | "catalog"
+  | "navAbout"
+  | "about"
+  | "finish";
+
+/** A step's card: what is shown, and what the manual tour asks to be done. */
+type TourStepText = { title: string; body: string; action?: string };
+
 export function isLocale(value: unknown): value is Locale {
   return (
     typeof value === "string" && (locales as readonly string[]).includes(value)
@@ -46,6 +74,7 @@ const en = {
     unreadNotifications: (count: number) =>
       `${count} unread ${count === 1 ? "notification" : "notifications"}`,
     signIn: "Sign in",
+    guide: "Start the guide",
     signedInAs: "Signed in as ",
     myProfile: "My Profile",
     logout: "Logout",
@@ -468,6 +497,162 @@ const en = {
     reportCount: (total: number) =>
       `${total} ${total === 1 ? "report" : "reports"}.`,
   },
+  onboarding: {
+    chooserTitle: "Welcome to pomożeMy",
+    chooserLede:
+      "A short guide shows how to report a problem, propose an idea, and follow what happens next. Nothing you do in the guide is sent.",
+    autoTitle: "Show me",
+    autoText:
+      "Sit back: the guide clicks through the app on its own. It takes about a minute and a half.",
+    manualTitle: "Walk me through",
+    manualText:
+      "You click, and the guide shows you where and explains what happens.",
+    skip: "Skip, I will look around myself",
+    rerunHint: "The ? button in the navigation bar starts the guide again.",
+    label: "Guide",
+    progress: (step: number, total: number) => `${step} / ${total}`,
+    close: "Close the guide",
+    back: "Back",
+    next: "Next",
+    pause: "Pause",
+    resume: "Resume",
+    takeOver: "Take over",
+    finish: "Finish",
+    paused:
+      "Paused because you clicked the page. Resume, or take over and click through yourself.",
+    yourTurn: "Your turn",
+    stepDone: "Done! Moving on.",
+    held: "This is the guide, so nothing was sent. A real report goes on the map and on to the right office.",
+    signUp: "Create an account",
+    explore: "Look around",
+    sampleTitle: "Pothole on the bike lane",
+    sampleDescription:
+      "A deep pothole by the bike lane at the corner. Cyclists swerve onto the road to avoid it.",
+    catalogQuery: "senior",
+    sampleBanner:
+      "These are sample notifications. Once you sign in, news about your own cases shows up here.",
+    sampleNotifications: [
+      {
+        kind: "status_inprogress",
+        subject: "Pothole on the bike lane",
+        detail: null,
+      },
+      {
+        kind: "update",
+        subject: "Pothole on the bike lane",
+        detail: "The road authority has scheduled the repair for next week.",
+      },
+      {
+        kind: "comment",
+        subject: "A bench by the playground",
+        detail: "Great idea, the nearest bench is 300 metres away.",
+      },
+    ] as { kind: NoticeKind; subject: string; detail: string | null }[],
+    steps: {
+      welcome: {
+        title: "This is the map of cases",
+        body: "Every pin is a reported problem or an idea for the neighbourhood. Nearby pins are grouped into numbered discs that open up as you zoom in.",
+      },
+      zoom: {
+        title: "Move around the map",
+        body: "Zoom with these buttons, the mouse wheel, or two fingers. Drag to move the view.",
+        action: "Press + or -.",
+      },
+      filters: {
+        title: "Filter the pins",
+        body: "This tile narrows the map down to the cases you care about.",
+        action: "Open the filter list.",
+      },
+      filterList: {
+        title: "Pick what to show",
+        body: "Tick the kinds and statuses to keep on the map. Once you sign in, you can also keep only your own reports.",
+      },
+      tilt: {
+        title: "See the city in 3D",
+        body: "Tilt the camera to see the buildings around a case.",
+        action: "Switch 3D on.",
+      },
+      openCase: {
+        title: "Open a case",
+        body: "A click on a pin opens its case.",
+        action: "Click any pin.",
+      },
+      caseSheet: {
+        title: "Everything about one case",
+        body: "The status shows how far the case has moved. Below are the office it goes to, the official response, the comments, and every report merged into it.",
+      },
+      reportClick: {
+        title: "Report a problem",
+        body: "To report something, click the map where it is. A new pin waits there for its description.",
+        action: "Click any spot on the map.",
+      },
+      photoTile: {
+        title: "Report with a photo",
+        body: "On a phone, the + tile opens the camera, and the report is pinned where you are standing.",
+      },
+      reportKind: {
+        title: "A fault or an idea?",
+        body: "Pick a fault to report a problem, or a community initiative to propose a change. An initiative is compared with the ROPS library of proven ideas.",
+        action: "Switch between the two tabs.",
+      },
+      reportForm: {
+        title: "Describe it",
+        body: "The title is optional. A sentence and a photo are enough for the office to understand the problem.",
+        action: "Write a short description.",
+      },
+      photoForm: {
+        title: "Describe the photo",
+        body: "One sentence is enough. The photo and your location are already attached.",
+        action: "Write a short description.",
+      },
+      reportSend: {
+        title: "Send it",
+        body: "Normally this sends the report: it goes on the map, and the right office is found for it. In the guide nothing is sent.",
+        action: "Press the button, or close the sheet.",
+      },
+      navReports: {
+        title: "Every case in one list",
+        body: "The Reports page lists every case with its status and discussion.",
+        action: "Open Reports.",
+      },
+      reports: {
+        title: "Search and narrow down",
+        body: "Search by words, filter by status, or keep only your own cases. Each row unfolds its comments.",
+      },
+      navNotifications: {
+        title: "Notifications",
+        body: "This is where you learn what happened to your cases. The link shows up once you sign in.",
+        action: "Open Notifications.",
+      },
+      notifications: {
+        title: "Stay up to date",
+        body: "A case taken up or finished, an office's response, a new comment, an offered photo: it all shows up here.",
+      },
+      navInitiatives: {
+        title: "Initiatives",
+        body: "Looking for inspiration? The library of social innovations is one click away.",
+        action: "Open Initiatives.",
+      },
+      catalog: {
+        title: "Social innovation library",
+        body: "Proven models from ROPS Kraków. Search, read the details, and propose one on the map for your neighbourhood.",
+        action: "Search for something, like senior.",
+      },
+      navAbout: {
+        title: "About the project",
+        body: "How a report travels from a pin to the office that can fix it.",
+        action: "Open About.",
+      },
+      about: {
+        title: "How it works",
+        body: "Read why pomożeMy exists and how reports are merged and routed to offices.",
+      },
+      finish: {
+        title: "You are ready",
+        body: "Report your first case or look around on your own. The ? button starts this guide again.",
+      },
+    } as Record<TourStepId, TourStepText>,
+  },
 };
 
 export type Messages = typeof en;
@@ -491,6 +676,7 @@ const pl: Messages = {
     unreadNotifications: (count: number) =>
       `${plNotifications(count)} nieodczytanych`,
     signIn: "Zaloguj się",
+    guide: "Uruchom przewodnik",
     signedInAs: "Zalogowano jako ",
     myProfile: "Mój profil",
     logout: "Wyloguj",
@@ -910,6 +1096,162 @@ const pl: Messages = {
     showingLatest: (shown: number, total: number) =>
       `Wyświetlono ${shown} najnowszych z ${total} zgłoszeń.`,
     reportCount: (total: number) => `${plReports(total)}.`,
+  },
+  onboarding: {
+    chooserTitle: "Witaj w pomożeMy",
+    chooserLede:
+      "Krótki przewodnik pokaże, jak zgłosić problem, zaproponować pomysł i śledzić, co dzieje się dalej. Nic, co zrobisz w przewodniku, nie zostanie wysłane.",
+    autoTitle: "Pokaż mi",
+    autoText:
+      "Usiądź wygodnie - przewodnik sam przeklika aplikację. Zajmie to około półtorej minuty.",
+    manualTitle: "Poprowadź mnie",
+    manualText:
+      "Ty klikasz, a przewodnik pokazuje gdzie i tłumaczy, co się stanie.",
+    skip: "Pomiń, rozejrzę się na własną rękę",
+    rerunHint: "Przycisk ? na pasku nawigacji uruchomi przewodnik ponownie.",
+    label: "Przewodnik",
+    progress: (step: number, total: number) => `${step} / ${total}`,
+    close: "Zamknij przewodnik",
+    back: "Wstecz",
+    next: "Dalej",
+    pause: "Pauza",
+    resume: "Wznów",
+    takeOver: "Przejmij stery",
+    finish: "Zakończ",
+    paused:
+      "Wstrzymano, bo kliknięto stronę. Wznów albo przejmij stery i klikaj samodzielnie.",
+    yourTurn: "Twoja kolej",
+    stepDone: "Gotowe! Idziemy dalej.",
+    held: "To tylko przewodnik, więc nic nie zostało wysłane. Prawdziwe zgłoszenie trafia na mapę i do właściwego urzędu.",
+    signUp: "Załóż konto",
+    explore: "Rozejrzę się",
+    sampleTitle: "Dziura przy ścieżce rowerowej",
+    sampleDescription:
+      "Głęboka dziura przy ścieżce rowerowej na rogu. Rowerzyści omijają ją, zjeżdżając na jezdnię.",
+    catalogQuery: "senior",
+    sampleBanner:
+      "To przykładowe powiadomienia. Po zalogowaniu zobaczysz tu wieści o swoich sprawach.",
+    sampleNotifications: [
+      {
+        kind: "status_inprogress",
+        subject: "Dziura przy ścieżce rowerowej",
+        detail: null,
+      },
+      {
+        kind: "update",
+        subject: "Dziura przy ścieżce rowerowej",
+        detail: "Zarząd dróg zaplanował naprawę na przyszły tydzień.",
+      },
+      {
+        kind: "comment",
+        subject: "Ławka przy placu zabaw",
+        detail: "Świetny pomysł, najbliższa ławka jest 300 metrów dalej.",
+      },
+    ],
+    steps: {
+      welcome: {
+        title: "To mapa spraw",
+        body: "Każda pinezka to zgłoszony problem albo pomysł dla okolicy. Pobliskie pinezki łączą się w ponumerowane kółka, które rozdzielają się po przybliżeniu.",
+      },
+      zoom: {
+        title: "Poruszaj się po mapie",
+        body: "Przybliżaj tymi przyciskami, kółkiem myszy albo dwoma palcami. Przeciągnij, aby przesunąć widok.",
+        action: "Naciśnij + albo -.",
+      },
+      filters: {
+        title: "Filtruj pinezki",
+        body: "Ten kafelek zawęża mapę do spraw, które Cię interesują.",
+        action: "Otwórz listę filtrów.",
+      },
+      filterList: {
+        title: "Wybierz, co widać",
+        body: "Zaznacz rodzaje i statusy, które mają zostać na mapie. Po zalogowaniu możesz też zostawić tylko swoje zgłoszenia.",
+      },
+      tilt: {
+        title: "Zobacz miasto w 3D",
+        body: "Pochyl kamerę, aby zobaczyć budynki wokół sprawy.",
+        action: "Włącz 3D.",
+      },
+      openCase: {
+        title: "Otwórz sprawę",
+        body: "Kliknięcie pinezki otwiera jej sprawę.",
+        action: "Kliknij dowolną pinezkę.",
+      },
+      caseSheet: {
+        title: "Wszystko o jednej sprawie",
+        body: "Status pokazuje, na jakim etapie jest sprawa. Niżej są urząd, do którego trafia, oficjalna odpowiedź, komentarze i wszystkie połączone z nią zgłoszenia.",
+      },
+      reportClick: {
+        title: "Zgłoś problem",
+        body: "Aby coś zgłosić, kliknij mapę w miejscu problemu. Pojawi się tam nowa pinezka, która czeka na opis.",
+        action: "Kliknij dowolne miejsce na mapie.",
+      },
+      photoTile: {
+        title: "Zgłoś zdjęciem",
+        body: "Na telefonie kafelek + otwiera aparat, a zgłoszenie trafia tam, gdzie stoisz.",
+      },
+      reportKind: {
+        title: "Usterka czy pomysł?",
+        body: "Wybierz usterkę, aby zgłosić problem, albo inicjatywę, aby zaproponować zmianę. Inicjatywa jest porównywana z biblioteką sprawdzonych pomysłów ROPS.",
+        action: "Przełącz między zakładkami.",
+      },
+      reportForm: {
+        title: "Opisz to",
+        body: "Tytuł nie jest wymagany. Zdanie opisu i zdjęcie wystarczą, aby urząd zrozumiał problem.",
+        action: "Wpisz krótki opis.",
+      },
+      photoForm: {
+        title: "Opisz zdjęcie",
+        body: "Wystarczy jedno zdanie. Zdjęcie i Twoje położenie są już dołączone.",
+        action: "Wpisz krótki opis.",
+      },
+      reportSend: {
+        title: "Wyślij",
+        body: "Normalnie ten przycisk wysyła zgłoszenie: trafia ono na mapę, a system dobiera do niego właściwy urząd. W przewodniku nic nie jest wysyłane.",
+        action: "Naciśnij przycisk albo zamknij okno.",
+      },
+      navReports: {
+        title: "Wszystkie sprawy na jednej liście",
+        body: "Strona Zgłoszenia zbiera wszystkie sprawy z ich statusem i dyskusją.",
+        action: "Otwórz Zgłoszenia.",
+      },
+      reports: {
+        title: "Szukaj i zawężaj",
+        body: "Szukaj po słowach, filtruj po statusie albo zostaw tylko swoje sprawy. Każdy wiersz rozwija swoje komentarze.",
+      },
+      navNotifications: {
+        title: "Powiadomienia",
+        body: "Tutaj dowiesz się, co dzieje się z Twoimi sprawami. Link pojawia się po zalogowaniu.",
+        action: "Otwórz Powiadomienia.",
+      },
+      notifications: {
+        title: "Bądź na bieżąco",
+        body: "Przyjęcie albo zakończenie sprawy, odpowiedź urzędu, nowy komentarz, zaproponowane zdjęcie - wszystko trafia tutaj.",
+      },
+      navInitiatives: {
+        title: "Inicjatywy",
+        body: "Szukasz inspiracji? Biblioteka innowacji społecznych jest o jedno kliknięcie stąd.",
+        action: "Otwórz Inicjatywy.",
+      },
+      catalog: {
+        title: "Biblioteka innowacji społecznych",
+        body: "Sprawdzone modele ROPS Kraków. Wyszukaj, przeczytaj szczegóły i zaproponuj jeden z nich na mapie dla swojej okolicy.",
+        action: "Wyszukaj coś, na przykład senior.",
+      },
+      navAbout: {
+        title: "O projekcie",
+        body: "Jak zgłoszenie wędruje od pinezki do urzędu, który może pomóc.",
+        action: "Otwórz O nas.",
+      },
+      about: {
+        title: "Jak to działa",
+        body: "Przeczytaj, po co powstało pomożeMy i jak zgłoszenia są łączone i kierowane do urzędów.",
+      },
+      finish: {
+        title: "Gotowe",
+        body: "Zgłoś swoją pierwszą sprawę albo rozejrzyj się na własną rękę. Przycisk ? uruchomi ten przewodnik ponownie.",
+      },
+    },
   },
 };
 

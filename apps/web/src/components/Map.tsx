@@ -46,6 +46,11 @@ import {
 import { useSession } from "../api/session";
 import { useMessages } from "../i18n/locale";
 import { isStatusName } from "./statusGlyphs";
+import {
+  isTourActive,
+  noteHeldReport,
+  registerTourMap,
+} from "./onboardingState";
 import "./Map.css";
 
 // maplibre resolves its worker next to its own file at runtime, which the bundler cannot see
@@ -514,6 +519,7 @@ export default function Map({ onSignInRequired }: MapProps) {
   // Reports are saved for the signed-in user. While the session is still
   // being restored the answer is not known yet, so nothing happens.
   const canStartReport = useCallback(() => {
+    if (isTourActive()) return true;
     if (session.status === "signed-out") onSignInRequired();
     return session.status === "signed-in";
   }, [session.status, onSignInRequired]);
@@ -523,6 +529,32 @@ export default function Map({ onSignInRequired }: MapProps) {
 
   // The pins come from the master reports, fetched once on load and in full,
   // since the map opens on the whole city.
+  useEffect(() => {
+    return registerTourMap({
+      topPinId: () => pins[0]?.id ?? null,
+      showPin: async (id) => {
+        const pin = pins.find((p) => p.id === id);
+        if (pin && mapRef.current) {
+          mapRef.current.flyTo({ center: pin.lngLat, zoom: LOCATE_ZOOM });
+          await new Promise((resolve) => setTimeout(resolve, 800));
+        }
+      },
+      openPin: (id) => setOpenPinId(id),
+      openDraftAt: (x, y) => {
+        const map = mapRef.current;
+        const container = containerRef.current;
+        if (!map || !container) return;
+        const rect = container.getBoundingClientRect();
+        const point = [x - rect.left, y - rect.top] as [number, number];
+        const lngLat = map.unproject(point);
+        setDraftLngLat([lngLat.lng, lngLat.lat]);
+      },
+      openPhotoDraft: (photo) => {
+        setPhotoDraft({ photo, lngLat: fix?.lngLat ?? KRAKOW });
+      },
+    });
+  }, [pins, fix]);
+
   useEffect(() => {
     const controller = new AbortController();
     async function loadMasterReports() {
@@ -760,6 +792,11 @@ export default function Map({ onSignInRequired }: MapProps) {
       if (!draftLngLat) {
         return;
       }
+      if (isTourActive()) {
+        noteHeldReport();
+        setDraftLngLat(null);
+        return;
+      }
       const categoryName: ReportCategoryName =
         draft.category ?? DEFAULT_PIN_CATEGORY;
       const report = await saveReport(
@@ -795,6 +832,11 @@ export default function Map({ onSignInRequired }: MapProps) {
   const handleSendPhotoReport = useCallback(
     async (description: string, photoUrl: string) => {
       if (!photoDraft) {
+        return;
+      }
+      if (isTourActive()) {
+        noteHeldReport();
+        setPhotoDraft(null);
         return;
       }
       const [longitude, latitude] = photoDraft.lngLat;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   notificationsApi,
   refreshUnreadCount,
@@ -9,6 +9,7 @@ import { photoProposalsApi } from "../api/photoProposals";
 import type { SessionState } from "../api/session";
 import { useLocale, useMessages } from "../i18n/locale";
 import type { Messages } from "../i18n/messages";
+import { useTourActive } from "./onboardingState";
 import { formatDate, timeAgo } from "./relativeTime";
 import { caseHash } from "./useHashRoute";
 import "./NotificationsPage.css";
@@ -46,11 +47,39 @@ export default function NotificationsPage({
   session,
   onSignIn,
 }: NotificationsPageProps) {
-  const t = useMessages().notifications;
+  const allMessages = useMessages();
+  const t = allMessages.notifications;
+  const tourActive = useTourActive();
   const [items, setItems] = useState<Notification[] | null>(null);
+  const [demoItems, setDemoItems] = useState<Notification[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [unreadOnly, setUnreadOnly] = useState(false);
   const signedIn = session.status === "signed-in";
+
+  const sampleItems: Notification[] = useMemo(() => {
+    const now = new Date();
+    return allMessages.onboarding.sampleNotifications.map((sample, idx) => ({
+      id: `demo-${idx}`,
+      user_id: "demo-user",
+      kind: sample.kind,
+      master_report_id: "demo",
+      photo_proposal_id: null,
+      subject: sample.subject,
+      detail: sample.detail,
+      photo_proposal_state: null,
+      photo_proposal_url: null,
+      read_at:
+        idx === 0 ? null : new Date(now.getTime() - 3600000).toISOString(),
+      created_at: new Date(now.getTime() - (idx + 1) * 1800000).toISOString(),
+    }));
+  }, [allMessages]);
+
+  const activeItems = signedIn
+    ? items
+    : tourActive
+      ? (demoItems ?? sampleItems)
+      : null;
+  const showList = signedIn || tourActive;
 
   // A session that ended takes its notifications with it, so the next sign-in
   // does not open on the previous account's list.
@@ -77,11 +106,20 @@ export default function NotificationsPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signedIn]);
 
-  const replace = (next: Notification) =>
+  const replace = (next: Notification) => {
+    if (!signedIn && tourActive) {
+      setDemoItems((current) =>
+        (current ?? sampleItems).map((item) =>
+          item.id === next.id ? next : item,
+        ),
+      );
+      return;
+    }
     setItems(
       (current) =>
         current?.map((item) => (item.id === next.id ? next : item)) ?? null,
     );
+  };
 
   // a decision on an offered photo settles every notification about it
   const settleProposal = (proposalId: string, state: "approved" | "rejected") =>
@@ -94,10 +132,26 @@ export default function NotificationsPage({
         ) ?? null,
     );
 
-  const drop = (id: string) =>
+  const drop = (id: string) => {
+    if (!signedIn && tourActive) {
+      setDemoItems((current) =>
+        (current ?? sampleItems).filter((item) => item.id !== id),
+      );
+      return;
+    }
     setItems((current) => current?.filter((item) => item.id !== id) ?? null);
+  };
 
   const markAllRead = async () => {
+    if (!signedIn && tourActive) {
+      const now = new Date().toISOString();
+      setDemoItems((current) =>
+        (current ?? sampleItems).map((item) =>
+          item.read_at ? item : { ...item, read_at: now },
+        ),
+      );
+      return;
+    }
     setError(null);
     try {
       await notificationsApi.markAllRead();
@@ -114,8 +168,12 @@ export default function NotificationsPage({
     }
   };
 
-  const shown = (items ?? []).filter((item) => !unreadOnly || !item.read_at);
-  const unreadCount = (items ?? []).filter((item) => !item.read_at).length;
+  const shown = (activeItems ?? []).filter(
+    (item) => !unreadOnly || !item.read_at,
+  );
+  const unreadCount = (activeItems ?? []).filter(
+    (item) => !item.read_at,
+  ).length;
 
   return (
     <section
@@ -134,7 +192,7 @@ export default function NotificationsPage({
             </a>
           </header>
 
-          {!signedIn ? (
+          {!showList ? (
             <div className="notifications-page__notice">
               <div>
                 <p className="notifications-page__notice-title">
@@ -154,6 +212,11 @@ export default function NotificationsPage({
             </div>
           ) : (
             <>
+              {!signedIn && tourActive && (
+                <p className="notifications-page__demo-banner" role="note">
+                  {allMessages.onboarding.sampleBanner}
+                </p>
+              )}
               <div className="notifications-page__controls">
                 <div
                   className="notifications-page__pills"
@@ -182,9 +245,9 @@ export default function NotificationsPage({
                     )}
                   </button>
                 </div>
-                {items && (
+                {activeItems && (
                   <p className="notifications-page__count">
-                    {t.shown(shown.length, items.length)}
+                    {t.shown(shown.length, activeItems.length)}
                   </p>
                 )}
                 <button
@@ -203,7 +266,7 @@ export default function NotificationsPage({
                 </p>
               )}
 
-              {items === null && !error ? (
+              {activeItems === null && !error ? (
                 <p className="notifications-page__state">{t.loading}</p>
               ) : shown.length === 0 ? (
                 <p className="notifications-page__state">
@@ -275,6 +338,10 @@ function NotificationCard({
   // every button here has been acted on, so the notification counts as read
   const read = async () => {
     if (!unread) return;
+    if (notification.id.startsWith("demo-")) {
+      onChange({ ...notification, read_at: new Date().toISOString() });
+      return;
+    }
     onChange(await notificationsApi.markRead(notification.id));
     void refreshUnreadCount();
   };
@@ -373,7 +440,11 @@ function NotificationCard({
           {notification.master_report_id && (
             <a
               className="notifications-page__button"
-              href={caseHash(notification.master_report_id)}
+              href={
+                notification.id.startsWith("demo-")
+                  ? "#map"
+                  : caseHash(notification.master_report_id)
+              }
               onClick={() => void run(read)}
             >
               {t.openCase}
@@ -395,9 +466,11 @@ function NotificationCard({
             disabled={busy}
             onClick={() =>
               void run(async () => {
-                await notificationsApi.dismiss(notification.id);
+                if (!notification.id.startsWith("demo-")) {
+                  await notificationsApi.dismiss(notification.id);
+                  void refreshUnreadCount();
+                }
                 onDismissed();
-                void refreshUnreadCount();
               })
             }
           >

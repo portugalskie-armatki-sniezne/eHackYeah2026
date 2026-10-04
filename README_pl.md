@@ -61,6 +61,7 @@ Oba środowiska uruchamiają trzy skonteneryzowane usługi zarządzane przez Doc
 - **Rekomendacja i wybór właściwej instytucji**: Dobór właściwego urzędu lub jednostki komunalnej z użyciem modeli klasyfikacji AI (Laya Vision) oraz najbliższej zgeokodowanej siedziby.
 - **Katalog innowacji społecznych ROPS**: Baza sprawdzonych innowacji społecznych Regionalnego Ośrodka Polityki Społecznej. Hybrydowe wyszukiwanie łączące wektorowe podobieństwo cosinusowe ze stemmingiem dla języka polskiego i dynamiczną punktacją trafności.
 - **Powiadomienia urzędów przez email**: Wewnętrzny serwis przekształcający zgłoszenia w ustrukturyzowane powiadomienia wysyłane bezpośrednio do odpowiednich instytucji wraz ze zdjęciami i linkami do Google Maps.
+- **Interaktywny przewodnik po aplikacji**: Wprowadzenie dla nowych użytkowników oferujące tryb automatycznej animacji z symulowanym kursorem lub tryb manualny prowadzący krok po kroku przez mapę, formularz zgłoszeń, powiadomienia i innowacje ROPS, bez tworzenia zbędnych danych w bazie.
 - **Autoryzacja i profil użytkownika**: Rejestracja i logowanie hasłem oraz przez Google SSO, zarządzanie profilem oraz śledzenie zgłoszeń i komentarzy.
 - **Wielojęzyczność**: Pełne wsparcie dla języka polskiego i angielskiego z przełączaniem w czasie rzeczywistym.
 
