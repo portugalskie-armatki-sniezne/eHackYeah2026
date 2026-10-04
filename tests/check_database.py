@@ -121,6 +121,11 @@ def main():
             raise RuntimeError("Notification migration rollback left its tables behind")
         print("PASS: notifications and photo proposals rolled back", flush=True)
         compose("run", "--rm", "--no-deps", "db-migrator", "down")
+        if query("SELECT to_regclass('notifications') IS NULL "
+                 "AND to_regclass('master_report_photo_proposals') IS NULL;") != "t":
+            raise RuntimeError("Notification and photo proposal rollback left its tables behind")
+        print("PASS: notifications and photo proposals migration rolled back successfully", flush=True)
+        compose("run", "--rm", "--no-deps", "db-migrator", "down")
         if query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'public' "
                  "AND table_name = 'master_report_comments' AND column_name = 'highlighted';") != "0":
             raise RuntimeError("Comment highlight rollback left the column behind")

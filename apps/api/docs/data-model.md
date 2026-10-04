@@ -1,6 +1,6 @@
 # Model danych
 
-Źródło: migracje w `db/migrations/`. Migracje 01 i 02 tworzą tabele, 03 dodaje ograniczenia, a 04 wstawia początkowe kategorie i statusy. Migracja 06 dodaje gminę i powiat zgłoszenia w Małopolsce, a 07 zapisaną lokalizację siedziby instytucji.
+Źródło: migracje w `db/migrations/`. Migracje 01 i 02 tworzą tabele, 03 dodaje ograniczenia, a 04 wstawia początkowe kategorie i statusy. Migracja 06 dodaje gminę i powiat zgłoszenia w Małopolsce, a 07 zapisaną lokalizację siedziby instytucji. Migracja 12 dodaje propozycje zdjęć do masterów i powiadomienia.
 
 Migracja 13 dodaje `visualization_drafts` (właściciel, termin wygaśnięcia i powiązanie ze zgłoszeniem), `visualization_jobs` (kopie źródeł, idempotencja, dzierżawa i wynik każdej próby) oraz `mail_delivery_jobs` (unikalne zlecenie na master, zależność od generacji, dzierżawa i wynik SMTP). Zlecenia pozostają po usunięciu zgłoszenia, aby zachować liczniki limitów. Worker usuwa wtedy powiązane pliki i formularz. Szczegóły opisuje [kontrakt integracji](visualizations.md).
 
@@ -20,6 +20,11 @@ erDiagram
     users ||--o{ master_report_comments : "user_id"
     master_report_comments ||--o{ master_report_comment_likes : "comment_id"
     users ||--o{ master_report_comment_likes : "user_id"
+    master_reports ||--o{ master_report_photo_proposals : "master_report_id"
+    users ||--o{ master_report_photo_proposals : "user_id"
+    users ||--o{ notifications : "user_id"
+    master_reports |o--o{ notifications : "master_report_id"
+    master_report_photo_proposals |o--o{ notifications : "photo_proposal_id"
     projects ||--o{ project_chunks : "project_slug"
 
     users {
@@ -87,6 +92,26 @@ erDiagram
     master_report_comment_likes {
         uuid comment_id PK,FK
         uuid user_id PK,FK
+        timestamptz created_at
+    }
+    master_report_photo_proposals {
+        uuid id PK
+        uuid master_report_id FK
+        uuid user_id FK
+        text storage_key
+        text state
+        timestamptz decided_at
+        timestamptz created_at
+    }
+    notifications {
+        uuid id PK
+        uuid user_id FK
+        text kind
+        uuid master_report_id FK
+        uuid photo_proposal_id FK
+        text subject
+        text detail
+        timestamptz read_at
         timestamptz created_at
     }
     service_entities {
@@ -239,6 +264,40 @@ Indeksy: `(master_report_id, created_at, id)` do odczytu komentarzy w kolejnośc
 
 Klucz główny `(comment_id, user_id)` pozwala użytkownikowi polubić komentarz tylko raz. Indeks: `user_id`. Liczba polubień jest wyliczana z wierszy tej tabeli.
 
+### master_report_photo_proposals
+
+Zdjęcie zaproponowane do mastera, który nie ma własnego. Czeka na decyzję autora mastera, czyli użytkownika jego najstarszego reportu; aplikacja pokazuje je do tego czasu ze znakiem zapytania.
+
+| Kolumna | Typ | Ograniczenia |
+| --- | --- | --- |
+| id | uuid | PK |
+| master_report_id | uuid | NOT NULL, FK -> master_reports(id), ON DELETE CASCADE |
+| user_id | uuid | NOT NULL, FK -> users(id), ON DELETE CASCADE |
+| storage_key | text | NOT NULL, niepusty po przycięciu spacji; `proposals/{id}.{ext}` |
+| state | text | NOT NULL, domyślnie `pending`, jedno z `pending`, `approved`, `rejected` |
+| decided_at | timestamptz | NULL dokładnie wtedy, gdy `state` to `pending` |
+| created_at | timestamptz | NOT NULL |
+
+Indeksy: `(master_report_id, created_at, id)` do odczytu propozycji w kolejności, `user_id` oraz częściowy indeks unikalny na `master_report_id` dla `state = 'pending'`, który dopuszcza najwyżej jedną czekającą propozycję na master. Przyjęcie propozycji zapisuje nowy wiersz w `report_photos` najstarszego reportu mastera i przenosi tam plik, a odrzucenie usuwa plik; wiersz propozycji zostaje w obu przypadkach.
+
+### notifications
+
+Co zdarzyło się w sprawach, które użytkownik zgłosił, skomentował albo do których zaproponował zdjęcie. Wiersze tworzy wyłącznie API; rodzaje i ich odbiorców opisuje [api.md](api.md#notifications).
+
+| Kolumna | Typ | Ograniczenia |
+| --- | --- | --- |
+| id | uuid | PK |
+| user_id | uuid | NOT NULL, FK -> users(id), ON DELETE CASCADE |
+| kind | text | NOT NULL, jedno z `status_inprogress`, `status_finished`, `comment`, `update`, `photo_proposal`, `photo_approved`, `photo_rejected` |
+| master_report_id | uuid | FK -> master_reports(id), ON DELETE CASCADE |
+| photo_proposal_id | uuid | FK -> master_report_photo_proposals(id), ON DELETE CASCADE |
+| subject | text | NOT NULL, niepusty po przycięciu spacji; tytuł mastera z chwili zdarzenia |
+| detail | text | treść komentarza albo nowa odpowiedź urzędu, inaczej NULL |
+| read_at | timestamptz | NULL, dopóki odbiorca nie otworzył powiadomienia |
+| created_at | timestamptz | NOT NULL |
+
+Indeksy: `(user_id, created_at DESC, id)` do odczytu od najnowszych, częściowy `user_id` dla `read_at IS NULL` pod licznik nieodczytanych, oraz `master_report_id` i `photo_proposal_id`.
+
 ### local_government_offices
 
 Katalog urzędów importowany z `db/seeds/teleaddr_base_16042026.xls`. Dane referencyjne, API tylko je czyta.
@@ -370,12 +429,14 @@ migrację 10 jako kopia `simple`, gdy baza jej nie ma.
 
 | Usuwany rekord | Skutek |
 | --- | --- |
-| users | błąd, jeśli istnieją jego reporty lub komentarze; polubienia usuwane kaskadowo |
-| master_reports | błąd, jeśli istnieją powiązane reporty; w pozostałych przypadkach komentarze i polubienia usuwane kaskadowo |
+| users | błąd, jeśli istnieją jego reporty lub komentarze; polubienia, propozycje zdjęć i powiadomienia usuwane kaskadowo |
+| master_reports | błąd, jeśli istnieją powiązane reporty; w pozostałych przypadkach komentarze, polubienia, propozycje zdjęć i powiadomienia usuwane kaskadowo |
 | reports | zdjęcia usuwane kaskadowo; master i dyskusja pozostają, chyba że był to ostatni report mastera, wtedy API usuwa też master |
 | report_photos | brak zależności |
 | master_report_comments | polubienia usuwane kaskadowo |
 | master_report_comment_likes | brak zależności |
+| master_report_photo_proposals | powiadomienia o propozycji usuwane kaskadowo; plik zostaje, dopóki nie usunie go odrzucenie propozycji |
+| notifications | brak zależności |
 | report_categories, master_report_statuses, local_government_offices, service_entities | błąd, jeśli rekord jest referencjonowany |
 
 Usuwanie jest fizyczne. Tabele nie mają `deleted_at`.

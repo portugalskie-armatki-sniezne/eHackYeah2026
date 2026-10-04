@@ -25,6 +25,8 @@ type MapToolbarProps = {
   /** how many pins the filters leave on the map, out of every pin loaded */
   shownPins: number;
   totalPins: number;
+  /** whether the filter list offers the box for the viewer's own cases */
+  canFilterMine: boolean;
 };
 
 export default function MapToolbar({
@@ -40,6 +42,7 @@ export default function MapToolbar({
   onFiltersChange,
   shownPins,
   totalPins,
+  canFilterMine,
 }: MapToolbarProps) {
   const t = useMessages().toolbar;
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -140,6 +143,7 @@ export default function MapToolbar({
           onChange={onFiltersChange}
           shown={shownPins}
           total={totalPins}
+          canFilterMine={canFilterMine}
         />
       </div>
     </div>

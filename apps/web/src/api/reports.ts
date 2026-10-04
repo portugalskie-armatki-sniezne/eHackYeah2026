@@ -85,10 +85,13 @@ export type MasterReport = {
   report_count: number;
   /** the earliest photo among the master's reports, as a path under the api, or null */
   photo_url: string | null;
+  /** whoever filed the case first, who decides about a photo offered for it */
+  author_id: string | null;
   /**
    * A photo a resident offered for a case that has none, which the map and the
    * case's sheet show under a question mark until its author decides about it.
    */
+  pending_photo_id: string | null;
   pending_photo_url: string | null;
   edited_at: string;
   created_at: string;
@@ -232,6 +235,34 @@ export const reportsApi = {
       items.push(...page.items);
     }
     return items;
+  },
+
+  /**
+   * The ids of the cases the account has a filing on, which is what the map's
+   * and the list's "only mine" filter narrows to. A case the account filed
+   * counts whether or not it was the one that opened it, so this goes through
+   * the account's reports rather than the masters' authors.
+   */
+  async myMasterReportIds(
+    userId: string,
+    signal?: AbortSignal,
+  ): Promise<Set<string>> {
+    const ids = new Set<string>();
+    let seen = 0;
+    let total = Infinity;
+    while (seen < total) {
+      const page = await reportsApi.list(
+        { user_id: userId, limit: MAX_PAGE_SIZE, offset: seen },
+        signal,
+      );
+      total = page.total;
+      if (page.items.length === 0) break;
+      seen += page.items.length;
+      for (const report of page.items) {
+        if (report.master_report_id) ids.add(report.master_report_id);
+      }
+    }
+    return ids;
   },
 
   /** The address a photo is served from, given its path under the api. */

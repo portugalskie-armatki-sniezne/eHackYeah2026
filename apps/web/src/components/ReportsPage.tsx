@@ -7,10 +7,13 @@ import {
   type MasterReportStatusName,
   type ReportCategoryName,
 } from "../api/reports";
+import { photoProposalsApi } from "../api/photoProposals";
 import { isStaff, type SessionState } from "../api/session";
 import { useLocale, useMessages } from "../i18n/locale";
 import type { Messages } from "../i18n/messages";
+import PhotoProposalDialog from "./PhotoProposalDialog";
 import StatusBadge from "./StatusBadge";
+import useMyCases from "./useMyCases";
 import "./ReportsPage.css";
 
 type ReportsPageProps = {
@@ -53,6 +56,16 @@ function isCategoryName(name: string): name is ReportCategoryName {
   return name === "issue" || name === "improvement";
 }
 
+/** One of the row's toggles: what it reads, whether it is on, and its switch. */
+type Pill = {
+  key: string;
+  label: string;
+  /** spelled out on hover where the word alone does not say enough */
+  hint?: string;
+  pressed: boolean;
+  press: () => void;
+};
+
 function errorText(error: unknown, t: ReportsMessages) {
   return error instanceof Error ? error.message : t.somethingWrong;
 }
@@ -77,7 +90,11 @@ export default function ReportsPage({ session, onSignIn }: ReportsPageProps) {
   );
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<number | null>(null);
+  const [mineOnly, setMineOnly] = useState(false);
   const [query, setQuery] = useState("");
+  // the viewer's own cases, which the author pill narrows the list to; null
+  // while signed out or still being read, and then the pill is not offered
+  const { cases: myCases } = useMyCases();
   const powers: Powers = {
     me: session.status === "signed-in" ? session.user.id : null,
     staff: isStaff(session),
@@ -134,10 +151,45 @@ export default function ReportsPage({ session, onSignIn }: ReportsPageProps) {
         : STATUS_ORDER.length),
   );
 
+  // Signing out takes the author pill away with the list behind it, so the
+  // narrowing lifts with it rather than leaving an empty list with nothing to
+  // undo; signing back in restores it.
+  const mine = mineOnly && myCases !== null;
+
+  // The row the controls carry: every status to narrow to, and, for an account
+  // whose own cases are known, the one that keeps just those. "All" is the
+  // cleared state of the statuses, so a case list narrowed to the viewer's own
+  // stays narrowed when it is pressed.
+  const pills: Pill[] = [
+    {
+      key: "all",
+      label: t.allStatuses,
+      pressed: statusFilter === null,
+      press: () => setStatusFilter(null),
+    },
+    ...orderedStatuses.map((status) => ({
+      key: `status-${status.id}`,
+      label: statusLabel(status.name, t),
+      pressed: statusFilter === status.id,
+      press: () =>
+        setStatusFilter(statusFilter === status.id ? null : status.id),
+    })),
+  ];
+  if (myCases !== null) {
+    pills.push({
+      key: "mine",
+      label: t.onlyMine,
+      hint: t.onlyMineHint,
+      pressed: mine,
+      press: () => setMineOnly((current) => !current),
+    });
+  }
+
   const needle = query.trim().toLocaleLowerCase();
   const shown = (masters ?? []).filter(
     (master) =>
       (statusFilter === null || master.status_id === statusFilter) &&
+      (!mine || myCases.has(master.id)) &&
       (needle === "" ||
         master.title.toLocaleLowerCase().includes(needle) ||
         master.description.toLocaleLowerCase().includes(needle)),
@@ -171,29 +223,18 @@ export default function ReportsPage({ session, onSignIn }: ReportsPageProps) {
             <div
               className="reports-page__pills"
               role="group"
-              aria-label={t.statusFilter}
+              aria-label={t.filter}
             >
-              <button
-                type="button"
-                className="reports-page__pill"
-                aria-pressed={statusFilter === null}
-                onClick={() => setStatusFilter(null)}
-              >
-                {t.allStatuses}
-              </button>
-              {orderedStatuses.map((status) => (
+              {pills.map((pill) => (
                 <button
-                  key={status.id}
+                  key={pill.key}
                   type="button"
                   className="reports-page__pill"
-                  aria-pressed={statusFilter === status.id}
-                  onClick={() =>
-                    setStatusFilter(
-                      statusFilter === status.id ? null : status.id,
-                    )
-                  }
+                  aria-pressed={pill.pressed}
+                  title={pill.hint}
+                  onClick={pill.press}
                 >
-                  {statusLabel(status.name, t)}
+                  {pill.label}
                 </button>
               ))}
             </div>
@@ -405,7 +446,14 @@ function CaseCard({
           )}
         </div>
 
-        <CaseMedia master={master} kind={kind} />
+        <CaseMedia
+          master={master}
+          kind={kind}
+          powers={powers}
+          signedOut={signedOut}
+          onSignIn={onSignIn}
+          onChange={onChange}
+        />
       </div>
 
       <Thread
@@ -422,16 +470,30 @@ type CaseMediaProps = {
   master: MasterReport;
   /** the case's category, or null while the list is unknown */
   kind: ReportCategoryName | null;
+  powers: Powers;
+  signedOut: boolean;
+  onSignIn: () => void;
+  onChange: (master: MasterReport) => void;
 };
 
 /**
  * The case's picture, which on a wide screen stands to the right of its text:
- * the earliest photo among its filings, or, for a case that has none, the
- * drafting frame with the way to offer one. Offering is a mockup for now.
+ * the earliest photo among its filings; a photo a resident offered, under a
+ * question mark, which whoever filed the case takes or turns down here; or,
+ * for a case with neither, the drafting frame with the way to offer one.
  */
-function CaseMedia({ master, kind }: CaseMediaProps) {
+function CaseMedia({
+  master,
+  kind,
+  powers,
+  signedOut,
+  onSignIn,
+  onChange,
+}: CaseMediaProps) {
   const t = useMessages().reports;
-  const [proposing, setProposing] = useState(false);
+  const [offering, setOffering] = useState(false);
+  const [deciding, setDeciding] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (master.photo_url) {
     return (
@@ -446,23 +508,117 @@ function CaseMedia({ master, kind }: CaseMediaProps) {
     );
   }
 
+  // the case is read again after a decision, so a taken photo takes the
+  // question mark's place
+  const reload = async () => onChange(await reportsApi.masterReport(master.id));
+
+  const decide = async (approve: boolean) => {
+    if (!master.pending_photo_id || deciding) return;
+    setDeciding(true);
+    setError(null);
+    try {
+      if (approve) {
+        await photoProposalsApi.approve(master.pending_photo_id);
+      } else {
+        await photoProposalsApi.reject(master.pending_photo_id);
+      }
+      await reload();
+    } catch (error) {
+      setError(errorText(error, t));
+    } finally {
+      setDeciding(false);
+    }
+  };
+
+  const waiting = master.pending_photo_url;
+  // whoever filed the case decides about its photo, and so may an admin
+  const decides =
+    powers.admin || (powers.me !== null && powers.me === master.author_id);
+
   return (
     <div className="reports-page__media">
-      <div className="reports-page__photo reports-page__photo--empty">
-        <span className="reports-page__photo-glyph" aria-hidden="true">
-          {kind ? KIND_GLYPHS[kind] : "?"}
-        </span>
-        <span className="reports-page__photo-text">{t.noPhoto}</span>
-      </div>
-      <button
-        type="button"
-        className="reports-page__button"
-        aria-expanded={proposing}
-        onClick={() => setProposing((current) => !current)}
-      >
-        {t.proposePhoto}
-      </button>
-      {proposing && <p className="reports-page__hint">{t.proposePhotoMock}</p>}
+      {waiting ? (
+        <figure className="reports-page__waiting">
+          <img
+            className="reports-page__photo reports-page__photo--pending"
+            src={photoProposalsApi.photoUrl(waiting)}
+            alt={t.pendingPhotoAlt(master.title)}
+            loading="lazy"
+          />
+          {/* the mark rides the picture's top-left corner, clear of the
+              decision under it */}
+          <figcaption
+            className="reports-page__photo-mark"
+            title={t.pendingPhotoHint}
+          >
+            <span aria-hidden="true">?</span> {t.pendingPhoto}
+          </figcaption>
+          {/* only the resident who filed the case settles it */}
+          {decides && (
+            <div className="reports-page__photo-actions">
+              <button
+                type="button"
+                className="reports-page__button reports-page__button--primary reports-page__button--compact"
+                disabled={deciding}
+                onClick={() => void decide(true)}
+              >
+                {deciding ? t.deciding : t.usePhoto}
+              </button>
+              <button
+                type="button"
+                className="reports-page__button reports-page__button--compact"
+                disabled={deciding}
+                onClick={() => void decide(false)}
+              >
+                {t.turnDownPhoto}
+              </button>
+            </div>
+          )}
+        </figure>
+      ) : (
+        <div className="reports-page__photo reports-page__photo--empty">
+          {/* The pictogram is the way to offer a photo. While the session is
+              still being restored neither answer applies, so it stays a drawing. */}
+          {powers.me !== null || signedOut ? (
+            <button
+              type="button"
+              className="reports-page__photo-glyph reports-page__photo-glyph--action"
+              onClick={() => {
+                if (powers.me) setOffering(true);
+                else onSignIn();
+              }}
+            >
+              <span aria-hidden="true">{kind ? KIND_GLYPHS[kind] : "?"}</span>
+              <span className="visually-hidden">
+                {powers.me ? t.proposePhoto : t.signInToProposePhoto}
+              </span>
+            </button>
+          ) : (
+            <span className="reports-page__photo-glyph" aria-hidden="true">
+              {kind ? KIND_GLYPHS[kind] : "?"}
+            </span>
+          )}
+          <span className="reports-page__photo-text">
+            {powers.me !== null || signedOut ? t.proposePhoto : t.noPhoto}
+          </span>
+        </div>
+      )}
+
+      {error && (
+        <p className="reports-page__error" role="alert">
+          {error}
+        </p>
+      )}
+
+      {offering && (
+        <PhotoProposalDialog
+          onClose={() => setOffering(false)}
+          onSubmit={async (photo) => {
+            await photoProposalsApi.offer(master.id, photo);
+            await reload();
+          }}
+        />
+      )}
     </div>
   );
 }

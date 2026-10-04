@@ -1,6 +1,6 @@
 /* The status is an outlined tile like the toolbar's, with the pictogram struck
-   in the same pen as the pins: paper while open, amber while the work is on,
-   green once it is done. */
+   in the same pen as the pins: paper while open, blue once it is reported,
+   amber while the work is on, green once it is done. */
 .status-badge {
   display: inline-flex;
   align-items: center;
@@ -31,6 +31,10 @@
 .status-badge__glyph .status-glyph__fill {
   fill: var(--ink);
   stroke: none;
+}
+
+.status-badge--reported {
+  background: var(--blue);
 }
 
 .status-badge--inprogress {

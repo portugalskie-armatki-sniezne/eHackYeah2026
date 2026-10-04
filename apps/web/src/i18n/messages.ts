@@ -11,6 +11,16 @@ export type Locale = (typeof locales)[number];
 /** The two kinds of pin; mirrors ReportCategoryName of the API. */
 type PinKind = "issue" | "improvement";
 
+/** What a notification is about; mirrors NotificationKind of the API. */
+type NoticeKind =
+  | "status_inprogress"
+  | "status_finished"
+  | "comment"
+  | "update"
+  | "photo_proposal"
+  | "photo_approved"
+  | "photo_rejected";
+
 export function isLocale(value: unknown): value is Locale {
   return (
     typeof value === "string" && (locales as readonly string[]).includes(value)
@@ -32,6 +42,9 @@ const en = {
     reports: "Reports",
     initiatives: "Initiatives",
     about: "About",
+    notifications: "Notifications",
+    unreadNotifications: (count: number) =>
+      `${count} unread ${count === 1 ? "notification" : "notifications"}`,
     signIn: "Sign in",
     signedInAs: "Signed in as ",
     myProfile: "My Profile",
@@ -46,8 +59,10 @@ const en = {
     empty: "No cases match.",
     search: "Search",
     searchPlaceholder: "Search by title or description...",
-    statusFilter: "Status",
+    filter: "Narrow the list",
     allStatuses: "All",
+    onlyMine: "Only mine",
+    onlyMineHint: "Keeps only the cases you have filed a report for",
     shown: (shown: number, total: number) => `${shown} of ${total} cases`,
     kinds: { issue: "Fault report", improvement: "Improvement idea" },
     statuses: {
@@ -84,8 +99,54 @@ const en = {
     photoOf: (title: string) => `Photo of the case "${title}"`,
     noPhoto: "No photo yet",
     proposePhoto: "Propose photo",
-    proposePhotoMock:
-      "Mockup: offering a photo for this case is not wired up yet.",
+    pendingPhoto: "Waiting for approval",
+    pendingPhotoAlt: (title: string) => `Photo offered for the case "${title}"`,
+    pendingPhotoHint:
+      "A resident offered this photo. It keeps its question mark until the person who filed the case takes it.",
+    usePhoto: "Use this photo",
+    turnDownPhoto: "Turn it down",
+    deciding: "Saving...",
+    signInToProposePhoto: "Sign in to propose a photo",
+  },
+  notifications: {
+    title: "Notifications",
+    lede: "What happened to the cases you filed: how far they have moved, what was said under them, and the photos neighbours offered for them.",
+    backToMap: "Go back to map",
+    loading: "Loading notifications...",
+    empty: "Nothing yet. What happens to your cases shows up here.",
+    emptyUnread: "You have opened everything.",
+    loadFailed: "Could not load your notifications.",
+    somethingWrong: "Something went wrong.",
+    signedOutTitle: "Sign in to read your notifications",
+    signedOutText:
+      "Notifications follow the cases filed from your account, so they come with it.",
+    signIn: "Sign in",
+    filter: "Show",
+    all: "All",
+    unreadOnly: "Unread",
+    shown: (shown: number, total: number) =>
+      `${shown} of ${total} ${total === 1 ? "notification" : "notifications"}`,
+    unread: "New",
+    markAllRead: "Mark all as read",
+    markRead: "Mark as read",
+    dismiss: "Dismiss",
+    openCase: "Open the case",
+    caseGone: "This case is no longer on the map.",
+    justNow: "just now",
+    kinds: {
+      status_inprogress: "Work has started",
+      status_finished: "The case is finished",
+      comment: "New comment",
+      update: "The case was updated",
+      photo_proposal: "A photo is waiting for you",
+      photo_approved: "Your photo was taken",
+      photo_rejected: "Your photo was turned down",
+    } as Record<NoticeKind, string>,
+    offeredPhotoAlt: (subject: string) => `Photo offered for: ${subject}`,
+    usePhoto: "Use this photo",
+    turnDownPhoto: "Turn it down",
+    deciding: "Saving...",
+    alreadyDecided: "This photo has already been decided on.",
   },
   status: {
     created: "Created",
@@ -136,6 +197,7 @@ const en = {
       `${kind === "improvement" ? "Improvement" : "Fault"} pin ${number}${
         status ? `, ${status.toLowerCase()}` : ""
       }${reportCount > 1 ? `, ${reportCount} reports` : ""}: ${description}`,
+    pinPendingPhoto: "Its photo is waiting for approval.",
   },
   pin: {
     issueTab: "Fault / report",
@@ -163,6 +225,18 @@ const en = {
       "Describe your proposal for an initiative or innovation at this location...",
     checking: "Checking the database...",
     sendInitiative: "Send initiative",
+  },
+  photoProposal: {
+    title: "Offer a photo",
+    hint: "The resident who filed this case decides whether it stays. Until then it shows under a question mark.",
+    photoAlt: "The photo being offered",
+    choose: "Choose a photo",
+    change: "Change photo",
+    none: "No photo chosen",
+    cancel: "Cancel",
+    send: "Offer the photo",
+    sending: "Sending...",
+    saveFailed: "Could not offer the photo.",
   },
   photoReport: {
     title: "Photo report",
@@ -237,6 +311,16 @@ const en = {
       "Suggested recipient based on the report and location. Not assigned yet.",
     checkingSignIn: "Checking sign-in...",
     signInToFindRecipient: "Sign in to find a recipient",
+    offerPhoto: "Offer a photo",
+    offerPhotoHint: "This case has no photo yet. If you are there, add one.",
+    pendingPhoto: "Waiting for approval",
+    pendingPhotoAlt: (title: string) => `Photo offered for: ${title}`,
+    pendingPhotoHint:
+      "A resident offered this photo. It keeps its question mark until the person who filed the case takes it.",
+    usePhoto: "Use this photo",
+    turnDownPhoto: "Turn it down",
+    deciding: "Saving...",
+    decideFailed: "Could not save the decision.",
   },
   catalog: {
     title: "Social Innovation Library",
@@ -326,6 +410,8 @@ const en = {
     heading: "Show on the map",
     kind: "Kind",
     status: "Status",
+    author: "Author",
+    onlyMine: "Only my reports",
     kinds: {
       issue: "Fault reports",
       improvement: "Improvement ideas",
@@ -396,6 +482,9 @@ const pl: Messages = {
     reports: "Zgłoszenia",
     initiatives: "Inicjatywy",
     about: "O nas",
+    notifications: "Powiadomienia",
+    unreadNotifications: (count: number) =>
+      `${plNotifications(count)} nieodczytanych`,
     signIn: "Zaloguj się",
     signedInAs: "Zalogowano jako ",
     myProfile: "Mój profil",
@@ -410,8 +499,10 @@ const pl: Messages = {
     empty: "Brak spraw spełniających kryteria.",
     search: "Szukaj",
     searchPlaceholder: "Szukaj po tytule lub opisie...",
-    statusFilter: "Status",
+    filter: "Zawęź listę",
     allStatuses: "Wszystkie",
+    onlyMine: "Moje",
+    onlyMineHint: "Zostawia tylko sprawy z Twoim zgłoszeniem",
     shown: (shown: number, total: number) => `${shown} z ${plCases(total)}`,
     kinds: { issue: "Zgłoszenie usterki", improvement: "Pomysł na ulepszenie" },
     statuses: {
@@ -422,7 +513,7 @@ const pl: Messages = {
     },
     setStatus: "Ustaw status",
     reportCount: (total: number) => plReports(total),
-    remove: "Usuń sprawę",
+    remove: "Usuń",
     removeHint:
       "Zdejmuje pinezkę z mapy razem ze zgłoszeniami, zdjęciami i komentarzami.",
     confirmRemove: "Usuń bezpowrotnie",
@@ -445,10 +536,58 @@ const pl: Messages = {
     somethingWrong: "Coś poszło nie tak.",
     officialResponse: "Oficjalna odpowiedź",
     photoOf: (title: string) => `Zdjęcie sprawy „${title}”`,
-    noPhoto: "Brak zdjęcia",
+    noPhoto: "zaproponuj zdjęcie",
     proposePhoto: "Zaproponuj zdjęcie",
-    proposePhotoMock:
-      "Makieta: proponowanie zdjęcia do tej sprawy jeszcze nie działa.",
+    pendingPhoto: "Czeka na zatwierdzenie",
+    pendingPhotoAlt: (title: string) =>
+      `Zdjęcie zaproponowane do sprawy „${title}”`,
+    pendingPhotoHint:
+      "Ktoś zaproponował to zdjęcie. Znak zapytania zostaje, dopóki autor zgłoszenia go nie przyjmie.",
+    usePhoto: "Użyj tego zdjęcia",
+    turnDownPhoto: "Odrzuć",
+    deciding: "Zapisywanie...",
+    signInToProposePhoto: "Zaloguj się, aby zaproponować zdjęcie",
+  },
+  notifications: {
+    title: "Powiadomienia",
+    lede: "Co zdarzyło się w zgłoszeniach, które wysłałeś: jak daleko zaszły, co pod nimi napisano i jakie zdjęcia proponują sąsiedzi.",
+    backToMap: "Wróć do mapy",
+    loading: "Ładowanie powiadomień...",
+    empty: "Pusto :((",
+    emptyUnread: "Pusto :((",
+    loadFailed: "Nie udało się wczytać powiadomień.",
+    somethingWrong: "Coś poszło nie tak.",
+    signedOutTitle: "Zaloguj się, aby zobaczyć powiadomienia",
+    signedOutText:
+      "Powiadomienia dotyczą zgłoszeń wysłanych z Twojego konta, więc idą razem z nim.",
+    signIn: "Zaloguj się",
+    filter: "Pokaż",
+    all: "Wszystkie",
+    unreadOnly: "Nieodczytane",
+    shown: (shown: number, total: number) =>
+      `${shown} z ${plNotifications(total)}`,
+    unread: "Nowe",
+    markAllRead: "Oznacz wszystkie jako odczytane",
+    markRead: "Oznacz jako odczytane",
+    dismiss: "Usuń",
+    openCase: "Otwórz zgłoszenie",
+    caseGone: "Tego zgłoszenia nie ma już na mapie.",
+    justNow: "właśnie teraz",
+    kinds: {
+      status_inprogress: "Prace się rozpoczęły",
+      status_finished: "Zgłoszenie zakończone",
+      comment: "Nowy komentarz",
+      update: "Aktualizacja zgłoszenia",
+      photo_proposal: "Czeka na Ciebie zdjęcie",
+      photo_approved: "Twoje zdjęcie zostało przyjęte",
+      photo_rejected: "Twoje zdjęcie zostało odrzucone",
+    },
+    offeredPhotoAlt: (subject: string) =>
+      `Zdjęcie zaproponowane do: ${subject}`,
+    usePhoto: "Użyj tego zdjęcia",
+    turnDownPhoto: "Odrzuć",
+    deciding: "Zapisywanie...",
+    alreadyDecided: "Decyzja o tym zdjęciu już zapadła.",
   },
   status: {
     created: "Utworzone",
@@ -499,6 +638,7 @@ const pl: Messages = {
       `Pinezka ${kind === "improvement" ? "ulepszenia" : "usterki"} ${number}${
         status ? `, ${status.toLowerCase()}` : ""
       }${reportCount > 1 ? `, ${plReports(reportCount)}` : ""}: ${description}`,
+    pinPendingPhoto: "Jego zdjęcie czeka na zatwierdzenie.",
   },
   pin: {
     issueTab: "Usterka / zgłoszenie",
@@ -508,7 +648,7 @@ const pl: Messages = {
     descriptionPlaceholder: "Co się tu dzieje?",
     image: "Zdjęcie",
     chosenImage: "Wybrane zdjęcie",
-    noImage: "Brak zdjęcia",
+    noImage: "zaproponuj zdjęcie",
     changeImage: "Zmień zdjęcie",
     chooseImage: "Wybierz zdjęcie",
     close: "Zamknij",
@@ -527,6 +667,18 @@ const pl: Messages = {
     checking: "Sprawdzam bazę...",
     sendInitiative: "Wyślij inicjatywę",
   },
+  photoProposal: {
+    title: "Zaproponuj zdjęcie",
+    hint: "O tym, czy zdjęcie zostanie, decyduje osoba, która wysłała zgłoszenie. Do tego czasu widać je ze znakiem zapytania.",
+    photoAlt: "Proponowane zdjęcie",
+    choose: "Wybierz zdjęcie",
+    change: "Zmień zdjęcie",
+    none: "Nie wybrano zdjęcia",
+    cancel: "Anuluj",
+    send: "Wyślij propozycję",
+    sending: "Wysyłanie...",
+    saveFailed: "Nie udało się wysłać propozycji zdjęcia.",
+  },
   photoReport: {
     title: "Zgłoszenie ze zdjęciem",
     hint: "Zapiszemy je w miejscu, w którym jesteś.",
@@ -544,7 +696,7 @@ const pl: Messages = {
     photoOf: (title: string) => `Zdjęcie: ${title}`,
     reportPhoto: "Zdjęcie ze zgłoszenia",
     loading: "Wczytywanie...",
-    noPhoto: "Brak zdjęcia",
+    noPhoto: "Zaproponuj zdjęcie",
     photos: "Zdjęcia",
     photoIndex: (number: number, total: number) =>
       `Zdjęcie ${number} z ${total}`,
@@ -595,6 +747,17 @@ const pl: Messages = {
       "Adresat sugerowany na podstawie zgłoszenia i lokalizacji. Jeszcze nieprzypisany.",
     checkingSignIn: "Sprawdzanie logowania...",
     signInToFindRecipient: "Zaloguj się, aby znaleźć adresata",
+    offerPhoto: "Zaproponuj zdjęcie",
+    offerPhotoHint:
+      "To zgłoszenie nie ma jeszcze zdjęcia. Jeśli jesteś na miejscu, dodaj je.",
+    pendingPhoto: "Czeka na zatwierdzenie",
+    pendingPhotoAlt: (title: string) => `Zdjęcie zaproponowane do: ${title}`,
+    pendingPhotoHint:
+      "Ktoś zaproponował to zdjęcie. Znak zapytania zostaje, dopóki autor zgłoszenia go nie przyjmie.",
+    usePhoto: "Użyj tego zdjęcia",
+    turnDownPhoto: "Odrzuć",
+    deciding: "Zapisywanie...",
+    decideFailed: "Nie udało się zapisać decyzji.",
   },
   catalog: {
     title: "Biblioteka Innowacji Społecznych",
@@ -685,6 +848,8 @@ const pl: Messages = {
     heading: "Pokaż na mapie",
     kind: "Rodzaj",
     status: "Status",
+    author: "Autor",
+    onlyMine: "Moje zgłoszenia",
     kinds: {
       issue: "Usterki",
       improvement: "Pomysły na ulepszenia",
@@ -737,6 +902,16 @@ const pl: Messages = {
     reportCount: (total: number) => `${plReports(total)}.`,
   },
 };
+
+/** Polish counts: 1 powiadomienie, 2-4 powiadomienia, 5+ powiadomień (with the teens). */
+function plNotifications(n: number) {
+  const last = n % 10;
+  const tens = n % 100;
+  if (n === 1) return "1 powiadomienie";
+  if (last >= 2 && last <= 4 && (tens < 12 || tens > 14))
+    return `${n} powiadomienia`;
+  return `${n} powiadomień`;
+}
 
 /** Polish counts: 1 zgłoszenie, 2-4 zgłoszenia, 5+ zgłoszeń (with the teens). */
 function plReports(n: number) {
