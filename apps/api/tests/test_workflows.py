@@ -1,5 +1,6 @@
 import base64
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from uuid import uuid4
 
 import psycopg
@@ -48,6 +49,22 @@ def image_response(data=PNG):
     }
 
 
+class Pool:
+    """hands out the test connection and counts how many are checked out."""
+
+    def __init__(self, connection):
+        self.connection_under_test = connection
+        self.held = 0
+
+    @contextmanager
+    def connection(self, timeout=None):
+        self.held += 1
+        try:
+            yield self.connection_under_test
+        finally:
+            self.held -= 1
+
+
 def process(connection, monkeypatch, kind="visualization", response=None, requests=None):
     job = worker.claim(connection, kind, settings())
     assert job is not None
@@ -58,7 +75,7 @@ def process(connection, monkeypatch, kind="visualization", response=None, reques
         return response or image_response()
 
     monkeypatch.setattr(worker, "post_json", post_json)
-    worker.execute(connection, kind, job, settings())
+    worker.execute(Pool(connection), kind, job, settings())
     return job
 
 
@@ -232,7 +249,7 @@ def test_mail_waits_for_generation_then_reports_success(client, signed_in, conne
         return {"status": "sent"}
 
     monkeypatch.setattr(worker, "post_json", send)
-    worker.execute(connection, "mail", mail, settings())
+    worker.execute(Pool(connection), "mail", mail, settings())
     assert calls[0]["to"] == "demo@example.com"
     assert len(calls[0]["photos"]) == (2 if successful else 1)
     assert client.get(f"/master-reports/{master}").json()["status_id"] == reference_id(
@@ -299,6 +316,26 @@ def test_smtp_limit_defers_mail_without_spending_another_attempt(client, signed_
     assert worker.claim(connection, "mail", settings()) is not None
 
 
+def test_provider_call_holds_no_database_connection(client, signed_in, connection, monkeypatch):
+    _, headers = signed_in()
+    report = create_report(client, headers, random_location())
+    job = worker.claim(connection, "mail", settings())
+    pool = Pool(connection)
+    held_during_call = []
+
+    def send(*args):
+        held_during_call.append(pool.held)
+        return {"status": "sent"}
+
+    monkeypatch.setattr(worker, "post_json", send)
+    worker.execute(pool, "mail", job, settings())
+
+    assert held_during_call == [0]
+    assert (
+        client.get(f"/master-reports/{report['master_report_id']}/delivery", headers=headers).json()["status"] == "sent"
+    )
+
+
 def test_rejected_smtp_does_not_change_status(client, signed_in, connection, monkeypatch):
     _, headers = signed_in()
     report = create_report(client, headers, random_location())
@@ -308,7 +345,7 @@ def test_rejected_smtp_does_not_change_status(client, signed_in, connection, mon
         raise worker.ProviderError(503)
 
     monkeypatch.setattr(worker, "post_json", reject)
-    worker.execute(connection, "mail", job, settings())
+    worker.execute(Pool(connection), "mail", job, settings())
     assert (
         client.get(f"/master-reports/{report['master_report_id']}/delivery", headers=headers).json()["status"]
         == "failed"
@@ -327,7 +364,7 @@ def test_uncertain_mail_is_not_retried_and_does_not_change_status(client, signed
         raise worker.ProviderError()
 
     monkeypatch.setattr(worker, "post_json", timeout)
-    worker.execute(connection, "mail", job, settings())
+    worker.execute(Pool(connection), "mail", job, settings())
     assert worker.claim(connection, "mail", settings()) is None
     assert (
         client.get(f"/master-reports/{report['master_report_id']}/delivery", headers=headers).json()["status"]

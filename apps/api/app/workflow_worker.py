@@ -9,6 +9,7 @@ from urllib.request import Request, urlopen
 from uuid import uuid4
 
 import psycopg
+from psycopg_pool import PoolTimeout
 
 from app import storage
 from app.workflow_settings import Settings, settings, smtp_destination
@@ -193,10 +194,10 @@ def finish_mail(connection: psycopg.Connection, job: dict) -> None:
             )
 
 
-def execute(connection: psycopg.Connection, kind: str, job: dict, config: Settings) -> None:
+def call_provider(kind: str, job: dict, config: Settings) -> dict | Exception:
     try:
         if kind == "visualization":
-            response = post_json(
+            return post_json(
                 config.gemini_url + "/generate",
                 {
                     "report_type": job["report_type"],
@@ -205,14 +206,24 @@ def execute(connection: psycopg.Connection, kind: str, job: dict, config: Settin
                 },
                 300,
             )
-            finish_visualization(connection, job, response)
+        payload = job["payload"] | {"to": job["destination"]}
+        if job["generated_key"]:
+            payload["photos"] = [*payload["photos"], {"storage_key": job["generated_key"]}]
+        response = post_json(config.notify_url + "/send", payload, 60)
+        if response.get("status") != "sent":
+            raise ProviderError()
+        return response
+    except Exception as error:
+        return error
+
+
+def finish(connection: psycopg.Connection, kind: str, job: dict, result: dict | Exception) -> None:
+    try:
+        if isinstance(result, Exception):
+            raise result
+        if kind == "visualization":
+            finish_visualization(connection, job, result)
         else:
-            payload = job["payload"] | {"to": job["destination"]}
-            if job["generated_key"]:
-                payload["photos"] = [*payload["photos"], {"storage_key": job["generated_key"]}]
-            response = post_json(config.notify_url + "/send", payload, 60)
-            if response.get("status") != "sent":
-                raise ProviderError()
             finish_mail(connection, job)
     except ProviderError as error:
         outcome = "unknown" if kind == "mail" and error.status_code in (None, 502, 504) else "failed"
@@ -252,6 +263,14 @@ def with_connection(pool, function, *args):
         return function(connection, *args)
 
 
+def execute(pool, kind: str, job: dict, config: Settings) -> None:
+    # the provider can take minutes, so its call must not hold a connection that requests are waiting for.
+    result = call_provider(kind, job, config)
+    # the result cannot be fetched again, so storing it waits for a connection as long as the lease lasts.
+    with pool.connection(timeout=LEASE_SECONDS) as connection:
+        finish(connection, kind, job, result)
+
+
 def renew(connection: psycopg.Connection, kind: str, job: dict) -> None:
     connection.execute(
         f"UPDATE {TABLES[kind]} SET lease_expires_at = statement_timestamp() + %s * interval '1 second' "
@@ -263,7 +282,11 @@ def renew(connection: psycopg.Connection, kind: str, job: dict) -> None:
 async def heartbeat(pool, kind: str, job: dict) -> None:
     while True:
         await asyncio.sleep(10)
-        await asyncio.to_thread(with_connection, pool, renew, kind, job)
+        try:
+            await asyncio.to_thread(with_connection, pool, renew, kind, job)
+        except PoolTimeout:
+            # a busy pool must not end the heartbeat, the next beat can still renew the lease in time.
+            logger.warning("Workflow heartbeat skipped: %s", kind)
 
 
 async def run(pool, kind: str) -> None:
@@ -276,7 +299,7 @@ async def run(pool, kind: str) -> None:
             job = await asyncio.to_thread(with_connection, pool, claim, kind, config)
             if job:
                 beat = asyncio.create_task(heartbeat(pool, kind, job))
-                await asyncio.to_thread(with_connection, pool, execute, kind, job, config)
+                await asyncio.to_thread(execute, pool, kind, job, config)
         except asyncio.CancelledError:
             raise
         except Exception:

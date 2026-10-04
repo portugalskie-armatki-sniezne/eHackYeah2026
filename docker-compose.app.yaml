@@ -25,6 +25,8 @@ services:
       LAYA_MODEL_PATH: /app/models/laya-vision
       TRANSLATION_MODEL_PATH: /app/models/opus-mt-pl-en
       LAYA_DEVICE: cpu
+      # uvicorn worker processes, each loads its own models, connection pool, and job loop
+      WEB_CONCURRENCY: ${API_WORKERS:-2}
     healthcheck:
       test:
         - CMD
