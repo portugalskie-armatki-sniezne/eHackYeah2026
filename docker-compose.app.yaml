@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_dev_password}
       JWT_SECRET: ${JWT_SECRET:-}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GEMINI_URL: http://gemini:8000
+      GEMINI_URL: http://gemini:${GEMINI_PORT:-8000}
       NOTIFY_URL: http://notify:${NOTIFY_PORT:-8000}
       GEMINI_USER_LIMIT: ${GEMINI_USER_LIMIT:-10}
       SMTP_USER_LIMIT: ${SMTP_USER_LIMIT:-50}
@@ -64,12 +64,13 @@ services:
     restart: unless-stopped
     user: "${GEMINI_UID:-65534}:${GEMINI_GID:-65534}"
     environment:
+      UVICORN_PORT: "${GEMINI_PORT:-8000}"
       GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT:-}
       GOOGLE_CLOUD_LOCATION: ${GOOGLE_CLOUD_LOCATION:-global}
       GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gemini-service-account.json
       UPLOAD_DIR: /app/uploads
     expose:
-      - "8000"
+      - "${GEMINI_PORT:-8000}"
     volumes:
       - api_uploads:/app/uploads:ro
       - type: bind
