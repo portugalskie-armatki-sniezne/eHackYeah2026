@@ -40,9 +40,28 @@ eHackYeah2026/
 └── TESTING.md
 ```
 
-## Dostęp do projektu
+## Dostęp i środowiska
 
-Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hackyeah.jakubowskii.pl/#main), przynajmniej podczas hackathonu HackYeah 2026.
+Platforma jest wdrożona i publicznie dostępna:
+
+- **Środowisko produkcyjne (`prod`)**: Dostępne pod adresem [hackyeah.jakubowskii.pl/#main](https://hackyeah.jakubowskii.pl/#main) z integracją Google OAuth, produkcyjną bazą danych, zgeokodowanymi instytucjami i bazą innowacji ROPS.
+- **Środowisko deweloperskie (`dev`)**: Aktualizowane automatycznie przy każdym pushu do `main` przez GitHub Actions na potrzeby testów i weryfikacji.
+
+Oba środowiska uruchamiają trzy skonteneryzowane usługi zarządzane przez Docker Compose:
+- **`web`**: Aplikacja frontendowa SPA (React, Vite, TypeScript, MapLibre GL JS).
+- **`api`**: Backend REST API (FastAPI, PostgreSQL, PostGIS, pgvector).
+- **`notify`**: Wewnętrzny mikroserwis powiadomień mailowych wysyłający zgłoszenia do instytucji z szablonów Markdown przez Gmail SMTP.
+
+## Główne możliwości
+
+- **Interaktywna mapa i geolokalizacja**: Przeglądanie zgłoszeń i inicjatyw obywatelskich na mapie z klastrowaniem. Lokalizacja pozycji użytkownika przez GPS, precyzyjne dodawanie punktów i podgląd szczegółów zgłoszeń.
+- **Zgłaszanie spraw i grupowanie w mastery**: Zgłaszanie problemów i inicjatyw ze zdjęciami, opisem i współrzędnymi. Automatyczne łączenie podobnych zgłoszeń w okolicy we wspólne zgłoszenia główne (master reports), eliminujące duplikaty w urzędach.
+- **Ustalanie obszaru administracyjnego**: Automatyczne przypisywanie gminy i powiatu w Małopolsce na podstawie współrzędnych z wykorzystaniem usługi GUGiK ULDK.
+- **Rekomendacja i wybór właściwej instytucji**: Dobór właściwego urzędu lub jednostki komunalnej z użyciem modeli klasyfikacji AI (Laya Vision) oraz najbliższej zgeokodowanej siedziby.
+- **Katalog innowacji społecznych ROPS**: Baza sprawdzonych innowacji społecznych Regionalnego Ośrodka Polityki Społecznej. Hybrydowe wyszukiwanie łączące wektorowe podobieństwo cosinusowe ze stemmingiem dla języka polskiego i dynamiczną punktacją trafności.
+- **Powiadomienia urzędów przez email**: Wewnętrzny serwis przekształcający zgłoszenia w ustrukturyzowane powiadomienia wysyłane bezpośrednio do odpowiednich instytucji wraz ze zdjęciami i linkami do Google Maps.
+- **Autoryzacja i profil użytkownika**: Rejestracja i logowanie hasłem oraz przez Google SSO, zarządzanie profilem oraz śledzenie zgłoszeń i komentarzy.
+- **Wielojęzyczność**: Pełne wsparcie dla języka polskiego i angielskiego z przełączaniem w czasie rzeczywistym.
 
 ## Wdrożenie
 

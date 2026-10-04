@@ -44,6 +44,7 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 | słowniki | `/report-categories`, `/master-report-statuses` | list (tylko odczyt) |
 | local_government_offices | `/institution-contacts` | list, get (tylko odczyt) |
 | service_entities | `/service-entities` | list, get (tylko odczyt) |
+| projects | `/projects` | list, categories, get po slug, wyszukiwanie wektorowe i pełnotekstowe (`/projects/search`) |
 | inference | `/inference`, `/inference/service-entity`, `/inference/service-entity/recommendation` | tłumaczenie, klasyfikacja, wybór typu i rekomendacja instytucji według lokalizacji siedziby; [kontrakt](inference.md#rekomendacja-instytucji-dla-nowego-zgłoszenia) |
 
 ### Dostęp
@@ -380,6 +381,40 @@ a wyniki są sortowane po `id`.
 
 Przykład: `/service-entities?entity_type=road_manager&locality=Krak%C3%B3w&limit=20`.
 TERYT wskazuje powiązaną gminę, a nie zasięg usług lub jurysdykcję. Typ jednostki nie określa kompletu jej kompetencji.
+
+## projects
+
+Katalog innowacji społecznych Regionalnego Ośrodka Polityki Społecznej (ROPS) oraz wyszukiwarka inicjatyw, tylko do odczytu i publiczne.
+Zawiera gotowe rozwiązania problemów społecznych i miejskich, które mogą służyć jako inspiracja lub gotowe innowacje dla zgłaszanych inicjatyw obywatelskich.
+
+| Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
+| --- | --- | --- | --- | --- | --- |
+| GET | `/projects` | lista projektów z paginacją i filtrami | publiczny | 200 | 422 |
+| GET | `/projects/categories` | unikalne kategorie z liczbą projektów | publiczny | 200 | - |
+| GET | `/projects/{slug}` | szczegóły pojedynczego projektu | publiczny | 200 | 404 |
+| POST | `/projects/search` | hybrydowe wyszukiwanie projektów | publiczny | 200 | 422 |
+
+Parametry `GET /projects`:
+- `category` (tekst, opcjonalny): filtrowanie po nazwie kategorii lub `category_slug`.
+- `q` (tekst, opcjonalny): fraza wyszukiwana w tytule lub podsumowaniu (`ILIKE`).
+- `limit` (liczba całkowita, domyślnie 50, od 1 do 200) i `offset` (liczba całkowita, domyślnie 0).
+
+`GET /projects/categories` zwraca listę obiektów `[{"category": "Dostępność", "category_slug": "dostepnosc", "count": 12}, ...]`, posortowaną malejąco według liczby projektów.
+
+`POST /projects/search` przyjmuje body JSON:
+
+```json
+{
+  "query": "jak ułatwić seniorom poruszanie się po mieście",
+  "query_vector": null,
+  "category": null,
+  "limit": 5
+}
+```
+
+Tryby wyszukiwania:
+1. **Wyszukiwanie wektorowe**: Jeśli pole `query_vector` zawiera 1024-wymiarowy wektor embeddingu, endpoint wykonuje wyszukiwanie po odległości cosinusowej (`<=>`) na kolumnie `summary_vector`, z opcjonalnym filtrem kategorii. Zwraca wynik podobieństwa `score` od 0 do 1.
+2. **Wyszukiwanie słów kluczowych ze stemmingiem**: Gdy `query_vector` nie jest podany, zapytanie tekstowe oczyszczane jest z polskich słów pospolitych (stop words) oraz znaków diakrytycznych. Z kluczowych słów wyznaczane są 5-znakowe rdzenie gramatyczne, a zapytanie przeszukuje bazę `projects` i fragmenty `project_chunks`. Dynamiczny system wag punktuje dopasowania w tytule (+0.40), kategorii (+0.30) oraz streszczeniu (+0.15) z bonusem za jednoczesne trafienie wielu słów kluczowych (do maksymalnego wyniku 0.96).
 
 ## inference
 
