@@ -13,6 +13,20 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       # report photos, the image creates this directory for its unprivileged user
       UPLOAD_DIR: /app/uploads
+      INFERENCE_REQUIRED: "true"
+      LAYA_MODEL_PATH: /app/models/laya-vision
+      TRANSLATION_MODEL_PATH: /app/models/opus-mt-pl-en
+      LAYA_DEVICE: cpu
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=4).close()"
+      interval: 10s
+      timeout: 5s
+      start_period: 300s
+      retries: 30
     ports:
       - "${API_PORT:-8000}:8000"
     volumes:

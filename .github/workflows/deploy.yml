@@ -223,5 +223,5 @@ jobs:
       - name: Restart services
         working-directory: ${{ vars.DEPLOY_DIR }}
         run: |
-          docker compose up -d $SERVICES
+          docker compose up -d --wait --wait-timeout 600 $SERVICES
           docker image prune -f
