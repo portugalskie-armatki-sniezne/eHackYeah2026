@@ -48,6 +48,10 @@ The platform is deployed and publicly accessible:
 - **Production environment (`prod`)**: Available at [hackyeah.jakubowskii.pl/#main](https://hackyeah.jakubowskii.pl/#main) with Google OAuth integration, production database, geocoded institutions, and the ROPS social innovations database.
 - **Development environment (`dev`)**: Continuously updated on pushes to `main` via GitHub Actions for verifying changes and integrating new features.
 
+To test the application, you can sign in with the demo account:
+- **Email**: `user@mock.ehackyeah.pl`
+- **Password**: `mock_demo_password`
+
 Both environments run three containerized services configured via Docker Compose:
 - **`web`**: Single-page application built with React, Vite, TypeScript, and MapLibre GL JS.
 - **`api`**: REST API backend built with FastAPI, PostgreSQL, PostGIS, and pgvector.
@@ -93,7 +97,7 @@ Both environments run three containerized services configured via Docker Compose
 
 > Database startup imports the local government office workbook, the reviewed service entity and seat snapshots, and the ROPS social innovation library shown on the initiatives page. `task db` returns after seed import finishes.
 
-> For demos, `docker compose run --rm mock-seeder` replaces mock users, reports, photos, and discussions in Kraków. See [mock demo data](TESTING.md#mock-demo-data) for details and demo accounts.
+> For demos, `docker compose run --rm mock-seeder` replaces mock users, reports, photos, and discussions in Kraków. You can sign in using `user@mock.ehackyeah.pl` with password `mock_demo_password`. See [mock demo data](TESTING.md#mock-demo-data) for details and demo accounts.
 
 #### API Application
 
