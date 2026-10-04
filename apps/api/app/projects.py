@@ -190,7 +190,6 @@ def extract_context_snippet(
     return snippet
 
 
-
 class ProjectSummary(BaseModel):
     id: int
     slug: str
