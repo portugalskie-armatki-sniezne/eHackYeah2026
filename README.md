@@ -118,6 +118,8 @@ In development Vite proxies `/api` to `http://127.0.0.1:8000`; `API_PROXY_TARGET
 6. Run `[2] Release` manually to deploy all four services to `prod`, then publish a Git tag and GitHub release. Versions use the UTC date and a daily counter, for example `v2026.10.03-1`.
 7. The Compose template stores report photos in `/app/uploads` on the `api_uploads` volume, so they survive deployments. `notify` and `gemini` mount the same volume read-only.
 
+The API image includes CPU inference dependencies and pinned Laya and PL-to-EN translation models. GitHub Actions downloads the models in a cached image layer and checks a real Polish classification during the build. Compose enables them on both dev and prod without additional server configuration. API startup repeats the check and reports readiness at `/ready` only after it succeeds. Deployment waits up to 10 minutes for readiness; a model failure fails the deployment. See [inference deployment](apps/api/docs/inference.md#wdrożenie-na-vps).
+
 > `[3] Lint` runs ESLint, Prettier, and Ruff on every pull request and push to `main`, using GitHub-hosted runners.
 
 ## Shared Agent Skills
