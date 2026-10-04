@@ -133,6 +133,8 @@ SUFFIXES = sorted(
     (
         "osciami osciach osciom osci osc "
         "owanie owania owaniu owaniem anie ania aniu aniem enie enia eniu eniem "
+        "atywnymi atywnych atywnego atywnemu atywnej atywnym atywna atywne atywny atywni "
+        "ywnymi ywnych ywnego ywnemu ywnej ywnym ywna ywne ywny ywni "
         "owych owego owemu owymi owej owym owa owe owy "
         "lbysmy lysmy lbym labym lismy "
         "ami ach ego emu ych ich ymi imi iej ow om ej ym im em ie ia iu ii "

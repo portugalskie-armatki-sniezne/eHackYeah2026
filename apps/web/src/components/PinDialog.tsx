@@ -126,7 +126,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
     try {
       const results = await projectsApi.search(trimmed, { limit: 1 });
       const topMatch = results[0];
-      if (topMatch && topMatch.score > SIMILARITY_THRESHOLD) {
+      if (topMatch && topMatch.score >= SIMILARITY_THRESHOLD) {
         setDetectedMatch(topMatch);
       } else {
         await executeAdd(trimmed, "improvement", null, null);
