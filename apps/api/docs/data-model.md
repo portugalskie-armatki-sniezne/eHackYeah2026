@@ -265,7 +265,8 @@ jedną tabelę; nie ma osobnych tabel kontaktów, kompetencji ani jurysdykcji.
 Migracja 07 dodaje zapisaną lokalizację siedziby. Cztery pola `seat_*` muszą
 być wypełnione razem albo pozostać NULL. [Polecenie geokodowania](inference.md#rekomendacja-instytucji-dla-nowego-zgłoszenia)
 uzupełnia je niezależnie od tworzenia zgłoszeń. Rekomendacja używa tylko
-lokalizacji zapisanych dla aktualnego adresu.
+lokalizacji zapisanych dla aktualnego adresu i aktywnych jednostek.
+Migracja 08 dodaje `is_active`. Nieaktywne wpisy pozostają w publicznym katalogu.
 
 | Kolumna | Typ | Uwagi |
 | --- | --- | --- |
@@ -276,7 +277,7 @@ lokalizacji zapisanych dla aktualnego adresu.
 | entity_type | text | NOT NULL, typ z listy poniżej |
 | teryt_code | text | NULL lub dokładnie 7 cyfr; powiązana gmina, bez FK i bez definicji zasięgu usług |
 | locality, postal_code, street, house_number | text | NULL, adres siedziby lub oddziału |
-| seat_location | geography(Point,4326) | NULL lub zapisane współrzędne siedziby z GUGiK |
+| seat_location | geography(Point,4326) | NULL lub zapisane współrzędne siedziby z przeglądanego zbioru lub geokodowania |
 | seat_teryt | text | NULL lub 7-cyfrowy kod gminy siedziby ustalony przez ULDK |
 | seat_geocoded_at | timestamptz | NULL lub data geokodowania siedziby |
 | seat_address | jsonb | NULL lub tablica miejscowości, ulicy i numeru użytych przy geokodowaniu |
@@ -286,6 +287,7 @@ lokalizacji zapisanych dla aktualnego adresu.
 | reporting_channel_description | text | NULL, przeznaczenie kanału, ewentualne godziny i ograniczenia |
 | source_urls | text[] | NOT NULL, niepusta lista oficjalnych źródeł, bez elementów NULL |
 | verified_on | date | NOT NULL, data odczytu źródła; dla uzupełnień najstarsza data odczytu użytych danych |
+| is_active | boolean | NOT NULL, domyślnie TRUE; FALSE wyklucza jednostkę z rekomendacji |
 
 Brakujące dane adresowe i kontaktowe, TERYT, kanał zgłoszeniowy lub jego opis pozostają NULL.
 Sam kontakt do sekretariatu nie jest automatycznie uznawany za dedykowany kanał interwencyjny. Krótkie numery, np. 986,
@@ -345,7 +347,10 @@ Usuwanie jest fizyczne. Tabele nie mają `deleted_at`.
   ręcznie zweryfikowane uzupełnienia, w tym dedykowane kanały zgłoszeniowe.
   Dokładne adresy źródeł są zapisane przy każdym rekordzie.
 
-Zbiór `db/seeds/service_entities.json` zawiera 169 jednostek, zebranych 03.10.2026.
+Zbiór `db/seeds/service_entities.json` zawiera 169 jednostek, zebranych 03.10.2026 i przejrzanych 04.10.2026.
+Każda ma pełny adres, a 165 ma opublikowany email. Zamrożony zbiór
+`db/seeds/service_entity_seats.json` zawiera punkty wszystkich 169 adresów
+i kody gmin ustalone przez ULDK. Źródła i wyjątki są opisane w TESTING.md.
 Obejmuje ZDMK, ZTP, MPK, Mobilis, MPO, ZZM, ZIW, Wodociągi Miasta Krakowa, MPEC
 oraz Straż Miejską, a także inne jednostki z Krakowa i Małopolski. Nie jest pełnym
 wykazem regionalnym. Brakujące lub niejednoznaczne dane pozostają NULL.

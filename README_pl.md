@@ -56,6 +56,7 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
    ```
 
    > `task setup` tworzy `.env` z `.env.example`, jeśli plik nie istnieje. Zachowuje istniejący plik.
+   > `task setup`, `task web`, `task db` i `task api` włączają hook pre-commit z `.githooks`, który uruchamia `task fe:lint` albo `task be:lint`, gdy commit zmienia `apps/web` lub `apps/api`.
 
 3. Sprawdź ustawienia bazy danych i uzupełnij wartości w `.env`. Przed uruchomieniem API ustaw losowy `JWT_SECRET`. Polecenie do jego wygenerowania znajdziesz w `.env.example`.
 
@@ -69,7 +70,7 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 
 > Uruchamiaj `task web` i `task api` w osobnych terminalach. API jest dostępne pod adresem <http://127.0.0.1:8000>, a Vite wyświetla adres frontendu. Ctrl+C zatrzymuje aplikację w danym terminalu; PostgreSQL nadal działa pod adresem `127.0.0.1:POSTGRES_PORT`.
 
-> Przy uruchamianiu bazy importowany jest arkusz urzędów JST i zestaw danych jednostek usługowych z oficjalnych źródeł. `task db` kończy działanie po zakończeniu importu.
+> Przy uruchamianiu bazy importowany jest arkusz urzędów JST oraz przejrzane zbiory jednostek usługowych i ich siedzib. `task db` kończy działanie po zakończeniu importu.
 
 > Na potrzeby prezentacji `docker compose run --rm mock-seeder` podmienia przykładowych użytkowników, zgłoszenia, zdjęcia i dyskusje w Krakowie. Szczegóły i konta demo opisuje sekcja [mock demo data](TESTING.md#mock-demo-data).
 

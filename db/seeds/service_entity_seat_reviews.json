@@ -1,0 +1,625 @@
+[
+  {
+    "source_key": "bip:102889",
+    "address": [
+      "Kraków",
+      "Reymonta",
+      "20"
+    ],
+    "lookup_address": [
+      "Kraków",
+      "Władysława Reymonta",
+      "20"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+reymonta+20&accuracy=0.8&exact_number=1",
+      "https://www.bip.krakow.pl/ZIM",
+      "https://www.gov.pl/web/bip/spis"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "bip:111259",
+    "address": [
+      "Kraków",
+      "Głowackiego",
+      "56"
+    ],
+    "lookup_address": [
+      "Kraków",
+      "Bartosza Głowackiego",
+      "56"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+g%C5%82owackiego+56&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/181813",
+      "https://bip.malopolska.pl/api/contexts/zdwwkrakowie",
+      "https://www.gov.pl/web/bip/spis"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "bip:119315",
+    "address": [
+      "Gorlice",
+      "Kościuszki",
+      "92a"
+    ],
+    "lookup_address": [
+      "Gorlice",
+      "Tadeusza Kościuszki",
+      "92a"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Gorlice%2C+ko%C5%9Bciuszki+92a&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/2448962",
+      "https://bip.malopolska.pl/api/contexts/mzukgorlice",
+      "https://www.gov.pl/web/bip/spis"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "bip:120701",
+    "address": [
+      "Kraków",
+      "Reymonta",
+      "20"
+    ],
+    "lookup_address": [
+      "Kraków",
+      "Władysława Reymonta",
+      "20"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+reymonta+20&accuracy=0.8&exact_number=1",
+      "https://www.gov.pl/web/bip/spis",
+      "https://zzm.krakow.pl/pl/kontakt.html"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "bip:125024",
+    "address": [
+      "Chrzanów",
+      "Grzybowskiego",
+      "7A"
+    ],
+    "lookup_address": [
+      "Chrzanów",
+      "Majora Franciszka Grzybowskiego",
+      "7A"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Chrzan%C3%B3w%2C+grzybowskiego+7A&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/261598",
+      "https://bip.malopolska.pl/api/articles/261604",
+      "https://bip.malopolska.pl/api/contexts/pzdwchrzanowie",
+      "https://www.gov.pl/web/bip/spis"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "bip:127785",
+    "address": [
+      "Nowy Targ",
+      "os. Konfederacji Tatrzańskiej",
+      "1A"
+    ],
+    "lookup_address": [
+      "Nowy Targ",
+      "Konfederacji Tatrzańskiej",
+      "1A"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+Targ%2C+osiedle+konfederacji+tatrza%C5%84skiej+1A&accuracy=0.8&exact_number=1",
+      "https://www.gov.pl/web/bip/spis"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "bip:131102",
+    "address": [
+      "Nowy Sącz",
+      "J. Wiśniowieckiego",
+      "136"
+    ],
+    "lookup_address": [
+      "Nowy Sącz",
+      "Jeremiego Wiśniowieckiego",
+      "136"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+S%C4%85cz%2C+j.+wi%C5%9Bniowieckiego+136&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/380955",
+      "https://bip.malopolska.pl/api/contexts/pzdnowysacz",
+      "https://www.gov.pl/web/bip/spis"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:1366",
+    "address": [
+      "Krzeszowice",
+      "plac Franciszka Kulczyckiego",
+      "1"
+    ],
+    "lookup_address": [
+      "Krzeszowice",
+      "Franciszka Kulczyckiego",
+      "1"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krzeszowice%2C+plac+franciszka+kulczyckiego+1&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/477800",
+      "https://bip.malopolska.pl/api/articles/477822",
+      "https://bip.malopolska.pl/api/contexts/zabkomunalnych"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:1369",
+    "address": [
+      "Krzeszowice",
+      "plac Franciszka Kulczyckiego",
+      "1"
+    ],
+    "lookup_address": [
+      "Krzeszowice",
+      "Franciszka Kulczyckiego",
+      "1"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krzeszowice%2C+plac+franciszka+kulczyckiego+1&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/1083745",
+      "https://bip.malopolska.pl/api/articles/477698",
+      "https://bip.malopolska.pl/api/contexts/ukomunalne"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:2468",
+    "address": [
+      "Żabno",
+      "Jana",
+      "3"
+    ],
+    "lookup_address": [
+      "Żabno",
+      "Świętego Jana",
+      "3"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=%C5%BBabno%2C+jana+3&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/36312",
+      "https://bip.malopolska.pl/api/articles/36315",
+      "https://bip.malopolska.pl/api/contexts/mzgkomunalnej1"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:2755",
+    "address": [
+      "Brzesko",
+      "Stefana Wyszyńskiego",
+      "6"
+    ],
+    "lookup_address": [
+      "Brzesko",
+      "Kardynała Stefana Wyszyńskiego",
+      "6"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Brzesko%2C+stefana+wyszy%C5%84skiego+6&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/194910",
+      "https://bip.malopolska.pl/api/articles/194913",
+      "https://bip.malopolska.pl/api/contexts/zdpowiatowych"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:2829",
+    "address": [
+      "Gorlice",
+      "Michalusa",
+      "18"
+    ],
+    "lookup_address": [
+      "Gorlice",
+      "Józefa Michalusa",
+      "18"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Gorlice%2C+michalusa+18&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/245706",
+      "https://bip.malopolska.pl/api/articles/245712",
+      "https://bip.malopolska.pl/api/contexts/pzdwgorlicach"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:2938",
+    "address": [
+      "Myślenice",
+      "Słowackiego",
+      "36"
+    ],
+    "lookup_address": [
+      "Myślenice",
+      "Juliusza Słowackiego",
+      "36"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=My%C5%9Blenice%2C+s%C5%82owackiego+36&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/302429",
+      "https://bip.malopolska.pl/api/contexts/zdpwmyslenicach"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:3262",
+    "address": [
+      "Kęty",
+      "osiedle 700-lecia",
+      "10"
+    ],
+    "lookup_address": [
+      "Kęty",
+      "700-lecia",
+      "10"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=K%C4%99ty%2C+osiedle+700-lecia+10&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/730239",
+      "https://bip.malopolska.pl/api/contexts/mzecszowketach"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:3582",
+    "address": [
+      "Oświęcim",
+      "Bema",
+      "12A"
+    ],
+    "lookup_address": [
+      "Oświęcim",
+      "gen. Józefa Bema",
+      "12A"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=O%C5%9Bwi%C4%99cim%2C+bema+12A&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/2024571",
+      "https://bip.malopolska.pl/api/articles/2024595",
+      "https://bip.malopolska.pl/api/contexts/zukoswiecim"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:3646",
+    "address": [
+      "Nowy Sącz",
+      "Wyspiańskiego",
+      "22"
+    ],
+    "lookup_address": [
+      "Nowy Sącz",
+      "Stanisława Wyspiańskiego",
+      "22"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+S%C4%85cz%2C+wyspia%C5%84skiego+22&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/1143054",
+      "https://bip.malopolska.pl/api/contexts/mzdns"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:3714",
+    "address": [
+      "Muszyna",
+      "Józefa Piłsudskiego",
+      "128"
+    ],
+    "lookup_address": [
+      "Muszyna",
+      "Piłsudskiego",
+      "128"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Muszyna%2C+j%C3%B3zefa+pi%C5%82sudskiego+128&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/1236133",
+      "https://bip.malopolska.pl/api/articles/2401764",
+      "https://bip.malopolska.pl/api/contexts/pgkmuszyna"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:3861",
+    "address": [
+      "Oświęcim",
+      "Bema",
+      "12A"
+    ],
+    "lookup_address": [
+      "Oświęcim",
+      "gen. Józefa Bema",
+      "12A"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=O%C5%9Bwi%C4%99cim%2C+bema+12A&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/1429100",
+      "https://bip.malopolska.pl/api/articles/1758164",
+      "https://bip.malopolska.pl/api/contexts/mzukoswiecim"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:525",
+    "address": [
+      "Olesno",
+      "Władysława Jagiełły",
+      "1"
+    ],
+    "lookup_address": [
+      "Olesno",
+      "Wł. Jagiełły",
+      "1"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Olesno%2C+w%C5%82adys%C5%82awa+jagie%C5%82%C5%82y+1&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/822041",
+      "https://bip.malopolska.pl/api/articles/822053",
+      "https://bip.malopolska.pl/api/contexts/gzgkwolesnie"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:707",
+    "address": [
+      "Libiąż",
+      "Ignacego Jana Paderewskiego",
+      "2"
+    ],
+    "lookup_address": [
+      "Libiąż",
+      "Ignacego Paderewskiego",
+      "2"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Libi%C4%85%C5%BC%2C+ignacego+jana+paderewskiego+2&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/349676",
+      "https://bip.malopolska.pl/api/articles/349687",
+      "https://bip.malopolska.pl/api/contexts/mzadarembiecha"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:768",
+    "address": [
+      "Bochnia",
+      "Majora Bacy",
+      "15"
+    ],
+    "lookup_address": [
+      "Bochnia",
+      "mjr. Bacy",
+      "15"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Bochnia%2C+majora+bacy+15&accuracy=0.8&exact_number=1",
+      "https://bip.malopolska.pl/api/articles/45698",
+      "https://bip.malopolska.pl/api/articles/45703",
+      "https://bip.malopolska.pl/api/contexts/mpwikwbszoo"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "official:mobilis-krakow",
+    "address": [
+      "Kraków",
+      "Makuszyńskiego",
+      "13"
+    ],
+    "lookup_address": [
+      "Kraków",
+      "Kornela Makuszyńskiego",
+      "13"
+    ],
+    "source_urls": [
+      "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+makuszy%C5%84skiego+13&accuracy=0.8&exact_number=1",
+      "https://mobilis.pl/kontakt-krakow/"
+    ],
+    "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:4556",
+    "address": [
+      "Wierzchosławice",
+      null,
+      "39/3"
+    ],
+    "lookup_address": [
+      "Wierzchosławice",
+      null,
+      "39"
+    ],
+    "source_urls": [
+      "https://bip.malopolska.pl/api/articles/2055094",
+      "https://bip.malopolska.pl/api/contexts/wodociagiwierzchoslawice"
+    ],
+    "note": "The published house number includes an office unit; geocode the verified building number.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:4927",
+    "address": [
+      "Skawina",
+      "Ogrody",
+      "101/1A"
+    ],
+    "lookup_address": [
+      "Skawina",
+      "Ogrody",
+      "101"
+    ],
+    "source_urls": [
+      "https://bip.malopolska.pl/api/articles/2612458",
+      "https://bip.malopolska.pl/api/contexts/smskawina"
+    ],
+    "note": "The published house number includes an office unit; geocode the verified building number.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:3264",
+    "address": [
+      "Kęty",
+      "św. Maksymiliana Kolbe",
+      "25a"
+    ],
+    "location": {
+      "longitude": 19.1952777,
+      "latitude": 49.8813402
+    },
+    "source_urls": [
+      "https://www.mzwik-kety.com.pl/kontakt/",
+      "https://goo.gl/maps/YffWo4BKW7VLTF6W6"
+    ],
+    "note": "Institutional contact page links directly to this office map pin; PRG lacks number 25a.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "bip:105713",
+    "address": [
+      "Szczawnica",
+      "ul. Zawodzie",
+      "19c"
+    ],
+    "location": {
+      "longitude": 20.4821247,
+      "latitude": 49.4237478
+    },
+    "source_urls": [
+      "https://mzgk.szczawnica.pl/pl/4296/0/kontakt.html",
+      "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d10380.860248728726!2d20.482125!3d49.423748!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x473e05d674b25f69%3A0xcebe618ad22f0334!2sMiejski%20Zak%C5%82ad%20Gospodarki%20Komunalnej!5e0!3m2!1spl!2spl"
+    ],
+    "note": "Exact address pin in the map embedded on the institutional contact page. PRG has no unique address point. The pin coordinates, not the map viewport center, are used.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:1927",
+    "address": [
+      "Osiek",
+      "Ceglana",
+      "2"
+    ],
+    "location": {
+      "longitude": 19.2320111,
+      "latitude": 49.9585168
+    },
+    "source_urls": [
+      "https://gzgk.osiek.pl/kontakt/",
+      "https://maps.google.com/maps?q=Ceglana%202%2C%20Osiek&t=m&z=16&output=embed&iwloc=near"
+    ],
+    "note": "Exact address pin in the map embedded on the institutional contact page. PRG has no unique address point. The pin coordinates, not the map viewport center, are used.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:2903",
+    "address": [
+      "Dąbrowa Tarnowska",
+      "Warszawska",
+      "48"
+    ],
+    "location": {
+      "longitude": 20.9897758,
+      "latitude": 50.1848801
+    },
+    "source_urls": [
+      "https://zddt.pl/kontakt/",
+      "https://maps.google.com/maps?q=ul.%20Warszawska%2048%2C%20D%C4%85browa%20Tarnowska%2C%20Polska&t=m&z=16&output=embed&iwloc=near"
+    ],
+    "note": "Exact address pin in the map embedded on the institutional contact page. PRG has no unique address point. The pin coordinates, not the map viewport center, are used.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:1922",
+    "address": [
+      "Bolesław",
+      "Osadowa",
+      "1"
+    ],
+    "location": {
+      "longitude": 19.4996749,
+      "latitude": 50.2939775
+    },
+    "source_urls": [
+      "https://bip.malopolska.pl/api/articles/710714",
+      "https://bip.malopolska.pl/api/articles/788204",
+      "https://bip.malopolska.pl/api/contexts/zgkbszoo",
+      "https://zgkboleslaw.com/kontakt/",
+      "https://maps.google.com/maps?q=Osadowa+1%2C+32-329+Boles%C5%82aw&output=embed"
+    ],
+    "note": "Secondary geocoder: Google Maps returns a building/address pin whose full address label matches the official institution address, including the suffix and postal code. PRG has no unique exact point. This is a mapped address pin, not an institution-published coordinate or a locality centroid.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:4311",
+    "address": [
+      "Szczurowa",
+      "Rynek",
+      "3C"
+    ],
+    "location": {
+      "longitude": 20.636958,
+      "latitude": 50.12037489999999
+    },
+    "source_urls": [
+      "https://bip.malopolska.pl/api/contexts/zgkimszczurowa",
+      "https://szczurowa.pl/strona/jednostki-organizacyjne",
+      "https://maps.google.com/maps?q=Rynek+3C%2C+32-820+Szczurowa&output=embed"
+    ],
+    "note": "Secondary geocoder: Google Maps returns a building/address pin whose full address label matches the official institution address, including the suffix and postal code. PRG has no unique exact point. This is a mapped address pin, not an institution-published coordinate or a locality centroid.",
+    "verified_on": "2026-10-04"
+  },
+  {
+    "source_key": "malopolska:5076",
+    "address": [
+      "Bobowa",
+      "Bohaterów Bobowej",
+      "6A"
+    ],
+    "location": {
+      "longitude": 20.947236,
+      "latitude": 49.708106
+    },
+    "source_urls": [
+      "https://bip.malopolska.pl/api/articles/2875286",
+      "https://bip.malopolska.pl/api/contexts/gjukbobowa",
+      "https://maps.google.com/maps?q=Bohater%C3%B3w+Bobowej+6A%2C+38-350+Bobowa&output=embed"
+    ],
+    "note": "Secondary geocoder: Google Maps returns a building/address pin whose full address label matches the official institution address, including the suffix and postal code. PRG has no unique exact point. This is a mapped address pin, not an institution-published coordinate or a locality centroid.",
+    "verified_on": "2026-10-04"
+  }
+]

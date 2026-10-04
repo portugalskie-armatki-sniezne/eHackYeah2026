@@ -645,14 +645,15 @@ export default function Map({ onSignInRequired }: MapProps) {
       description: string,
       location: ReportLocation,
       image: File | null,
+      categoryName: ReportCategoryName = DEFAULT_PIN_CATEGORY,
     ) => {
       let categoryId: number | undefined;
       for (const [id, name] of categoriesRef.current) {
-        if (name === DEFAULT_PIN_CATEGORY) categoryId = id;
+        if (name === categoryName) categoryId = id;
       }
       if (categoryId === undefined) {
         categoryId = (await reportsApi.categories()).find(
-          (category) => category.name === DEFAULT_PIN_CATEGORY,
+          (category) => category.name === categoryName,
         )?.id;
       }
       if (categoryId === undefined) {
@@ -674,10 +675,13 @@ export default function Map({ onSignInRequired }: MapProps) {
       if (!draftLngLat) {
         return;
       }
+      const categoryName: ReportCategoryName =
+        draft.category ?? DEFAULT_PIN_CATEGORY;
       const report = await saveReport(
         draft.description,
         { longitude: draftLngLat[0], latitude: draftLngLat[1] },
         draft.image,
+        categoryName,
       );
       const pin = await pinForSavedReport(report, draft.imageUrl);
       setPins((current) => upsertPin(current, pin));
