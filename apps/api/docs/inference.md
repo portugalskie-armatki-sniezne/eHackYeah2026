@@ -35,15 +35,36 @@ pobranie można wznowić tym samym poleceniem. `.env` jest zachowywany.
 predykcji. Języki tłumacza ustalają `TRANSLATION_SOURCE_LANGUAGE` oraz
 `TRANSLATION_TARGET_LANGUAGE`; pobierany checkpoint obsługuje parę `pl` i `en`.
 
-Obraz Docker API instaluje zestaw `inference` i pobiera przypięte checkpointy
-podczas budowania. Modele są częścią obrazu, a ich domyślne ścieżki włączają
-analizę także bez dodatkowych wpisów w serwerowym `.env`. Instalacja na Linuksie
-korzysta z PyTorch dla CPU, bez bibliotek CUDA. Kontener nie pobiera modeli
-przy obsłudze żądań. Compose przekazuje
-powyższe zmienne z `.env`; jawnie pusta ścieżka wyłącza danego dostawcę.
-Po zmianie obrazu trzeba ponownie wdrożyć usługę `api`.
-Budowanie obrazu sprawdza rzeczywiste tłumaczenie i klasyfikację tekstu oraz
-obrazu, bez dostępu do sieci i jako nieuprzywilejowany użytkownik kontenera.
+## Wdrożenie na VPS
+
+Workflow `[1] Deploy` buduje obraz API z zestawem `inference` i bibliotekami
+PyTorch dla CPU. Pobiera przypięte checkpointy do `/app/models` w osobnej
+warstwie obrazu, zachowywanej w cache przy zmianach kodu aplikacji.
+Gotowy obraz trafia do GHCR, a VPS pobiera go podczas zwykłego wdrożenia.
+Modele nie wymagają ręcznego pobierania, wolumenu ani dodatkowych sekretów.
+Tag obrazu wskazuje jednocześnie wersję aplikacji i modeli.
+
+Budowanie obrazu sprawdza kompletność przypiętych checkpointów i wykonuje próbną
+klasyfikację polskiego tekstu bez obrazu oraz z wygenerowanym obrazem PNG.
+Test działa jako nieuprzywilejowany użytkownik kontenera, bez dostępu do sieci.
+Sprawdza w ten sposób tłumaczenie, katalog typów, dekodowanie obrazu i klasyfikację.
+Nie sprawdza konkretnej etykiety, ponieważ jest to test działania modeli,
+a nie pomiar trafności. Błąd przerywa build przed publikacją obrazu.
+
+Compose ustawia `INFERENCE_REQUIRED=true`, `LAYA_DEVICE=cpu` oraz ścieżki
+`LAYA_MODEL_PATH=/app/models/laya-vision` i
+`TRANSLATION_MODEL_PATH=/app/models/opus-mt-pl-en` na dev i prod.
+API ładuje modele i wykonuje próbę klasyfikacji tekstu przed przyjęciem ruchu.
+Pozostają one w pamięci pojedynczego procesu Uvicorn.
+Lokalne `task api` zachowuje ładowanie przy pierwszym żądaniu, chyba że
+ustawisz `INFERENCE_REQUIRED=true`.
+
+`GET /ready` potwierdza zakończenie startu, w tym próbę modeli, gdy są wymagane.
+Healthcheck odczytuje ten stan bez powtarzania predykcji.
+`GET /health` nadal sprawdza wyłącznie działanie aplikacji.
+Workflow czeka do 600 sekund na zdrowy kontener. Nieudany start oznacza
+nieudane wdrożenie; workflow nie przywraca automatycznie poprzedniego obrazu.
+Push do `main` wdraża dev, a `[2] Release` korzysta z tego samego mechanizmu na prod.
 
 ## Request API
 

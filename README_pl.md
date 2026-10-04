@@ -14,7 +14,8 @@ eHackYeah2026/
 ├── apps/
 │   ├── web/                         # frontend
 │   ├── api/                         # backend
-│   └── notify/                      # wewnętrzny serwis wysyłki maili
+│   ├── notify/                      # wewnętrzny serwis wysyłki maili
+│   └── gemini/                      # wewnętrzny konektor wizualizacji inicjatyw
 ├── db/
 │   ├── migrations/                  # migracje SQL dla dbmate
 │   └── seeds/                       # dane referencyjne i arkusz kontaktów
@@ -27,7 +28,7 @@ eHackYeah2026/
 │   ├── e2e/                         # scenariusze obejmujące całą aplikację
 │   └── fixtures/                    # wspólne przykłady do testów
 ├── docker-compose.yaml              # baza danych, migracje i import danych
-├── docker-compose.app.yaml          # kontenery API, web i notify z opublikowanych obrazów
+├── docker-compose.app.yaml          # kontenery API, web, notify i gemini z opublikowanych obrazów
 ├── Taskfile.yml                     # polecenia deweloperskie
 ├── mise.toml                        # ustalone wersje Bun, Task i uv
 ├── setup-dev-env.sh                 # instalacja mise, narzędzi i zależności
@@ -83,6 +84,10 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 - Zmiany w `apps/api/app` automatycznie przeładowują API.
 - Uruchom `task be:lint`, aby sprawdzić API za pomocą Ruff, lub `task be:lint:fix`, aby zastosować poprawki i formatowanie.
 
+#### Konektor Gemini
+
+`apps/gemini` to wewnętrzny serwis generowania wizualizacji zgłoszeń `improvement`. Gemini Flash tworzy jeden prompt na podstawie opisu i zdjęć zgłoszenia, a Nano Banana używa go razem ze zdjęciami do wygenerowania jednej wizualizacji. `POST /generate` zwraca prompt i obraz zakodowany w base64. Serwis odczytuje zdjęcia ze wspólnego katalogu API, ale nie zapisuje wyniku ani nie przypisuje go do zgłoszenia. Uwierzytelnianie, limit ponowień i zapis zdjęcia wymagają jeszcze integracji w API. Konektor działa w wewnętrznej sieci Compose. Instrukcję konfiguracji i format żądania opisuje [dokumentacja konektora Gemini](apps/gemini/docs/api.md).
+
 #### Aplikacja web
 
 1. Edytuj `apps/web/src/App.tsx`, aby zmienić interfejs, i `apps/web/src/index.css`, aby zmienić style. `task fe:lint` uruchamia ESLint i Prettier, a `task fe:lint:fix` stosuje poprawki i formatowanie.
@@ -101,13 +106,14 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 ### Automatyczne wdrożenie
 
 1. W środowiskach GitHub `dev` i `prod` ustaw `VITE_API_URL` (adres backendu zapisany w buildzie frontendu), `VITE_GOOGLE_CLIENT_ID` (identyfikator klienta OAuth do logowania przez Google, ten sam co `GOOGLE_CLIENT_ID` w `.env` środowiska) i `DEPLOY_DIR` (katalog wdrożenia na serwerze).
-2. Utwórz na serwerze katalog `DEPLOY_DIR` i umieść w nim `.env` danego środowiska. Baza działa w osobnym projekcie Compose; `DB_NETWORK` wskazuje jej sieć (domyślnie `ehackyeah2026_default`), a `POSTGRES_HOST` jej host (domyślnie `db`). Plik `.env` musi być poprawny zarówno dla Compose, jak i powłoki, a dane logowania do bazy muszą nadawać się do użycia w URL. Skonfiguruj Gmaila i wysyłkę testową dla `notify` według [instrukcji konfiguracji maili](apps/notify/docs/deployment.md).
-3. W GitHub Actions uruchom `[1] Deploy`, aby wdrożyć `web`, `api`, `notify` albo wszystkie naraz (`all`) na `dev` albo `prod`. Push do `main` wdraża zmienione usługi na `dev`; zmiany w `db/migrations` wdrażają `api`. Workflow buduje obrazy z `apps/web/Dockerfile`, `apps/api/Dockerfile` i `apps/notify/Dockerfile`, a następnie publikuje je w `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web`, `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api` i `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-notify` z tagami środowiska oraz `<environment>-<commit SHA>`.
-4. Runner na serwerze kopiuje `docker-compose.app.yaml` do `DEPLOY_DIR/docker-compose.yml`, aktualizuje `WEB_IMAGE_TAG`, `API_IMAGE_TAG` lub `NOTIFY_IMAGE_TAG` w `DEPLOY_DIR/.env`, pobiera obrazy, stosuje migracje przed restartem `api` i uruchamia ponownie wybrane usługi. Jeśli migracja się nie powiedzie, poprzedni kontener API działa dalej. Wdrożenie nie importuje danych referencyjnych. Nie używaj runnerów na własnym serwerze w workflow uruchamianych przez pull requesty.
+2. Utwórz na serwerze katalog `DEPLOY_DIR` i umieść w nim `.env` danego środowiska. Ustaw `GOOGLE_CLOUD_PROJECT` i `GOOGLE_CLOUD_LOCATION`, skopiuj plik JSON konta usługi na serwer wdrożeniowy i ustaw `GEMINI_CREDENTIALS_FILE` na jego ścieżkę względem `docker-compose.yml` (domyślnie `./project-key.json`). Ustaw `GEMINI_UID` i `GEMINI_GID` na numeryczne wyniki poleceń `id -u` i `id -g` dla konta będącego właścicielem pliku, aby nieuprzywilejowany kontener mógł go odczytać. Chroń ten plik i nie dodawaj go do Gita. Baza działa w osobnym projekcie Compose; `DB_NETWORK` wskazuje jej sieć (domyślnie `ehackyeah2026_default`), a `POSTGRES_HOST` jej host (domyślnie `db`). Plik `.env` musi być poprawny zarówno dla Compose, jak i powłoki, a dane logowania do bazy muszą nadawać się do użycia w URL. Skonfiguruj Gmaila i wysyłkę testową dla `notify` według [instrukcji konfiguracji maili](apps/notify/docs/deployment.md).
+3. W GitHub Actions uruchom `[1] Deploy`, aby wdrożyć `web`, `api`, `notify`, `gemini` albo wszystkie naraz (`all`) na `dev` albo `prod`. Push do `main` wdraża zmienione usługi na `dev`; zmiany w `db/migrations` wdrażają `api`. Workflow buduje cztery obrazy usług i publikuje je w repozytoriach `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web`, `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api`, `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-notify` i `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-gemini` z tagami środowiska oraz `<environment>-<commit SHA>`.
+4. Runner na serwerze kopiuje `docker-compose.app.yaml` do `DEPLOY_DIR/docker-compose.yml`, aktualizuje `*_IMAGE_TAG` wybranych usług w `DEPLOY_DIR/.env`, pobiera obrazy, stosuje migracje przed restartem `api` i uruchamia ponownie wybrane usługi. Jeśli migracja się nie powiedzie, poprzedni kontener API działa dalej. Wdrożenie nie importuje danych referencyjnych. Nie używaj runnerów na własnym serwerze w workflow uruchamianych przez pull requesty.
 5. Po wdrożeniu `api` uruchom ręcznie `[4] Seed` dla `dev` lub `prod`, aby zaimportować dane z `db/seeds`. Import czeka na zakończenie wdrożeń w tym samym środowisku. Ponowne uruchomienie zachowuje identyfikatory i nie tworzy duplikatów; dane źródłowe nadpisują ręczne zmiany, a rekordy nieobecne w plikach pozostają w bazie.
-6. Uruchom ręcznie `[2] Release`, aby wdrożyć wszystkie trzy usługi na `prod`, a następnie utworzyć tag Git i wydanie na GitHubie. Wersje zawierają datę UTC i licznik wydań z danego dnia, np. `v2026.10.03-1`.
-7. Szablon Compose przechowuje zdjęcia zgłoszeń w `/app/uploads` na wolumenie `api_uploads`, dzięki czemu pozostają dostępne po wdrożeniu. `notify` montuje ten sam wolumen tylko do odczytu, aby dołączać zdjęcia do maili.
-8. Obraz API zawiera biblioteki analizy i przypięte checkpointy modeli. Sugestie adresatów domyślnie korzystają z CPU, bez pobierania modeli podczas obsługi żądań. Serwerowy `.env` pozwala nadpisać [ustawienia modeli](apps/api/docs/inference.md); jawnie pusta ścieżka modelu wyłącza danego dostawcę.
+6. Uruchom ręcznie `[2] Release`, aby wdrożyć wszystkie cztery usługi na `prod`, a następnie utworzyć tag Git i wydanie na GitHubie. Wersje zawierają datę UTC i licznik wydań z danego dnia, np. `v2026.10.03-1`.
+7. Szablon Compose przechowuje zdjęcia zgłoszeń w `/app/uploads` na wolumenie `api_uploads`, dzięki czemu pozostają dostępne po wdrożeniu. `notify` i `gemini` montują ten sam wolumen tylko do odczytu.
+
+Obraz API zawiera biblioteki do klasyfikacji na CPU oraz przypięte modele Laya i tłumacza PL → EN. GitHub Actions pobiera modele do warstwy obrazu zachowywanej w cache i sprawdza rzeczywistą klasyfikację polskiego tekstu z obrazem i bez niego podczas budowania, bez dostępu do sieci. Compose włącza je na dev i prod bez dodatkowej konfiguracji serwerów. API powtarza próbę tekstową przy starcie i zgłasza gotowość pod `/ready` dopiero po jej powodzeniu. Wdrożenie czeka na gotowość do 10 minut; błąd modelu oznacza błąd wdrożenia. Zobacz [wdrożenie klasyfikacji](apps/api/docs/inference.md#wdrożenie-na-vps).
 
 > `[3] Lint` uruchamia ESLint, Prettier i Ruff dla każdego pull requesta i pusha do `main`, na runnerach GitHuba.
 
