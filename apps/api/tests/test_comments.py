@@ -24,6 +24,7 @@ def test_comments_and_likes(client: TestClient, signed_in):
         "content": "Potwierdzam",
         "like_count": 0,
         "liked_by_me": False,
+        "highlighted": False,
         "created_at": None,
     }
     like_url = f"/comments/{comment['id']}/like"

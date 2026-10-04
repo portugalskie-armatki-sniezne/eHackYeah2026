@@ -5,7 +5,7 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 ## Konwencje
 
 - Format: JSON, pola w snake_case. Identyfikatory użytkowników, masterów, reportów, zdjęć i komentarzy jako UUID w postaci tekstu; identyfikatory kategorii, statusów, urzędów i jednostek usługowych jako liczby całkowite.
-- Wyjątek: `POST /reports`, `POST /reports/{id}/photos`, `POST /master-reports/{id}/photo-proposals` i endpointy `POST /inference`, `POST /inference/service-entity` oraz `POST /inference/service-entity/recommendation` przyjmują `multipart/form-data`, bo mogą zawierać pliki zdjęć.
+- Wyjątek: `POST /reports`, `POST /reports/{id}/photos`, `POST /master-reports/{id}/photos`, `POST /master-reports/{id}/photo-proposals` i endpointy `POST /inference`, `POST /inference/service-entity` oraz `POST /inference/service-entity/recommendation` przyjmują `multipart/form-data`, bo mogą zawierać pliki zdjęć.
 - Daty: ISO 8601 z strefą czasową (UTC).
 - CORS: API przyjmuje na razie zapytania z każdej domeny (`*`). Uwierzytelnianie opiera się na nagłówku `Authorization`, bez ciasteczek.
 - Pola `id`, `created_at`, `edited_at` są tylko do odczytu. Serwer ignoruje je w requestach albo zwraca 422.
@@ -306,6 +306,7 @@ Request `POST /reports/{id}/move`:
 | --- | --- | --- | --- | --- | --- |
 | GET | `/master-reports` | lista z filtrami | publiczny | 200 | 422 |
 | GET | `/master-reports/{id}` | pobranie ze zdjęciami | publiczny | 200 | 404 |
+| POST | `/master-reports/{id}/photos` | dodanie zdjęcia przez nowy report | zalogowany | 201 | 401, 404, 409 (brak reportu do skopiowania), 413, 422 |
 | PATCH | `/master-reports/{id}` | aktualizacja | `office`, `admin` | 200 | 401, 403, 404 (brak mastera, kategorii, statusu, urzędu lub jednostki usługowej), 422 |
 | DELETE | `/master-reports/{id}` | usunięcie mastera bez reportów wraz z dyskusją | `admin` | 204 | 401, 403, 404, 409 (ma reporty) |
 
@@ -337,7 +338,9 @@ Odpowiedź `GET /master-reports/{id}`:
 
 `photos` zawiera zdjęcia wszystkich reportów mastera i występuje tylko w szczegółach. Elementy listy mają te same pola bez `photos`. `photo_url` to najstarsze zdjęcie spośród reportów mastera (albo `null`), żeby mapa mogła pokazać je na pinezce bez pobierania szczegółów każdego mastera. Reporty mastera zwraca `GET /reports?master_report_id=...`.
 
-`author_id` to użytkownik najstarszego reportu mastera, czyli osoba, która decyduje o zaproponowanym zdjęciu. `pending_photo_id` i `pending_photo_url` wskazują zdjęcie czekające na jej decyzję i są `null`, kiedy master ma już własne zdjęcie albo nikt nic nie zaproponował; zobacz [photo proposals](#photo-proposals).
+`POST /master-reports/{id}/photos` przyjmuje jedno pole plikowe `photo` (JPEG, PNG lub WebP, do 10 MB). Tworzy report pod kontem dodającej osoby, powiązany z tym samym masterem. Kopiuje kategorię, tytuł, opis, współrzędne i dane gminy oraz powiatu z najstarszego reportu mastera. Nowy report ma własne ID i daty, a jego jedynym zdjęciem jest przesłany plik. Odpowiedź ma format reportu z `POST /reports`. Zdjęcie jest od razu publiczne, bez akceptacji autora. Dodanie nie zmienia statusu ani odbiorcy sprawy i nie tworzy nowej wysyłki do instytucji.
+
+`author_id` to użytkownik najstarszego reportu mastera. `pending_photo_id` i `pending_photo_url` wskazują starszą propozycję zdjęcia czekającą na jego decyzję albo są `null`, gdy nie ma takiej propozycji; zobacz [photo proposals](#photo-proposals). Lista i mapa używają teraz bezpośredniego dodawania zdjęcia. Istniejące propozycje można nadal zaakceptować lub odrzucić; zdjęcia reportów mają pierwszeństwo w widoku sprawy.
 
 Pola `PATCH`: `report_category_id`, `status_id`, `responsible_office_id`, `responsible_service_entity_id`, `title`, `description`, `location`, `response`. `null` jest dozwolony tylko dla obu pól odpowiedzialnego podmiotu i `response`. Master wskazuje najwyżej jeden podmiot: urząd albo jednostkę usługową. Zmiana odbiorcy na podmiot innego rodzaju wymaga przesłania obu pól, na przykład `{"responsible_office_id": null, "responsible_service_entity_id": 17}`, inaczej API zwraca 422. Status można zmienić na dowolny, także wstecz. Zmiana treści mastera nie zmienia jego reportów. ID w przykładzie są ilustracyjne; wartości słowników należy pobrać z endpointów słowników.
 
@@ -523,7 +526,7 @@ Parametry `GET /projects`:
 
 Tryby wyszukiwania:
 1. **Wyszukiwanie wektorowe**: Jeśli pole `query_vector` zawiera 1024-wymiarowy wektor embeddingu, endpoint wykonuje wyszukiwanie po odległości cosinusowej (`<=>`) na kolumnie `summary_vector`, z opcjonalnym filtrem kategorii. Zwraca wynik podobieństwa `score` od 0 do 1.
-2. **Wyszukiwanie słów kluczowych ze stemmingiem**: Gdy `query_vector` nie jest podany, zapytanie tekstowe oczyszczane jest z polskich słów pospolitych (stop words) oraz znaków diakrytycznych. Z kluczowych słów wyznaczane są 5-znakowe rdzenie gramatyczne, a zapytanie przeszukuje bazę `projects` i fragmenty `project_chunks`. Dynamiczny system wag punktuje dopasowania w tytule (+0.40), kategorii (+0.30) oraz streszczeniu (+0.15) z bonusem za jednoczesne trafienie wielu słów kluczowych (do maksymalnego wyniku 0.96).
+2. **Wyszukiwanie słów kluczowych ze stemmingiem**: Gdy `query_vector` nie jest podany, zapytanie i teksty innowacji tracą polskie znaki, słowa pospolite (stop words) oraz końcówki fleksyjne, więc np. `gry` i `gra` dają ten sam rdzeń. Porównywane są całe rdzenie, a nie fragmenty słów. Każdy rdzeń zapytania ma wagę zależną od tego, jak rzadko występuje w katalogu, więc słowa obecne w większości innowacji, np. `osoby`, prawie nie wpływają na wynik. Trafienia w tytule liczą się najmocniej, potem w streszczeniu, a słabiej w kategorii i pozostałych sekcjach. Słowa nieobecne w katalogu są pomijane. `score` od 0 do 1 to udział wagi zapytania pokrytej przez innowację. Zapytania z kilkoma pospolitymi słowami nie osiągają wysokiego wyniku. `matched_snippet` to fragment sekcji opisu, która ma najwięcej wspólnych rdzeni z zapytaniem. Formularz inicjatywy proponuje innowację z wynikiem co najmniej 0.5.
 
 ## inference
 

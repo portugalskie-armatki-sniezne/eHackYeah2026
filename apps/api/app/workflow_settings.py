@@ -26,7 +26,7 @@ class Settings:
 
 def settings() -> Settings:
     return Settings(
-        positive_int("GEMINI_USER_LIMIT", 10),
+        positive_int("GEMINI_USER_LIMIT", 50),
         positive_int("SMTP_USER_LIMIT", 50),
         positive_int("RATE_LIMIT_WINDOW_SECONDS", 86400),
         positive_int("VISUALIZATION_DRAFT_TTL_DAYS", 7),

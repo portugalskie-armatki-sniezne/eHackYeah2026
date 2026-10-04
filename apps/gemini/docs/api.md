@@ -15,7 +15,7 @@ Wewnętrzny serwis FastAPI do wizualizacji zgłoszeń przez Google Cloud (Vertex
    GOOGLE_APPLICATION_CREDENTIALS=../../project-key.json
    ```
 
-   Ścieżka względna zaczyna się w `apps/gemini`. Możesz też użyć ścieżki bezwzględnej. Puste `GOOGLE_APPLICATION_CREDENTIALS` korzysta ze standardowego [ADC](https://docs.cloud.google.com/docs/authentication/application-default-credentials). Serwis nie korzysta z `GEMINI_API_KEY` ani z klienta OAuth `client_secret.json`.
+   Ścieżka względna zaczyna się w `apps/gemini`. Możesz też użyć ścieżki bezwzględnej. Puste `GOOGLE_APPLICATION_CREDENTIALS` korzysta ze standardowego [ADC](https://docs.cloud.google.com/docs/authentication/application-default-credentials). Serwis nie korzysta z `GEMINI_API_KEY` ani z klienta OAuth `client_secret.json`. Przy starcie serwis zapisuje w logu wiersz `Google credentials: ...` z informacją, czy klucz się wczytał. Nie łączy się przy tym z Google, więc cofniętego klucza w ten sposób nie wykryje.
 5. Zainstaluj zależności i uruchom serwis:
 
    ```sh
@@ -73,7 +73,7 @@ Zdjęcia muszą istnieć pod podanymi kluczami. Pierwsze wyznacza kadr wizualiza
 
 Odpowiedź ma postać `{"prompt":"...","media_type":"image/png","image_base64":"..."}`. `image_base64` zawiera zakodowane bajty obrazu, bez prefiksu `data:`. Konektor czyta źródła ze wspólnego katalogu API. Główne API zapisuje wynik na wolumenie `api_uploads` i w tabeli `visualization_jobs`, oddzielnie od oryginalnych `report_photos`. Obsługiwane są także klucze `visualizations/<job_id>/<photo_id>.<extension>` oraz `visualizations/<job_id>/result.<extension>`.
 
-Wywołanie wykonuje jedno żądanie do Flash i jedno do Nano Banana. Jeśli którykolwiek etap zawiedzie, endpoint zwraca błąd. Ponowienie uruchamia cały pipeline, a poprzednie wywołanie może już być rozliczone. Endpoint służy wywołaniom wewnętrznym; nie ma własnego uwierzytelniania ani limitu na użytkownika. Główne API rezerwuje próbę przed generacją i zachowuje historię udanych obrazów. Limit określa `GEMINI_USER_LIMIT` w `.env`, domyślnie 10 prób na użytkownika w ruchomych 24 godzinach, również nieudanych. Formularze i opublikowane zgłoszenia korzystają ze wspólnego limitu. Migracja 13 dodaje trwałe zlecenia i robocze zasoby; dawna tabela z migracji 09 nie obsługuje tego przepływu.
+Wywołanie wykonuje jedno żądanie do Flash i jedno do Nano Banana. Jeśli którykolwiek etap zawiedzie, endpoint zwraca błąd. Ponowienie uruchamia cały pipeline, a poprzednie wywołanie może już być rozliczone. Endpoint służy wywołaniom wewnętrznym; nie ma własnego uwierzytelniania ani limitu na użytkownika. Główne API rezerwuje próbę przed generacją i zachowuje historię udanych obrazów. Limit określa `GEMINI_USER_LIMIT` w `.env`, domyślnie 50 prób na użytkownika w ruchomych 24 godzinach, również nieudanych. Formularze i opublikowane zgłoszenia korzystają ze wspólnego limitu. Migracja 13 dodaje trwałe zlecenia i robocze zasoby; dawna tabela z migracji 09 nie obsługuje tego przepływu.
 
 | Kod | Przyczyna |
 | --- | --- |

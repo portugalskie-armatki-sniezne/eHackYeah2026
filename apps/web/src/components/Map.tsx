@@ -927,6 +927,15 @@ export default function Map({ onSignInRequired }: MapProps) {
           masterId={openPin.id}
           category={openPin.category}
           onClose={handleClosePin}
+          onPhotoAdded={(master) => {
+            noteMyCase(master.id);
+            setPins((current) =>
+              upsertPin(
+                current,
+                masterPin(master, categoriesRef.current, statusesRef.current),
+              ),
+            );
+          }}
           onSignInRequired={onSignInRequired}
         />
       )}

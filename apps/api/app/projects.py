@@ -1,4 +1,6 @@
+import math
 import re
+from collections import Counter
 from datetime import datetime
 from typing import Annotated
 
@@ -125,21 +127,96 @@ STOP_WORDS = {
     "zrobic",
 }
 ACCENTS_TRANS = str.maketrans("ąćęłńóśźż", "acelnoszz")
+WORD = re.compile(r"[a-ząćęłńóśźż]{3,}", re.IGNORECASE)
+# inflectional endings stripped by the light Polish stemmer, longest first
+SUFFIXES = sorted(
+    (
+        "osciami osciach osciom osci osc "
+        "owanie owania owaniu owaniem anie ania aniu aniem enie enia eniu eniem "
+        "atywnymi atywnych atywnego atywnemu atywnej atywnym atywna atywne atywny atywni "
+        "ywnymi ywnych ywnego ywnemu ywnej ywnym ywna ywne ywny ywni "
+        "owych owego owemu owymi owej owym owa owe owy "
+        "lbysmy lysmy lbym labym lismy "
+        "ami ach ego emu ych ich ymi imi iej ow om ej ym im em ie ia iu ii "
+        "ac ec ic yc y a e i u o"
+    ).split(),
+    key=len,
+    reverse=True,
+)
+# weights of the innovation texts, the title and summary describe an innovation best
+SEARCH_FIELDS = {
+    "title": 3.0,
+    "summary": 2.0,
+    "category": 1.0,
+    "description": 1.0,
+    "problem": 1.0,
+    "target_group": 1.0,
+    "beneficiaries": 0.5,
+    "effectiveness": 0.5,
+}
+# sections quoted as the matched snippet, in page order
+SNIPPET_FIELDS = ("description", "problem", "target_group", "beneficiaries", "effectiveness")
+# lower values let a single mention of a term count sooner
+TERM_SATURATION = 0.5
+# a query needs this much term weight to score fully, so a few common words cannot reach a high score
+MIN_QUERY_WEIGHT = 8.0
 
 
-def extract_keywords(query: str) -> list[str]:
-    raw_words = re.findall(r"[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]{3,}", query.lower())
-    clean_words = []
-    for word in raw_words:
-        normalized = word.translate(ACCENTS_TRANS)
+def stem(word: str) -> str:
+    for suffix in SUFFIXES:
+        if word.endswith(suffix) and len(word) - len(suffix) >= 2:
+            return word[: -len(suffix)]
+    return word
+
+
+def search_terms(text: str | None) -> list[str]:
+    terms = []
+    for word in WORD.findall(text or ""):
+        normalized = word.lower().translate(ACCENTS_TRANS)
         if normalized not in STOP_WORDS:
-            clean_words.append(word)
-    return clean_words
+            terms.append(stem(normalized))
+    return terms
+
+
+def score_projects(query: str, projects: list[dict]) -> list[tuple[float, dict]]:
+    terms = list(dict.fromkeys(search_terms(query)))
+    if not terms:
+        return []
+
+    weighted_terms: list[Counter[str]] = []
+    for project in projects:
+        frequencies: Counter[str] = Counter()
+        for field, weight in SEARCH_FIELDS.items():
+            for term in search_terms(project.get(field)):
+                frequencies[term] += weight
+        weighted_terms.append(frequencies)
+
+    # rare terms tell innovations apart, while terms absent from the catalog cannot match anything
+    total = len(projects)
+    document_frequency = Counter(term for frequencies in weighted_terms for term in frequencies)
+    weights = {
+        term: math.log(1 + (total - document_frequency[term] + 0.5) / (document_frequency[term] + 0.5))
+        for term in terms
+        if document_frequency[term]
+    }
+    query_weight = max(sum(weights.values()), MIN_QUERY_WEIGHT)
+
+    scored = []
+    for project, frequencies in zip(projects, weighted_terms, strict=True):
+        matched = sum(
+            weight * frequencies[term] / (frequencies[term] + TERM_SATURATION)
+            for term, weight in weights.items()
+            if frequencies[term]
+        )
+        if matched:
+            scored.append((matched / query_weight, project))
+    scored.sort(key=lambda item: item[0], reverse=True)
+    return scored
 
 
 def extract_context_snippet(
     content: str | None,
-    stems: list[str],
+    terms: set[str],
     window_before: int = 50,
     window_after: int = 150,
 ) -> str | None:
@@ -150,14 +227,14 @@ def extract_context_snippet(
     if len(clean) < 40:
         return None
 
-    clean_lower = clean.lower()
-    best_pos = -1
-    for stem in stems:
-        pos = clean_lower.find(stem.lower())
-        if pos != -1:
-            if best_pos == -1 or pos < best_pos:
-                best_pos = pos
-
+    best_pos = next(
+        (
+            match.start()
+            for match in WORD.finditer(clean)
+            if stem(match.group().lower().translate(ACCENTS_TRANS)) in terms
+        ),
+        -1,
+    )
     if best_pos == -1:
         return None
 
@@ -323,75 +400,28 @@ def search_projects(
         rows = connection.execute(query_sql, params).fetchall()
         return [ProjectSearchResult.model_validate(row) for row in rows]
 
-    keywords = extract_keywords(request.query)
-    if not keywords:
-        return []
-
-    # extract stems of keywords for Polish grammatical inflection tolerance
-    stems = [w[:5] if len(w) >= 5 else w for w in keywords]
-    unique_stems = list(dict.fromkeys(stems))
-    patterns = [f"%{s}%" for s in unique_stems]
-
+    # the catalog holds about a hundred innovations, so term weights are computed per request
     cat_filter = sql.SQL("")
-    params["patterns"] = patterns
     if request.category:
-        cat_filter = sql.SQL("AND (p.category = %(category)s OR p.category_slug = %(category)s) ")
+        cat_filter = sql.SQL("WHERE (category = %(category)s OR category_slug = %(category)s) ")
         params["category"] = request.category
 
     query_sql = sql.SQL(
-        "SELECT p.id, p.slug, p.title, p.category, p.category_slug, p.url, p.description, p.summary, "
-        "       ( "
-        "           SELECT substring(c.content from 1 for 1500) "
-        "           FROM project_chunks c "
-        "           WHERE c.project_slug = p.slug AND c.content ILIKE ANY(%(patterns)s) "
-        "           LIMIT 1 "
-        "       ) AS raw_chunk "
-        "FROM projects p "
-        "WHERE (p.title ILIKE ANY(%(patterns)s) "
-        "   OR p.summary ILIKE ANY(%(patterns)s) "
-        "   OR coalesce(p.category, '') ILIKE ANY(%(patterns)s)) "
+        "SELECT id, slug, title, category, category_slug, url, description, summary, "
+        "       problem, target_group, beneficiaries, effectiveness "
+        "FROM projects "
         "{cat_filter}"
+        "ORDER BY id ASC"
     ).format(cat_filter=cat_filter)
-
     rows = connection.execute(query_sql, params).fetchall()
 
-    total_stems = len(unique_stems)
-    scored_results: list[ProjectSearchResult] = []
-    for row in rows:
-        title_l = row["title"].lower()
-        cat_l = (row["category"] or "").lower()
-        sum_l = (row["summary"] or "").lower()
-        desc_l = (row["description"] or "").lower()
-        raw_chunk = row["raw_chunk"] or ""
-        chunk_l = raw_chunk.lower()
-
-        matched_weights: list[float] = []
-        for stem in unique_stems:
-            stem_l = stem.lower()
-            if stem_l in title_l:
-                matched_weights.append(1.0)
-            elif stem_l in sum_l or stem_l in desc_l:
-                matched_weights.append(0.7)
-            elif stem_l in cat_l:
-                matched_weights.append(0.4)
-            elif stem_l in chunk_l:
-                matched_weights.append(0.2)
-
-        if not matched_weights:
-            continue
-
-        matched_count = len(matched_weights)
-        coverage = matched_count / total_stems
-        avg_weight = sum(matched_weights) / matched_count
-
-        # Score balances how many query stems matched with match location quality
-        score = (coverage**0.8) * avg_weight
-        final_score = min(0.98, round(score, 2))
-
-        # Extract contextual snippet around matched stems
-        snippet = extract_context_snippet(raw_chunk, unique_stems)
-
-        scored_results.append(
+    terms = set(search_terms(request.query))
+    results: list[ProjectSearchResult] = []
+    for score, row in score_projects(request.query, rows)[: request.limit]:
+        # quote the section that shares the most terms with the query
+        sections = [row[field] for field in SNIPPET_FIELDS if row[field]]
+        section = max(sections, key=lambda text: len(terms & set(search_terms(text))), default=None)
+        results.append(
             ProjectSearchResult(
                 id=row["id"],
                 slug=row["slug"],
@@ -401,10 +431,8 @@ def search_projects(
                 url=row["url"],
                 description=row["description"],
                 summary=row["summary"],
-                matched_snippet=snippet,
-                score=final_score,
+                matched_snippet=extract_context_snippet(section, terms),
+                score=round(score, 2),
             )
         )
-
-    scored_results.sort(key=lambda r: r.score, reverse=True)
-    return scored_results[: request.limit]
+    return results
