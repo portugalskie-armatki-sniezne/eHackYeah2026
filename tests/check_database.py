@@ -106,6 +106,15 @@ def main():
         query((ROOT / "tests/fixtures/check_reports.sql").read_text())
         query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
         print("PASS: master reports, statuses, institutions, comments, likes, and constraints", flush=True)
+        workflow_tables = "'visualization_drafts', 'visualization_jobs', 'mail_delivery_jobs'"
+        if query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' "
+                 f"AND table_name IN ({workflow_tables});") != "3":
+            raise RuntimeError("Workflow migration did not create all queue tables")
+        compose("run", "--rm", "--no-deps", "db-migrator", "down")
+        if query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' "
+                 f"AND table_name IN ({workflow_tables});") != "0":
+            raise RuntimeError("Workflow rollback left its tables behind")
+        print("PASS: visualization and delivery jobs migrated and rolled back", flush=True)
         compose("run", "--rm", "--no-deps", "db-migrator", "down")
         if query("SELECT to_regclass('notifications') IS NULL "
                  "AND to_regclass('master_report_photo_proposals') IS NULL;") != "t":
@@ -192,7 +201,7 @@ def main():
             raise RuntimeError("Innovation library import after migration rollback failed")
         query((ROOT / "tests/fixtures/check_reports.sql").read_text())
         query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
-        print("PASS: all twelve migrations rolled back and reapplied successfully", flush=True)
+        print("PASS: all migrations rolled back and reapplied successfully", flush=True)
     except Exception:
         print(compose("logs", "--no-color", "--tail", "50", check=False), flush=True)
         raise

@@ -45,7 +45,9 @@ def generate_visualization(description: str, photos: list[tuple[str, bytes]]) ->
             enterprise=True,
             project=project,
             location=location,
-            http_options=types.HttpOptions(api_version="v1", timeout=120_000),
+            http_options=types.HttpOptions(
+                api_version="v1", timeout=120_000, retry_options=types.HttpRetryOptions(attempts=1)
+            ),
         ) as client:
             response = client.models.generate_content(
                 model=PROMPT_MODEL,

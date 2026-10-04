@@ -36,7 +36,8 @@ class Location(BaseModel):
 
 class Photo(BaseModel):
     storage_key: str = Field(
-        pattern=r"^reports/[0-9a-f-]{36}/[0-9a-f-]{36}(?:_generated(?:_[0-9a-f-]{36})?)?\.(jpg|png|webp)$"
+        pattern=r"^(?:reports/[0-9a-f-]{36}/[0-9a-f-]{36}(?:_generated(?:_[0-9a-f-]{36})?)?"
+        r"|visualizations/[0-9a-f-]{36}/(?:[0-9a-f-]{36}|result))\.(jpg|png|webp)$"
     )
 
 
@@ -72,15 +73,12 @@ def send(payload: Mail) -> dict[str, str]:
     if not username or not password:
         raise HTTPException(status_code=503, detail="SMTP credentials are not configured")
 
-    mock = os.environ.get("SMTP_MOCK", "false").strip().lower()
-    if mock not in {"true", "false"}:
-        raise HTTPException(status_code=503, detail="SMTP_MOCK must be true or false")
-    destination = str(payload.to)
-    if mock == "true":
-        try:
-            destination = TypeAdapter(EmailStr).validate_python(os.environ.get("SMTP_MOCK_DESTINATION", ""))
-        except ValidationError as error:
-            raise HTTPException(status_code=503, detail="SMTP mock destination is not configured or invalid") from error
+    if os.environ.get("SMTP_MOCK", "").strip().lower() != "true":
+        raise HTTPException(status_code=503, detail="SMTP_MOCK must be true during the hackathon")
+    try:
+        destination = TypeAdapter(EmailStr).validate_python(os.environ.get("SMTP_MOCK_DESTINATION", ""))
+    except ValidationError as error:
+        raise HTTPException(status_code=503, detail="SMTP mock destination is not configured or invalid") from error
 
     message = EmailMessage()
     message["From"] = username

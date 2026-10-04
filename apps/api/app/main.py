@@ -10,6 +10,7 @@ from starlette.concurrency import run_in_threadpool
 from app import (
     auth,
     comments,
+    deliveries,
     institution_contacts,
     master_reports,
     notifications,
@@ -21,34 +22,47 @@ from app import (
     service_entities,
     storage,
     users,
+    visualizations,
+    workflow_worker,
 )
 from app.db import pool
 from app.inference.contracts import InferenceInputError, InferenceUnavailableError, InvalidInferenceResultError
 from app.inference.router import router as inference_router
 from app.inference.warmup import warmup
 from app.security import jwt_secret
+from app.workflow_settings import settings
 
 
 @asynccontextmanager
 async def lifespan(application: FastAPI) -> AsyncIterator[None]:
     application.state.ready = False
     jwt_secret()
+    settings()
     storage.check_upload_dir()
     pool.open()
+    tasks = []
     try:
         if os.getenv("INFERENCE_REQUIRED", "false").lower() == "true":
             await run_in_threadpool(warmup)
         application.state.ready = True
+        tasks = workflow_worker.start(pool)
         yield
     finally:
         application.state.ready = False
+        await workflow_worker.stop(tasks)
         pool.close()
 
 
 app = FastAPI(title="eHackYeah2026 API", lifespan=lifespan)
 app.state.ready = False
 # every origin is allowed for now, requests carry a bearer token and no cookies.
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["Retry-After"],
+)
 
 
 @app.exception_handler(InferenceUnavailableError)
@@ -79,6 +93,8 @@ app.include_router(institution_contacts.router)
 app.include_router(service_entities.router)
 app.include_router(projects.router)
 app.include_router(inference_router)
+app.include_router(visualizations.router)
+app.include_router(deliveries.router)
 
 
 @app.get("/")

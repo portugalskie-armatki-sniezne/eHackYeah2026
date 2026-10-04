@@ -13,7 +13,8 @@ class Photo(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     storage_key: str = Field(
-        pattern=r"^reports/[0-9a-f-]{36}/[0-9a-f-]{36}(?:_generated(?:_[0-9a-f-]{36})?)?\.(jpg|png|webp)$"
+        pattern=r"^(?:reports/[0-9a-f-]{36}/[0-9a-f-]{36}(?:_generated(?:_[0-9a-f-]{36})?)?"
+        r"|visualizations/[0-9a-f-]{36}/(?:[0-9a-f-]{36}|result))\.(jpg|png|webp)$"
     )
 
 

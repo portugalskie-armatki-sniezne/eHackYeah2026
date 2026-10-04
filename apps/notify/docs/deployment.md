@@ -18,8 +18,8 @@ Nie jest potrzebna konfiguracja Google Cloud Console. Szczegóły i ograniczenia
 | `NOTIFY_PORT` | wewnętrzny port HTTP, domyślnie `8000`; `.env.example` ustawia `8001` |
 | `SMTP_USER` | adres Gmaila używany do logowania i jako nadawca |
 | `SMTP_PASSWORD` | hasło aplikacji Gmail |
-| `SMTP_MOCK` | `true` przekierowuje wszystkie maile na adres testowy, `false` używa odbiorcy z żądania |
-| `SMTP_MOCK_DESTINATION` | jeden adres testowy, wymagany przy `SMTP_MOCK=true` |
+| `SMTP_MOCK` | wymagane `true` przez cały hackathon, także na prodzie; inne wartości blokują wysyłkę |
+| `SMTP_MOCK_DESTINATION` | jedyny adres testowy, zawsze wymagany |
 | `UPLOAD_DIR` | katalog zdjęć API; Compose ustawia `/app/uploads`, lokalnie ścieżka względna zaczyna się w `apps/api` |
 
 Przykład konfiguracji testowej:
@@ -33,6 +33,8 @@ SMTP_MOCK_DESTINATION=team@example.com
 ```
 
 W `.env.example` mock jest włączony. Uzupełnij rzeczywisty adres testowy i dane logowania wyłącznie w ignorowanym `.env`.
+
+To obowiązkowa zasada demonstracyjna hackathonu dla każdego środowiska. Główne API automatycznie zleca mail dla nowej sprawy, bez pobierania adresu instytucji, i stosuje limit `SMTP_USER_LIMIT` z `.env` (domyślnie 50 prób na użytkownika w 24 godziny). Kolejkę i statusy opisuje [kontrakt integracji](../../api/docs/visualizations.md).
 
 ## Wdrożenie
 

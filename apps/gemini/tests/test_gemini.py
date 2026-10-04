@@ -60,6 +60,7 @@ def test_endpoint_runs_both_stages_with_all_reference_photos(client: MagicMock, 
     response = TestClient(app).post("/generate", json=payload)
 
     assert response.status_code == 200
+    assert gemini.genai.Client.call_args.kwargs["http_options"].retry_options.attempts == 1
     calls = client.models.generate_content.call_args_list
     assert [call.kwargs["model"] for call in calls] == [gemini.PROMPT_MODEL, gemini.IMAGE_MODEL]
     assert payload["description"] in calls[0].kwargs["contents"][0].text
@@ -89,6 +90,16 @@ def test_generated_reference_photo(client: MagicMock, payload: dict, tmp_path: P
     assert response.status_code == 200
     for call in client.models.generate_content.call_args_list:
         assert call.kwargs["contents"][1].inline_data.data == PHOTO
+
+
+@pytest.mark.parametrize("name", ["22222222-2222-4222-8222-222222222222", "result"])
+def test_visualization_job_photo(client: MagicMock, payload: dict, tmp_path: Path, name: str):
+    key = f"visualizations/11111111-1111-4111-8111-111111111111/{name}.jpg"
+    path = tmp_path / key
+    path.parent.mkdir(parents=True)
+    path.write_bytes(PHOTO)
+    payload["photos"] = [{"storage_key": key}]
+    assert TestClient(app).post("/generate", json=payload).status_code == 200
 
 
 @pytest.mark.parametrize("media_type", ["image/png", "image/jpeg", "image/webp"])
