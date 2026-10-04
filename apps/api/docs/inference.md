@@ -35,9 +35,35 @@ pobranie można wznowić tym samym poleceniem. `.env` jest zachowywany.
 predykcji. Języki tłumacza ustalają `TRANSLATION_SOURCE_LANGUAGE` oraz
 `TRANSLATION_TARGET_LANGUAGE`; pobierany checkpoint obsługuje parę `pl` i `en`.
 
-Podstawowy obraz Docker API nadal instaluje tylko zależności podstawowe.
-Uruchomienie modeli w kontenerze wymaga obrazu z zestawem `inference`,
-udostępnienia checkpointów w kontenerze oraz przekazania powyższych zmiennych.
+## Wdrożenie na VPS
+
+Workflow `[1] Deploy` buduje obraz API z zestawem `inference` i bibliotekami
+PyTorch dla CPU. Pobiera przypięte checkpointy do `/app/models` w osobnej
+warstwie obrazu, zachowywanej w cache przy zmianach kodu aplikacji.
+Gotowy obraz trafia do GHCR, a VPS pobiera go podczas zwykłego wdrożenia.
+Modele nie wymagają ręcznego pobierania, wolumenu ani dodatkowych sekretów.
+Tag obrazu wskazuje jednocześnie wersję aplikacji i modeli.
+
+Budowanie obrazu wykonuje próbną klasyfikację polskiego tekstu jako użytkownik
+kontenera, z wyłączonym dostępem bibliotek modeli do Hugging Face.
+Sprawdza w ten sposób tłumaczenie, katalog typów i klasyfikację.
+Nie sprawdza konkretnej etykiety, ponieważ jest to test działania modeli,
+a nie pomiar trafności. Błąd przerywa build przed publikacją obrazu.
+
+Compose ustawia `INFERENCE_REQUIRED=true`, `LAYA_DEVICE=cpu` oraz ścieżki
+`LAYA_MODEL_PATH=/app/models/laya-vision` i
+`TRANSLATION_MODEL_PATH=/app/models/opus-mt-pl-en` na dev i prod.
+API ładuje modele i wykonuje tę samą próbę przed przyjęciem ruchu.
+Pozostają one w pamięci pojedynczego procesu Uvicorn.
+Lokalne `task api` zachowuje ładowanie przy pierwszym żądaniu, chyba że
+ustawisz `INFERENCE_REQUIRED=true`.
+
+`GET /ready` potwierdza zakończenie startu, w tym próbę modeli, gdy są wymagane.
+Healthcheck odczytuje ten stan bez powtarzania predykcji.
+`GET /health` nadal sprawdza wyłącznie działanie aplikacji.
+Workflow czeka do 600 sekund na zdrowy kontener. Nieudany start oznacza
+nieudane wdrożenie; workflow nie przywraca automatycznie poprzedniego obrazu.
+Push do `main` wdraża dev, a `[2] Release` korzysta z tego samego mechanizmu na prod.
 
 ## Request API
 
@@ -155,6 +181,94 @@ Nie ma list słów kluczowych ani ręcznych reguł wybierających wynik.
 Wynik można przekazać do `GET /service-entities?entity_type=...`. Wybór konkretnego
 rekordu oraz sprawdzenie jego kompetencji i obszaru działania to osobny krok.
 Endpoint nie zmienia reportów ani masterów.
+
+## Rekomendacja instytucji dla nowego zgłoszenia
+
+`POST /inference/service-entity/recommendation` wymaga zalogowania. Przyjmuje
+formularz `multipart/form-data` z polem `payload` i opcjonalnym zdjęciem `image`.
+Przykładowy payload:
+
+```json
+{
+  "title": "Dziura w jezdni",
+  "description": "Przed szkołą jest głęboka dziura w nawierzchni drogi.",
+  "source_language": "pl",
+  "location": {"longitude": 19.938, "latitude": 50.061}
+}
+```
+
+Endpoint działa przed zapisaniem nowego zgłoszenia. Lokalizacja musi należeć
+do Małopolski, tak jak przy `POST /reports`. GUGiK ULDK wyznacza gminę i powiat
+zgłoszenia, a Laya wybiera jeden typ jednostki. Następnie backend rozpatruje
+wyłącznie jednostki tego typu i wybiera siedzibę w kolejności:
+
+1. Ta sama gmina (`municipality`).
+2. Ten sam powiat (`county`), jeśli nie ma dopasowania w gminie.
+3. To samo województwo (`province`), jeśli nie ma dopasowania w powiecie.
+4. Najbliższa siedziba poza województwem (`nearest`), jeśli nie ma dopasowania
+   na wcześniejszych poziomach.
+
+W obrębie pierwszego dostępnego poziomu wygrywa najbliższa siedziba. Równe
+odległości rozstrzyga mniejsze `id`. Odległość w metrach wylicza PostGIS
+po powierzchni Ziemi, bez wyznaczania trasy drogowej. Dopasowanie dotyczy
+siedziby, nie potwierdza kompetencji ani rzeczywistego obszaru odpowiedzialności.
+
+Współrzędne i kod gminy siedziby są zapisane w `service_entities` w polach
+`seat_location` i `seat_teryt`. Rekomendacja czyta te dane z bazy. Nie geokoduje
+instytucji przy obsłudze zgłoszenia. `seat_geocoded_at` przechowuje datę ustalenia
+lokalizacji, a `seat_address` adres użyty do geokodowania. Po zmianie adresu
+jednostka jest pomijana do czasu ponownego uzupełnienia lokalizacji.
+Historyczne `teryt_code` z katalogu nie wpływa na wybór. Nieaktywne jednostki
+(`is_active=false`) pozostają w katalogu, ale nie są kandydatami do rekomendacji.
+
+Zwykły import zapisuje przejrzane lokalizacje ze zbioru
+`db/seeds/service_entity_seats.json`. Źródła, wyjątki i odświeżanie zbioru opisuje
+[TESTING.md](../../../TESTING.md#reference-data-import-and-refresh).
+Po zmianie adresu lub przy ręcznym uzupełnianiu siedzib możesz użyć:
+
+```sh
+cd apps/api
+uv run python -m app.geocode_service_entities
+```
+
+Polecenie używa tych samych zmiennych `POSTGRES_*` co API. Aby wczytać lokalne
+ustawienia z istniejącego pliku `.env`, użyj
+`uv run --env-file ../../.env python -m app.geocode_service_entities`.
+Zwykłe uruchomienie pomija zapisane siedziby o niezmienionym adresie;
+`--refresh` wymusza ponowne geokodowanie. Zapisane dane nie wygasają.
+Ponowny import niezmienionego katalogu zachowuje współrzędne.
+
+Polecenie pobiera punkty adresowe z
+[GUGiK UUG](https://services.gugik.gov.pl/uug/opis.html), z operacji `GetAddress`.
+Wymagane są miejscowość i numer budynku; ulica jest opcjonalna dla miejscowości
+bez ulic. Akceptujemy pojedynczy dokładny wynik o zgodnej miejscowości, ulicy i numerze oraz
+ocenie dopasowania co najmniej `0.8`. Wyniki alternatywne o niższej ocenie nie blokują
+dokładnego punktu. Kod pocztowy rozróżnia miejscowości o tej samej nazwie; dwa punkty
+tego samego adresu pozostają niejednoznaczne. Nie zastępujemy adresu środkiem ulicy lub miejscowości.
+PostGIS przelicza EPSG:2180 na WGS 84, a ULDK wyznacza region siedziby.
+Do UUG trafiają wyłącznie adresy instytucji, do ULDK współrzędne.
+
+Niepełne lub niejednoznaczne adresy są pomijane. Awaria usługi nie usuwa
+wcześniej zapisanych danych; polecenie podaje identyfikator jednostki, kontynuuje
+pozostałe i kończy się kodem 1, jeśli wystąpiły błędy. Można je bezpiecznie
+powtórzyć. Brak dopasowania podczas odświeżania usuwa starą lokalizację.
+Każde żądanie do GUGiK ma timeout 5 sekund.
+
+Odpowiedź zawiera `entity_type`, `scores`, `translation` oraz:
+
+- `region`: `municipality_teryt`, `municipality_name`, `county_teryt`,
+  `county_name` i `province_teryt` nowego zgłoszenia.
+- `recommendation`: pełny rekord `entity`, `match_level`, `distance_m`,
+  `seat_location` i aktualne `seat_municipality_teryt`; `null`, gdy nie ma
+  jednostki tego typu z jednoznacznie ustaloną siedzibą.
+- `candidates_count`: liczba jednostek typu wybranego przez Layę.
+- `skipped_candidates_count`: liczba jednostek pominiętych z powodu
+  brakującej zapisanej lokalizacji albo zmiany adresu od czasu geokodowania.
+
+Brak danych nie powoduje przejścia do innego typu jednostki. Awaria ULDK
+podczas ustalania regionu nowego zgłoszenia zwraca 503. Błędy klasyfikacji i zdjęć mają
+takie same kody jak `/inference/service-entity`. Endpoint nie zapisuje
+zgłoszenia, przypisania ani zmian do starych rekordów.
 
 ## Ustawienia modeli
 

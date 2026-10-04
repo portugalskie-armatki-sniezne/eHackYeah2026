@@ -44,6 +44,7 @@ class ServiceEntity(BaseModel):
     reporting_channel_description: str | None
     source_urls: list[str]
     verified_on: date
+    is_active: bool
 
 
 ENTITY_COLUMNS = sql.SQL(", ").join(sql.Identifier(field) for field in ServiceEntity.model_fields)

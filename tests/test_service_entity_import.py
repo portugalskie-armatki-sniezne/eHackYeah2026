@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from unittest.mock import patch
 from zipfile import ZipFile
 
 import psycopg
@@ -15,6 +16,7 @@ import collect_service_entities as collector
 import import_local_government_offices as offices_importer
 import import_reference_data as reference_importer
 import import_service_entities as importer
+import import_service_entity_seats as seats_importer
 
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
@@ -71,6 +73,15 @@ class ServiceEntityImportTests(unittest.TestCase):
         article = json.loads((FIXTURES / "service_entity_contact.json").read_text())
         self.assertEqual(collector.article_contacts(article)["email"], "biuro@gzwik-bochnia.pl")
 
+    def test_contact_menu_listing_without_main_article_is_followed_and_bounded(self):
+        responses = [
+            json.dumps([{"name": "Kontakt", "link": ",m,456"}]).encode(),
+            json.dumps({"mainArticleId": None, "articles": [{"id": 10}, {"id": 11}, {"id": 12}]}).encode(),
+        ]
+        with patch.object(collector, "fetch", side_effect=responses):
+            self.assertEqual(collector.contact_articles({"defaultMenuId": 123}, None),
+                             [collector.REGIONAL_API + "articles/10", collector.REGIONAL_API + "articles/11"])
+
     def test_merge_preserves_identity_and_supplement_verification_date(self):
         central = next(record for record in self.records if record["source_key"] == "bip:131102")
         regional = deepcopy(central)
@@ -98,7 +109,7 @@ class ServiceEntityImportTests(unittest.TestCase):
 
     def test_missing_contact_fields_remain_null(self):
         record = deepcopy(self.records[0])
-        required = {"source_key", "name", "entity_type", "source_urls", "verified_on"}
+        required = {"source_key", "name", "entity_type", "source_urls", "verified_on", "is_active"}
         for field in set(importer.COLUMNS) - required:
             record[field] = None
         with psycopg.connect(autocommit=True) as connection:
@@ -117,6 +128,29 @@ class ServiceEntityImportTests(unittest.TestCase):
                 ).fetchone()[0])
             finally:
                 importer.import_entities(connection, self.records)
+
+    def test_seat_snapshot_rejects_stale_addresses_and_invalid_coordinates(self):
+        seats = seats_importer.read_seats(Path("/seeds/service_entity_seats.json"), self.records)
+        for field, value in [("address", ["Other", None, "1"]), ("municipality_teryt", "12"),
+                             ("location", {"longitude": float("nan"), "latitude": 50})]:
+            changed = deepcopy(seats)
+            changed[0][field] = value
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                seats_importer.validate_seats(changed, self.records)
+
+    def test_seat_import_is_repeatable_and_preserves_ids(self):
+        seats = seats_importer.read_seats(Path("/seeds/service_entity_seats.json"), self.records)
+        resolved = next(seat for seat in seats if seat["location"] is not None)
+        with psycopg.connect() as connection:
+            before = connection.execute("SELECT source_key, id FROM service_entities ORDER BY id").fetchall()
+            self.assertEqual(seats_importer.import_seats(connection, seats, self.records), 0)
+            connection.execute(
+                "UPDATE service_entities SET seat_location = NULL, seat_address = NULL, "
+                "seat_teryt = NULL, seat_geocoded_at = NULL WHERE source_key = %s", (resolved["source_key"],)
+            )
+            self.assertEqual(seats_importer.import_seats(connection, seats, self.records), 1)
+            self.assertEqual(seats_importer.import_seats(connection, seats, self.records), 0)
+            self.assertEqual(before, connection.execute("SELECT source_key, id FROM service_entities ORDER BY id").fetchall())
 
     def test_upsert_ids_unchanged_rows_and_database_failure_rollback(self):
         with psycopg.connect(autocommit=True) as connection:

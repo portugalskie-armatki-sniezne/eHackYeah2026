@@ -56,6 +56,7 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
    ```
 
    > `task setup` tworzy `.env` z `.env.example`, jeśli plik nie istnieje. Zachowuje istniejący plik.
+   > `task setup`, `task web`, `task db` i `task api` włączają hook pre-commit z `.githooks`, który uruchamia `task fe:lint` albo `task be:lint`, gdy commit zmienia `apps/web` lub `apps/api`.
 
 3. Sprawdź ustawienia bazy danych i uzupełnij wartości w `.env`. Przed uruchomieniem API ustaw losowy `JWT_SECRET`. Polecenie do jego wygenerowania znajdziesz w `.env.example`.
 
@@ -69,7 +70,7 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 
 > Uruchamiaj `task web` i `task api` w osobnych terminalach. API jest dostępne pod adresem <http://127.0.0.1:8000>, a Vite wyświetla adres frontendu. Ctrl+C zatrzymuje aplikację w danym terminalu; PostgreSQL nadal działa pod adresem `127.0.0.1:POSTGRES_PORT`.
 
-> Przy uruchamianiu bazy importowany jest arkusz urzędów JST i zestaw danych jednostek usługowych z oficjalnych źródeł. `task db` kończy działanie po zakończeniu importu.
+> Przy uruchamianiu bazy importowany jest arkusz urzędów JST oraz przejrzane zbiory jednostek usługowych i ich siedzib. `task db` kończy działanie po zakończeniu importu.
 
 > Na potrzeby prezentacji `docker compose run --rm mock-seeder` podmienia przykładowych użytkowników, zgłoszenia, zdjęcia i dyskusje w Krakowie. Szczegóły i konta demo opisuje sekcja [mock demo data](TESTING.md#mock-demo-data).
 
@@ -106,6 +107,8 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 5. Po wdrożeniu `api` uruchom ręcznie `[4] Seed` dla `dev` lub `prod`, aby zaimportować dane z `db/seeds`. Import czeka na zakończenie wdrożeń w tym samym środowisku. Ponowne uruchomienie zachowuje identyfikatory i nie tworzy duplikatów; dane źródłowe nadpisują ręczne zmiany, a rekordy nieobecne w plikach pozostają w bazie.
 6. Uruchom ręcznie `[2] Release`, aby wdrożyć wszystkie trzy usługi na `prod`, a następnie utworzyć tag Git i wydanie na GitHubie. Wersje zawierają datę UTC i licznik wydań z danego dnia, np. `v2026.10.03-1`.
 7. Szablon Compose przechowuje zdjęcia zgłoszeń w `/app/uploads` na wolumenie `api_uploads`, dzięki czemu pozostają dostępne po wdrożeniu. `notify` montuje ten sam wolumen tylko do odczytu, aby dołączać zdjęcia do maili.
+
+Obraz API zawiera biblioteki do klasyfikacji na CPU oraz przypięte modele Laya i tłumacza PL → EN. GitHub Actions pobiera modele do warstwy obrazu zachowywanej w cache i sprawdza rzeczywistą klasyfikację polskiego tekstu podczas budowania. Compose włącza je na dev i prod bez dodatkowej konfiguracji serwerów. API powtarza sprawdzenie przy starcie i zgłasza gotowość pod `/ready` dopiero po jego powodzeniu. Wdrożenie czeka na gotowość do 10 minut; błąd modelu oznacza błąd wdrożenia. Zobacz [wdrożenie klasyfikacji](apps/api/docs/inference.md#wdrożenie-na-vps).
 
 > `[3] Lint` uruchamia ESLint, Prettier i Ruff dla każdego pull requesta i pusha do `main`, na runnerach GitHuba.
 

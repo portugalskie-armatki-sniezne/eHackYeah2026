@@ -39,7 +39,7 @@ BIP filtering, distinct transport roles, stable IDs, atomic upserts, spatial
 distance queries, reports saved before classification, master report links and independent
 content, statuses, assignment to either an office or a service entity, exclusive assignment,
 referenced entity deletion restrictions, shared comments and likes, photo relationships,
-edit timestamps, and reference data rollback. All five migrations are rolled back and
+edit timestamps, and reference data rollback. All eight migrations are rolled back and
 reapplied. Its containers, volume, and local image tag are removed afterward.
 
 Report locations use `geography(Point, 4326)`. Supply longitude before latitude, for
@@ -69,6 +69,10 @@ Migrations 01 and 02 create the tables, migration 03 adds constraints, and migra
 04 inserts the initial categories (`improvement`, `issue`) and master report statuses.
 Migration 05 adds Google sign-in to users; its rollback gives accounts without a password
 the hash `!`, which no password matches.
+Migration 07 adds persistent institution seat coordinates, their municipality code,
+the geocoding timestamp, and the source address. API tests cover geocoding updates,
+unchanged addresses, stale coordinates, and administrative recommendation priority.
+External geocoding is mocked in these tests.
 The statuses mean: `created` is saved in the application, `reported` is successfully
 sent to the responsible institution, `inprogress` has confirmed work in progress,
 and `finished` has confirmed completion. The backend owns classification, master
@@ -122,7 +126,7 @@ share the local demo password `mock_demo_password`, stored as a fixed argon2 has
 
 The [data model](apps/api/docs/data-model.md#źródła-danych) lists official sources,
 including the MSWiA office workbook. Normal `task db` startup imports the tracked
-workbook and service entity JSON without fetching external sources. Both imports
+workbook and service entity JSON without fetching external sources. The office, institution and reviewed seat imports
 run in one transaction. COPY and advisory-locked upserts preserve IDs and unchanged
 rows; records absent from a later source are retained.
 
@@ -150,7 +154,7 @@ live refresh. Review supplements separately; their dates never advance automatic
 Merged records retain the oldest applicable review date. Removing closed units or
 changing aliases already present in the database requires separate review.
 
-The 2026-10-03 snapshot contains 169 entities: 28 central matches and 152 regional
+The catalog reviewed on 2026-10-04 contains 169 entities: 28 central matches and 152 regional
 candidates, minus 13 BIP URL overlaps and two reviewed aliases, plus four additions.
 The central export contains 13,367 subjects; its SHA-256 and collection counts are
 stored in the snapshot. Every entity retains its source URLs and verification date.
@@ -159,14 +163,44 @@ Known gaps:
 
 - Selection by name is incomplete. Five municipal guards were found: Kraków, Tarnów,
   Bochnia, Wieliczka and Skawina.
-- 78 entities lack email, 99 lack phone numbers, and 64 lack both. Their BIP links
-  remain available. Unknown or ambiguous values stay NULL.
-- 136 entities lack confirmed TERYT, 72 lack locality/postal code, and 86 lack
-  street/house number. TERYT describes a related locality, not a service boundary.
-- Only 12 dedicated reporting channels were confirmed. General contact details do
-  not establish an intervention channel or responsibility for infrastructure.
+- All 169 entries have a complete numbered address. 165 have a published email;
+  the three active entries without a general mailbox have a published telephone
+  or contact form. Trzebinia's company in liquidation keeps its historical entry
+  with `is_active=false` and is excluded from recommendations.
+- `teryt_code` still describes a related locality, not a service boundary.
+  `seat_teryt` comes from the municipality boundary containing the geocoded seat.
+- Every active entry has a usable contact URI. Descriptions distinguish general
+  correspondence from dedicated intervention or emergency channels.
 - Central XML publication dates are empty. Reading an official source does not
   guarantee its contacts are current; reviewed supplements correct known differences.
+
+Normal startup also imports `db/seeds/service_entity_seats.json`. This frozen
+snapshot covers all 169 addresses and stores precise points, municipality codes,
+review dates, sources and notes. No live geocoding runs during startup. The import
+rejects stale address snapshots and preserves IDs and unchanged seat timestamps.
+Unresolved entries can retain an independently verified live seat, but a changed
+address cannot use old coordinates in recommendations.
+
+162 seats use exact PRG address points. Four use the exact pins of maps linked or
+embedded on institutional contact pages (Szczawnica, Osiek, Kęty and the Dąbrowa
+Tarnowska road manager). Three use a secondary Google Maps address pin with the
+full official address label: Bolesław Osadowa 1, Szczurowa Rynek 3C and Bobowa
+Bohaterów Bobowej 6A. Their notes explicitly distinguish these from coordinates
+published by the institution. Locality centers, street centers and neighboring
+house numbers are never used. Review these seven exceptions when refreshing.
+
+To collect a new seat snapshot, run from `apps/api` with the configured database
+available for read-only PostGIS coordinate conversion:
+
+```sh
+uv run --env-file ../../.env python -m app.collect_service_entity_seats --catalog ../../db/seeds/service_entities.json --reviews ../../db/seeds/service_entity_seat_reviews.json --output ../../db/seeds/service_entity_seats.json
+```
+
+Review `service_entity_seat_reviews.json` against its linked sources before this
+command. Reviewed street aliases preserve the published address, and office units
+are resolved to their verified building. Any address change invalidates its review.
+The collector resolves every point's actual municipality through ULDK. Network
+errors abort without replacing the file. Compare the generated diff before import.
 
 Test fixtures are small extracts of official BIP XML and regional API articles.
 They cover filtering, contact parsing and role separation; they are not seed data.

@@ -20,6 +20,15 @@ export type Registration = {
   password: string;
 };
 
+// a cleared email or phone is sent as null; the account keeps at least one
+export type UserUpdate = {
+  first_name?: string;
+  last_name?: string;
+  email?: string | null;
+  phone?: string | null;
+  password?: string;
+};
+
 export const authApi = {
   // the login holds an email or a phone number
   async login(login: string, password: string): Promise<string> {
@@ -49,5 +58,12 @@ export const authApi = {
 
   register(body: Registration): Promise<User> {
     return apiFetch("/users", { method: "POST", json: body, auth: false });
+  },
+
+  updateUser(id: string, body: UserUpdate): Promise<User> {
+    return apiFetch(`/users/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      json: body,
+    });
   },
 };

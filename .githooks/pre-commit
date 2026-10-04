@@ -1,0 +1,24 @@
+#!/bin/sh
+# lints the workspaces that have staged changes, with the same tasks as CI
+# enabled by `task setup|web|db|api`; skip it once with `git commit --no-verify`
+
+set -eu
+
+# git starts hooks without the shell profile, so mise and its tools may be missing from PATH
+PATH="$HOME/.local/bin:$PATH"
+run_task() {
+    if command -v mise >/dev/null 2>&1; then
+        mise exec -- task "$@"
+    else
+        task "$@"
+    fi
+}
+
+staged="$(git diff --cached --name-only --diff-filter=ACMR)"
+
+if echo "$staged" | grep -q '^apps/web/'; then
+    run_task fe:lint
+fi
+if echo "$staged" | grep -q '^apps/api/'; then
+    run_task be:lint
+fi

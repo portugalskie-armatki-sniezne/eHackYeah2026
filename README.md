@@ -56,6 +56,7 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
    ```
 
    > `task setup` creates `.env` from `.env.example` if it is missing and preserves an existing file.
+   > `task setup`, `task web`, `task db`, and `task api` enable the pre-commit hook from `.githooks`, which runs `task fe:lint` or `task be:lint` when a commit changes `apps/web` or `apps/api`.
 
 3. Review the database settings and replace the environment variable placeholders in `.env` with appropriate values and a random `JWT_SECRET` before starting the API. The generation command is included in `.env.example`.
 
@@ -69,7 +70,7 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 
 > We recommend running `task web` and `task api` in separate terminals. The API is available at <http://127.0.0.1:8000>; Vite prints the frontend URL. Ctrl+C stops the application in that terminal; PostgreSQL remains running on `127.0.0.1:POSTGRES_PORT`.
 
-> Database startup imports the local government office workbook and the official service entity snapshot. `task db` returns after seed import finishes.
+> Database startup imports the local government office workbook and the reviewed service entity and seat snapshots. `task db` returns after seed import finishes.
 
 > For demos, `docker compose run --rm mock-seeder` replaces mock users, reports, photos, and discussions in Kraków. See [mock demo data](TESTING.md#mock-demo-data) for details and demo accounts.
 
@@ -111,6 +112,8 @@ In development Vite proxies `/api` to `http://127.0.0.1:8000`; `API_PROXY_TARGET
 5. After deploying `api`, run `[4] Seed` manually for `dev` or `prod` to import reference data from `db/seeds`. It waits for deployments to the same environment. Repeating the import preserves IDs and avoids duplicates; seed data overwrites manual edits, while records absent from the seed files remain in the database.
 6. Run `[2] Release` manually to deploy all three services to `prod`, then publish a Git tag and GitHub release. Versions use the UTC date and a daily counter, for example `v2026.10.03-1`.
 7. The Compose template stores report photos in `/app/uploads` on the `api_uploads` volume, so they survive deployments. `notify` mounts the same volume read-only to attach photos to emails.
+
+The API image includes CPU inference dependencies and pinned Laya and PL-to-EN translation models. GitHub Actions downloads the models in a cached image layer and checks a real Polish classification during the build. Compose enables them on both dev and prod without additional server configuration. API startup repeats the check and reports readiness at `/ready` only after it succeeds. Deployment waits up to 10 minutes for readiness; a model failure fails the deployment. See [inference deployment](apps/api/docs/inference.md#wdrożenie-na-vps).
 
 > `[3] Lint` runs ESLint, Prettier, and Ruff on every pull request and push to `main`, using GitHub-hosted runners.
 
