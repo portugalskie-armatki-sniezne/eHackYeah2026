@@ -85,6 +85,11 @@ export type MasterReport = {
   report_count: number;
   /** the earliest photo among the master's reports, as a path under the api, or null */
   photo_url: string | null;
+  /**
+   * A photo a resident offered for a case that has none, which the map and the
+   * case's sheet show under a question mark until its author decides about it.
+   */
+  pending_photo_url: string | null;
   edited_at: string;
   created_at: string;
 };

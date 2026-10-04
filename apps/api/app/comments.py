@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Response, status
 from psycopg import errors, sql
 from pydantic import BaseModel, ConfigDict
 
+from app import notifications
 from app.auth import CurrentUser, OptionalUser
 from app.common import Connection, Limit, Offset, Page, Text, fetch_page
 
@@ -85,6 +86,18 @@ def create_comment(master_report_id: UUID, body: CommentCreate, user: CurrentUse
                 "VALUES (%s, %s, %s, %s) RETURNING id",
                 (master_report_id, user.id, body.content, body.highlighted),
             ).fetchone()["id"]
+            # the foreign key above already proved the master report exists.
+            title = connection.execute(
+                "SELECT title FROM master_reports WHERE id = %s", (master_report_id,)
+            ).fetchone()["title"]
+            notifications.create(
+                connection,
+                notifications.followers(connection, master_report_id, exclude=user.id),
+                "comment",
+                subject=title,
+                master_report_id=master_report_id,
+                detail=body.content,
+            )
     except errors.ForeignKeyViolation:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Master report not found") from None
     return fetch_comment(comment_id, user.id, connection)

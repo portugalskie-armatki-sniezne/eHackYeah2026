@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useEffectEvent,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -20,7 +21,13 @@ import EventMarkers, {
   DEFAULT_PIN_CATEGORY,
   type EventPin,
 } from "./EventMarkers";
+import {
+  ALL_MARKERS,
+  matchesFilters,
+  type MarkerFilters,
+} from "./markerFilters";
 import PinDialog, { type PinDraft } from "./PinDialog";
+import PhotoReportDialog from "./PhotoReportDialog";
 import MarkerDialog from "./MarkerDialog";
 import ReportClusters from "./ReportClusters";
 import { isClusterAt } from "./reportClusterHit";
@@ -75,6 +82,13 @@ function isReportCategory(name: string): name is ReportCategoryName {
 
 // master_report_statuses.id to the name the pin's pictogram and colour are picked by
 type StatusNames = ReadonlyMap<number, MasterReportStatusName>;
+
+// a photo from the "+" tile and the position it was taken at, until its sheet
+// files it or drops it
+type PhotoDraft = {
+  photo: File;
+  lngLat: [number, number];
+};
 
 // The sheet has no title field, so a report is titled by the start of its
 // description: the first line, cut where a sentence or the limit ends.
@@ -453,9 +467,8 @@ export default function Map({ onSignInRequired }: MapProps) {
   const [tilted, setTilted] = useState(false);
   const [styleReady, setStyleReady] = useState(false);
   const [pins, setPins] = useState<EventPin[]>([]);
-  // why the last photo report did not save, until the next one is tried
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const photoSavingRef = useRef(false);
+  // which kinds and statuses the toolbar's filter list leaves on the map
+  const [filters, setFilters] = useState<MarkerFilters>(ALL_MARKERS);
   // filled by the first load; a report saved before then falls back to the default
   const categoriesRef = useRef<CategoryNames>(new globalThis.Map());
   const statusesRef = useRef<StatusNames>(new globalThis.Map());
@@ -466,6 +479,10 @@ export default function Map({ onSignInRequired }: MapProps) {
   );
   // the clicked point while its marker sheet is open
   const [draftLngLat, setDraftLngLat] = useState<[number, number] | null>(null);
+  // A photo taken with the "+" tile while its description sheet is open. The
+  // position is the one the device had when the camera returned, so walking on
+  // while writing does not move the report.
+  const [photoDraft, setPhotoDraft] = useState<PhotoDraft | null>(null);
   // the clicked pin's master while its report sheet is open
   const [openPinId, setOpenPinId] = useState<string | null>(null);
   const { fix } = useUserPosition();
@@ -636,6 +653,15 @@ export default function Map({ onSignInRequired }: MapProps) {
     }
   }, [fix, flyToFix]);
 
+  // The pins the filters let through, which are the only ones drawn: the
+  // grouping is made of them too, so a disc tallies what is on the map rather
+  // than what was filtered out of it. A pin whose sheet is open is looked up in
+  // the full list, so a filter cannot shut the sheet from under the reader.
+  const visiblePins = useMemo(
+    () => pins.filter((pin) => matchesFilters(pin, filters)),
+    [pins, filters],
+  );
+
   const handleCloseDraft = useCallback(() => setDraftLngLat(null), []);
   const handleClosePin = useCallback(() => setOpenPinId(null), []);
   // the sheet is keyed by the master, and takes the pin's category with it
@@ -694,33 +720,38 @@ export default function Map({ onSignInRequired }: MapProps) {
     [draftLngLat, saveReport, pinForSavedReport],
   );
 
-  // The "+" tile skips the sheet: the photo is the report, filed where the
-  // device stands, and the camera goes there so the new pin is in view.
+  // The "+" tile takes the photo and hands it to its own sheet, which asks for
+  // the description the report is filed and titled under.
   const handlePhotoReport = useCallback(
-    async (photo: File) => {
-      if (!fix || photoSavingRef.current) {
+    (photo: File) => {
+      if (!fix) {
         return;
       }
-      photoSavingRef.current = true;
-      setSaveError(null);
-      try {
-        const report = await saveReport(
-          t.photoReportTitle,
-          { longitude: fix.lngLat[0], latitude: fix.lngLat[1] },
-          photo,
-        );
-        const pin = await pinForSavedReport(report, URL.createObjectURL(photo));
-        setPins((current) => upsertPin(current, pin));
-        flyToFix(fix.lngLat);
-      } catch (error) {
-        setSaveError(
-          error instanceof Error ? error.message : t.photoReportFailed,
-        );
-      } finally {
-        photoSavingRef.current = false;
-      }
+      setPhotoDraft({ photo, lngLat: fix.lngLat });
     },
-    [fix, flyToFix, saveReport, pinForSavedReport, t],
+    [fix],
+  );
+
+  const handleClosePhotoDraft = useCallback(() => setPhotoDraft(null), []);
+
+  // The photo is filed where it was taken, and the camera goes there so the new
+  // pin is in view. The preview stands in for the photo until it is fetched back.
+  const handleSendPhotoReport = useCallback(
+    async (description: string, photoUrl: string) => {
+      if (!photoDraft) {
+        return;
+      }
+      const [longitude, latitude] = photoDraft.lngLat;
+      const report = await saveReport(
+        description,
+        { longitude, latitude },
+        photoDraft.photo,
+      );
+      const pin = await pinForSavedReport(report, photoUrl);
+      setPins((current) => upsertPin(current, pin));
+      flyToFix(photoDraft.lngLat);
+    },
+    [photoDraft, flyToFix, saveReport, pinForSavedReport],
   );
 
   const handleZoomIn = useCallback(() => mapRef.current?.zoomIn(), []);
@@ -743,11 +774,6 @@ export default function Map({ onSignInRequired }: MapProps) {
 
   return (
     <section className="map" aria-label={t.label}>
-      {saveError && (
-        <aside className="map__notice" role="alert">
-          {saveError}
-        </aside>
-      )}
       <div className="map__frame" ref={frameRef}>
         <div className="map__canvas" ref={containerRef} />
       </div>
@@ -761,18 +787,22 @@ export default function Map({ onSignInRequired }: MapProps) {
         canRecenterOnMe={fix !== null}
         onPhotoReportStart={canStartReport}
         onPhotoReport={handlePhotoReport}
+        filters={filters}
+        onFiltersChange={setFilters}
+        shownPins={visiblePins.length}
+        totalPins={pins.length}
       />
       <UserPosition mapRef={mapRef} styleReady={styleReady} fix={fix} />
       <ReportClusters
         mapRef={mapRef}
         styleReady={styleReady}
-        pins={pins}
+        pins={visiblePins}
         onUngroupedChange={setUngroupedIds}
       />
       <EventMarkers
         mapRef={mapRef}
         styleReady={styleReady}
-        pins={pins}
+        pins={visiblePins}
         ungroupedIds={ungroupedIds}
         draftLngLat={draftLngLat}
         onPinClick={setOpenPinId}
@@ -782,6 +812,13 @@ export default function Map({ onSignInRequired }: MapProps) {
           lngLat={draftLngLat}
           onClose={handleCloseDraft}
           onAdd={handleAddPin}
+        />
+      )}
+      {photoDraft && (
+        <PhotoReportDialog
+          photo={photoDraft.photo}
+          onClose={handleClosePhotoDraft}
+          onSubmit={handleSendPhotoReport}
         />
       )}
       {openPin && (

@@ -81,6 +81,11 @@ const en = {
     posting: "Posting...",
     somethingWrong: "Something went wrong.",
     officialResponse: "Official response",
+    photoOf: (title: string) => `Photo of the case "${title}"`,
+    noPhoto: "No photo yet",
+    proposePhoto: "Propose photo",
+    proposePhotoMock:
+      "Mockup: offering a photo for this case is not wired up yet.",
   },
   status: {
     created: "Created",
@@ -120,8 +125,6 @@ const en = {
     canvasLabel:
       "Map. Use the arrow keys to pan and the plus and minus keys to zoom.",
     categoriesError: "The report categories could not be loaded.",
-    photoReportTitle: "Photo report",
-    photoReportFailed: "Could not save the photo report.",
     newPin: "New pin",
     pinLabel: (
       kind: PinKind,
@@ -160,6 +163,17 @@ const en = {
       "Describe your proposal for an initiative or innovation at this location...",
     checking: "Checking the database...",
     sendInitiative: "Send initiative",
+  },
+  photoReport: {
+    title: "Photo report",
+    hint: "Filed where you are standing.",
+    photoAlt: "The photo just taken",
+    description: "Description",
+    descriptionPlaceholder: "What is in the photo?",
+    discard: "Discard photo",
+    send: "Send report",
+    saving: "Saving...",
+    saveFailed: "Could not save the photo report.",
   },
   marker: {
     kinds: { issue: "Fault report", improvement: "Improvement idea" },
@@ -306,6 +320,20 @@ const en = {
     view: "View",
     recenterOnMe: "Recenter on me",
   },
+  filters: {
+    label: "Filter",
+    open: "Filter the pins on the map",
+    heading: "Show on the map",
+    kind: "Kind",
+    status: "Status",
+    kinds: {
+      issue: "Fault reports",
+      improvement: "Improvement ideas",
+    } as Record<PinKind, string>,
+    shown: (shown: number, total: number) => `${shown} of ${total} pins shown`,
+    selectAll: "Show all",
+    clear: "Hide all",
+  },
   profile: {
     title: "Profile",
     section: "Section",
@@ -416,6 +444,11 @@ const pl: Messages = {
     posting: "Publikowanie...",
     somethingWrong: "Coś poszło nie tak.",
     officialResponse: "Oficjalna odpowiedź",
+    photoOf: (title: string) => `Zdjęcie sprawy „${title}”`,
+    noPhoto: "Brak zdjęcia",
+    proposePhoto: "Zaproponuj zdjęcie",
+    proposePhotoMock:
+      "Makieta: proponowanie zdjęcia do tej sprawy jeszcze nie działa.",
   },
   status: {
     created: "Utworzone",
@@ -455,8 +488,6 @@ const pl: Messages = {
     canvasLabel:
       "Mapa. Przesuwaj strzałkami, a przybliżaj i oddalaj klawiszami plus i minus.",
     categoriesError: "Nie udało się wczytać kategorii zgłoszeń.",
-    photoReportTitle: "Zgłoszenie ze zdjęciem",
-    photoReportFailed: "Nie udało się zapisać zgłoszenia ze zdjęciem.",
     newPin: "Nowa pinezka",
     pinLabel: (
       kind: PinKind,
@@ -495,6 +526,17 @@ const pl: Messages = {
       "Opisz swoją propozycję inicjatywy lub innowacji w tej lokalizacji...",
     checking: "Sprawdzam bazę...",
     sendInitiative: "Wyślij inicjatywę",
+  },
+  photoReport: {
+    title: "Zgłoszenie ze zdjęciem",
+    hint: "Zapiszemy je w miejscu, w którym jesteś.",
+    photoAlt: "Właśnie zrobione zdjęcie",
+    description: "Opis",
+    descriptionPlaceholder: "Co chcesz zglosić?",
+    discard: "Odrzuć zdjęcie",
+    send: "Wyślij zgłoszenie",
+    saving: "Zapisywanie...",
+    saveFailed: "Nie udało się zapisać zgłoszenia ze zdjęciem.",
   },
   marker: {
     kinds: { issue: "Zgłoszenie usterki", improvement: "Pomysł na ulepszenie" },
@@ -636,6 +678,21 @@ const pl: Messages = {
     photoReportWaiting: "Zgłoś w moim położeniu, czekam na ustalenie pozycji",
     view: "Widok",
     recenterOnMe: "Wyśrodkuj na mnie",
+  },
+  filters: {
+    label: "Filtruj",
+    open: "Filtruj pinezki na mapie",
+    heading: "Pokaż na mapie",
+    kind: "Rodzaj",
+    status: "Status",
+    kinds: {
+      issue: "Usterki",
+      improvement: "Pomysły na ulepszenia",
+    } as Record<PinKind, string>,
+    shown: (shown: number, total: number) =>
+      `${shown} z ${total} pinezek na mapie`,
+    selectAll: "Pokaż wszystkie",
+    clear: "Ukryj wszystkie",
   },
   profile: {
     title: "Profil",

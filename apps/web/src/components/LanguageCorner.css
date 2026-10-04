@@ -17,15 +17,10 @@
   box-shadow: var(--scaffold-shadow);
 }
 
-/* A phone-width map toolbar fills the bottom edge, so there the switch steps
-   up and rests just above it: the toolbar's own bottom plus its narrow-screen
-   height (2.5rem tiles, 0.375rem padding and the 2px rule on each side) and
-   the amber offset between them. */
+/* A phone leaves no room beside the full-width map toolbar for a floating
+   switch, so at phone widths the corner steps out of the layout entirely. */
 @media (max-width: 40rem) {
-  .lang-corner--on-map {
-    bottom: calc(
-      var(--pill-inset) + 3 * var(--scaffold-offset) + var(--safe-bottom) +
-        2.5rem + 0.75rem + 2 * var(--scaffold-line) + 2 * var(--scaffold-offset)
-    );
+  .lang-corner {
+    display: none;
   }
 }

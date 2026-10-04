@@ -1,5 +1,7 @@
 import type { ChangeEvent } from "react";
 import { useMessages } from "../i18n/locale";
+import MapFilters from "./MapFilters";
+import type { MarkerFilters } from "./markerFilters";
 import "./MapToolbar.css";
 
 export type BasemapId = "streets";
@@ -17,6 +19,12 @@ type MapToolbarProps = {
   onPhotoReportStart: () => boolean;
   /** A photo taken with the "+" tile, to be pinned where the device is. */
   onPhotoReport: (photo: File) => void;
+  /** Which kinds and statuses the map draws a pin for. */
+  filters: MarkerFilters;
+  onFiltersChange: (filters: MarkerFilters) => void;
+  /** how many pins the filters leave on the map, out of every pin loaded */
+  shownPins: number;
+  totalPins: number;
 };
 
 export default function MapToolbar({
@@ -28,6 +36,10 @@ export default function MapToolbar({
   canRecenterOnMe,
   onPhotoReportStart,
   onPhotoReport,
+  filters,
+  onFiltersChange,
+  shownPins,
+  totalPins,
 }: MapToolbarProps) {
   const t = useMessages().toolbar;
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -117,6 +129,18 @@ export default function MapToolbar({
             3D
           </button>
         </div>
+        {/* Its own tile rather than one of the view controls: on a phone it
+            leaves the row altogether for the sheet's bottom-left corner. */}
+        <span
+          className="toolbar__divider toolbar__divider--filters"
+          aria-hidden="true"
+        />
+        <MapFilters
+          filters={filters}
+          onChange={onFiltersChange}
+          shown={shownPins}
+          total={totalPins}
+        />
       </div>
     </div>
   );
