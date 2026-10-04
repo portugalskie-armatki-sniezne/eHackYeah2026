@@ -1,0 +1,3693 @@
+{
+  "format_version": 1,
+  "seats": [
+    {
+      "source_key": "bip:102074",
+      "address": [
+        "Kraków",
+        "Al. Jana Pawła II",
+        "188"
+      ],
+      "location": {
+        "longitude": 20.018734362385008,
+        "latitude": 50.071688085701304
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+aleja+jana+paw%C5%82a+ii+188&accuracy=0.8&exact_number=1",
+        "https://strazmiejska.krakow.pl/195281,artykul,kontakt.html",
+        "https://strazmiejska.krakow.pl/214252,artykul,zglos-interwencje.html",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.018734362385008%2C50.071688085701304%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:102700",
+      "address": [
+        "Kraków",
+        "Rakowicka",
+        "26"
+      ],
+      "location": {
+        "longitude": 19.956389855574095,
+        "latitude": 50.07347590075147
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+rakowicka+26&accuracy=0.8&exact_number=1",
+        "https://www.bip.krakow.pl/?bip_id=489",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.956389855574095%2C50.07347590075147%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:102889",
+      "address": [
+        "Kraków",
+        "Reymonta",
+        "20"
+      ],
+      "location": {
+        "longitude": 19.913086841303887,
+        "latitude": 50.064343184252316
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+reymonta+20&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+w%C5%82adys%C5%82awa+reymonta+20&accuracy=0.8&exact_number=1",
+        "https://www.bip.krakow.pl/ZIM",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.913086841303887%2C50.064343184252316%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "bip:102997",
+      "address": [
+        "Skawina",
+        "Radziszowska",
+        "11"
+      ],
+      "location": {
+        "longitude": 19.81692019702863,
+        "latitude": 49.96167880436436
+      },
+      "municipality_teryt": "1206113",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1076781",
+        "https://bip.malopolska.pl/api/contexts/zwikskawina",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Skawina%2C+radziszowska+11&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.81692019702863%2C49.96167880436436%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:103164",
+      "address": [
+        "Kalwaria Zebrzydowska",
+        "ul. Podlesie",
+        "30"
+      ],
+      "location": {
+        "longitude": 19.675217245750325,
+        "latitude": 49.87725268951242
+      },
+      "municipality_teryt": "1218033",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/145784",
+        "https://bip.malopolska.pl/api/articles/145792",
+        "https://bip.malopolska.pl/api/contexts/mzwikszokzebrzydowskiej",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Kalwaria+Zebrzydowska%2C+podlesie+30&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.675217245750325%2C49.87725268951242%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:103201",
+      "address": [
+        "Maków Podhalański",
+        "ul. 3 Maja",
+        "40a"
+      ],
+      "location": {
+        "longitude": 19.68391997977727,
+        "latitude": 49.72693051991872
+      },
+      "municipality_teryt": "1215063",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1662171",
+        "https://bip.malopolska.pl/api/contexts/ekoskawa",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Mak%C3%B3w+Podhala%C5%84ski%2C+3+maja+40a&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.68391997977727%2C49.72693051991872%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:103246",
+      "address": [
+        "Kraków",
+        "ul. Walerego Sławka",
+        "10"
+      ],
+      "location": {
+        "longitude": 19.956730867766524,
+        "latitude": 50.02497307599956
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+walerego+s%C5%82awka+10&accuracy=0.8&exact_number=1",
+        "https://www.bip.krakow.pl/ZIS",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.956730867766524%2C50.02497307599956%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:105713",
+      "address": [
+        "Szczawnica",
+        "ul. Zawodzie",
+        "19c"
+      ],
+      "location": {
+        "longitude": 20.4821247,
+        "latitude": 49.4237478
+      },
+      "municipality_teryt": "1211023",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/842906",
+        "https://bip.malopolska.pl/api/articles/842909",
+        "https://bip.malopolska.pl/api/contexts/mzgkomunalnej",
+        "https://mzgk.szczawnica.pl/pl/4296/0/kontakt.html",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Szczawnica%2C+zawodzie+19c&accuracy=0.8&exact_number=1",
+        "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d10380.860248728726!2d20.482125!3d49.423748!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x473e05d674b25f69%3A0xcebe618ad22f0334!2sMiejski%20Zak%C5%82ad%20Gospodarki%20Komunalnej!5e0!3m2!1spl!2spl",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.4821247%2C49.4237478%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact address pin in the map embedded on the institutional contact page. PRG has no unique address point. The pin coordinates, not the map viewport center, are used."
+    },
+    {
+      "source_key": "bip:107401",
+      "address": [
+        "Nowy Targ",
+        "ul. Parkowa",
+        "14"
+      ],
+      "location": {
+        "longitude": 20.026715814946755,
+        "latitude": 49.484105410015935
+      },
+      "municipality_teryt": "1211011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/contexts/zgzirnowytarg",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+Targ%2C+parkowa+14&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.026715814946755%2C49.484105410015935%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:107548",
+      "address": [
+        "Oświęcim",
+        "Ostatni Etap",
+        "6"
+      ],
+      "location": {
+        "longitude": 19.194692297040316,
+        "latitude": 50.02545148565974
+      },
+      "municipality_teryt": "1213011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/721361",
+        "https://bip.malopolska.pl/api/articles/721369",
+        "https://bip.malopolska.pl/api/contexts/pwikszoo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=O%C5%9Bwi%C4%99cim%2C+ostatni+etap+6&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.194692297040316%2C50.02545148565974%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:108503",
+      "address": [
+        "Sucha Beskidzka",
+        "Wadowicka",
+        "4"
+      ],
+      "location": {
+        "longitude": 19.60474802112022,
+        "latitude": 49.75430288080766
+      },
+      "municipality_teryt": "1215021",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/561711",
+        "https://bip.malopolska.pl/api/contexts/zkwsbeskidzkiej",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Sucha+Beskidzka%2C+wadowicka+4&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.60474802112022%2C49.75430288080766%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:108746",
+      "address": [
+        "Alwernia",
+        "ul. Henryka Sienkiewicza",
+        "48"
+      ],
+      "location": {
+        "longitude": 19.530694517199642,
+        "latitude": 50.065160724547674
+      },
+      "municipality_teryt": "1203013",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1888740",
+        "https://bip.malopolska.pl/api/contexts/zukalwernia",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Alwernia%2C+henryka+sienkiewicza+48&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.530694517199642%2C50.065160724547674%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:111259",
+      "address": [
+        "Kraków",
+        "Głowackiego",
+        "56"
+      ],
+      "location": {
+        "longitude": 19.907478258588206,
+        "latitude": 50.08110104392714
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/181813",
+        "https://bip.malopolska.pl/api/contexts/zdwwkrakowie",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+bartosza+g%C5%82owackiego+56&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+g%C5%82owackiego+56&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.907478258588206%2C50.08110104392714%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "bip:111775",
+      "address": [
+        "Myślenice",
+        "Marszałka Józefa Piłsudskiego",
+        "47"
+      ],
+      "location": {
+        "longitude": 19.94727150351502,
+        "latitude": 49.823625656514466
+      },
+      "municipality_teryt": "1209033",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=My%C5%9Blenice%2C+marsza%C5%82ka+j%C3%B3zefa+pi%C5%82sudskiego+47&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.94727150351502%2C49.823625656514466%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:113198",
+      "address": [
+        "Kraków",
+        "Ul. Bolesława Czerwieńskiego",
+        "16"
+      ],
+      "location": {
+        "longitude": 19.90390890851699,
+        "latitude": 50.085887489712974
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+boles%C5%82awa+czerwie%C5%84skiego+16&accuracy=0.8&exact_number=1",
+        "https://www.bip.krakow.pl/?bip_id=32",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.90390890851699%2C50.085887489712974%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:116669",
+      "address": [
+        "Chrzanów",
+        "Garncarska",
+        "4"
+      ],
+      "location": {
+        "longitude": 19.405745140639336,
+        "latitude": 50.14316699814019
+      },
+      "municipality_teryt": "1203033",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/368548",
+        "https://bip.malopolska.pl/api/contexts/mzzkwchrzanowie",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Chrzan%C3%B3w%2C+garncarska+4&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.405745140639336%2C50.14316699814019%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:119315",
+      "address": [
+        "Gorlice",
+        "Kościuszki",
+        "92a"
+      ],
+      "location": {
+        "longitude": 21.14901848640328,
+        "latitude": 49.647823692405
+      },
+      "municipality_teryt": "1205011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2448962",
+        "https://bip.malopolska.pl/api/contexts/mzukgorlice",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Gorlice%2C+ko%C5%9Bciuszki+92a&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Gorlice%2C+tadeusza+ko%C5%9Bciuszki+92a&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=21.14901848640328%2C49.647823692405%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "bip:120701",
+      "address": [
+        "Kraków",
+        "Reymonta",
+        "20"
+      ],
+      "location": {
+        "longitude": 19.913086841303887,
+        "latitude": 50.064343184252316
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+reymonta+20&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+w%C5%82adys%C5%82awa+reymonta+20&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://zzm.krakow.pl/pl/kontakt.html",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.913086841303887%2C50.064343184252316%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "bip:122809",
+      "address": [
+        "Kraków",
+        "Jana Brożka",
+        "3"
+      ],
+      "location": {
+        "longitude": 19.932336186671122,
+        "latitude": 50.030719673937504
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://mpk.krakow.pl/kontakt",
+        "https://mpk.krakow.pl/zalatwianie-spraw",
+        "https://mpk.krakow.pl/zgloszenie-dotyczace-uslugi",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+jana+bro%C5%BCka+3&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.932336186671122%2C50.030719673937504%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:122998",
+      "address": [
+        "Tarnów",
+        "Bernardyńska",
+        "24"
+      ],
+      "location": {
+        "longitude": 20.991546494133328,
+        "latitude": 50.01194798445066
+      },
+      "municipality_teryt": "1263011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Tarn%C3%B3w%2C+bernardy%C5%84ska+24&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.991546494133328%2C50.01194798445066%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:125024",
+      "address": [
+        "Chrzanów",
+        "Grzybowskiego",
+        "7A"
+      ],
+      "location": {
+        "longitude": 19.39728229597535,
+        "latitude": 50.13665916489175
+      },
+      "municipality_teryt": "1203033",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/261598",
+        "https://bip.malopolska.pl/api/articles/261604",
+        "https://bip.malopolska.pl/api/contexts/pzdwchrzanowie",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Chrzan%C3%B3w%2C+grzybowskiego+7A&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Chrzan%C3%B3w%2C+majora+franciszka+grzybowskiego+7A&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.39728229597535%2C50.13665916489175%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "bip:127442",
+      "address": [
+        "Kraków",
+        "Osiedle Szkolne",
+        "27"
+      ],
+      "location": {
+        "longitude": 20.047576411973548,
+        "latitude": 50.07703374237491
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+osiedle+szkolne+27&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://ziw.krakow.pl/bezpieczny-krakow/numery-alarmowe/",
+        "https://ziw.krakow.pl/dane-adresowe/",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.047576411973548%2C50.07703374237491%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:127777",
+      "address": [
+        "Kraków",
+        "Centralna",
+        "53"
+      ],
+      "location": {
+        "longitude": 20.007478303802724,
+        "latitude": 50.06353842726716
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+centralna+53&accuracy=0.8&exact_number=1",
+        "https://www.bip.krakow.pl/?bip_id=511&rNtd=10176",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.007478303802724%2C50.06353842726716%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:127785",
+      "address": [
+        "Nowy Targ",
+        "os. Konfederacji Tatrzańskiej",
+        "1A"
+      ],
+      "location": {
+        "longitude": 20.043550673905578,
+        "latitude": 49.48209724783766
+      },
+      "municipality_teryt": "1211011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+Targ%2C+konfederacji+tatrza%C5%84skiej+1A&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+Targ%2C+osiedle+konfederacji+tatrza%C5%84skiej+1A&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.043550673905578%2C49.48209724783766%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "bip:129155",
+      "address": [
+        "Kraków",
+        "Wielopole",
+        "1"
+      ],
+      "location": {
+        "longitude": 19.943177438466563,
+        "latitude": 50.05902600247818
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+wielopole+1&accuracy=0.8&exact_number=1",
+        "https://www.bip.krakow.pl/?bip_id=616&mmi=15467",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.943177438466563%2C50.05902600247818%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:131102",
+      "address": [
+        "Nowy Sącz",
+        "J. Wiśniowieckiego",
+        "136"
+      ],
+      "location": {
+        "longitude": 20.726677633896163,
+        "latitude": 49.60163783164773
+      },
+      "municipality_teryt": "1262011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/380955",
+        "https://bip.malopolska.pl/api/contexts/pzdnowysacz",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+S%C4%85cz%2C+j.+wi%C5%9Bniowieckiego+136&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+S%C4%85cz%2C+jeremiego+wi%C5%9Bniowieckiego+136&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.726677633896163%2C49.60163783164773%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "bip:131670",
+      "address": [
+        "Oświęcim",
+        "Stanisławy Leszczyńskiej",
+        "7"
+      ],
+      "location": {
+        "longitude": 19.195921143022478,
+        "latitude": 50.035938597651196
+      },
+      "municipality_teryt": "1213011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=O%C5%9Bwi%C4%99cim%2C+stanis%C5%82awy+leszczy%C5%84skiej+7&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.195921143022478%2C50.035938597651196%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "bip:140168",
+      "address": [
+        "Tomice",
+        "Wadowicka",
+        "55"
+      ],
+      "location": {
+        "longitude": 19.48429736748901,
+        "latitude": 49.90137331132981
+      },
+      "municipality_teryt": "1218082",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/163927",
+        "https://bip.malopolska.pl/api/contexts/gzkwtomicach",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Tomice%2C+wadowicka+55&accuracy=0.8&exact_number=1",
+        "https://www.gov.pl/web/bip/spis",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.48429736748901%2C49.90137331132981%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1036",
+      "address": [
+        "Trzebinia",
+        "Rynek",
+        "18"
+      ],
+      "location": {
+        "longitude": 19.47280005030641,
+        "latitude": 50.1597817705769
+      },
+      "municipality_teryt": "1203053",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/365781",
+        "https://bip.malopolska.pl/api/contexts/ukszoo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Trzebinia%2C+rynek+18&accuracy=0.8&exact_number=1",
+        "https://trzebinia.pl/administracja-miasto-i-gmina/jednostki-organizacyjne-i-spolki-z-udzialem-gminy/uslugi-komunalne-trzebinia-sp-z-o-o-w-likwidacji",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.47280005030641%2C50.1597817705769%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1210",
+      "address": [
+        "Węgrzce",
+        "Forteczna",
+        "3"
+      ],
+      "location": {
+        "longitude": 19.96581744003,
+        "latitude": 50.11683013076625
+      },
+      "municipality_teryt": "1206172",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/489957",
+        "https://bip.malopolska.pl/api/contexts/pukwzszoo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=W%C4%99grzce%2C+forteczna+3&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.96581744003%2C50.11683013076625%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1295",
+      "address": [
+        "Zabierzów",
+        "Kolejowa",
+        "38"
+      ],
+      "location": {
+        "longitude": 19.802449141073104,
+        "latitude": 50.11719042336412
+      },
+      "municipality_teryt": "1206162",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/489409",
+        "https://bip.malopolska.pl/api/articles/489474",
+        "https://bip.malopolska.pl/api/contexts/pukszowzabierzowie",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Zabierz%C3%B3w%2C+kolejowa+38&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.802449141073104%2C50.11719042336412%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1366",
+      "address": [
+        "Krzeszowice",
+        "plac Franciszka Kulczyckiego",
+        "1"
+      ],
+      "location": {
+        "longitude": 19.63447929330711,
+        "latitude": 50.137028320535066
+      },
+      "municipality_teryt": "1206063",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/477800",
+        "https://bip.malopolska.pl/api/articles/477822",
+        "https://bip.malopolska.pl/api/contexts/zabkomunalnych",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krzeszowice%2C+franciszka+kulczyckiego+1&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krzeszowice%2C+plac+franciszka+kulczyckiego+1&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.63447929330711%2C50.137028320535066%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "malopolska:1369",
+      "address": [
+        "Krzeszowice",
+        "plac Franciszka Kulczyckiego",
+        "1"
+      ],
+      "location": {
+        "longitude": 19.63447929330711,
+        "latitude": 50.137028320535066
+      },
+      "municipality_teryt": "1206063",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1083745",
+        "https://bip.malopolska.pl/api/articles/477698",
+        "https://bip.malopolska.pl/api/contexts/ukomunalne",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krzeszowice%2C+franciszka+kulczyckiego+1&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krzeszowice%2C+plac+franciszka+kulczyckiego+1&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.63447929330711%2C50.137028320535066%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "malopolska:1370",
+      "address": [
+        "Krzeszowice",
+        "Stanisława Czycza",
+        "2A"
+      ],
+      "location": {
+        "longitude": 19.64897243733139,
+        "latitude": 50.127066763439856
+      },
+      "municipality_teryt": "1206063",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/477646",
+        "https://bip.malopolska.pl/api/contexts/wikkrzeszowice",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krzeszowice%2C+stanis%C5%82awa+czycza+2A&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.64897243733139%2C50.127066763439856%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1416",
+      "address": [
+        "Limanowa",
+        "Rzeczna",
+        "7"
+      ],
+      "location": {
+        "longitude": 20.397211146740815,
+        "latitude": 49.73282110272757
+      },
+      "municipality_teryt": "1207011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/568035",
+        "https://bip.malopolska.pl/api/articles/568093",
+        "https://bip.malopolska.pl/api/contexts/mzgkimszoo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Limanowa%2C+rzeczna+7&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.397211146740815%2C49.73282110272757%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1458",
+      "address": [
+        "Biertowice",
+        "Królewska",
+        "305"
+      ],
+      "location": {
+        "longitude": 19.792909664522256,
+        "latitude": 49.870444396547256
+      },
+      "municipality_teryt": "1209073",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/615104",
+        "https://bip.malopolska.pl/api/contexts/zgkwsulkowicach",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Biertowice%2C+kr%C3%B3lewska+305&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.792909664522256%2C49.870444396547256%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1503",
+      "address": [
+        "Chełmiec",
+        "Papieska",
+        "2"
+      ],
+      "location": {
+        "longitude": 20.6671397066217,
+        "latitude": 49.629840811035386
+      },
+      "municipality_teryt": "1210022",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/641933",
+        "https://bip.malopolska.pl/api/contexts/zgkimieszkaniowej",
+        "https://chelmiec.pl/zgkim-rodo/",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Che%C5%82miec%2C+papieska+2&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.6671397066217%2C49.629840811035386%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1595",
+      "address": [
+        "Grybów",
+        "Ogrodowa",
+        "4"
+      ],
+      "location": {
+        "longitude": 20.94202959955857,
+        "latitude": 49.62535187921431
+      },
+      "municipality_teryt": "1210011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/642729",
+        "https://bip.malopolska.pl/api/contexts/mpgkszoowgrybowie",
+        "https://labowa.pl/pl/200792/0/wykaz-firm-posiadajacych-zezwolenie-na-oproznianie-zbiornikow-bezodplywowych-i-osadnikow-w-instalacjach-przydomowych-oczyszczalni-sciekow.html",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Gryb%C3%B3w%2C+ogrodowa+4&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.94202959955857%2C49.62535187921431%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1618",
+      "address": [
+        "Piwniczna-Zdrój",
+        "Krakowska",
+        "26"
+      ],
+      "location": {
+        "longitude": 20.70396678685357,
+        "latitude": 49.44952253042536
+      },
+      "municipality_teryt": "1210133",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1220689",
+        "https://bip.malopolska.pl/api/articles/771869",
+        "https://bip.malopolska.pl/api/contexts/mzgkimwpzdroju",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Piwniczna-Zdr%C3%B3j%2C+krakowska+26&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.70396678685357%2C49.44952253042536%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1642",
+      "address": [
+        "Łącko",
+        null,
+        "755"
+      ],
+      "location": {
+        "longitude": 20.431376382274806,
+        "latitude": 49.56195206903643
+      },
+      "municipality_teryt": "1210092",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/645865",
+        "https://bip.malopolska.pl/api/contexts/zgkwlacku",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=%C5%81%C4%85cko+755&accuracy=0.8&exact_number=1",
+        "https://www.uglacko.pl/strona/239-zaklad-gospodarki-komunalnej-w-lacku",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.431376382274806%2C49.56195206903643%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1655",
+      "address": [
+        "Maniowy",
+        "Gorczańska",
+        "3"
+      ],
+      "location": {
+        "longitude": 20.26540447789502,
+        "latitude": 49.460160564893016
+      },
+      "municipality_teryt": "1211042",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1656545",
+        "https://bip.malopolska.pl/api/contexts/zgkwmaniowach",
+        "https://czorsztyn.pl/files/files/Wiesci%20z%20Gminy%20Czorsztyn%20nr%2063.pdf",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Maniowy%2C+gorcza%C5%84ska+3&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.26540447789502%2C49.460160564893016%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1716",
+      "address": [
+        "Biała Niżna",
+        null,
+        "431"
+      ],
+      "location": {
+        "longitude": 20.972795316935475,
+        "latitude": 49.640164055155246
+      },
+      "municipality_teryt": "1210042",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/659234",
+        "https://bip.malopolska.pl/api/articles/659253",
+        "https://bip.malopolska.pl/api/contexts/zwikwgrybowie",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Bia%C5%82a+Ni%C5%BCna+431&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.972795316935475%2C49.640164055155246%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1773",
+      "address": [
+        "Jabłonka",
+        "3 Maja",
+        "1"
+      ],
+      "location": {
+        "longitude": 19.695415395058298,
+        "latitude": 49.47790883806843
+      },
+      "municipality_teryt": "1211052",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/671905",
+        "https://bip.malopolska.pl/api/articles/672047",
+        "https://bip.malopolska.pl/api/contexts/zukomunalnych",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Jab%C5%82onka%2C+3+maja+1&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.695415395058298%2C49.47790883806843%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1797",
+      "address": [
+        "Krościenko nad Dunajcem",
+        "Jana III Sobieskiego",
+        "3F"
+      ],
+      "location": {
+        "longitude": 20.42187820149397,
+        "latitude": 49.45041219515557
+      },
+      "municipality_teryt": "1211062",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/773917",
+        "https://bip.malopolska.pl/api/articles/773924",
+        "https://bip.malopolska.pl/api/contexts/zgkomunalnej3",
+        "https://kroscienko.pl/pl/835/0/dane-teleadresowe-zgk.html",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Kro%C5%9Bcienko+nad+Dunajcem%2C+jana+iii+sobieskiego+3F&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.42187820149397%2C49.45041219515557%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1840",
+      "address": [
+        "Brzeszcze",
+        "Kościelna",
+        "7"
+      ],
+      "location": {
+        "longitude": 19.147192813365628,
+        "latitude": 49.98267378694287
+      },
+      "municipality_teryt": "1213023",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/715978",
+        "https://bip.malopolska.pl/api/articles/715993",
+        "https://bip.malopolska.pl/api/contexts/akszoo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Brzeszcze%2C+ko%C5%9Bcielna+7&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.147192813365628%2C49.98267378694287%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1856",
+      "address": [
+        "Rabka-Zdrój",
+        "Zaryte",
+        "141A"
+      ],
+      "location": {
+        "longitude": 19.999174688894094,
+        "latitude": 49.625478368017106
+      },
+      "municipality_teryt": "1211123",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/687548",
+        "https://bip.malopolska.pl/api/articles/687591",
+        "https://bip.malopolska.pl/api/contexts/zwikszoo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Rabka-Zdr%C3%B3j%2C+zaryte+141A&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.999174688894094%2C49.625478368017106%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1858",
+      "address": [
+        "Rabka-Zdrój",
+        "Kilińskiego",
+        "46b"
+      ],
+      "location": {
+        "longitude": 19.93170389465924,
+        "latitude": 49.607726383512265
+      },
+      "municipality_teryt": "1211123",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1863297",
+        "https://bip.malopolska.pl/api/articles/779016",
+        "https://bip.malopolska.pl/api/contexts/zkszoo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Rabka-Zdr%C3%B3j%2C+kili%C5%84skiego+46b&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.93170389465924%2C49.607726383512265%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1893",
+      "address": [
+        "Przeciszów",
+        "Długa",
+        "166"
+      ],
+      "location": {
+        "longitude": 19.363637233681615,
+        "latitude": 50.003359384545654
+      },
+      "municipality_teryt": "1213082",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/782978",
+        "https://bip.malopolska.pl/api/articles/783008",
+        "https://bip.malopolska.pl/api/contexts/gzwwprzeciszowej",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Przecisz%C3%B3w%2C+d%C5%82uga+166&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.363637233681615%2C50.003359384545654%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:1922",
+      "address": [
+        "Bolesław",
+        "Osadowa",
+        "1"
+      ],
+      "location": {
+        "longitude": 19.4996749,
+        "latitude": 50.2939775
+      },
+      "municipality_teryt": "1212032",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/710714",
+        "https://bip.malopolska.pl/api/articles/788204",
+        "https://bip.malopolska.pl/api/contexts/zgkbszoo",
+        "https://maps.google.com/maps?q=Osadowa+1%2C+32-329+Boles%C5%82aw&output=embed",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Boles%C5%82aw%2C+osadowa+1&accuracy=0.8&exact_number=1",
+        "https://zgkboleslaw.com/kontakt/",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.4996749%2C50.2939775%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Secondary geocoder: Google Maps returns a building/address pin whose full address label matches the official institution address, including the suffix and postal code. PRG has no unique exact point. This is a mapped address pin, not an institution-published coordinate or a locality centroid."
+    },
+    {
+      "source_key": "malopolska:1927",
+      "address": [
+        "Osiek",
+        "Ceglana",
+        "2"
+      ],
+      "location": {
+        "longitude": 19.2320111,
+        "latitude": 49.9585168
+      },
+      "municipality_teryt": "1213052",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/719651",
+        "https://bip.malopolska.pl/api/contexts/gzgkwosieku",
+        "https://gzgk.osiek.pl/kontakt/",
+        "https://maps.google.com/maps?q=Ceglana%202%2C%20Osiek&t=m&z=16&output=embed&iwloc=near",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Osiek%2C+ceglana+2&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.2320111%2C49.9585168%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact address pin in the map embedded on the institutional contact page. PRG has no unique address point. The pin coordinates, not the map viewport center, are used."
+    },
+    {
+      "source_key": "malopolska:2029",
+      "address": [
+        "Krynica-Zdrój",
+        "Józefa Ignacego Kraszewskiego",
+        "37"
+      ],
+      "location": {
+        "longitude": 20.95532945595248,
+        "latitude": 49.41104168875372
+      },
+      "municipality_teryt": "1210073",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/695513",
+        "https://bip.malopolska.pl/api/articles/695530",
+        "https://bip.malopolska.pl/api/contexts/zwikwkrynicyzdroju",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krynica-Zdr%C3%B3j%2C+j%C3%B3zefa+ignacego+kraszewskiego+37&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.95532945595248%2C49.41104168875372%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:203",
+      "address": [
+        "Olkusz",
+        "Kluczewska",
+        "2"
+      ],
+      "location": {
+        "longitude": 19.55463442300107,
+        "latitude": 50.28462821326059
+      },
+      "municipality_teryt": "1212053",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/303425",
+        "https://bip.malopolska.pl/api/contexts/zkgkmolkusz",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Olkusz%2C+kluczewska+2&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.55463442300107%2C50.28462821326059%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2030",
+      "address": [
+        "Krynica-Zdrój",
+        "Józefa Ignacego Kraszewskiego",
+        "37"
+      ],
+      "location": {
+        "longitude": 20.95532945595248,
+        "latitude": 49.41104168875372
+      },
+      "municipality_teryt": "1210073",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/695359",
+        "https://bip.malopolska.pl/api/articles/695373",
+        "https://bip.malopolska.pl/api/contexts/mpgkszoo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krynica-Zdr%C3%B3j%2C+j%C3%B3zefa+ignacego+kraszewskiego+37&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.95532945595248%2C49.41104168875372%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2049",
+      "address": [
+        "Bukowno",
+        "Leśna",
+        "7B"
+      ],
+      "location": {
+        "longitude": 19.467487438286987,
+        "latitude": 50.270851317740224
+      },
+      "municipality_teryt": "1212011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/714158",
+        "https://bip.malopolska.pl/api/articles/714177",
+        "https://bip.malopolska.pl/api/contexts/mzgkwbukownie",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Bukowno%2C+le%C5%9Bna+7B&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.467487438286987%2C50.270851317740224%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:205",
+      "address": [
+        "Chrzanów",
+        "Aleja Henryka",
+        "20"
+      ],
+      "location": {
+        "longitude": 19.401576923654787,
+        "latitude": 50.141034723492794
+      },
+      "municipality_teryt": "1203033",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/352346",
+        "https://bip.malopolska.pl/api/contexts/zkkkmchrzanow",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Chrzan%C3%B3w%2C+aleja+henryka+20&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.401576923654787%2C50.141034723492794%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2070",
+      "address": [
+        "Zator",
+        "Zamkowa",
+        "4"
+      ],
+      "location": {
+        "longitude": 19.44274732329597,
+        "latitude": 49.99756577401517
+      },
+      "municipality_teryt": "1213093",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/853678",
+        "https://bip.malopolska.pl/api/contexts/zgkszowzatorze",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Zator%2C+zamkowa+4&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.44274732329597%2C49.99756577401517%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2125",
+      "address": [
+        "Chełmek",
+        "Piastowska",
+        "18"
+      ],
+      "location": {
+        "longitude": 19.25221647497929,
+        "latitude": 50.100513039587455
+      },
+      "municipality_teryt": "1213033",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/719045",
+        "https://bip.malopolska.pl/api/articles/719056",
+        "https://bip.malopolska.pl/api/contexts/mzgkwcszoo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Che%C5%82mek%2C+piastowska+18&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.25221647497929%2C50.100513039587455%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2141",
+      "address": [
+        "Wolbrom",
+        "Wrzosowa",
+        "18"
+      ],
+      "location": {
+        "longitude": 19.746469934184113,
+        "latitude": 50.37790819064429
+      },
+      "municipality_teryt": "1212073",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/721100",
+        "https://bip.malopolska.pl/api/articles/721118",
+        "https://bip.malopolska.pl/api/contexts/wzwikanalizacji",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wolbrom%2C+wrzosowa+18&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.746469934184113%2C50.37790819064429%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2278",
+      "address": [
+        "Wietrzychowice",
+        null,
+        "19"
+      ],
+      "location": {
+        "longitude": 20.7594959666821,
+        "latitude": 50.19087081313094
+      },
+      "municipality_teryt": "1216122",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/21879",
+        "https://bip.malopolska.pl/api/articles/792864",
+        "https://bip.malopolska.pl/api/contexts/zeukiwwwietrzychowicach",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wietrzychowice+19&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.7594959666821%2C50.19087081313094%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2304",
+      "address": [
+        "Czarna Góra",
+        "Podgórska",
+        "46"
+      ],
+      "location": {
+        "longitude": 20.119880646404667,
+        "latitude": 49.375405309054955
+      },
+      "municipality_teryt": "1217032",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/91083",
+        "https://bip.malopolska.pl/api/contexts/gzkwbtatrzanskiej",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Czarna+G%C3%B3ra%2C+podg%C3%B3rska+46&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.119880646404667%2C49.375405309054955%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2336",
+      "address": [
+        "Pleśna",
+        null,
+        "240"
+      ],
+      "location": {
+        "longitude": 20.944631915025226,
+        "latitude": 49.92269017664309
+      },
+      "municipality_teryt": "1216042",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/734469",
+        "https://bip.malopolska.pl/api/articles/734471",
+        "https://bip.malopolska.pl/api/contexts/zgkomunalnej4",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Ple%C5%9Bna+240&accuracy=0.8&exact_number=1",
+        "https://www.plesna.pl/gmina/jednostki-organizacyjne/",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.944631915025226%2C49.92269017664309%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2389",
+      "address": [
+        "Szerzyny",
+        null,
+        "594"
+      ],
+      "location": {
+        "longitude": 21.24578352151055,
+        "latitude": 49.81637595902325
+      },
+      "municipality_teryt": "1216162",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/14598",
+        "https://bip.malopolska.pl/api/articles/14601",
+        "https://bip.malopolska.pl/api/contexts/gzgkwszerzynach",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Szerzyny+594&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=21.24578352151055%2C49.81637595902325%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2462",
+      "address": [
+        "Poronin",
+        "Józefa Piłsudskiego",
+        "9"
+      ],
+      "location": {
+        "longitude": 20.005008304085848,
+        "latitude": 49.337829308380215
+      },
+      "municipality_teryt": "1217052",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/108673",
+        "https://bip.malopolska.pl/api/articles/108679",
+        "https://bip.malopolska.pl/api/contexts/zgkwporoninie",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Poronin%2C+j%C3%B3zefa+pi%C5%82sudskiego+9&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.005008304085848%2C49.337829308380215%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2468",
+      "address": [
+        "Żabno",
+        "Jana",
+        "3"
+      ],
+      "location": {
+        "longitude": 20.880685317527295,
+        "latitude": 50.13257677656836
+      },
+      "municipality_teryt": "1216153",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/36312",
+        "https://bip.malopolska.pl/api/articles/36315",
+        "https://bip.malopolska.pl/api/contexts/mzgkomunalnej1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=%C5%BBabno%2C+%C5%9Bwi%C4%99tego+jana+3&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=%C5%BBabno%2C+jana+3&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.880685317527295%2C50.13257677656836%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "malopolska:2568",
+      "address": [
+        "Niegowić",
+        null,
+        "90"
+      ],
+      "location": {
+        "longitude": 20.237662313510395,
+        "latitude": 49.93526503164302
+      },
+      "municipality_teryt": "1219022",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/163002",
+        "https://bip.malopolska.pl/api/contexts/zgkomunalnej5",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Niegowi%C4%87+90&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.237662313510395%2C49.93526503164302%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2633",
+      "address": [
+        "Wieprz",
+        "Pogodna",
+        "10"
+      ],
+      "location": {
+        "longitude": 19.352032735909603,
+        "latitude": 49.8915658534365
+      },
+      "municipality_teryt": "1218102",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/165424",
+        "https://bip.malopolska.pl/api/contexts/gzwwwzswwieprzu",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wieprz%2C+pogodna+10&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.352032735909603%2C49.8915658534365%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2672",
+      "address": [
+        "Miechów",
+        "Warszawska",
+        "11"
+      ],
+      "location": {
+        "longitude": 20.028007765071727,
+        "latitude": 50.36110887949404
+      },
+      "municipality_teryt": "1208053",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/284843",
+        "https://bip.malopolska.pl/api/contexts/zdpwmiechowie",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Miech%C3%B3w%2C+warszawska+11&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.028007765071727%2C50.36110887949404%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2717",
+      "address": [
+        "Wadowice",
+        "Młyńska",
+        "110"
+      ],
+      "location": {
+        "longitude": 19.505783689056976,
+        "latitude": 49.88872396656068
+      },
+      "municipality_teryt": "1218093",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/170281",
+        "https://bip.malopolska.pl/api/contexts/wpwikszoo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wadowice%2C+m%C5%82y%C5%84ska+110&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.505783689056976%2C49.88872396656068%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2722",
+      "address": [
+        "Wieliczka",
+        "plac Mieczysława Skulimowskiego",
+        "2"
+      ],
+      "location": {
+        "longitude": 20.064226532876127,
+        "latitude": 49.984328960599036
+      },
+      "municipality_teryt": "1219053",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/194590",
+        "https://bip.malopolska.pl/api/articles/845661",
+        "https://bip.malopolska.pl/api/contexts/smwwieliczce",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wieliczka%2C+plac+mieczys%C5%82awa+skulimowskiego+2&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.064226532876127%2C49.984328960599036%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2734",
+      "address": [
+        "Jakubowice",
+        null,
+        "75"
+      ],
+      "location": {
+        "longitude": 20.316214068576194,
+        "latitude": 50.18983056947857
+      },
+      "municipality_teryt": "1214053",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/286103",
+        "https://bip.malopolska.pl/api/articles/812178",
+        "https://bip.malopolska.pl/api/contexts/zdpwproszowicach",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Jakubowice+75&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.316214068576194%2C50.18983056947857%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2755",
+      "address": [
+        "Brzesko",
+        "Stefana Wyszyńskiego",
+        "6"
+      ],
+      "location": {
+        "longitude": 20.606236243204386,
+        "latitude": 49.96683707525963
+      },
+      "municipality_teryt": "1202023",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/194910",
+        "https://bip.malopolska.pl/api/articles/194913",
+        "https://bip.malopolska.pl/api/contexts/zdpowiatowych",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Brzesko%2C+kardyna%C5%82a+stefana+wyszy%C5%84skiego+6&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Brzesko%2C+stefana+wyszy%C5%84skiego+6&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.606236243204386%2C49.96683707525963%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "malopolska:2806",
+      "address": [
+        "Wieliczka",
+        "Henryka Sienkiewicza",
+        "26"
+      ],
+      "location": {
+        "longitude": 20.06433330532003,
+        "latitude": 49.98563282239743
+      },
+      "municipality_teryt": "1219053",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/850209",
+        "https://bip.malopolska.pl/api/contexts/zbkomunalnych",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wieliczka%2C+henryka+sienkiewicza+26&accuracy=0.8&exact_number=1",
+        "https://zbk-wieliczka.wieliczka.eu/pl/202242/0/kontakt.html",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.06433330532003%2C49.98563282239743%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2811",
+      "address": [
+        "Wieliczka",
+        "Marszałka Józefa Piłsudskiego",
+        "38"
+      ],
+      "location": {
+        "longitude": 20.062838304134967,
+        "latitude": 49.988096602461134
+      },
+      "municipality_teryt": "1219053",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1892315",
+        "https://bip.malopolska.pl/api/articles/1895599",
+        "https://bip.malopolska.pl/api/contexts/zckomunalnego",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wieliczka%2C+marsza%C5%82ka+j%C3%B3zefa+pi%C5%82sudskiego+38&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.062838304134967%2C49.988096602461134%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2813",
+      "address": [
+        "Wieliczka",
+        "Winnicka",
+        "12"
+      ],
+      "location": {
+        "longitude": 20.035022873066545,
+        "latitude": 49.99961271595649
+      },
+      "municipality_teryt": "1219053",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1875087",
+        "https://bip.malopolska.pl/api/articles/193806",
+        "https://bip.malopolska.pl/api/contexts/gzdrog",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wieliczka%2C+winnicka+12&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.035022873066545%2C49.99961271595649%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2829",
+      "address": [
+        "Gorlice",
+        "Michalusa",
+        "18"
+      ],
+      "location": {
+        "longitude": 21.171886067099038,
+        "latitude": 49.66853694807709
+      },
+      "municipality_teryt": "1205011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/245706",
+        "https://bip.malopolska.pl/api/articles/245712",
+        "https://bip.malopolska.pl/api/contexts/pzdwgorlicach",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Gorlice%2C+j%C3%B3zefa+michalusa+18&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Gorlice%2C+michalusa+18&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=21.171886067099038%2C49.66853694807709%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "malopolska:2868",
+      "address": [
+        "Nowy Wiśnicz",
+        "Limanowska",
+        "11"
+      ],
+      "location": {
+        "longitude": 20.459215569751628,
+        "latitude": 49.9097203632105
+      },
+      "municipality_teryt": "1201063",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1905924",
+        "https://bip.malopolska.pl/api/contexts/pzdwbochni",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+Wi%C5%9Bnicz%2C+limanowska+11&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.459215569751628%2C49.9097203632105%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:2903",
+      "address": [
+        "Dąbrowa Tarnowska",
+        "Warszawska",
+        "48"
+      ],
+      "location": {
+        "longitude": 20.9897758,
+        "latitude": 50.1848801
+      },
+      "municipality_teryt": "1204023",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1793279",
+        "https://bip.malopolska.pl/api/articles/248704",
+        "https://bip.malopolska.pl/api/contexts/zdwdtarnowskiej",
+        "https://maps.google.com/maps?q=ul.%20Warszawska%2048%2C%20D%C4%85browa%20Tarnowska%2C%20Polska&t=m&z=16&output=embed&iwloc=near",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=D%C4%85browa+Tarnowska%2C+warszawska+48&accuracy=0.8&exact_number=1",
+        "https://zddt.pl/kontakt/",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.9897758%2C50.1848801%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact address pin in the map embedded on the institutional contact page. PRG has no unique address point. The pin coordinates, not the map viewport center, are used."
+    },
+    {
+      "source_key": "malopolska:2938",
+      "address": [
+        "Myślenice",
+        "Słowackiego",
+        "36"
+      ],
+      "location": {
+        "longitude": 19.941609950633325,
+        "latitude": 49.83305508598856
+      },
+      "municipality_teryt": "1209033",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/302429",
+        "https://bip.malopolska.pl/api/contexts/zdpwmyslenicach",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=My%C5%9Blenice%2C+juliusza+s%C5%82owackiego+36&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=My%C5%9Blenice%2C+s%C5%82owackiego+36&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.941609950633325%2C49.83305508598856%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "malopolska:2978",
+      "address": [
+        "Andrychów",
+        "Starowiejska",
+        "22b"
+      ],
+      "location": {
+        "longitude": 19.349049626195388,
+        "latitude": 49.86156006564285
+      },
+      "municipality_teryt": "1218013",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/126974",
+        "https://bip.malopolska.pl/api/contexts/zomkomunalnego",
+        "https://ezamowienia.gov.pl/mo-client-board/bzp/notice-details/id/08de5ffd-131a-8ed5-4c32-fc0001f1215b",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Andrych%C3%B3w%2C+starowiejska+22b&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.349049626195388%2C49.86156006564285%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3032",
+      "address": [
+        "Limanowa",
+        "Józefa Marka",
+        "9"
+      ],
+      "location": {
+        "longitude": 20.42011501666057,
+        "latitude": 49.70453998758884
+      },
+      "municipality_teryt": "1207011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/252190",
+        "https://bip.malopolska.pl/api/articles/252197",
+        "https://bip.malopolska.pl/api/contexts/pzdlimanowej",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Limanowa%2C+j%C3%B3zefa+marka+9&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.42011501666057%2C49.70453998758884%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3084",
+      "address": [
+        "Batowice",
+        "Karola Wojtyły",
+        "106"
+      ],
+      "location": {
+        "longitude": 20.02163401262426,
+        "latitude": 50.11215846557754
+      },
+      "municipality_teryt": "1206172",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/266167",
+        "https://bip.malopolska.pl/api/articles/266177",
+        "https://bip.malopolska.pl/api/contexts/zdpkrakowskiego",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Batowice%2C+karola+wojty%C5%82y+106&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.02163401262426%2C50.11215846557754%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3176",
+      "address": [
+        "Zgłobice",
+        "Zgłobicka",
+        "8"
+      ],
+      "location": {
+        "longitude": 20.90372732194394,
+        "latitude": 49.975262743754904
+      },
+      "municipality_teryt": "1216092",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/79828",
+        "https://bip.malopolska.pl/api/contexts/pzdtszglobicach",
+        "https://pzdtarnow.pl/kontakt/",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Zg%C5%82obice%2C+zg%C5%82obicka+8&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.90372732194394%2C49.975262743754904%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3262",
+      "address": [
+        "Kęty",
+        "osiedle 700-lecia",
+        "10"
+      ],
+      "location": {
+        "longitude": 19.217014174584683,
+        "latitude": 49.873051330711725
+      },
+      "municipality_teryt": "1213043",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/730239",
+        "https://bip.malopolska.pl/api/contexts/mzecszowketach",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=K%C4%99ty%2C+700-lecia+10&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=K%C4%99ty%2C+osiedle+700-lecia+10&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.217014174584683%2C49.873051330711725%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "malopolska:3264",
+      "address": [
+        "Kęty",
+        "św. Maksymiliana Kolbe",
+        "25a"
+      ],
+      "location": {
+        "longitude": 19.1952777,
+        "latitude": 49.8813402
+      },
+      "municipality_teryt": "1213043",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1069874",
+        "https://bip.malopolska.pl/api/contexts/mzwikszowketach",
+        "https://goo.gl/maps/YffWo4BKW7VLTF6W6",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=K%C4%99ty%2C+%C5%9Bw.+maksymiliana+kolbe+25a&accuracy=0.8&exact_number=1",
+        "https://www.mzwik-kety.com.pl/kontakt/",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.1952777%2C49.8813402%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Institutional contact page links directly to this office map pin; PRG lacks number 25a."
+    },
+    {
+      "source_key": "malopolska:3265",
+      "address": [
+        "Kęty",
+        "Adama Mickiewicza",
+        "8"
+      ],
+      "location": {
+        "longitude": 19.220665182491196,
+        "latitude": 49.88642056871968
+      },
+      "municipality_teryt": "1213043",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/730281",
+        "https://bip.malopolska.pl/api/contexts/pkkszowketach",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=K%C4%99ty%2C+adama+mickiewicza+8&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.220665182491196%2C49.88642056871968%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3394",
+      "address": [
+        "Jaszczurowa",
+        null,
+        "357"
+      ],
+      "location": {
+        "longitude": 19.53545302991648,
+        "latitude": 49.80761643733428
+      },
+      "municipality_teryt": "1218052",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/872203",
+        "https://bip.malopolska.pl/api/contexts/gzwikmucharz",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Jaszczurowa+357&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.53545302991648%2C49.80761643733428%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3499",
+      "address": [
+        "Tarnów",
+        "Nadbrzeżna Dolna",
+        "7"
+      ],
+      "location": {
+        "longitude": 20.989375616805933,
+        "latitude": 50.009716921329506
+      },
+      "municipality_teryt": "1263011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/942310",
+        "https://bip.malopolska.pl/api/contexts/smtarnow",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Tarn%C3%B3w%2C+nadbrze%C5%BCna+dolna+7&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.989375616805933%2C50.009716921329506%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3543",
+      "address": [
+        "Łapsze Niżne",
+        "Jana Pawła II",
+        "20"
+      ],
+      "location": {
+        "longitude": 20.2445930075392,
+        "latitude": 49.39714552658943
+      },
+      "municipality_teryt": "1211082",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/945327",
+        "https://bip.malopolska.pl/api/contexts/zgkmlapszenizne",
+        "https://lapszenizne.pl/instytucje/zespol-gospodarki-komunalnej-i-mieszkaniowej",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=%C5%81apsze+Ni%C5%BCne%2C+jana+paw%C5%82a+ii+20&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.2445930075392%2C49.39714552658943%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3547",
+      "address": [
+        "Tarnów",
+        "Komunalna",
+        "31"
+      ],
+      "location": {
+        "longitude": 21.025461504315867,
+        "latitude": 50.04301496849854
+      },
+      "municipality_teryt": "1263011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/955246",
+        "https://bip.malopolska.pl/api/contexts/puktarnow",
+        "https://mpgk.tarnow.pl/kontakt/",
+        "https://mpgk.tarnow.pl/wp-content/uploads/2022/02/Plan-polaczenia.pdf",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Tarn%C3%B3w%2C+komunalna+31&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=21.025461504315867%2C50.04301496849854%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3549",
+      "address": [
+        "Babice",
+        "Cicha",
+        "2"
+      ],
+      "location": {
+        "longitude": 19.448508836993437,
+        "latitude": 50.06640514391559
+      },
+      "municipality_teryt": "1203022",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/955521",
+        "https://bip.malopolska.pl/api/contexts/gkbabice",
+        "https://bip.malopolska.pl/api/contexts/gkwbabicach",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Babice%2C+cicha+2&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.448508836993437%2C50.06640514391559%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3575",
+      "address": [
+        "Łężkowice",
+        null,
+        "12"
+      ],
+      "location": {
+        "longitude": 20.298807608872064,
+        "latitude": 49.963604677285
+      },
+      "municipality_teryt": "1219032",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/987578",
+        "https://bip.malopolska.pl/api/articles/988662",
+        "https://bip.malopolska.pl/api/contexts/gpkklaj",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=%C5%81%C4%99%C5%BCkowice+12&accuracy=0.8&exact_number=1",
+        "https://www.klaj.pl/samorzad/spolki-komunalne/wodociagi-gminy-klaj-sp-z-o-o",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.298807608872064%2C49.963604677285%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3581",
+      "address": [
+        "Oświęcim",
+        "Nadwiślańska",
+        "36"
+      ],
+      "location": {
+        "longitude": 19.31015721936211,
+        "latitude": 50.04190482978712
+      },
+      "municipality_teryt": "1213011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/990141",
+        "https://bip.malopolska.pl/api/contexts/sokwoswiecimiu",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=O%C5%9Bwi%C4%99cim%2C+nadwi%C5%9Bla%C5%84ska+36&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.31015721936211%2C50.04190482978712%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3582",
+      "address": [
+        "Oświęcim",
+        "Bema",
+        "12A"
+      ],
+      "location": {
+        "longitude": 19.246340977346833,
+        "latitude": 50.03361620656864
+      },
+      "municipality_teryt": "1213011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2024571",
+        "https://bip.malopolska.pl/api/articles/2024595",
+        "https://bip.malopolska.pl/api/contexts/zukoswiecim",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=O%C5%9Bwi%C4%99cim%2C+bema+12A&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=O%C5%9Bwi%C4%99cim%2C+gen.+j%C3%B3zefa+bema+12A&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.246340977346833%2C50.03361620656864%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "malopolska:3617",
+      "address": [
+        "Tarnów",
+        "Bernardyńska",
+        "24"
+      ],
+      "location": {
+        "longitude": 20.991546494133328,
+        "latitude": 50.01194798445066
+      },
+      "municipality_teryt": "1263011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1044264",
+        "https://bip.malopolska.pl/api/contexts/zdik",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Tarn%C3%B3w%2C+bernardy%C5%84ska+24&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.991546494133328%2C50.01194798445066%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3646",
+      "address": [
+        "Nowy Sącz",
+        "Wyspiańskiego",
+        "22"
+      ],
+      "location": {
+        "longitude": 20.70089242635594,
+        "latitude": 49.60304114552914
+      },
+      "municipality_teryt": "1262011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1143054",
+        "https://bip.malopolska.pl/api/contexts/mzdns",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+S%C4%85cz%2C+stanis%C5%82awa+wyspia%C5%84skiego+22&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+S%C4%85cz%2C+wyspia%C5%84skiego+22&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.70089242635594%2C49.60304114552914%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "malopolska:3656",
+      "address": [
+        "Nowy Sącz",
+        "Jeremiego Wiśniowieckiego",
+        "56"
+      ],
+      "location": {
+        "longitude": 20.716633220219236,
+        "latitude": 49.60867290485354
+      },
+      "municipality_teryt": "1262011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1157617",
+        "https://bip.malopolska.pl/api/articles/1157785",
+        "https://bip.malopolska.pl/api/contexts/mpecnowysacz",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+S%C4%85cz%2C+jeremiego+wi%C5%9Bniowieckiego+56&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.716633220219236%2C49.60867290485354%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3667",
+      "address": [
+        "Brzezinka",
+        "Czarna",
+        "8"
+      ],
+      "location": {
+        "longitude": 19.191890773728097,
+        "latitude": 50.037542066463025
+      },
+      "municipality_teryt": "1213062",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1172810",
+        "https://bip.malopolska.pl/api/articles/1180860",
+        "https://bip.malopolska.pl/api/contexts/zkgo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Brzezinka%2C+czarna+8&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.191890773728097%2C50.037542066463025%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3714",
+      "address": [
+        "Muszyna",
+        "Józefa Piłsudskiego",
+        "128"
+      ],
+      "location": {
+        "longitude": 20.89340559300448,
+        "latitude": 49.34699479938646
+      },
+      "municipality_teryt": "1210113",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1236133",
+        "https://bip.malopolska.pl/api/articles/2401764",
+        "https://bip.malopolska.pl/api/contexts/pgkmuszyna",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Muszyna%2C+j%C3%B3zefa+pi%C5%82sudskiego+128&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Muszyna%2C+pi%C5%82sudskiego+128&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.89340559300448%2C49.34699479938646%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "malopolska:3728",
+      "address": [
+        "Tarnów",
+        "Okrężna",
+        "11"
+      ],
+      "location": {
+        "longitude": 21.019234085185236,
+        "latitude": 50.01129214916797
+      },
+      "municipality_teryt": "1263011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1249818",
+        "https://bip.malopolska.pl/api/contexts/mpgk",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Tarn%C3%B3w%2C+okr%C4%99%C5%BCna+11&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=21.019234085185236%2C50.01129214916797%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3734",
+      "address": [
+        "Brzesko",
+        "Ludwika Solskiego",
+        "13"
+      ],
+      "location": {
+        "longitude": 20.61327377801712,
+        "latitude": 49.98130116175137
+      },
+      "municipality_teryt": "1202023",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1267704",
+        "https://bip.malopolska.pl/api/contexts/zmwik",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Brzesko%2C+ludwika+solskiego+13&accuracy=0.8&exact_number=1",
+        "https://zmwik.brzesko.pl/kontakt/",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.61327377801712%2C49.98130116175137%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3740",
+      "address": [
+        "Nowy Sącz",
+        "Stanisława Wyspiańskiego",
+        "22"
+      ],
+      "location": {
+        "longitude": 20.70089242635594,
+        "latitude": 49.60304114552914
+      },
+      "municipality_teryt": "1262011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1275386",
+        "https://bip.malopolska.pl/api/articles/1275462",
+        "https://bip.malopolska.pl/api/contexts/mpknowysacz",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+S%C4%85cz%2C+stanis%C5%82awa+wyspia%C5%84skiego+22&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.70089242635594%2C49.60304114552914%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3780",
+      "address": [
+        "Nowy Targ",
+        "Długa",
+        "21"
+      ],
+      "location": {
+        "longitude": 20.02586207657398,
+        "latitude": 49.48081565672858
+      },
+      "municipality_teryt": "1211011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1321534",
+        "https://bip.malopolska.pl/api/contexts/mzwiknowytarg",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+Targ%2C+d%C5%82uga+21&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.02586207657398%2C49.48081565672858%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3861",
+      "address": [
+        "Oświęcim",
+        "Bema",
+        "12A"
+      ],
+      "location": {
+        "longitude": 19.246340977346833,
+        "latitude": 50.03361620656864
+      },
+      "municipality_teryt": "1213011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1429100",
+        "https://bip.malopolska.pl/api/articles/1758164",
+        "https://bip.malopolska.pl/api/contexts/mzukoswiecim",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=O%C5%9Bwi%C4%99cim%2C+bema+12A&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=O%C5%9Bwi%C4%99cim%2C+gen.+j%C3%B3zefa+bema+12A&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.246340977346833%2C50.03361620656864%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "malopolska:3862",
+      "address": [
+        "Jordanów",
+        "Nad Skawą",
+        "6A"
+      ],
+      "location": {
+        "longitude": 19.84368501710345,
+        "latitude": 49.63994174941532
+      },
+      "municipality_teryt": "1215011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/contexts/wodociagijordanow",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Jordan%C3%B3w%2C+nad+skaw%C4%85+6A&accuracy=0.8&exact_number=1",
+        "https://wodociagi-jordanow.pl/",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.84368501710345%2C49.63994174941532%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3882",
+      "address": [
+        "Wola Dębińska",
+        null,
+        "240"
+      ],
+      "location": {
+        "longitude": 20.716088488223452,
+        "latitude": 49.96970051095168
+      },
+      "municipality_teryt": "1202042",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1464435",
+        "https://bip.malopolska.pl/api/contexts/gpgkdebno",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wola+D%C4%99bi%C5%84ska+240&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.716088488223452%2C49.96970051095168%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:391",
+      "address": [
+        "Siedlec",
+        null,
+        "250"
+      ],
+      "location": {
+        "longitude": 20.32325803839684,
+        "latitude": 49.96218953460713
+      },
+      "municipality_teryt": "1201022",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/51735",
+        "https://bip.malopolska.pl/api/articles/51743",
+        "https://bip.malopolska.pl/api/contexts/gzwikwbochni",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Siedlec+250&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.32325803839684%2C49.96218953460713%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3920",
+      "address": [
+        "Kamienica",
+        null,
+        "420"
+      ],
+      "location": {
+        "longitude": 20.34299509011855,
+        "latitude": 49.575132408686
+      },
+      "municipality_teryt": "1207052",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1471806",
+        "https://bip.malopolska.pl/api/contexts/zgkwkamienicy",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Kamienica+420&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.34299509011855%2C49.575132408686%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3942",
+      "address": [
+        "Szyce",
+        "plac Wspólnoty",
+        "1"
+      ],
+      "location": {
+        "longitude": 19.86269994713368,
+        "latitude": 50.14035054146387
+      },
+      "municipality_teryt": "1206152",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1489105",
+        "https://bip.malopolska.pl/api/contexts/gzkwielkawies",
+        "https://gzk.wielka-wies.pl/kontakt/",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Szyce%2C+plac+wsp%C3%B3lnoty+1&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.86269994713368%2C50.14035054146387%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3968",
+      "address": [
+        "Luborzyca",
+        "Jagiellońska",
+        "7"
+      ],
+      "location": {
+        "longitude": 20.113155824115484,
+        "latitude": 50.1356249727891
+      },
+      "municipality_teryt": "1206052",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1556201",
+        "https://bip.malopolska.pl/api/articles/1556550",
+        "https://bip.malopolska.pl/api/contexts/zgkkocmyrzow",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Luborzyca%2C+jagiello%C5%84ska+7&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.113155824115484%2C50.1356249727891%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:3988",
+      "address": [
+        "Mszana Dolna",
+        "Krakowska",
+        "27K"
+      ],
+      "location": {
+        "longitude": 20.051528300854603,
+        "latitude": 49.68313657838547
+      },
+      "municipality_teryt": "1207021",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1599675",
+        "https://bip.malopolska.pl/api/contexts/zgkmszanadolna",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Mszana+Dolna%2C+krakowska+27K&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.051528300854603%2C49.68313657838547%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4028",
+      "address": [
+        "Dąbrowa Tarnowska",
+        "Rynek",
+        "34"
+      ],
+      "location": {
+        "longitude": 20.98649284358133,
+        "latitude": 50.175101195902286
+      },
+      "municipality_teryt": "1204023",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1592252",
+        "https://bip.malopolska.pl/api/contexts/zgdswikdabrowatarnowska",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=D%C4%85browa+Tarnowska%2C+rynek+34&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.98649284358133%2C50.175101195902286%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4065",
+      "address": [
+        "Nowy Sącz",
+        "Wincentego Pola",
+        "22"
+      ],
+      "location": {
+        "longitude": 20.689051964949865,
+        "latitude": 49.61673412958889
+      },
+      "municipality_teryt": "1262011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1605397",
+        "https://bip.malopolska.pl/api/contexts/sadeckiewodociagi",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+S%C4%85cz%2C+wincentego+pola+22&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.689051964949865%2C49.61673412958889%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4129",
+      "address": [
+        "Sękowa",
+        null,
+        "181"
+      ],
+      "location": {
+        "longitude": 21.19747057694763,
+        "latitude": 49.620041975649194
+      },
+      "municipality_teryt": "1205092",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1765828",
+        "https://bip.malopolska.pl/api/contexts/gzgksekowa",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=S%C4%99kowa+181&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=21.19747057694763%2C49.620041975649194%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4191",
+      "address": [
+        "Andrychów",
+        "Stefana Batorego",
+        "68"
+      ],
+      "location": {
+        "longitude": 19.341060674912036,
+        "latitude": 49.86400538394568
+      },
+      "municipality_teryt": "1218013",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1650500",
+        "https://bip.malopolska.pl/api/articles/1652523",
+        "https://bip.malopolska.pl/api/contexts/zwikandrychow",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Andrych%C3%B3w%2C+stefana+batorego+68&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.341060674912036%2C49.86400538394568%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4218",
+      "address": [
+        "Dąbrowa Tarnowska",
+        "Berka Joselewicza",
+        "8"
+      ],
+      "location": {
+        "longitude": 20.98861681195272,
+        "latitude": 50.17594578125661
+      },
+      "municipality_teryt": "1204023",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1684693",
+        "https://bip.malopolska.pl/api/contexts/mpkdt",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=D%C4%85browa+Tarnowska%2C+berka+joselewicza+8&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.98861681195272%2C50.17594578125661%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4219",
+      "address": [
+        "Stryszów",
+        null,
+        "600"
+      ],
+      "location": {
+        "longitude": 19.604906356775583,
+        "latitude": 49.823087818718236
+      },
+      "municipality_teryt": "1218072",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1683151",
+        "https://bip.malopolska.pl/api/contexts/spwksrodowisko",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Strysz%C3%B3w+600&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.604906356775583%2C49.823087818718236%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4221",
+      "address": [
+        "Maszków",
+        "Królewska",
+        "72"
+      ],
+      "location": {
+        "longitude": 19.980270364258132,
+        "latitude": 50.1957006086732
+      },
+      "municipality_teryt": "1206032",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1810585",
+        "https://bip.malopolska.pl/api/articles/1830069",
+        "https://bip.malopolska.pl/api/contexts/pkiwanowice",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Maszk%C3%B3w%2C+kr%C3%B3lewska+72&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.980270364258132%2C50.1957006086732%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4243",
+      "address": [
+        "Wola Łużańska",
+        null,
+        "31"
+      ],
+      "location": {
+        "longitude": 21.078336990157016,
+        "latitude": 49.69544907392465
+      },
+      "municipality_teryt": "1205062",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1713836",
+        "https://bip.malopolska.pl/api/contexts/zgkluzna",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wola+%C5%81u%C5%BCa%C5%84ska+31&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=21.078336990157016%2C49.69544907392465%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4255",
+      "address": [
+        "Miechów",
+        "Racławicka",
+        "41"
+      ],
+      "location": {
+        "longitude": 20.039371125594474,
+        "latitude": 50.35652763562011
+      },
+      "municipality_teryt": "1208053",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1729917",
+        "https://bip.malopolska.pl/api/contexts/zwikmiechow",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Miech%C3%B3w%2C+rac%C5%82awicka+41&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.039371125594474%2C50.35652763562011%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4262",
+      "address": [
+        "Podegrodzie",
+        null,
+        "248"
+      ],
+      "location": {
+        "longitude": 20.59392065535295,
+        "latitude": 49.5762975861043
+      },
+      "municipality_teryt": "1210142",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1734444",
+        "https://bip.malopolska.pl/api/contexts/zgkpodegrodzie",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Podegrodzie+248&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.59392065535295%2C49.5762975861043%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4265",
+      "address": [
+        "Mogilno",
+        null,
+        "224"
+      ],
+      "location": {
+        "longitude": 20.83049732206521,
+        "latitude": 49.65301991491394
+      },
+      "municipality_teryt": "1210062",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1736201",
+        "https://bip.malopolska.pl/api/articles/1986174",
+        "https://bip.malopolska.pl/api/contexts/pukkorzenna",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Mogilno+224&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.83049732206521%2C49.65301991491394%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4267",
+      "address": [
+        "Bochnia",
+        "Regis",
+        "2"
+      ],
+      "location": {
+        "longitude": 20.428407305654282,
+        "latitude": 49.96990057603961
+      },
+      "municipality_teryt": "1201011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1737209",
+        "https://bip.malopolska.pl/api/contexts/smbochnia",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Bochnia%2C+regis+2&accuracy=0.8&exact_number=1",
+        "https://www.straznicy.bochnia.pl/kontakt",
+        "https://www.straznicy.bochnia.pl/zgloszenie-interwencji",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.428407305654282%2C49.96990057603961%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4311",
+      "address": [
+        "Szczurowa",
+        "Rynek",
+        "3C"
+      ],
+      "location": {
+        "longitude": 20.636958,
+        "latitude": 50.12037489999999
+      },
+      "municipality_teryt": "1202072",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/contexts/zgkimszczurowa",
+        "https://maps.google.com/maps?q=Rynek+3C%2C+32-820+Szczurowa&output=embed",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Szczurowa%2C+rynek+3C&accuracy=0.8&exact_number=1",
+        "https://szczurowa.pl/strona/jednostki-organizacyjne",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.636958%2C50.12037489999999%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Secondary geocoder: Google Maps returns a building/address pin whose full address label matches the official institution address, including the suffix and postal code. PRG has no unique exact point. This is a mapped address pin, not an institution-published coordinate or a locality centroid."
+    },
+    {
+      "source_key": "malopolska:4385",
+      "address": [
+        "Rzezawa",
+        "Długa",
+        "21"
+      ],
+      "location": {
+        "longitude": 20.51868684703985,
+        "latitude": 49.99060779180835
+      },
+      "municipality_teryt": "1201072",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1830642",
+        "https://bip.malopolska.pl/api/articles/1831576",
+        "https://bip.malopolska.pl/api/contexts/gzgkrzezawa",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Rzezawa%2C+d%C5%82uga+21&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.51868684703985%2C49.99060779180835%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4396",
+      "address": [
+        "Ochotnica Dolna",
+        "osiedle Hologówka",
+        "191C"
+      ],
+      "location": {
+        "longitude": 20.311416186666186,
+        "latitude": 49.52465561255782
+      },
+      "municipality_teryt": "1211102",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/contexts/zgkochotnica",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Ochotnica+Dolna%2C+osiedle+holog%C3%B3wka+191C&accuracy=0.8&exact_number=1",
+        "https://www.ochotnica.pl/aktualnosci/od-dnia-31-05-2025r-wchodza-w-zycie-nowe-stawki-za-uslugi-zbiorowego-odprowadzania-sciekow-na-terenie-gminy-ochotnica-dolna/",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.311416186666186%2C49.52465561255782%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4405",
+      "address": [
+        "Wieliczka",
+        "Winnicka",
+        "12"
+      ],
+      "location": {
+        "longitude": 20.035022873066545,
+        "latitude": 49.99961271595649
+      },
+      "municipality_teryt": "1219053",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1863964",
+        "https://bip.malopolska.pl/api/articles/1873266",
+        "https://bip.malopolska.pl/api/contexts/zgkwieliczka",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wieliczka%2C+winnicka+12&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.035022873066545%2C49.99961271595649%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4423",
+      "address": [
+        "Brzesko",
+        "Bartosza Głowackiego",
+        "67A"
+      ],
+      "location": {
+        "longitude": 20.622136053184754,
+        "latitude": 49.967918704244646
+      },
+      "municipality_teryt": "1202023",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2237145",
+        "https://bip.malopolska.pl/api/contexts/mpkbrzesko",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Brzesko%2C+bartosza+g%C5%82owackiego+67A&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.622136053184754%2C49.967918704244646%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4432",
+      "address": [
+        "Brzesko",
+        "Juliusza Słowackiego",
+        "1"
+      ],
+      "location": {
+        "longitude": 20.60536174665014,
+        "latitude": 49.96907910092495
+      },
+      "municipality_teryt": "1202023",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1892123",
+        "https://bip.malopolska.pl/api/contexts/bzk",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Brzesko%2C+juliusza+s%C5%82owackiego+1&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.60536174665014%2C49.96907910092495%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4445",
+      "address": [
+        "Wieliczka",
+        "Edwarda Dembowskiego",
+        "7B"
+      ],
+      "location": {
+        "longitude": 20.056729854577892,
+        "latitude": 49.98512346002544
+      },
+      "municipality_teryt": "1219053",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1920055",
+        "https://bip.malopolska.pl/api/contexts/wstwieliczka",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wieliczka%2C+edwarda+dembowskiego+7B&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.056729854577892%2C49.98512346002544%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4460",
+      "address": [
+        "Zembrzyce",
+        null,
+        "655"
+      ],
+      "location": {
+        "longitude": 19.593820259819243,
+        "latitude": 49.77911267408159
+      },
+      "municipality_teryt": "1215092",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1910012",
+        "https://bip.malopolska.pl/api/contexts/gzwikzembrzyce",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Zembrzyce+655&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.593820259819243%2C49.77911267408159%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4556",
+      "address": [
+        "Wierzchosławice",
+        null,
+        "39/3"
+      ],
+      "location": {
+        "longitude": 20.863040389999114,
+        "latitude": 50.015634568560195
+      },
+      "municipality_teryt": "1216112",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2055094",
+        "https://bip.malopolska.pl/api/contexts/wodociagiwierzchoslawice",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wierzchos%C5%82awice+39&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.863040389999114%2C50.015634568560195%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "The published house number includes an office unit; geocode the verified building number."
+    },
+    {
+      "source_key": "malopolska:4567",
+      "address": [
+        "Skała",
+        "Rynek",
+        "29"
+      ],
+      "location": {
+        "longitude": 19.85292962535629,
+        "latitude": 50.230222256460905
+      },
+      "municipality_teryt": "1206103",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1985714",
+        "https://bip.malopolska.pl/api/contexts/pukskala",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Ska%C5%82a%2C+rynek+29&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.85292962535629%2C50.230222256460905%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4569",
+      "address": [
+        "Dąbrowa Tarnowska",
+        "Zazamcze",
+        "53"
+      ],
+      "location": {
+        "longitude": 20.970235667767703,
+        "latitude": 50.176386786068036
+      },
+      "municipality_teryt": "1204023",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2057223",
+        "https://bip.malopolska.pl/api/contexts/rpwikdt",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=D%C4%85browa+Tarnowska%2C+zazamcze+53&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.970235667767703%2C50.176386786068036%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4572",
+      "address": [
+        "Łososina Dolna",
+        null,
+        "418"
+      ],
+      "location": {
+        "longitude": 20.62272593723351,
+        "latitude": 49.75052354567829
+      },
+      "municipality_teryt": "1210102",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1995891",
+        "https://bip.malopolska.pl/api/contexts/zgklososinadolna",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=%C5%81ososina+Dolna+418&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.62272593723351%2C49.75052354567829%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4573",
+      "address": [
+        "Gromnik",
+        "Wodna",
+        "6"
+      ],
+      "location": {
+        "longitude": 20.96366742422537,
+        "latitude": 49.83695127811485
+      },
+      "municipality_teryt": "1216022",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1998479",
+        "https://bip.malopolska.pl/api/contexts/gzkgromnik",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Gromnik%2C+wodna+6&accuracy=0.8&exact_number=1",
+        "https://www.gzkgromnik.pl/kontakt.html",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.96366742422537%2C49.83695127811485%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4596",
+      "address": [
+        "Zakliczyn",
+        "Krakowska",
+        "11"
+      ],
+      "location": {
+        "longitude": 20.813040848655042,
+        "latitude": 49.86151208414563
+      },
+      "municipality_teryt": "1216143",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2113149",
+        "https://bip.malopolska.pl/api/contexts/zukzakliczyn",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Zakliczyn%2C+krakowska+11&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.813040848655042%2C49.86151208414563%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4600",
+      "address": [
+        "Jodłownik",
+        null,
+        "198"
+      ],
+      "location": {
+        "longitude": 20.235654943800633,
+        "latitude": 49.775147005257956
+      },
+      "municipality_teryt": "1207042",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/contexts/gskjodlownik",
+        "https://gsk.jodlownik.pl/pl/636/0/kontakt.html",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Jod%C5%82ownik+198&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.235654943800633%2C49.775147005257956%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4639",
+      "address": [
+        "Stryszów",
+        null,
+        "600"
+      ],
+      "location": {
+        "longitude": 19.604906356775583,
+        "latitude": 49.823087818718236
+      },
+      "municipality_teryt": "1218072",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2121368",
+        "https://bip.malopolska.pl/api/contexts/pkniwa",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Strysz%C3%B3w+600&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.604906356775583%2C49.823087818718236%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4724",
+      "address": [
+        "Gołcza",
+        null,
+        "80"
+      ],
+      "location": {
+        "longitude": 19.92398353916383,
+        "latitude": 50.33745213016256
+      },
+      "municipality_teryt": "1208022",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/contexts/zgkgolcza",
+        "https://golcza.pl/index.php/9-statyczne/42-zaklad-gospodarki-komunalnej",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Go%C5%82cza+80&accuracy=0.8&exact_number=1",
+        "https://www.golcza.pl/images/przetargi/2015/15.05.2015/za%C5%82_10_Przedmiar-po%C5%9B.pdf",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.92398353916383%2C50.33745213016256%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4725",
+      "address": [
+        "Miechów-Charsznica",
+        "Żarnowiecka",
+        "3"
+      ],
+      "location": {
+        "longitude": 19.942374364167392,
+        "latitude": 50.4000038143831
+      },
+      "municipality_teryt": "1208012",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2313632",
+        "https://bip.malopolska.pl/api/contexts/zukwcharsznicy",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Miech%C3%B3w-Charsznica%2C+%C5%BCarnowiecka+3&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.942374364167392%2C50.4000038143831%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4839",
+      "address": [
+        "Budzów",
+        null,
+        "766"
+      ],
+      "location": {
+        "longitude": 19.653643722278485,
+        "latitude": 49.773534310928135
+      },
+      "municipality_teryt": "1215032",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/contexts/zgkbudzow",
+        "https://budzow.pl/kontakt-zgk/",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Budz%C3%B3w+766&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.653643722278485%2C49.773534310928135%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4889",
+      "address": [
+        "Tuchów",
+        "Jana III Sobieskiego",
+        "69C"
+      ],
+      "location": {
+        "longitude": 21.045256866227255,
+        "latitude": 49.90188326081058
+      },
+      "municipality_teryt": "1216103",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2590518",
+        "https://bip.malopolska.pl/api/articles/2591901",
+        "https://bip.malopolska.pl/api/contexts/dorzeczebialej",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Tuch%C3%B3w%2C+jana+iii+sobieskiego+69C&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=21.045256866227255%2C49.90188326081058%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4927",
+      "address": [
+        "Skawina",
+        "Ogrody",
+        "101/1A"
+      ],
+      "location": {
+        "longitude": 19.830076227864275,
+        "latitude": 49.97085435491
+      },
+      "municipality_teryt": "1206113",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2612458",
+        "https://bip.malopolska.pl/api/contexts/smskawina",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Skawina%2C+ogrody+101&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.830076227864275%2C49.97085435491%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "The published house number includes an office unit; geocode the verified building number."
+    },
+    {
+      "source_key": "malopolska:4959",
+      "address": [
+        "Oświęcim",
+        "Zaborska",
+        "144"
+      ],
+      "location": {
+        "longitude": 19.23505088120202,
+        "latitude": 50.02800785498161
+      },
+      "municipality_teryt": "1213011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2625231",
+        "https://bip.malopolska.pl/api/articles/2625551",
+        "https://bip.malopolska.pl/api/contexts/pecoswiecim",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=O%C5%9Bwi%C4%99cim%2C+zaborska+144&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.23505088120202%2C50.02800785498161%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4964",
+      "address": [
+        "Andrychów",
+        "Stefana Batorego",
+        "24"
+      ],
+      "location": {
+        "longitude": 19.33912540735013,
+        "latitude": 49.86177125925957
+      },
+      "municipality_teryt": "1218013",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2633866",
+        "https://bip.malopolska.pl/api/articles/2633867",
+        "https://bip.malopolska.pl/api/contexts/azkandrychow",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Andrych%C3%B3w%2C+stefana+batorego+24&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.33912540735013%2C49.86177125925957%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4970",
+      "address": [
+        "Wieliczka",
+        "Henryka Sienkiewicza",
+        "13"
+      ],
+      "location": {
+        "longitude": 20.064189288652397,
+        "latitude": 49.985461490300885
+      },
+      "municipality_teryt": "1219053",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2641907",
+        "https://bip.malopolska.pl/api/contexts/zdpwieliczka",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wieliczka%2C+henryka+sienkiewicza+13&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.064189288652397%2C49.985461490300885%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:4986",
+      "address": [
+        "Łapczyca",
+        null,
+        "334"
+      ],
+      "location": {
+        "longitude": 20.37275960433534,
+        "latitude": 49.96038492935393
+      },
+      "municipality_teryt": "1201022",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2679401",
+        "https://bip.malopolska.pl/api/contexts/rpk",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=%C5%81apczyca+334&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.37275960433534%2C49.96038492935393%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:500",
+      "address": [
+        "Nowy Wiśnicz",
+        "Rynek",
+        "16"
+      ],
+      "location": {
+        "longitude": 20.462725777461348,
+        "latitude": 49.91574792980999
+      },
+      "municipality_teryt": "1201063",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1047115",
+        "https://bip.malopolska.pl/api/contexts/zuk",
+        "https://nowywisnicz.pl/321-kontakt.html",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Nowy+Wi%C5%9Bnicz%2C+rynek+16&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.462725777461348%2C49.91574792980999%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:5003",
+      "address": [
+        "Tarnów",
+        "Gabriela Narutowicza",
+        "37"
+      ],
+      "location": {
+        "longitude": 20.987219510722856,
+        "latitude": 50.00847872845296
+      },
+      "municipality_teryt": "1263011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2730767",
+        "https://bip.malopolska.pl/api/contexts/tw",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Tarn%C3%B3w%2C+gabriela+narutowicza+37&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.987219510722856%2C50.00847872845296%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:5032",
+      "address": [
+        "Michałowice",
+        "plac Józefa Piłsudskiego",
+        "1"
+      ],
+      "location": {
+        "longitude": 19.979289584780144,
+        "latitude": 50.157871584589714
+      },
+      "municipality_teryt": "1206082",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2805390",
+        "https://bip.malopolska.pl/api/articles/2836174",
+        "https://bip.malopolska.pl/api/contexts/wodociagimichalowice",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Micha%C5%82owice%2C+plac+j%C3%B3zefa+pi%C5%82sudskiego+1&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.979289584780144%2C50.157871584589714%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:5076",
+      "address": [
+        "Bobowa",
+        "Bohaterów Bobowej",
+        "6A"
+      ],
+      "location": {
+        "longitude": 20.947236,
+        "latitude": 49.708106
+      },
+      "municipality_teryt": "1205033",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/2875286",
+        "https://bip.malopolska.pl/api/contexts/gjukbobowa",
+        "https://maps.google.com/maps?q=Bohater%C3%B3w+Bobowej+6A%2C+38-350+Bobowa&output=embed",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Bobowa%2C+bohater%C3%B3w+bobowej+6A&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.947236%2C49.708106%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Secondary geocoder: Google Maps returns a building/address pin whose full address label matches the official institution address, including the suffix and postal code. PRG has no unique exact point. This is a mapped address pin, not an institution-published coordinate or a locality centroid."
+    },
+    {
+      "source_key": "malopolska:525",
+      "address": [
+        "Olesno",
+        "Władysława Jagiełły",
+        "1"
+      ],
+      "location": {
+        "longitude": 20.928453957721032,
+        "latitude": 50.20090485263346
+      },
+      "municipality_teryt": "1204052",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/822041",
+        "https://bip.malopolska.pl/api/articles/822053",
+        "https://bip.malopolska.pl/api/contexts/gzgkwolesnie",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Olesno%2C+w%C5%82.+jagie%C5%82%C5%82y+1&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Olesno%2C+w%C5%82adys%C5%82awa+jagie%C5%82%C5%82y+1&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.928453957721032%2C50.20090485263346%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "malopolska:580",
+      "address": [
+        "Wola Szczucińska",
+        null,
+        "142"
+      ],
+      "location": {
+        "longitude": 21.099240946038943,
+        "latitude": 50.31842809002934
+      },
+      "municipality_teryt": "1204073",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1685461",
+        "https://bip.malopolska.pl/api/articles/385781",
+        "https://bip.malopolska.pl/api/contexts/zukwszczucinie",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wola+Szczuci%C5%84ska+142&accuracy=0.8&exact_number=1",
+        "https://www.zuk-szczucin.pl/",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=21.099240946038943%2C50.31842809002934%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:601",
+      "address": [
+        "Radgoszcz",
+        "Wincentego Witosa",
+        "24"
+      ],
+      "location": {
+        "longitude": 21.11088954611475,
+        "latitude": 50.20995857812502
+      },
+      "municipality_teryt": "1204062",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/388842",
+        "https://bip.malopolska.pl/api/articles/743024",
+        "https://bip.malopolska.pl/api/contexts/ojednostce1",
+        "https://radgoszcz.pl/wazna-informacja-gzgk/",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Radgoszcz%2C+wincentego+witosa+24&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=21.11088954611475%2C50.20995857812502%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:650",
+      "address": [
+        "Biecz",
+        "Załawie",
+        "5"
+      ],
+      "location": {
+        "longitude": 21.255362449567816,
+        "latitude": 49.728512084561025
+      },
+      "municipality_teryt": "1205023",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/391216",
+        "https://bip.malopolska.pl/api/articles/391226",
+        "https://bip.malopolska.pl/api/contexts/mpgkwbszoo",
+        "https://gkbiecz.pl/?page_id=36",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Biecz%2C+za%C5%82awie+5&accuracy=0.8&exact_number=1",
+        "https://www.biecz.pl/asp/urzedy-i-instytucje%2C51%2C%2C1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=21.255362449567816%2C49.728512084561025%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:670",
+      "address": [
+        "Gorlice",
+        "Krakowska",
+        "42"
+      ],
+      "location": {
+        "longitude": 21.14005437072967,
+        "latitude": 49.657509102171616
+      },
+      "municipality_teryt": "1205011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/394090",
+        "https://bip.malopolska.pl/api/articles/394094",
+        "https://bip.malopolska.pl/api/contexts/mzkszoo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Gorlice%2C+krakowska+42&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=21.14005437072967%2C49.657509102171616%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:673",
+      "address": [
+        "Gorlice",
+        "11 Listopada",
+        "54a"
+      ],
+      "location": {
+        "longitude": 21.16399632488504,
+        "latitude": 49.67001260187671
+      },
+      "municipality_teryt": "1205011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/394027",
+        "https://bip.malopolska.pl/api/articles/394035",
+        "https://bip.malopolska.pl/api/contexts/mpgkszowgorlicach",
+        "https://mpgkgorlice.pl/",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Gorlice%2C+11+listopada+54a&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=21.16399632488504%2C49.67001260187671%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:707",
+      "address": [
+        "Libiąż",
+        "Ignacego Jana Paderewskiego",
+        "2"
+      ],
+      "location": {
+        "longitude": 19.324183750887862,
+        "latitude": 50.10332524242923
+      },
+      "municipality_teryt": "1203043",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/349676",
+        "https://bip.malopolska.pl/api/articles/349687",
+        "https://bip.malopolska.pl/api/contexts/mzadarembiecha",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Libi%C4%85%C5%BC%2C+ignacego+jana+paderewskiego+2&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Libi%C4%85%C5%BC%2C+ignacego+paderewskiego+2&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.324183750887862%2C50.10332524242923%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "malopolska:727",
+      "address": [
+        "Wysowa-Zdrój",
+        null,
+        "69"
+      ],
+      "location": {
+        "longitude": 21.183336587575297,
+        "latitude": 49.430055131200945
+      },
+      "municipality_teryt": "1205102",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/535416",
+        "https://bip.malopolska.pl/api/contexts/zgkimwwysowejzdroju",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Wysowa-Zdr%C3%B3j+69&accuracy=0.8&exact_number=1",
+        "https://www.zgkimwysowa.pl/kontakt/",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=21.183336587575297%2C49.430055131200945%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:768",
+      "address": [
+        "Bochnia",
+        "Majora Bacy",
+        "15"
+      ],
+      "location": {
+        "longitude": 20.406927873065243,
+        "latitude": 49.98319184982584
+      },
+      "municipality_teryt": "1201011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/45698",
+        "https://bip.malopolska.pl/api/articles/45703",
+        "https://bip.malopolska.pl/api/contexts/mpwikwbszoo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Bochnia%2C+majora+bacy+15&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Bochnia%2C+mjr.+bacy+15&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.406927873065243%2C49.98319184982584%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "malopolska:771",
+      "address": [
+        "Bochnia",
+        "Księcia Józefa Poniatowskiego",
+        "24A"
+      ],
+      "location": {
+        "longitude": 20.432921061007306,
+        "latitude": 49.97671387408806
+      },
+      "municipality_teryt": "1201011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/750094",
+        "https://bip.malopolska.pl/api/articles/750146",
+        "https://bip.malopolska.pl/api/contexts/mpecszoo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Bochnia%2C+ksi%C4%99cia+j%C3%B3zefa+poniatowskiego+24A&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.432921061007306%2C49.97671387408806%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:772",
+      "address": [
+        "Bochnia",
+        "20 Stycznia",
+        "46"
+      ],
+      "location": {
+        "longitude": 20.434744852280694,
+        "latitude": 49.980495916359814
+      },
+      "municipality_teryt": "1201011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/45691",
+        "https://bip.malopolska.pl/api/articles/45694",
+        "https://bip.malopolska.pl/api/contexts/bzukszoo",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Bochnia%2C+20+stycznia+46&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.434744852280694%2C49.980495916359814%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:862",
+      "address": [
+        "Jerzmanowice",
+        "Rajska",
+        "24"
+      ],
+      "location": {
+        "longitude": 19.745358770656136,
+        "latitude": 50.21507514668144
+      },
+      "municipality_teryt": "1206042",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/1013134",
+        "https://bip.malopolska.pl/api/articles/1901035",
+        "https://bip.malopolska.pl/api/contexts/zbwgwjerzmanowicach",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Jerzmanowice%2C+rajska+24&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.745358770656136%2C50.21507514668144%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:868",
+      "address": [
+        "Słomniki",
+        "Tadeusza Kościuszki",
+        "64"
+      ],
+      "location": {
+        "longitude": 20.084369885028774,
+        "latitude": 50.24591089591266
+      },
+      "municipality_teryt": "1206123",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/460276",
+        "https://bip.malopolska.pl/api/articles/754029",
+        "https://bip.malopolska.pl/api/contexts/ojednostce5",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=S%C5%82omniki%2C+tadeusza+ko%C5%9Bciuszki+64&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.084369885028774%2C50.24591089591266%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "malopolska:922",
+      "address": [
+        "Czernichów",
+        "Gminna",
+        "1"
+      ],
+      "location": {
+        "longitude": 19.677700716226312,
+        "latitude": 49.98912346701098
+      },
+      "municipality_teryt": "1206012",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.malopolska.pl/api/articles/446433",
+        "https://bip.malopolska.pl/api/articles/757198",
+        "https://bip.malopolska.pl/api/contexts/zgkwczernichowie",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Czernich%C3%B3w%2C+gminna+1&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.677700716226312%2C49.98912346701098%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "official:mobilis-krakow",
+      "address": [
+        "Kraków",
+        "Makuszyńskiego",
+        "13"
+      ],
+      "location": {
+        "longitude": 20.04443486160208,
+        "latitude": 50.088858948870964
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://mobilis.pl/kontakt-krakow/",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+kornela+makuszy%C5%84skiego+13&accuracy=0.8&exact_number=1",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+makuszy%C5%84skiego+13&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.04443486160208%2C50.088858948870964%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Reviewed street alias: the institutional address abbreviates or expands the PRG street name."
+    },
+    {
+      "source_key": "official:mpec-krakow",
+      "address": [
+        "Kraków",
+        "al. Pokoju",
+        "81"
+      ],
+      "location": {
+        "longitude": 20.007335917159576,
+        "latitude": 50.06737701862931
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.mpec.krakow.pl/artykul/80/86/pogotowie-techniczne",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+aleja+pokoju+81&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.007335917159576%2C50.06737701862931%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "official:mpo-krakow",
+      "address": [
+        "Kraków",
+        "Nowohucka",
+        "1"
+      ],
+      "location": {
+        "longitude": 20.005559831902804,
+        "latitude": 50.069818699728216
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.mpo.krakow.pl/",
+        "https://mpo.krakow.pl/formularz-zgloszeniowy/",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+nowohucka+1&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=20.005559831902804%2C50.069818699728216%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    },
+    {
+      "source_key": "official:wodociagi-krakow",
+      "address": [
+        "Kraków",
+        "Senatorska",
+        "1"
+      ],
+      "location": {
+        "longitude": 19.921472402949686,
+        "latitude": 50.0555831575056
+      },
+      "municipality_teryt": "1261011",
+      "verified_on": "2026-10-04",
+      "source_urls": [
+        "https://bip.wodociagi.krakow.pl/artykul/369/5/godziny-pracy",
+        "https://services.gugik.gov.pl/uug/?request=GetAddress&address=Krak%C3%B3w%2C+senatorska+1&accuracy=0.8&exact_number=1",
+        "https://uldk.gugik.gov.pl/?request=GetCommuneByXY&xy=19.921472402949686%2C50.0555831575056%2C4326&result=teryt%2Ccommune%2Ccounty"
+      ],
+      "note": "Exact PRG address point and PRG municipality boundary."
+    }
+  ]
+}

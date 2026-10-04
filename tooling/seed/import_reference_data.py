@@ -9,11 +9,15 @@ import xlrd
 
 from import_local_government_offices import import_contacts, read_contacts
 from import_service_entities import import_entities, read_entities
+from import_service_entity_seats import import_seats, read_seats
 
 
-def import_data(connection: psycopg.Connection, offices: list[tuple], entities: list[dict]) -> tuple[int, int]:
+def import_data(connection: psycopg.Connection, offices: list[tuple], entities: list[dict], seats=None) -> tuple[int, int]:
     with connection.transaction():
-        return import_contacts(connection, offices), import_entities(connection, entities)
+        counts = import_contacts(connection, offices), import_entities(connection, entities)
+        if seats is not None:
+            import_seats(connection, seats, entities)
+        return counts
 
 
 def main() -> int:
@@ -24,8 +28,9 @@ def main() -> int:
     try:
         offices = read_contacts(args.workbook)
         entities = read_entities(args.entities)
+        seats = read_seats(args.entities.with_name("service_entity_seats.json"), entities)
         with psycopg.connect(connect_timeout=10) as connection:
-            office_changes, entity_changes = import_data(connection, offices, entities)
+            office_changes, entity_changes = import_data(connection, offices, entities, seats)
     except (OSError, ValueError, KeyError, xlrd.XLRDError) as error:
         print(f"Reference import failed: {error}", file=sys.stderr)
         return 1

@@ -2,6 +2,7 @@
 
 import json
 import math
+import re
 from dataclasses import dataclass
 from http.client import HTTPException
 from urllib.parse import urlencode
@@ -23,7 +24,18 @@ class AddressPoint:
     y: float
 
 
-def address_point(locality: str, street: str | None, number: str) -> AddressPoint | None:
+def normalized_street(street: str | None) -> str:
+    value = (street or "").strip().casefold()
+    value = re.sub(r"^ul(?:ica)?\.?\s+", "", value)
+    for abbreviation, full in (("al", "aleja"), ("pl", "plac"), ("os", "osiedle")):
+        value = re.sub(rf"^{abbreviation}\.\s+", full + " ", value)
+    return " ".join(value.split())
+
+
+def address_point(
+    locality: str, street: str | None, number: str, postal_code: str | None = None
+) -> AddressPoint | None:
+    street = normalized_street(street)
     address = f"{locality}, {street} {number}" if street else f"{locality} {number}"
     query = urlencode({"request": "GetAddress", "address": address, "accuracy": "0.8", "exact_number": "1"})
     request = Request(f"{UUG_URL}?{query}", headers={"User-Agent": "eHackYeah2026/1.0"})
@@ -45,20 +57,28 @@ def address_point(locality: str, street: str | None, number: str) -> AddressPoin
         results = list(payload["results"].values())
         if not results:
             return None
-        if payload.get("type") != "address" or len(results) != 1:
+        if payload.get("type") != "address":
             return None
-        result = results[0]
-        if not isinstance(result, dict):
-            raise GeocodingUnavailableError
-        accuracy = float(result["accuracy"])
-        if not math.isfinite(accuracy) or not 0 <= accuracy <= 1:
-            raise GeocodingUnavailableError
-        if (
-            str(result["number"]).casefold() != number.strip().casefold()
-            or str(result["city"]).casefold() != locality.strip().casefold()
-            or accuracy < 0.8
-        ):
+        candidates = []
+        for result in results:
+            if not isinstance(result, dict):
+                raise GeocodingUnavailableError
+            accuracy = float(result["accuracy"])
+            if not math.isfinite(accuracy) or not 0 <= accuracy <= 1:
+                raise GeocodingUnavailableError
+            # UUG also returns alternatives below the requested accuracy threshold.
+            if (
+                str(result["number"]).casefold() == number.strip().casefold()
+                and str(result["city"]).casefold() == locality.strip().casefold()
+                and normalized_street(result.get("street")) == street
+                and accuracy >= 0.8
+            ):
+                candidates.append(result)
+        if len(candidates) > 1 and postal_code:
+            candidates = [result for result in candidates if result.get("code") == postal_code]
+        if len(candidates) != 1:
             return None
+        result = candidates[0]
         x, y = float(result["x"]), float(result["y"])
         if not math.isfinite(x) or not math.isfinite(y) or not (0 < x < 1_000_000 and 0 < y < 1_000_000):
             raise GeocodingUnavailableError
