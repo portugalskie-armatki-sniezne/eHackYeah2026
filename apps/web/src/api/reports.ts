@@ -100,7 +100,7 @@ export type MasterReportFilters = {
 };
 
 // the largest page the api serves
-const MAX_PAGE_SIZE = 200;
+export const MAX_PAGE_SIZE = 200;
 
 function masterReports(
   params: MasterReportFilters = {},
@@ -136,7 +136,12 @@ export const reportsApi = {
   },
 
   list(
-    params: { user_id?: string; limit?: number; offset?: number } = {},
+    params: {
+      user_id?: string;
+      master_report_id?: string;
+      limit?: number;
+      offset?: number;
+    } = {},
     signal?: AbortSignal,
   ): Promise<ReportPage> {
     return apiFetch("/reports", { query: params, signal });

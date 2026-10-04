@@ -1,4 +1,11 @@
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
 import { letterFor, type ReportLetter } from "../api/letters";
 import {
   reportsApi,
@@ -7,6 +14,8 @@ import {
   type ReportCategoryName,
 } from "../api/reports";
 import { useSession } from "../api/session";
+import MasterReports from "./MasterReports";
+import { formatDate, timeAgo } from "./relativeTime";
 import StatusBadge from "./StatusBadge";
 import MarkerRecipient from "./MarkerRecipient";
 import "./MarkerDialog.css";
@@ -29,6 +38,9 @@ type Sheet = {
   letter: ReportLetter;
 };
 
+// what the side panel beside the post shows
+type PanelView = "comments" | "reports";
+
 const KIND_LABELS: Record<ReportCategoryName, string> = {
   issue: "Fault report",
   improvement: "Improvement idea",
@@ -39,27 +51,6 @@ const KIND_GLYPHS: Record<ReportCategoryName, string> = {
   issue: "!",
   improvement: "+",
 };
-
-const RELATIVE = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
-const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
-  ["year", 365 * 24 * 60 * 60],
-  ["month", 30 * 24 * 60 * 60],
-  ["week", 7 * 24 * 60 * 60],
-  ["day", 24 * 60 * 60],
-  ["hour", 60 * 60],
-  ["minute", 60],
-];
-
-// "3 hours ago" rather than a timestamp, the way a feed dates its posts
-function timeAgo(iso: string): string {
-  const seconds = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
-  for (const [unit, span] of UNITS) {
-    if (Math.abs(seconds) >= span) {
-      return RELATIVE.format(-Math.round(seconds / span), unit);
-    }
-  }
-  return "just now";
-}
 
 const ROPS_PATTERN =
   /\[?Inicjatywa oparta na innowacji ROPS:\s*([^\n()[\]]+?)(?:\s*\((https?:\/\/[^\s)]+)\)|\s*\n\s*(https?:\/\/[^\s)]+))\]?/i;
@@ -87,11 +78,8 @@ function parseRopsInnovation(body: string): ParsedBody {
   };
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+function countLabel(count: number, noun: string): string {
+  return count === 1 ? `1 ${noun}` : `${count} ${noun}s`;
 }
 
 function renderTextWithLinks(text: string) {
@@ -137,6 +125,17 @@ export default function MarkerDialog({
   const [posting, setPosting] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
   const postingRef = useRef(false);
+  const [panel, setPanel] = useState<PanelView>("comments");
+  const [panelOpen, setPanelOpen] = useState(false);
+  // the reports load the first time the panel shows them, then stay mounted
+  const [reportsSeen, setReportsSeen] = useState(false);
+  const panelCloseRef = useRef<HTMLButtonElement>(null);
+  const toggleRefs = useRef<Record<PanelView, HTMLButtonElement | null>>({
+    comments: null,
+    reports: null,
+  });
+  // where focus goes once the panel has opened or closed
+  const focusRef = useRef<"panel" | PanelView | null>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -145,6 +144,16 @@ export default function MarkerDialog({
     }
     dialog.showModal();
   }, []);
+
+  useEffect(() => {
+    const target = focusRef.current;
+    focusRef.current = null;
+    if (target === "panel") {
+      panelCloseRef.current?.focus();
+    } else if (target) {
+      toggleRefs.current[target]?.focus();
+    }
+  }, [panel, panelOpen]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -176,6 +185,32 @@ export default function MarkerDialog({
     void load();
     return () => controller.abort();
   }, [masterId]);
+
+  const togglePanel = (view: PanelView) => {
+    if (panelOpen && panel === view) {
+      setPanelOpen(false);
+      return;
+    }
+    setPanel(view);
+    setPanelOpen(true);
+    if (view === "reports") {
+      setReportsSeen(true);
+    }
+    focusRef.current = "panel";
+  };
+
+  const closePanel = () => {
+    setPanelOpen(false);
+    focusRef.current = panel;
+  };
+
+  // the first Escape folds the panel away, the next one closes the dialog
+  const handleKeyDown = (event: KeyboardEvent<HTMLDialogElement>) => {
+    if (event.key === "Escape" && panelOpen) {
+      event.preventDefault();
+      closePanel();
+    }
+  };
 
   const replaceComment = (next: MasterReportComment) =>
     setComments((current) =>
@@ -239,303 +274,380 @@ export default function MarkerDialog({
       className="marker-dialog"
       aria-labelledby={`${id}-title`}
       onClose={onClose}
+      onKeyDown={handleKeyDown}
     >
-      <article className="marker-dialog__post">
-        <button
-          type="button"
-          className="marker-dialog__close"
-          onClick={() => dialogRef.current?.close()}
-        >
-          <span aria-hidden="true">&times;</span>
-          <span className="visually-hidden">Close</span>
-        </button>
+      <div
+        className={
+          panelOpen
+            ? "marker-dialog__stage marker-dialog__stage--open"
+            : "marker-dialog__stage"
+        }
+      >
+        <article className="marker-dialog__post">
+          <button
+            type="button"
+            className="marker-dialog__close"
+            onClick={() => dialogRef.current?.close()}
+          >
+            <span aria-hidden="true">&times;</span>
+            <span className="visually-hidden">Close</span>
+          </button>
 
-        {/* The photo leads, the way a post does; a filing without one gets the
+          {/* The photo leads, the way a post does; a filing without one gets the
             drafting grid the marker sheet shows before an image is chosen. */}
-        <figure className="marker-dialog__figure">
-          {photo ? (
-            <img
-              className="marker-dialog__photo"
-              src={reportsApi.photoUrl(photo)}
-              alt={master ? `Photo of: ${master.title}` : "Report photo"}
-            />
-          ) : (
-            <div className="marker-dialog__photo marker-dialog__photo--empty">
+          <figure className="marker-dialog__figure">
+            {photo ? (
+              <img
+                className="marker-dialog__photo"
+                src={reportsApi.photoUrl(photo)}
+                alt={master ? `Photo of: ${master.title}` : "Report photo"}
+              />
+            ) : (
+              <div className="marker-dialog__photo marker-dialog__photo--empty">
+                <span
+                  className="marker-dialog__placeholder-glyph"
+                  aria-hidden="true"
+                >
+                  {KIND_GLYPHS[category]}
+                </span>
+                {!sheet && !error && (
+                  <span className="marker-dialog__placeholder-text">
+                    Loading...
+                  </span>
+                )}
+                {sheet && (
+                  <span className="marker-dialog__placeholder-text">
+                    No photo yet
+                  </span>
+                )}
+              </div>
+            )}
+            {sheet && (
+              <figcaption className="marker-dialog__badge">
+                <StatusBadge status={sheet.status} />
+              </figcaption>
+            )}
+          </figure>
+
+          {photos.length > 1 && (
+            <div
+              className="marker-dialog__strip"
+              role="group"
+              aria-label="Photos"
+            >
+              {photos.map((item, index) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="marker-dialog__thumb"
+                  aria-pressed={index === photoIndex}
+                  onClick={() => setPhotoIndex(index)}
+                >
+                  <img src={reportsApi.photoUrl(item)} alt="" />
+                  <span className="visually-hidden">
+                    Photo {index + 1} of {photos.length}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="marker-dialog__body">
+            <header className="marker-dialog__byline">
               <span
-                className="marker-dialog__placeholder-glyph"
+                className="marker-dialog__avatar marker-dialog__avatar--post"
                 aria-hidden="true"
               >
                 {KIND_GLYPHS[category]}
               </span>
-              {!sheet && !error && (
-                <span className="marker-dialog__placeholder-text">
-                  Loading...
+              <div className="marker-dialog__who">
+                <span className="marker-dialog__kind">
+                  {KIND_LABELS[category]}
                 </span>
-              )}
-              {sheet && (
-                <span className="marker-dialog__placeholder-text">
-                  No photo yet
-                </span>
-              )}
-            </div>
-          )}
-          {sheet && (
-            <figcaption className="marker-dialog__badge">
-              <StatusBadge status={sheet.status} />
-            </figcaption>
-          )}
-        </figure>
+                {master && (
+                  <span className="marker-dialog__when">
+                    <time
+                      dateTime={master.created_at}
+                      title={formatDate(master.created_at)}
+                    >
+                      {timeAgo(master.created_at)}
+                    </time>
+                  </span>
+                )}
+              </div>
+            </header>
 
-        {photos.length > 1 && (
-          <div
-            className="marker-dialog__strip"
-            role="group"
-            aria-label="Photos"
-          >
-            {photos.map((item, index) => (
-              <button
-                key={item.id}
-                type="button"
-                className="marker-dialog__thumb"
-                aria-pressed={index === photoIndex}
-                onClick={() => setPhotoIndex(index)}
+            <h2 id={`${id}-title`} className="marker-dialog__title">
+              {master ? master.title : error ? "Report" : "Loading report"}
+            </h2>
+
+            {error && (
+              <p className="marker-dialog__error" role="alert">
+                {error}
+              </p>
+            )}
+
+            {letter &&
+              master &&
+              (() => {
+                const { cleanText, ropsInnovation } = parseRopsInnovation(
+                  letter.body,
+                );
+                return (
+                  <div className="marker-dialog__letter">
+                    <dl className="marker-dialog__envelope">
+                      <dt>To</dt>
+                      <dd>
+                        <MarkerRecipient
+                          master={master}
+                          letter={letter}
+                          onSignInRequired={onSignInRequired}
+                        />
+                      </dd>
+                      <dt>Subject</dt>
+                      <dd>{letter.subject}</dd>
+                    </dl>
+                    {cleanText && (
+                      <p className="marker-dialog__text">
+                        {renderTextWithLinks(cleanText)}
+                      </p>
+                    )}
+                    {ropsInnovation && (
+                      <aside
+                        className="marker-dialog__rops-box"
+                        aria-label="Innowacja ROPS"
+                      >
+                        <div className="marker-dialog__rops-header">
+                          <span className="marker-dialog__rops-badge">
+                            Innowacja ROPS
+                          </span>
+                        </div>
+                        <div className="marker-dialog__rops-content">
+                          <strong className="marker-dialog__rops-title">
+                            {ropsInnovation.title}
+                          </strong>
+                          <a
+                            href={ropsInnovation.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="marker-dialog__rops-link"
+                          >
+                            Zobacz model innowacji na rops.krakow.pl &rarr;
+                          </a>
+                        </div>
+                      </aside>
+                    )}
+                  </div>
+                );
+              })()}
+
+            {sheet && master?.response && (
+              <aside
+                className="marker-dialog__response"
+                aria-label="Official response"
               >
-                <img src={reportsApi.photoUrl(item)} alt="" />
-                <span className="visually-hidden">
-                  Photo {index + 1} of {photos.length}
+                <span className="marker-dialog__response-label">
+                  Official response
+                </span>
+                <p className="marker-dialog__text">
+                  {renderTextWithLinks(master.response)}
+                </p>
+              </aside>
+            )}
+          </div>
+
+          {sheet && (
+            <div className="marker-dialog__actions">
+              <button
+                ref={(button) => {
+                  toggleRefs.current.comments = button;
+                }}
+                type="button"
+                className="marker-dialog__button marker-dialog__toggle"
+                aria-expanded={panelOpen && panel === "comments"}
+                aria-controls={`${id}-panel`}
+                onClick={() => togglePanel("comments")}
+              >
+                Comments
+                <span className="marker-dialog__count">{comments.length}</span>
+              </button>
+              <button
+                ref={(button) => {
+                  toggleRefs.current.reports = button;
+                }}
+                type="button"
+                className="marker-dialog__button marker-dialog__toggle"
+                aria-expanded={panelOpen && panel === "reports"}
+                aria-controls={`${id}-panel`}
+                onClick={() => togglePanel("reports")}
+              >
+                Reports
+                <span className="marker-dialog__count">
+                  {sheet.master.report_count}
                 </span>
               </button>
-            ))}
-          </div>
-        )}
-
-        <div className="marker-dialog__body">
-          <header className="marker-dialog__byline">
-            <span
-              className="marker-dialog__avatar marker-dialog__avatar--post"
-              aria-hidden="true"
-            >
-              {KIND_GLYPHS[category]}
-            </span>
-            <div className="marker-dialog__who">
-              <span className="marker-dialog__kind">
-                {KIND_LABELS[category]}
-              </span>
-              {master && (
-                <span className="marker-dialog__when">
-                  <time
-                    dateTime={master.created_at}
-                    title={formatDate(master.created_at)}
-                  >
-                    {timeAgo(master.created_at)}
-                  </time>
-                  {" · "}
-                  {master.report_count === 1
-                    ? "1 report"
-                    : `${master.report_count} reports`}
-                </span>
-              )}
             </div>
-          </header>
-
-          <h2 id={`${id}-title`} className="marker-dialog__title">
-            {master ? master.title : error ? "Report" : "Loading report"}
-          </h2>
-
-          {error && (
-            <p className="marker-dialog__error" role="alert">
-              {error}
-            </p>
           )}
+        </article>
 
-          {letter &&
-            master &&
-            (() => {
-              const { cleanText, ropsInnovation } = parseRopsInnovation(
-                letter.body,
-              );
-              return (
-                <div className="marker-dialog__letter">
-                  <dl className="marker-dialog__envelope">
-                    <dt>To</dt>
-                    <dd>
-                      <MarkerRecipient
-                        master={master}
-                        letter={letter}
-                        onSignInRequired={onSignInRequired}
-                      />
-                    </dd>
-                    <dt>Subject</dt>
-                    <dd>{letter.subject}</dd>
-                  </dl>
-                  {cleanText && (
-                    <p className="marker-dialog__text">
-                      {renderTextWithLinks(cleanText)}
-                    </p>
-                  )}
-                  {ropsInnovation && (
-                    <aside
-                      className="marker-dialog__rops-box"
-                      aria-label="Innowacja ROPS"
-                    >
-                      <div className="marker-dialog__rops-header">
-                        <span className="marker-dialog__rops-badge">
-                          Innowacja ROPS
-                        </span>
-                      </div>
-                      <div className="marker-dialog__rops-content">
-                        <strong className="marker-dialog__rops-title">
-                          {ropsInnovation.title}
-                        </strong>
-                        <a
-                          href={ropsInnovation.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="marker-dialog__rops-link"
-                        >
-                          Zobacz model innowacji na rops.krakow.pl &rarr;
-                        </a>
-                      </div>
-                    </aside>
-                  )}
-                </div>
-              );
-            })()}
-
-          {sheet && master?.response && (
-            <aside
-              className="marker-dialog__response"
-              aria-label="Official response"
-            >
-              <span className="marker-dialog__response-label">
-                Official response
-              </span>
-              <p className="marker-dialog__text">
-                {renderTextWithLinks(master.response)}
-              </p>
-            </aside>
-          )}
-        </div>
-
+        {/* the panel waits under the post and slides out to its right */}
         {sheet && (
           <section
-            className="marker-dialog__comments"
-            aria-labelledby={`${id}-comments`}
+            id={`${id}-panel`}
+            className="marker-dialog__panel"
+            aria-labelledby={`${id}-panel-title`}
           >
-            <h3 id={`${id}-comments`} className="marker-dialog__label">
-              {comments.length === 0
-                ? "Comments"
-                : comments.length === 1
-                  ? "1 comment"
-                  : `${comments.length} comments`}
-            </h3>
-            {comments.length === 0 ? (
-              <p className="marker-dialog__hint">
-                Nobody has weighed in yet. Be the first.
-              </p>
-            ) : (
-              <ul className="marker-dialog__feed">
-                {comments.map((comment) => {
-                  const mine = comment.user_id === me;
-                  return (
-                    <li key={comment.id} className="marker-dialog__comment">
-                      <span
-                        className={
-                          mine
-                            ? "marker-dialog__avatar marker-dialog__avatar--me"
-                            : "marker-dialog__avatar"
-                        }
-                        aria-hidden="true"
-                      >
-                        {mine ? myInitial : "R"}
-                      </span>
-                      <div className="marker-dialog__bubble">
-                        <div className="marker-dialog__comment-head">
-                          <span className="marker-dialog__author">
-                            {mine ? "You" : "Resident"}
-                          </span>
-                          <time
-                            className="marker-dialog__when"
-                            dateTime={comment.created_at}
-                            title={formatDate(comment.created_at)}
-                          >
-                            {timeAgo(comment.created_at)}
-                          </time>
-                        </div>
-                        <p className="marker-dialog__comment-text">
-                          {comment.content}
-                        </p>
-                        <button
-                          type="button"
-                          className="marker-dialog__like"
-                          aria-pressed={comment.liked_by_me}
-                          onClick={() => void handleLike(comment)}
-                        >
-                          <span aria-hidden="true">
-                            {comment.liked_by_me ? "♥" : "♡"}
-                          </span>{" "}
-                          {comment.like_count}
-                          <span className="visually-hidden">
-                            {comment.liked_by_me
-                              ? " likes, unlike"
-                              : " likes, like"}
-                          </span>
-                        </button>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-
-            {commentError && (
-              <p className="marker-dialog__error" role="alert">
-                {commentError}
-              </p>
-            )}
-
-            {session.status === "signed-in" ? (
-              <form className="marker-dialog__compose" onSubmit={handleSubmit}>
-                <span
-                  className="marker-dialog__avatar marker-dialog__avatar--me"
-                  aria-hidden="true"
-                >
-                  {myInitial}
+            <header className="marker-dialog__panel-head">
+              <h3 id={`${id}-panel-title`} className="marker-dialog__label">
+                {panel === "reports"
+                  ? countLabel(sheet.master.report_count, "report")
+                  : comments.length === 0
+                    ? "Comments"
+                    : countLabel(comments.length, "comment")}
+              </h3>
+              <button
+                ref={panelCloseRef}
+                type="button"
+                className="marker-dialog__panel-close"
+                onClick={closePanel}
+              >
+                <span className="marker-dialog__panel-close-icon">
+                  <span aria-hidden="true">&times;</span>
+                  <span className="visually-hidden">Close panel</span>
                 </span>
-                <label className="visually-hidden" htmlFor={`${id}-comment`}>
-                  New comment
-                </label>
-                <textarea
-                  id={`${id}-comment`}
-                  className="marker-dialog__textarea"
-                  rows={1}
-                  disabled={posting}
-                  placeholder="Write a comment..."
-                  value={draft}
-                  onChange={(event) => setDraft(event.target.value)}
+                <span className="marker-dialog__panel-back">
+                  <span aria-hidden="true">&larr;</span> Back
+                </span>
+              </button>
+            </header>
+
+            <div className="marker-dialog__panel-scroll">
+              {panel === "comments" &&
+                (comments.length === 0 ? (
+                  <p className="marker-dialog__hint">
+                    Nobody has weighed in yet. Be the first.
+                  </p>
+                ) : (
+                  <ul className="marker-dialog__feed">
+                    {comments.map((comment) => {
+                      const mine = comment.user_id === me;
+                      return (
+                        <li key={comment.id} className="marker-dialog__comment">
+                          <span
+                            className={
+                              mine
+                                ? "marker-dialog__avatar marker-dialog__avatar--me"
+                                : "marker-dialog__avatar"
+                            }
+                            aria-hidden="true"
+                          >
+                            {mine ? myInitial : "R"}
+                          </span>
+                          <div className="marker-dialog__bubble">
+                            <div className="marker-dialog__comment-head">
+                              <span className="marker-dialog__author">
+                                {mine ? "You" : "Resident"}
+                              </span>
+                              <time
+                                className="marker-dialog__when"
+                                dateTime={comment.created_at}
+                                title={formatDate(comment.created_at)}
+                              >
+                                {timeAgo(comment.created_at)}
+                              </time>
+                            </div>
+                            <p className="marker-dialog__comment-text">
+                              {comment.content}
+                            </p>
+                            <button
+                              type="button"
+                              className="marker-dialog__like"
+                              aria-pressed={comment.liked_by_me}
+                              onClick={() => void handleLike(comment)}
+                            >
+                              <span aria-hidden="true">
+                                {comment.liked_by_me ? "♥" : "♡"}
+                              </span>{" "}
+                              {comment.like_count}
+                              <span className="visually-hidden">
+                                {comment.liked_by_me
+                                  ? " likes, unlike"
+                                  : " likes, like"}
+                              </span>
+                            </button>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ))}
+
+              {reportsSeen && (
+                <MasterReports
+                  masterId={masterId}
+                  hidden={panel !== "reports"}
                 />
-                <button
-                  type="submit"
-                  className="marker-dialog__button marker-dialog__button--primary"
-                  disabled={!draft.trim() || posting}
-                >
-                  {posting ? "Posting..." : "Post"}
-                </button>
-              </form>
-            ) : (
-              session.status === "signed-out" && (
-                <button
-                  type="button"
-                  className="marker-dialog__button"
-                  onClick={onSignInRequired}
-                >
-                  Sign in to comment
-                </button>
-              )
+              )}
+            </div>
+
+            {panel === "comments" && (
+              <div className="marker-dialog__panel-foot">
+                {commentError && (
+                  <p className="marker-dialog__error" role="alert">
+                    {commentError}
+                  </p>
+                )}
+
+                {session.status === "signed-in" ? (
+                  <form
+                    className="marker-dialog__compose"
+                    onSubmit={handleSubmit}
+                  >
+                    <span
+                      className="marker-dialog__avatar marker-dialog__avatar--me"
+                      aria-hidden="true"
+                    >
+                      {myInitial}
+                    </span>
+                    <label
+                      className="visually-hidden"
+                      htmlFor={`${id}-comment`}
+                    >
+                      New comment
+                    </label>
+                    <textarea
+                      id={`${id}-comment`}
+                      className="marker-dialog__textarea"
+                      rows={1}
+                      disabled={posting}
+                      placeholder="Write a comment..."
+                      value={draft}
+                      onChange={(event) => setDraft(event.target.value)}
+                    />
+                    <button
+                      type="submit"
+                      className="marker-dialog__button marker-dialog__button--primary"
+                      disabled={!draft.trim() || posting}
+                    >
+                      {posting ? "Posting..." : "Post"}
+                    </button>
+                  </form>
+                ) : (
+                  session.status === "signed-out" && (
+                    <button
+                      type="button"
+                      className="marker-dialog__button"
+                      onClick={onSignInRequired}
+                    >
+                      Sign in to comment
+                    </button>
+                  )
+                )}
+              </div>
             )}
           </section>
         )}
-      </article>
+      </div>
     </dialog>
   );
 }
