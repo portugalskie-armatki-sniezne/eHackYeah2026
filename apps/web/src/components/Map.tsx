@@ -21,9 +21,14 @@ import EventMarkers, {
   type EventPin,
 } from "./EventMarkers";
 import PinDialog, { type PinDraft } from "./PinDialog";
+import MarkerDialog from "./MarkerDialog";
 import ReportClusters from "./ReportClusters";
 import { isClusterAt } from "./reportClusterHit";
 import { createTiltPrewarmer } from "./mapPrewarm";
+import {
+  readLastKnownPosition,
+  saveLastKnownPosition,
+} from "./lastKnownPosition";
 import {
   reportsApi,
   type MasterReport,
@@ -38,9 +43,10 @@ import "./Map.css";
 // maplibre resolves its worker next to its own file at runtime, which the bundler cannot see
 setWorkerUrl(maplibreWorkerUrl);
 
-const POZNAN: [number, number] = [16.929, 52.407];
-// wide enough to open on most of the reported city, not one street of it
-const ZOOM = 14;
+// Where the map opens when the device has never been located in this browser.
+const MALOPOLSKA: [number, number] = [20.25, 49.85];
+// wide enough to open on Małopolska, not one city
+const ZOOM = 7;
 // Close enough to read the street you are standing on.
 const LOCATE_ZOOM = 16.5;
 const TILTED_VIEW = { pitch: 55, bearing: -20 };
@@ -450,6 +456,8 @@ export default function Map({ onSignInRequired }: MapProps) {
   );
   // the clicked point while its marker sheet is open
   const [draftLngLat, setDraftLngLat] = useState<[number, number] | null>(null);
+  // the clicked pin's master while its report sheet is open
+  const [openPinId, setOpenPinId] = useState<string | null>(null);
   const { fix } = useUserPosition();
   // The camera eases to the first fix so the dot isn't off-screen, then leaves
   // the view alone: later fixes only move the dot.
@@ -530,11 +538,15 @@ export default function Map({ onSignInRequired }: MapProps) {
       return;
     }
 
+    // The map opens on the device's position: the place it was last seen if this
+    // browser knows one, and the region view until the first fix lands otherwise.
+    const lastKnown = readLastKnownPosition();
+
     const map = new MapLibreMap({
       container,
       style: BASEMAP_STYLES.streets,
-      center: POZNAN,
-      zoom: ZOOM,
+      center: lastKnown ?? MALOPOLSKA,
+      zoom: lastKnown ? LOCATE_ZOOM : ZOOM,
       ...FLAT_VIEW,
       maxPitch: 70,
       attributionControl: false,
@@ -585,7 +597,7 @@ export default function Map({ onSignInRequired }: MapProps) {
       .getCanvas()
       .setAttribute(
         "aria-label",
-        "Map of Poznań. Use the arrow keys to pan and the plus and minus keys to zoom.",
+        "Map. Use the arrow keys to pan and the plus and minus keys to zoom.",
       );
 
     mapRef.current = map;
@@ -602,13 +614,16 @@ export default function Map({ onSignInRequired }: MapProps) {
     mapRef.current?.flyTo({ center: lngLat, zoom: LOCATE_ZOOM });
   }, []);
 
+  // The first fix is the starting view, so the camera is set there outright
+  // rather than flown across the city; later recentres animate.
   useEffect(() => {
     if (!fix || centredRef.current) {
       return;
     }
     centredRef.current = true;
-    flyToFix(fix.lngLat);
-  }, [fix, flyToFix]);
+    mapRef.current?.jumpTo({ center: fix.lngLat, zoom: LOCATE_ZOOM });
+    saveLastKnownPosition(fix.lngLat);
+  }, [fix]);
 
   const handleRecenterOnMe = useCallback(() => {
     if (fix) {
@@ -617,6 +632,11 @@ export default function Map({ onSignInRequired }: MapProps) {
   }, [fix, flyToFix]);
 
   const handleCloseDraft = useCallback(() => setDraftLngLat(null), []);
+  const handleClosePin = useCallback(() => setOpenPinId(null), []);
+  // the sheet is keyed by the master, and takes the pin's category with it
+  const openPin = openPinId
+    ? (pins.find((pin) => pin.id === openPinId) ?? null)
+    : null;
   // The sheet has no category field yet, so a new report starts in the default
   // category, looked up by name from the categories the first load brought, or
   // fetched now when it has not run yet. The client sends the user's token.
@@ -625,14 +645,15 @@ export default function Map({ onSignInRequired }: MapProps) {
       description: string,
       location: ReportLocation,
       image: File | null,
+      categoryName: ReportCategoryName = DEFAULT_PIN_CATEGORY,
     ) => {
       let categoryId: number | undefined;
       for (const [id, name] of categoriesRef.current) {
-        if (name === DEFAULT_PIN_CATEGORY) categoryId = id;
+        if (name === categoryName) categoryId = id;
       }
       if (categoryId === undefined) {
         categoryId = (await reportsApi.categories()).find(
-          (category) => category.name === DEFAULT_PIN_CATEGORY,
+          (category) => category.name === categoryName,
         )?.id;
       }
       if (categoryId === undefined) {
@@ -654,10 +675,13 @@ export default function Map({ onSignInRequired }: MapProps) {
       if (!draftLngLat) {
         return;
       }
+      const categoryName: ReportCategoryName =
+        draft.category ?? DEFAULT_PIN_CATEGORY;
       const report = await saveReport(
         draft.description,
         { longitude: draftLngLat[0], latitude: draftLngLat[1] },
         draft.image,
+        categoryName,
       );
       const pin = await pinForSavedReport(report, draft.imageUrl);
       setPins((current) => upsertPin(current, pin));
@@ -700,7 +724,7 @@ export default function Map({ onSignInRequired }: MapProps) {
   const handleZoomOut = useCallback(() => mapRef.current?.zoomOut(), []);
   const handleRecenter = useCallback(() => {
     mapRef.current?.flyTo({
-      center: POZNAN,
+      center: MALOPOLSKA,
       zoom: ZOOM,
       ...(tilted ? TILTED_VIEW : FLAT_VIEW),
     });
@@ -715,7 +739,7 @@ export default function Map({ onSignInRequired }: MapProps) {
   }, [tilted]);
 
   return (
-    <section className="map" aria-label="Map of Poznań">
+    <section className="map" aria-label="Map">
       {saveError && (
         <aside className="map__notice" role="alert">
           {saveError}
@@ -748,12 +772,22 @@ export default function Map({ onSignInRequired }: MapProps) {
         pins={pins}
         ungroupedIds={ungroupedIds}
         draftLngLat={draftLngLat}
+        onPinClick={setOpenPinId}
       />
       {draftLngLat && (
         <PinDialog
           lngLat={draftLngLat}
           onClose={handleCloseDraft}
           onAdd={handleAddPin}
+        />
+      )}
+      {openPin && (
+        <MarkerDialog
+          key={openPin.id}
+          masterId={openPin.id}
+          category={openPin.category}
+          onClose={handleClosePin}
+          onSignInRequired={onSignInRequired}
         />
       )}
       <MapCursor targetRef={frameRef} />

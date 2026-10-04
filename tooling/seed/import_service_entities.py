@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 COLUMNS = (
     "source_key", "name", "short_name", "entity_type", "teryt_code", "locality",
     "postal_code", "street", "house_number", "phone_number", "email", "website",
-    "bip_url", "reporting_channel", "reporting_channel_description", "source_urls", "verified_on",
+    "bip_url", "reporting_channel", "reporting_channel_description", "source_urls", "verified_on", "is_active",
 )
 ENTITY_TYPES = {
     "road_manager", "transport_authority", "transport_operator", "green_space_manager",
@@ -38,7 +38,9 @@ def validate_entities(records: list[dict]) -> list[dict]:
     for record in records:
         if not isinstance(record, dict) or set(record) != set(COLUMNS):
             raise ValueError("Unexpected service entity fields")
-        for column in set(COLUMNS) - {"source_urls"}:
+        if not isinstance(record["is_active"], bool):
+            raise ValueError("Invalid institution activity flag")
+        for column in set(COLUMNS) - {"source_urls", "is_active"}:
             value = record[column]
             if value is not None and (not isinstance(value, str) or not value.strip()):
                 raise ValueError(f"Invalid service entity field: {column}")

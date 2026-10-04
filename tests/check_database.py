@@ -77,6 +77,10 @@ def main():
             raise RuntimeError("The workbook import did not produce 203 contacts")
         if query("SELECT COUNT(*) FROM service_entities;") != str(entity_count):
             raise RuntimeError("The service entity snapshot import is incomplete")
+        seats = json.loads((ROOT / "db/seeds/service_entity_seats.json").read_text())["seats"]
+        located = sum(seat["location"] is not None for seat in seats)
+        if query("SELECT COUNT(*) FROM service_entities WHERE seat_location IS NOT NULL;") != str(located):
+            raise RuntimeError("The reviewed seat snapshot import is incomplete")
         if query("SELECT to_regclass('institution_contacts') IS NULL;") != "t":
             raise RuntimeError("The old institution table still exists")
         print(f"PASS: startup imported 203 offices and {entity_count} service entities", flush=True)
@@ -106,6 +110,17 @@ def main():
         if query("SELECT to_regclass('report_visualization_attempts') IS NULL;") != "t":
             raise RuntimeError("Visualization attempts migration rollback left its table behind")
         print("PASS: visualization attempts migration rolled back successfully", flush=True)
+        compose("run", "--rm", "--no-deps", "db-migrator", "down")
+        if query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'public' "
+                 "AND table_name = 'service_entities' AND column_name = 'is_active';") != "0":
+            raise RuntimeError("Activity rollback left the catalog flag behind")
+        print("PASS: institution activity migration rolled back successfully", flush=True)
+        compose("run", "--rm", "--no-deps", "db-migrator", "down")
+        if query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'public' "
+                 "AND table_name = 'service_entities' AND column_name IN "
+                 "('seat_location', 'seat_teryt', 'seat_geocoded_at', 'seat_address');") != "0":
+            raise RuntimeError("Seat rollback left institution columns behind")
+        print("PASS: institution seat migration rolled back successfully", flush=True)
         compose("run", "--rm", "--no-deps", "db-migrator", "down")
         if query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'public' "
                  "AND table_name = 'reports' AND column_name IN "
@@ -161,7 +176,7 @@ def main():
             raise RuntimeError("Service entity import after migration rollback failed")
         query((ROOT / "tests/fixtures/check_reports.sql").read_text())
         query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
-        print("PASS: all seven migrations rolled back and reapplied successfully", flush=True)
+        print("PASS: all nine migrations rolled back and reapplied successfully", flush=True)
     except Exception:
         print(compose("logs", "--no-color", "--tail", "50", check=False), flush=True)
         raise

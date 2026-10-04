@@ -57,6 +57,7 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
    ```
 
    > `task setup` tworzy `.env` z `.env.example`, jeśli plik nie istnieje. Zachowuje istniejący plik.
+   > `task setup`, `task web`, `task db` i `task api` włączają hook pre-commit z `.githooks`, który uruchamia `task fe:lint` albo `task be:lint`, gdy commit zmienia `apps/web` lub `apps/api`.
 
 3. Sprawdź ustawienia bazy danych i uzupełnij wartości w `.env`. Przed uruchomieniem API ustaw losowy `JWT_SECRET`. Polecenie do jego wygenerowania znajdziesz w `.env.example`.
 
@@ -70,7 +71,7 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 
 > Uruchamiaj `task web` i `task api` w osobnych terminalach. API jest dostępne pod adresem <http://127.0.0.1:8000>, a Vite wyświetla adres frontendu. Ctrl+C zatrzymuje aplikację w danym terminalu; PostgreSQL nadal działa pod adresem `127.0.0.1:POSTGRES_PORT`.
 
-> Przy uruchamianiu bazy importowany jest arkusz urzędów JST i zestaw danych jednostek usługowych z oficjalnych źródeł. `task db` kończy działanie po zakończeniu importu.
+> Przy uruchamianiu bazy importowany jest arkusz urzędów JST oraz przejrzane zbiory jednostek usługowych i ich siedzib. `task db` kończy działanie po zakończeniu importu.
 
 > Na potrzeby prezentacji `docker compose run --rm mock-seeder` podmienia przykładowych użytkowników, zgłoszenia, zdjęcia i dyskusje w Krakowie. Szczegóły i konta demo opisuje sekcja [mock demo data](TESTING.md#mock-demo-data).
 
@@ -105,12 +106,12 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 ### Automatyczne wdrożenie
 
 1. W środowiskach GitHub `dev` i `prod` ustaw `VITE_API_URL` (adres backendu zapisany w buildzie frontendu), `VITE_GOOGLE_CLIENT_ID` (identyfikator klienta OAuth do logowania przez Google, ten sam co `GOOGLE_CLIENT_ID` w `.env` środowiska) i `DEPLOY_DIR` (katalog wdrożenia na serwerze).
-2. Skopiuj `docker-compose.app.yaml` do `DEPLOY_DIR/docker-compose.yaml` i umieść obok `.env` danego środowiska. Ustaw `GOOGLE_CLOUD_PROJECT` i `GOOGLE_CLOUD_LOCATION`, skopiuj plik JSON konta usługi na serwer wdrożeniowy i ustaw `GEMINI_CREDENTIALS_FILE` na jego ścieżkę względem `docker-compose.yaml` (domyślnie `./project-key.json`). Ustaw `GEMINI_UID` i `GEMINI_GID` na numeryczne wyniki poleceń `id -u` i `id -g` dla konta będącego właścicielem pliku, aby nieuprzywilejowany kontener mógł go odczytać. Chroń ten plik i nie dodawaj go do Gita. Baza działa w osobnym projekcie Compose; `DB_NETWORK` wskazuje jej sieć (domyślnie `ehackyeah2026_default`), a `POSTGRES_HOST` jej host (domyślnie `db`). Plik `.env` musi być poprawny zarówno dla Compose, jak i powłoki, a dane logowania do bazy muszą nadawać się do użycia w URL. Skonfiguruj Gmaila i wysyłkę testową dla `notify` według [instrukcji konfiguracji maili](apps/notify/docs/deployment.md).
+2. Utwórz na serwerze katalog `DEPLOY_DIR` i umieść w nim `.env` danego środowiska. Ustaw `GOOGLE_CLOUD_PROJECT` i `GOOGLE_CLOUD_LOCATION`, skopiuj plik JSON konta usługi na serwer wdrożeniowy i ustaw `GEMINI_CREDENTIALS_FILE` na jego ścieżkę względem `docker-compose.yml` (domyślnie `./project-key.json`). Ustaw `GEMINI_UID` i `GEMINI_GID` na numeryczne wyniki poleceń `id -u` i `id -g` dla konta będącego właścicielem pliku, aby nieuprzywilejowany kontener mógł go odczytać. Chroń ten plik i nie dodawaj go do Gita. Baza działa w osobnym projekcie Compose; `DB_NETWORK` wskazuje jej sieć (domyślnie `ehackyeah2026_default`), a `POSTGRES_HOST` jej host (domyślnie `db`). Plik `.env` musi być poprawny zarówno dla Compose, jak i powłoki, a dane logowania do bazy muszą nadawać się do użycia w URL. Skonfiguruj Gmaila i wysyłkę testową dla `notify` według [instrukcji konfiguracji maili](apps/notify/docs/deployment.md).
 3. W GitHub Actions uruchom `[1] Deploy`, aby wdrożyć `web`, `api`, `notify`, `gemini` albo wszystkie naraz (`all`) na `dev` albo `prod`. Push do `main` wdraża zmienione usługi na `dev`; zmiany w `db/migrations` wdrażają `api`. Workflow buduje cztery obrazy usług i publikuje je w repozytoriach `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web`, `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api`, `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-notify` i `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-gemini` z tagami środowiska oraz `<environment>-<commit SHA>`.
-4. Runner na serwerze aktualizuje `*_IMAGE_TAG` wybranych usług w `DEPLOY_DIR/.env`, pobiera obrazy, stosuje migracje przed restartem `api` i uruchamia ponownie wybrane usługi. Jeśli migracja się nie powiedzie, poprzedni kontener API działa dalej. Wdrożenie nie importuje danych referencyjnych. Nie używaj runnerów na własnym serwerze w workflow uruchamianych przez pull requesty.
+4. Runner na serwerze kopiuje `docker-compose.app.yaml` do `DEPLOY_DIR/docker-compose.yml`, aktualizuje `*_IMAGE_TAG` wybranych usług w `DEPLOY_DIR/.env`, pobiera obrazy, stosuje migracje przed restartem `api` i uruchamia ponownie wybrane usługi. Jeśli migracja się nie powiedzie, poprzedni kontener API działa dalej. Wdrożenie nie importuje danych referencyjnych. Nie używaj runnerów na własnym serwerze w workflow uruchamianych przez pull requesty.
 5. Po wdrożeniu `api` uruchom ręcznie `[4] Seed` dla `dev` lub `prod`, aby zaimportować dane z `db/seeds`. Import czeka na zakończenie wdrożeń w tym samym środowisku. Ponowne uruchomienie zachowuje identyfikatory i nie tworzy duplikatów; dane źródłowe nadpisują ręczne zmiany, a rekordy nieobecne w plikach pozostają w bazie.
 6. Uruchom ręcznie `[2] Release`, aby wdrożyć wszystkie cztery usługi na `prod`, a następnie utworzyć tag Git i wydanie na GitHubie. Wersje zawierają datę UTC i licznik wydań z danego dnia, np. `v2026.10.03-1`.
-7. Szablon Compose przechowuje zdjęcia zgłoszeń w `/app/uploads` na wolumenie `api_uploads`, dzięki czemu pozostają dostępne po wdrożeniu. `notify` i `gemini` montują ten sam wolumen tylko do odczytu. Po zmianie szablonu zaktualizuj też kopię w `DEPLOY_DIR`.
+7. Szablon Compose przechowuje zdjęcia zgłoszeń w `/app/uploads` na wolumenie `api_uploads`, dzięki czemu pozostają dostępne po wdrożeniu. `notify` i `gemini` montują ten sam wolumen tylko do odczytu.
 
 > `[3] Lint` uruchamia ESLint, Prettier i Ruff dla każdego pull requesta i pusha do `main`, na runnerach GitHuba.
 

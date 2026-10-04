@@ -11,7 +11,6 @@
 ## Working rules
 
 - Always use classic dashes (`-`) rather than em dashes in code, comments, documentation, commit messages, and responses.
-- Never use emoji in pull request titles, descriptions, or comments.
 - Follow the repository's existing code structure, formatting, commenting, and documentation style. Read nearby files before editing and use established tooling when available.
 - Never delete comments written by the user. If a comment conflicts with a requested change, point out the conflict and ask the user how to resolve it. The only exception is a TODO comment addressed by your changes, which may be removed when replaced with the corresponding implementation.
 - Add code comments only when needed. Start them with lowercase letters and keep them simple, straightforward, and idiomatic, without excessive formatting.
@@ -39,10 +38,11 @@
 - `notify/templates/` contains Markdown templates for `issue` and `improvement`, rendered to HTML with a text alternative. `POST /send` inserts `description` and the reporter's `first_name` and `last_name`; `anonymous=true` omits their name. Optional `location` generates a Google Maps link, and `photos` uses API `storage_key` values from the shared `api_uploads` volume mounted read-only.
 - `tooling/seed/` contains the XLS importer with its `Dockerfile`, `pyproject.toml`, and `uv.lock`, and the mock demo data importer with its photos.
 - `docker compose run --rm mock-seeder` replaces mock demo data in Kraków; its `mock` profile keeps it out of `docker compose up`.
+- `.githooks/` contains Git hooks, enabled through `core.hooksPath` by `task setup|web|db|api`. `pre-commit` runs `task fe:lint` or `task be:lint` when staged changes touch `apps/web` or `apps/api`.
 - `Taskfile.yml` at the repository root defines root development commands. `mise.toml` pins Bun, Task, and uv, and `setup-dev-env.sh` installs mise, the pinned tools, and dependencies.
 - `tests/e2e/` is reserved for cross-application scenarios, and `tests/fixtures/` for shared behavioral examples.
 - `.agents/skills/` is reserved for repository-local agent skills.
-- `.github/workflows/` contains CI workflows. `deploy.yml` builds the web, API, notify, and Gemini images and deploys changed services to dev on pushes to `main`, or a chosen service or all services to the selected environment on manual runs. Before restarting `api`, it applies `db/migrations` to the database of the target environment. `release.yml` is started manually: it calls `deploy.yml` to deploy all four services to prod, then publishes a GitHub release versioned by date. `lint.yml` runs the web, API, notify, and Gemini linters on pull requests and pushes to `main`. `seed.yml` is started manually: it imports `db/seeds` into the database of the chosen environment with the importer from `tooling/seed`.
+- `.github/workflows/` contains CI workflows. `deploy.yml` builds the web, API, notify, and Gemini images and deploys changed services to dev on pushes to `main`, or a chosen service or all services to the selected environment on manual runs. Every deployment copies `docker-compose.app.yaml` to the deployment directory as `docker-compose.yml`. Before restarting `api`, it applies `db/migrations` to the database of the target environment. `release.yml` is started manually: it calls `deploy.yml` to deploy all four services to prod, then publishes a GitHub release versioned by date. `lint.yml` runs the web, API, notify, and Gemini linters on pull requests and pushes to `main`. `seed.yml` is started manually: it imports `db/seeds` into the database of the chosen environment with the importer from `tooling/seed`.
 - `.env` holds optional local environment overrides and is ignored by Git. `.env.example` documents the available values.
 - `README.md` and `README_pl.md` are the English and Polish project documentation. `docs/` contains their teaser images.
 - `TESTING.md` documents database setup and validation.

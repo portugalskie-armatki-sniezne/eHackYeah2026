@@ -1,0 +1,815 @@
+/* The post a pin opens: the same drawn tile as the marker and account sheets,
+   ink outline on paper over an amber block, laid out the way a feed lays out a
+   post - photo first, then the byline, the text, and the thread under it. */
+.marker-dialog {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+}
+
+/* the dialog is a clear layer over the map that centres the post and panel */
+.marker-dialog[open] {
+  display: grid;
+  place-items: center;
+}
+
+.marker-dialog::backdrop {
+  background: rgba(253, 252, 249, 0.72);
+}
+
+/* Post and panel move apart by the same amount, so the pair stays centred. */
+.marker-dialog__stage {
+  --panel-width: 24rem;
+  --panel-gap: 1rem;
+  --panel-shift: calc((var(--panel-width) + var(--panel-gap)) / 2);
+  position: relative;
+  width: min(100% - 2rem, 30rem);
+}
+
+.marker-dialog__post {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  box-shadow: var(--scaffold-shadow);
+  transition: transform 250ms ease;
+}
+
+.marker-dialog__post > * {
+  flex-shrink: 0;
+}
+
+.marker-dialog__stage--open .marker-dialog__post {
+  transform: translateX(calc(-1 * var(--panel-shift)));
+}
+
+/* The way out sits in the photo's corner, an outlined tile like the toolbar's. */
+.marker-dialog__close,
+.marker-dialog__panel-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--amber);
+}
+
+.marker-dialog__close {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.625rem;
+  z-index: 1;
+}
+
+.marker-dialog__close:hover,
+.marker-dialog__panel-close:hover {
+  background: var(--amber-ghost);
+}
+
+/* The photo fills the sheet edge to edge and is ruled off below. */
+.marker-dialog__figure {
+  position: relative;
+  margin: 0;
+  border-bottom: var(--scaffold-line) solid var(--ink);
+}
+
+.marker-dialog__photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-height: 20rem;
+  object-fit: cover;
+  background: var(--surface-section);
+}
+
+/* No photo: the drafting grid of the marker sheet, with the pin's pictogram
+   struck large in the middle of it. */
+.marker-dialog__photo--empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  aspect-ratio: 3 / 1;
+  color: var(--ink-soft);
+  background-color: #efe8d6;
+  background-image:
+    linear-gradient(to right, rgba(20, 20, 20, 0.07) 1px, transparent 0),
+    linear-gradient(to bottom, rgba(20, 20, 20, 0.07) 1px, transparent 0);
+  background-size: 1rem 1rem;
+}
+
+.marker-dialog__placeholder-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 1.75rem;
+  font-weight: 800;
+  box-shadow: 4px 4px 0 var(--amber);
+}
+
+.marker-dialog__placeholder-text {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* The status rides the photo's bottom-left corner. */
+.marker-dialog__badge {
+  position: absolute;
+  bottom: 0.625rem;
+  left: 0.625rem;
+  margin: 0;
+  filter: drop-shadow(3px 3px 0 var(--amber));
+}
+
+/* Several photos: a contact strip under the frame, the chosen one inked. */
+.marker-dialog__strip {
+  display: flex;
+  gap: 0.375rem;
+  padding: 0.5rem 1.25rem 0;
+  overflow-x: auto;
+}
+
+.marker-dialog__thumb {
+  flex: none;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0;
+  border: var(--scaffold-line) solid transparent;
+  border-radius: var(--scaffold-radius);
+  background: var(--surface-section);
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.marker-dialog__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.marker-dialog__thumb:hover,
+.marker-dialog__thumb[aria-pressed="true"] {
+  border-color: var(--ink);
+  opacity: 1;
+}
+
+.marker-dialog__thumb[aria-pressed="true"] {
+  box-shadow: 2px 2px 0 var(--amber);
+}
+
+.marker-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+/* Byline: a square avatar tile carrying the pin's pictogram, then who and when. */
+.marker-dialog__byline {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.marker-dialog__avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--surface-section);
+  color: var(--ink);
+  font-size: 0.9375rem;
+  font-weight: 800;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.marker-dialog__avatar--post,
+.marker-dialog__avatar--me {
+  background: var(--amber);
+}
+
+.marker-dialog__who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.marker-dialog__kind {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.marker-dialog__when {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.marker-dialog__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+/* The letter: an envelope's header lines, then the body as the post's text. */
+.marker-dialog__letter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.marker-dialog__envelope {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ink);
+  border-left: 4px solid var(--amber);
+  border-radius: var(--scaffold-radius);
+  background: var(--surface-section);
+  font-size: 0.8125rem;
+}
+
+.marker-dialog__envelope dt {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.marker-dialog__envelope dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.5rem;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.marker-dialog__recipient {
+  font-weight: 700;
+}
+
+.marker-dialog__link {
+  color: var(--ink);
+  text-decoration-color: var(--amber);
+  text-decoration-thickness: 2px;
+}
+
+.marker-dialog__text {
+  margin: 0;
+  font-size: 0.9375rem;
+  /* the letter keeps its line breaks */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.marker-dialog__hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+
+/* The office's reply is quoted on an amber slip. */
+.marker-dialog__response {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.625rem 0.75rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--amber-ghost);
+}
+
+.marker-dialog__response-label,
+.marker-dialog__label {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.marker-dialog__error {
+  margin: 0;
+  padding: 0.5rem 0.625rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--amber-ghost);
+  font-size: 0.875rem;
+}
+
+/* The post's actions: tiles that open the thread or the filings beside it. */
+.marker-dialog__actions {
+  display: flex;
+  gap: 0.625rem;
+  padding: 0.875rem 1.25rem 1.25rem;
+  border-top: var(--scaffold-line) solid var(--ink);
+  background: var(--surface-section);
+}
+
+.marker-dialog__actions .marker-dialog__button {
+  flex: 1;
+  gap: 0.5rem;
+}
+
+.marker-dialog__toggle[aria-expanded="true"],
+.marker-dialog__toggle[aria-expanded="true"]:hover {
+  background: var(--amber);
+  box-shadow: var(--scaffold-shadow-ink);
+  transform: translate(-1px, -1px);
+}
+
+.marker-dialog__count {
+  min-width: 1.5rem;
+  padding: 0 0.375rem;
+  border: 1px solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  font-size: 0.75rem;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
+/* The thread: ruled off from the post on sectioned paper. */
+.marker-dialog__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  width: var(--panel-width);
+  overflow: hidden;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--surface-section);
+  box-shadow: var(--scaffold-shadow);
+  visibility: hidden;
+  transition:
+    transform 250ms ease,
+    visibility 0s linear 250ms;
+}
+
+.marker-dialog__stage--open .marker-dialog__panel {
+  visibility: visible;
+  transform: translateX(var(--panel-shift));
+  transition: transform 250ms ease;
+}
+
+.marker-dialog__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 0.625rem 0.625rem 1.25rem;
+  border-bottom: var(--scaffold-line) solid var(--ink);
+  background: var(--paper);
+}
+
+.marker-dialog__panel-back {
+  display: none;
+}
+
+.marker-dialog__panel-scroll {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+  padding: 1rem 1.25rem;
+  overflow: auto;
+}
+
+.marker-dialog__panel-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0.75rem 1.25rem;
+  border-top: var(--scaffold-line) solid var(--ink);
+  background: var(--paper);
+}
+
+.marker-dialog__panel-foot:empty {
+  display: none;
+}
+
+/* A filing: a paper slip with its title, words, and photos. */
+.marker-dialog__report {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+}
+
+.marker-dialog__report-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.marker-dialog__report .marker-dialog__when {
+  flex: none;
+  white-space: nowrap;
+}
+
+.marker-dialog__report-photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.marker-dialog__report-photos img {
+  display: block;
+  width: 3.25rem;
+  height: 3.25rem;
+  border: 1px solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  object-fit: cover;
+  background: var(--surface-section);
+}
+
+.marker-dialog__feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.marker-dialog__comment {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.marker-dialog__comment .marker-dialog__avatar {
+  width: 1.875rem;
+  height: 1.875rem;
+  font-size: 0.8125rem;
+}
+
+/* Each comment is a paper slip with a drawn corner, like a speech bubble. */
+.marker-dialog__bubble {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+}
+
+.marker-dialog__bubble::before {
+  content: "";
+  position: absolute;
+  top: 0.625rem;
+  left: -0.375rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-bottom: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+  background: var(--paper);
+  transform: rotate(45deg);
+}
+
+.marker-dialog__comment-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.marker-dialog__author {
+  font-weight: 700;
+}
+
+.marker-dialog__comment-text {
+  margin: 0;
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.marker-dialog__like {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.marker-dialog__like:hover,
+.marker-dialog__like[aria-pressed="true"] {
+  color: var(--ink);
+}
+
+/* Composing: your avatar, a one-line slip that grows, and the post tile. */
+.marker-dialog__compose {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.marker-dialog__compose .marker-dialog__avatar {
+  width: 1.875rem;
+  height: 1.875rem;
+  font-size: 0.8125rem;
+}
+
+.marker-dialog__textarea {
+  flex: 1;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0.375rem 0.625rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  resize: vertical;
+}
+
+.marker-dialog__textarea::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.7;
+}
+
+/* Buttons are the toolbar's outlined tiles on amber blocks. */
+.marker-dialog__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  min-height: 2.25rem;
+  padding: 0 0.875rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+}
+
+.marker-dialog__button:hover {
+  background: var(--amber-ghost);
+  box-shadow: 4px 4px 0 var(--amber);
+  transform: translate(-1px, -1px);
+}
+
+.marker-dialog__button:active {
+  box-shadow: 0 0 0 var(--amber);
+  transform: translate(2px, 2px);
+}
+
+.marker-dialog__button--primary {
+  background: var(--amber);
+  box-shadow: var(--scaffold-shadow-ink);
+  transform: translate(-1px, -1px);
+}
+
+.marker-dialog__button--primary:hover {
+  background: var(--amber);
+  box-shadow: var(--scaffold-shadow-ink);
+}
+
+.marker-dialog__button:disabled {
+  background: var(--paper);
+  box-shadow: none;
+  color: var(--ink-soft);
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+.marker-dialog__textarea:focus-visible,
+.marker-dialog__button:focus-visible,
+.marker-dialog__close:focus-visible,
+.marker-dialog__panel-close:focus-visible,
+.marker-dialog__thumb:focus-visible,
+.marker-dialog__like:focus-visible,
+.marker-dialog__link:focus-visible {
+  outline: var(--scaffold-line) solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* Too narrow for the pair side by side: the panel slides in over the post
+   and a back button returns to it. */
+@media (max-width: 58rem) {
+  .marker-dialog__panel {
+    left: 0;
+    z-index: 2;
+    width: auto;
+    opacity: 0;
+    transform: translateX(1.5rem);
+    transition:
+      transform 250ms ease,
+      opacity 250ms ease,
+      visibility 0s linear 250ms;
+  }
+
+  .marker-dialog__stage--open .marker-dialog__panel {
+    opacity: 1;
+    transform: none;
+    transition:
+      transform 250ms ease,
+      opacity 250ms ease;
+  }
+
+  /* the covered post leaves the tab order once the panel is in */
+  .marker-dialog__stage--open .marker-dialog__post {
+    visibility: hidden;
+    transform: none;
+    transition: visibility 0s linear 250ms;
+  }
+
+  .marker-dialog__panel-head {
+    justify-content: flex-start;
+    padding: 0.625rem 1.25rem 0.625rem 0.625rem;
+  }
+
+  .marker-dialog__panel-close {
+    order: -1;
+    width: auto;
+    padding: 0 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .marker-dialog__panel-close-icon {
+    display: none;
+  }
+
+  .marker-dialog__panel-back {
+    display: inline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marker-dialog__button,
+  .marker-dialog__post,
+  .marker-dialog__panel,
+  .marker-dialog__stage--open .marker-dialog__post,
+  .marker-dialog__stage--open .marker-dialog__panel {
+    transition: none;
+  }
+}
+
+/* Phones: the sheet sits in the centre, clear of the notch and the home bar. */
+.marker-dialog__rops-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--surface-section);
+  box-shadow: 2px 2px 0 var(--amber);
+}
+
+.marker-dialog__rops-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.marker-dialog__rops-badge {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--amber);
+  color: var(--ink);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.marker-dialog__rops-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.marker-dialog__rops-title {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.marker-dialog__rops-link {
+  align-self: flex-start;
+  color: var(--ink);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.marker-dialog__rops-link:hover {
+  color: var(--amber-soft);
+}
+
+@media (max-width: 40rem) {
+  .marker-dialog__stage {
+    width: calc(100% - 1.5rem);
+  }
+
+  .marker-dialog__post {
+    max-height: calc(100dvh - 1.5rem - var(--safe-top) - var(--safe-bottom));
+  }
+
+  .marker-dialog__post,
+  .marker-dialog__panel {
+    box-shadow: 4px 4px 0 var(--amber);
+  }
+
+  .marker-dialog__body,
+  .marker-dialog__actions {
+    padding: 0.875rem 1rem 1rem;
+  }
+
+  .marker-dialog__panel-scroll,
+  .marker-dialog__panel-foot {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+
+  .marker-dialog__strip {
+    padding: 0.5rem 1rem 0;
+  }
+
+  .marker-dialog__compose {
+    flex-wrap: wrap;
+  }
+
+  .marker-dialog__compose .marker-dialog__button {
+    flex: 1;
+  }
+}

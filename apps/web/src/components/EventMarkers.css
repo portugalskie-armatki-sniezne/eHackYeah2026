@@ -7,7 +7,7 @@
 .event-pin {
   width: 32px;
   height: 40px;
-  cursor: default;
+  cursor: pointer;
   /* how far the head is open; hover drives it, and the layers pinned to the
      head's corners are measured off it */
   --pin-head: 28px;
@@ -155,7 +155,16 @@
   transition: none;
 }
 
+.event-pin:focus-visible {
+  outline: var(--scaffold-line) solid var(--focus);
+  outline-offset: 3px;
+}
+
 /* A pin still being described is pencilled in: dashed outline, no block yet. */
+.event-pin--draft {
+  cursor: default;
+}
+
 .event-pin--draft .event-pin__line {
   stroke-dasharray: 4 3;
 }

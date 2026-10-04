@@ -1,4 +1,5 @@
 import type { ChangeEvent } from "react";
+import { useMessages } from "../i18n/locale";
 import "./MapToolbar.css";
 
 export type BasemapId = "streets";
@@ -28,6 +29,7 @@ export default function MapToolbar({
   onPhotoReportStart,
   onPhotoReport,
 }: MapToolbarProps) {
+  const t = useMessages().toolbar;
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     // cleared so the same photo can be taken again and still fire a change
@@ -40,14 +42,14 @@ export default function MapToolbar({
   return (
     <div className="toolbar">
       <div className="toolbar__frame">
-        <div className="toolbar__group" role="group" aria-label="Zoom">
+        <div className="toolbar__group" role="group" aria-label={t.zoom}>
           <button type="button" className="toolbar__button" onClick={onZoomOut}>
             <span aria-hidden="true">&minus;</span>
-            <span className="visually-hidden">Zoom out</span>
+            <span className="visually-hidden">{t.zoomOut}</span>
           </button>
           <button type="button" className="toolbar__button" onClick={onZoomIn}>
             <span aria-hidden="true">+</span>
-            <span className="visually-hidden">Zoom in</span>
+            <span className="visually-hidden">{t.zoomIn}</span>
           </button>
         </div>
         {/* Phones only: the primary action sits in the middle of the row,
@@ -60,15 +62,13 @@ export default function MapToolbar({
           <label
             className="toolbar__add"
             aria-disabled={!canRecenterOnMe}
-            title={canRecenterOnMe ? undefined : "No location fix yet"}
+            title={canRecenterOnMe ? undefined : t.noFix}
           >
             <span className="toolbar__add-glyph" aria-hidden="true">
               +
             </span>
             <span className="visually-hidden">
-              {canRecenterOnMe
-                ? "Take a photo and report it at my location"
-                : "Report at my location, waiting for a location fix"}
+              {canRecenterOnMe ? t.photoReport : t.photoReportWaiting}
             </span>
             <input
               className="visually-hidden"
@@ -85,13 +85,13 @@ export default function MapToolbar({
           </label>
         </div>
         <span className="toolbar__divider" aria-hidden="true" />
-        <div className="toolbar__group" role="group" aria-label="View">
+        <div className="toolbar__group" role="group" aria-label={t.view}>
           <button
             type="button"
             className="toolbar__button toolbar__button--wide"
             onClick={onRecenterOnMe}
             disabled={!canRecenterOnMe}
-            title={canRecenterOnMe ? undefined : "No location fix yet"}
+            title={canRecenterOnMe ? undefined : t.noFix}
           >
             <svg
               className="toolbar__icon"
@@ -105,7 +105,7 @@ export default function MapToolbar({
               />
               <circle className="toolbar__icon-dot" r="2.25" />
             </svg>
-            <span className="toolbar__label">Recenter on me</span>
+            <span className="toolbar__label">{t.recenterOnMe}</span>
           </button>
           <span className="toolbar__divider" aria-hidden="true" />
           <button

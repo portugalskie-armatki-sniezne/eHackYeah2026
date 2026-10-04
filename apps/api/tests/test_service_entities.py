@@ -44,7 +44,8 @@ def test_service_entity_details_are_public(client: TestClient, entities):
     for row in entities:
         response = client.get(f"/service-entities/{row['id']}")
         assert response.status_code == 200
-        assert response.json() == row | {"verified_on": "2026-10-03"}
+        public_fields = {key: value for key, value in row.items() if not key.startswith("seat_")}
+        assert response.json() == public_fields | {"verified_on": "2026-10-03"}
     assert client.get("/service-entities/0").status_code == 404
     assert client.get("/service-entities/not-an-id").status_code == 422
 

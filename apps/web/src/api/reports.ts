@@ -43,6 +43,23 @@ export type ReportCategoryName = "improvement" | "issue";
 
 export type ReportCategory = { id: number; name: string };
 
+/** master_report_statuses.name, in the order a master moves through them */
+export type MasterReportStatusName =
+  "created" | "reported" | "inprogress" | "finished";
+
+export type MasterReportStatus = { id: number; name: string };
+
+export type MasterReportComment = {
+  id: string;
+  master_report_id: string;
+  user_id: string;
+  content: string;
+  like_count: number;
+  /** false without a token */
+  liked_by_me: boolean;
+  created_at: string;
+};
+
 export type Page<T> = {
   items: T[];
   total: number;
@@ -83,7 +100,7 @@ export type MasterReportFilters = {
 };
 
 // the largest page the api serves
-const MAX_PAGE_SIZE = 200;
+export const MAX_PAGE_SIZE = 200;
 
 function masterReports(
   params: MasterReportFilters = {},
@@ -95,6 +112,10 @@ function masterReports(
 export const reportsApi = {
   categories(signal?: AbortSignal): Promise<ReportCategory[]> {
     return apiFetch("/report-categories", { signal });
+  },
+
+  statuses(signal?: AbortSignal): Promise<MasterReportStatus[]> {
+    return apiFetch("/master-report-statuses", { signal });
   },
 
   create(body: ReportCreate): Promise<Report> {
@@ -115,7 +136,12 @@ export const reportsApi = {
   },
 
   list(
-    params: { user_id?: string; limit?: number; offset?: number } = {},
+    params: {
+      user_id?: string;
+      master_report_id?: string;
+      limit?: number;
+      offset?: number;
+    } = {},
     signal?: AbortSignal,
   ): Promise<ReportPage> {
     return apiFetch("/reports", { query: params, signal });
@@ -145,5 +171,36 @@ export const reportsApi = {
 
   photoUrl(photo: ReportPhoto): string {
     return apiUrl(photo.url);
+  },
+
+  /** The master's discussion, oldest first. */
+  comments(
+    masterId: string,
+    signal?: AbortSignal,
+  ): Promise<Page<MasterReportComment>> {
+    return apiFetch(
+      `/master-reports/${encodeURIComponent(masterId)}/comments`,
+      { signal },
+    );
+  },
+
+  addComment(masterId: string, content: string): Promise<MasterReportComment> {
+    return apiFetch(
+      `/master-reports/${encodeURIComponent(masterId)}/comments`,
+      { method: "POST", json: { content } },
+    );
+  },
+
+  // both are idempotent and answer with the comment and its current count
+  likeComment(id: string): Promise<MasterReportComment> {
+    return apiFetch(`/comments/${encodeURIComponent(id)}/like`, {
+      method: "PUT",
+    });
+  },
+
+  unlikeComment(id: string): Promise<MasterReportComment> {
+    return apiFetch(`/comments/${encodeURIComponent(id)}/like`, {
+      method: "DELETE",
+    });
   },
 };

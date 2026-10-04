@@ -57,6 +57,7 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
    ```
 
    > `task setup` creates `.env` from `.env.example` if it is missing and preserves an existing file.
+   > `task setup`, `task web`, `task db`, and `task api` enable the pre-commit hook from `.githooks`, which runs `task fe:lint` or `task be:lint` when a commit changes `apps/web` or `apps/api`.
 
 3. Review the database settings and replace the environment variable placeholders in `.env` with appropriate values and a random `JWT_SECRET` before starting the API. The generation command is included in `.env.example`.
 
@@ -70,7 +71,7 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 
 > We recommend running `task web` and `task api` in separate terminals. The API is available at <http://127.0.0.1:8000>; Vite prints the frontend URL. Ctrl+C stops the application in that terminal; PostgreSQL remains running on `127.0.0.1:POSTGRES_PORT`.
 
-> Database startup imports the local government office workbook and the official service entity snapshot. `task db` returns after seed import finishes.
+> Database startup imports the local government office workbook and the reviewed service entity and seat snapshots. `task db` returns after seed import finishes.
 
 > For demos, `docker compose run --rm mock-seeder` replaces mock users, reports, photos, and discussions in Kraków. See [mock demo data](TESTING.md#mock-demo-data) for details and demo accounts.
 
@@ -110,12 +111,12 @@ In development Vite proxies `/api` to `http://127.0.0.1:8000`; `API_PROXY_TARGET
 ### Automated Deployment
 
 1. Configure the GitHub environments `dev` and `prod` with `VITE_API_URL` (the backend URL included in the frontend build), `VITE_GOOGLE_CLIENT_ID` (the OAuth client ID for Google sign-in, also set as `GOOGLE_CLIENT_ID` in the environment's `.env`), and `DEPLOY_DIR` (the deployment directory on the target machine).
-2. Copy `docker-compose.app.yaml` to `DEPLOY_DIR/docker-compose.yaml` and place the environment's `.env` alongside it. Set `GOOGLE_CLOUD_PROJECT` and `GOOGLE_CLOUD_LOCATION`, copy the service-account JSON to the deployment host, and set `GEMINI_CREDENTIALS_FILE` to its path relative to `docker-compose.yaml` (default `./project-key.json`). Set `GEMINI_UID` and `GEMINI_GID` to the numeric output of `id -u` and `id -g` for the account that owns the file, so the unprivileged container can read it. Keep the credentials file private and outside Git. The database runs in a separate Compose project; `DB_NETWORK` selects its network (default `ehackyeah2026_default`) and `POSTGRES_HOST` selects its host (default `db`). Keep `.env` valid for both Compose and a shell script, with database credentials safe to use in a URL. Configure Gmail and test delivery for `notify` using the [mail setup instructions](apps/notify/docs/deployment.md).
+2. Create `DEPLOY_DIR` on the target machine and place the environment's `.env` in it. Set `GOOGLE_CLOUD_PROJECT` and `GOOGLE_CLOUD_LOCATION`, copy the service-account JSON to the deployment host, and set `GEMINI_CREDENTIALS_FILE` to its path relative to `docker-compose.yml` (default `./project-key.json`). Set `GEMINI_UID` and `GEMINI_GID` to the numeric output of `id -u` and `id -g` for the account that owns the file, so the unprivileged container can read it. Keep the credentials file private and outside Git. The database runs in a separate Compose project; `DB_NETWORK` selects its network (default `ehackyeah2026_default`) and `POSTGRES_HOST` selects its host (default `db`). Keep `.env` valid for both Compose and a shell script, with database credentials safe to use in a URL. Configure Gmail and test delivery for `notify` using the [mail setup instructions](apps/notify/docs/deployment.md).
 3. Use `[1] Deploy` in GitHub Actions to deploy `web`, `api`, `notify`, `gemini`, or all of them to `dev` or `prod`. Pushes to `main` deploy changed services to `dev`; changes to `db/migrations` deploy `api`. The workflow builds images from the four service Dockerfiles and publishes them to `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web`, `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api`, `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-notify`, and `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-gemini`, tagged with the environment and `<environment>-<commit SHA>`.
-4. The self-hosted runner updates the selected service's `*_IMAGE_TAG` in `DEPLOY_DIR/.env`, pulls images, applies migrations before restarting `api`, and restarts the selected services. A failed migration leaves the previous API container running. Deployment does not import seed data. Keep self-hosted runners out of workflows triggered by pull requests.
+4. The self-hosted runner copies `docker-compose.app.yaml` to `DEPLOY_DIR/docker-compose.yml`, updates the selected service's `*_IMAGE_TAG` in `DEPLOY_DIR/.env`, pulls images, applies migrations before restarting `api`, and restarts the selected services. A failed migration leaves the previous API container running. Deployment does not import seed data. Keep self-hosted runners out of workflows triggered by pull requests.
 5. After deploying `api`, run `[4] Seed` manually for `dev` or `prod` to import reference data from `db/seeds`. It waits for deployments to the same environment. Repeating the import preserves IDs and avoids duplicates; seed data overwrites manual edits, while records absent from the seed files remain in the database.
 6. Run `[2] Release` manually to deploy all four services to `prod`, then publish a Git tag and GitHub release. Versions use the UTC date and a daily counter, for example `v2026.10.03-1`.
-7. The Compose template stores report photos in `/app/uploads` on the `api_uploads` volume, so they survive deployments. `notify` and `gemini` mount the same volume read-only. Update the copy in `DEPLOY_DIR` when the template changes.
+7. The Compose template stores report photos in `/app/uploads` on the `api_uploads` volume, so they survive deployments. `notify` and `gemini` mount the same volume read-only.
 
 > `[3] Lint` runs ESLint, Prettier, and Ruff on every pull request and push to `main`, using GitHub-hosted runners.
 
