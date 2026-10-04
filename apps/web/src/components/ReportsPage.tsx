@@ -747,7 +747,7 @@ function Thread({ masterId, powers, signedOut, onSignIn }: ThreadProps) {
                             ? t.you
                             : comment.highlighted
                               ? t.office
-                              : t.resident}
+                              : comment.author_first_name}
                           {comment.highlighted && (
                             <span className="reports-page__official">
                               {t.official}
