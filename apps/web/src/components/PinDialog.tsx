@@ -190,11 +190,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
       </div>
 
       {activeTab === "issue" ? (
-        <form
-          className="pin-dialog__form"
-          method="dialog"
-          onSubmit={handleSubmitIssue}
-        >
+        <form className="pin-dialog__form" onSubmit={handleSubmitIssue}>
           <header className="pin-dialog__header">
             <h2 id={`${id}-title`} className="pin-dialog__title">
               New marker
@@ -275,11 +271,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
           </footer>
         </form>
       ) : (
-        <form
-          className="pin-dialog__form"
-          method="dialog"
-          onSubmit={handleInitiativeSubmit}
-        >
+        <form className="pin-dialog__form" onSubmit={handleInitiativeSubmit}>
           <header className="pin-dialog__header">
             <h2 id={`${id}-title`} className="pin-dialog__title">
               Inicjatywa społeczna
