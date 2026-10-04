@@ -19,18 +19,25 @@ type MapFiltersProps = {
   /** how many pins the filters leave on the map, out of every pin loaded */
   shown: number;
   total: number;
+  /**
+   * Whether the author box is offered: only for a signed-in account whose own
+   * cases are known, since for anyone else it would simply empty the map.
+   */
+  canFilterMine: boolean;
 };
 
 /**
  * The toolbar's filter tile and the list it unfolds: a box per kind and per
- * status, ticked for what the map draws. It closes on Escape, on a click
- * elsewhere, and when focus leaves it, like the navbar's account menu.
+ * status, plus the one that narrows the map to the viewer's own cases, ticked
+ * for what the map draws. It closes on Escape, on a click elsewhere, and when
+ * focus leaves it, like the navbar's account menu.
  */
 export default function MapFilters({
   filters,
   onChange,
   shown,
   total,
+  canFilterMine,
 }: MapFiltersProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -155,6 +162,21 @@ export default function MapFilters({
             </label>
           ))}
         </fieldset>
+        {canFilterMine && (
+          <fieldset className="map-filters__group">
+            <legend className="map-filters__legend">{f.author}</legend>
+            <label className="map-filters__row">
+              <input
+                type="checkbox"
+                checked={filters.mineOnly}
+                onChange={(event) =>
+                  onChange({ ...filters, mineOnly: event.target.checked })
+                }
+              />
+              <span className="map-filters__name">{f.onlyMine}</span>
+            </label>
+          </fieldset>
+        )}
         <p className="map-filters__count">{f.shown(shown, total)}</p>
         <div className="map-filters__actions">
           <button

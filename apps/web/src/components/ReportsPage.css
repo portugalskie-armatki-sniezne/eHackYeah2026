@@ -295,6 +295,51 @@
   object-fit: cover;
 }
 
+/* A photo somebody offered is not the case's own yet: it is drawn back, and the
+   mark under it says it is still a proposal. */
+.reports-page__waiting {
+  position: relative;
+  margin: 0;
+}
+
+.reports-page__photo--pending {
+  opacity: 0.82;
+}
+
+/* The mark rides the picture's top-left corner, clear of the decision below it. */
+.reports-page__photo-mark {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  max-width: calc(100% - 1rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.1875rem 0.5rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--amber);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.reports-page__photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+/* Over a picture the buttons are tiles rather than full-width controls, so the
+   pair fits the frame in the narrow column. */
+.reports-page__button--compact {
+  min-height: 1.75rem;
+  padding: 0 0.5rem;
+  font-size: 0.625rem;
+}
+
 /* A case with no photo gets the drafting grid the map's sheet shows. */
 .reports-page__photo--empty {
   display: flex;
@@ -323,6 +368,42 @@
   font-size: 1.5rem;
   font-weight: 800;
   box-shadow: 4px 4px 0 var(--amber);
+}
+
+/* As a button it offers a photo: the tile lifts off its amber block on hover
+   and lands on it when pressed, like the toolbar's own tiles. */
+.reports-page__photo-glyph--action {
+  padding: 0;
+  font: inherit;
+  font-size: 1.5rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+}
+
+.reports-page__photo-glyph--action:hover {
+  background: var(--amber);
+  box-shadow: 6px 6px 0 var(--ink);
+  transform: translate(-2px, -2px);
+}
+
+.reports-page__photo-glyph--action:active {
+  box-shadow: 0 0 0 var(--ink);
+  transform: translate(2px, 2px);
+}
+
+.reports-page__photo-glyph--action:focus-visible {
+  outline: var(--scaffold-line) solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* the frame answers the pointer as one target, wherever it is over the tile */
+.reports-page__photo--empty:has(.reports-page__photo-glyph--action:hover)
+  .reports-page__photo-text {
+  color: var(--ink);
 }
 
 .reports-page__photo-text {

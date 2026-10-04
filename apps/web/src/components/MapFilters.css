@@ -124,6 +124,10 @@
   stroke: none;
 }
 
+.map-filters__row--reported .map-filters__glyph {
+  background: var(--blue);
+}
+
 .map-filters__row--inprogress .map-filters__glyph {
   background: var(--amber-ghost);
 }

@@ -5,7 +5,7 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 ## Konwencje
 
 - Format: JSON, pola w snake_case. Identyfikatory użytkowników, masterów, reportów, zdjęć i komentarzy jako UUID w postaci tekstu; identyfikatory kategorii, statusów, urzędów i jednostek usługowych jako liczby całkowite.
-- Wyjątek: `POST /reports`, `POST /reports/{id}/photos` i endpointy `POST /inference`, `POST /inference/service-entity` oraz `POST /inference/service-entity/recommendation` przyjmują `multipart/form-data`, bo mogą zawierać pliki zdjęć.
+- Wyjątek: `POST /reports`, `POST /reports/{id}/photos`, `POST /master-reports/{id}/photo-proposals` i endpointy `POST /inference`, `POST /inference/service-entity` oraz `POST /inference/service-entity/recommendation` przyjmują `multipart/form-data`, bo mogą zawierać pliki zdjęć.
 - Daty: ISO 8601 z strefą czasową (UTC).
 - CORS: API przyjmuje na razie zapytania z każdej domeny (`*`). Uwierzytelnianie opiera się na nagłówku `Authorization`, bez ciasteczek.
 - Pola `id`, `created_at`, `edited_at` są tylko do odczytu. Serwer ignoruje je w requestach albo zwraca 422.
@@ -25,7 +25,7 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 | 401 | brak tokenu, token nieważny lub wygasły, użytkownik z tokenu nie istnieje |
 | 403 | rola nie pozwala na operację |
 | 404 | brak zasobu o podanym id albo brak kategorii, statusu, urzędu, jednostki usługowej lub mastera wskazanego w body |
-| 409 | naruszenie unikalności albo klucza obcego przy usuwaniu |
+| 409 | naruszenie unikalności albo klucza obcego przy usuwaniu, master ma już zdjęcie, inna propozycja czeka na decyzję, albo decyzja o propozycji już zapadła |
 | 413 | zdjęcie większe niż 10 MB |
 | 422 | niepoprawne dane (typ, pusty `title` lub `description`, brak kontaktu użytkownika, zły zakres współrzędnych, zły format lub za dużo zdjęć) |
 | 502 | dostawca analizy zwrócił niepoprawny wynik |
@@ -40,7 +40,9 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 | reports | `/reports` | create z dopasowaniem do mastera, list, get, update, delete, move |
 | report_photos | `/reports/{report_id}/photos`, `/photos/{id}/file` | create, list, delete, pobranie pliku (bez update) |
 | master_reports | `/master-reports` | list, get, update, delete; tworzy je backend |
+| master_report_photo_proposals | `/master-reports/{id}/photo-proposals`, `/photo-proposals/{id}` | create, list, approve, reject, pobranie pliku |
 | master_report_comments | `/master-reports/{id}/comments`, `/comments/{id}` | create, list, delete, like, unlike |
+| notifications | `/notifications` | list, unread-count, read, read-all, delete |
 | słowniki | `/report-categories`, `/master-report-statuses` | list (tylko odczyt) |
 | local_government_offices | `/institution-contacts` | list, get (tylko odczyt) |
 | service_entities | `/service-entities` | list, get (tylko odczyt) |
@@ -52,8 +54,9 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 | Kto | Co może |
 | --- | --- |
 | publiczny | rejestracja, logowanie, odczyt reportów i metadanych zdjęć, mastery, komentarze, słowniki, urzędy, jednostki usługowe, innowacje ROPS, pliki zdjęć |
-| zalogowany | dodawanie reportów, komentarzy i polubień, analiza przez `/inference`, połączenie własnego konta z Google |
+| zalogowany | dodawanie reportów, komentarzy i polubień, proponowanie zdjęcia do mastera bez zdjęcia, odczyt i obsługa własnych powiadomień, analiza przez `/inference`, połączenie własnego konta z Google |
 | autor reportu | edycja i usuwanie reportu oraz jego zdjęć |
+| autor mastera | przyjęcie lub odrzucenie zdjęcia zaproponowanego do jego mastera |
 | autor komentarza | usuwanie komentarza |
 | `office` | jak zalogowany oraz edycja masterów, przepinanie reportów, usuwanie dowolnych komentarzy, wyróżnianie komentarzy |
 | `admin` | jak `office` oraz edycja i usuwanie dowolnych reportów, usuwanie masterów |
@@ -312,7 +315,10 @@ Odpowiedź `GET /master-reports/{id}`:
   "location": { "longitude": 19.9449, "latitude": 50.0647 },
   "response": "Zgłoszenie przekazano do zarządcy drogi.",
   "report_count": 3,
+  "author_id": "0b0c6f0e-6a1e-4a43-9c7e-2f5d6a1b9c11",
   "photo_url": "/photos/c3d4e5f6-1a2b-4c3d-8e9f-0a1b2c3d4e5f/file",
+  "pending_photo_id": null,
+  "pending_photo_url": null,
   "photos": [],
   "edited_at": "2026-04-16T12:00:00Z",
   "created_at": "2026-04-16T10:00:00Z"
@@ -320,6 +326,8 @@ Odpowiedź `GET /master-reports/{id}`:
 ```
 
 `photos` zawiera zdjęcia wszystkich reportów mastera i występuje tylko w szczegółach. Elementy listy mają te same pola bez `photos`. `photo_url` to najstarsze zdjęcie spośród reportów mastera (albo `null`), żeby mapa mogła pokazać je na pinezce bez pobierania szczegółów każdego mastera. Reporty mastera zwraca `GET /reports?master_report_id=...`.
+
+`author_id` to użytkownik najstarszego reportu mastera, czyli osoba, która decyduje o zaproponowanym zdjęciu. `pending_photo_id` i `pending_photo_url` wskazują zdjęcie czekające na jej decyzję i są `null`, kiedy master ma już własne zdjęcie albo nikt nic nie zaproponował; zobacz [photo proposals](#photo-proposals).
 
 Pola `PATCH`: `report_category_id`, `status_id`, `responsible_office_id`, `responsible_service_entity_id`, `title`, `description`, `location`, `response`. `null` jest dozwolony tylko dla obu pól odpowiedzialnego podmiotu i `response`. Master wskazuje najwyżej jeden podmiot: urząd albo jednostkę usługową. Zmiana odbiorcy na podmiot innego rodzaju wymaga przesłania obu pól, na przykład `{"responsible_office_id": null, "responsible_service_entity_id": 17}`, inaczej API zwraca 422. Status można zmienić na dowolny, także wstecz. Zmiana treści mastera nie zmienia jego reportów. ID w przykładzie są ilustracyjne; wartości słowników należy pobrać z endpointów słowników.
 
@@ -351,6 +359,83 @@ Request `POST` to `{"content": "Potwierdzam, dziura jest coraz większa."}`. Opc
 - Lista jest posortowana od najstarszych. Token jest opcjonalny; bez niego `liked_by_me` ma wartość `false`.
 - Komentarzy nie można edytować, bo tabela nie ma `edited_at`.
 - `PUT` i `DELETE` na `/like` są idempotentne i zwracają komentarz z aktualnym `like_count`.
+
+## photo proposals
+
+| Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
+| --- | --- | --- | --- | --- | --- |
+| POST | `/master-reports/{id}/photo-proposals` | propozycja zdjęcia do mastera bez zdjęcia | zalogowany | 201 | 401, 404, 409 (master ma zdjęcie albo czeka inna propozycja), 413, 422 |
+| GET | `/master-reports/{id}/photo-proposals` | propozycje mastera | publiczny | 200 | 422 |
+| GET | `/photo-proposals/{id}/file` | plik zaproponowanego zdjęcia | publiczny | 200 | 404 |
+| POST | `/photo-proposals/{id}/approve` | przyjęcie zdjęcia | autor mastera, `admin` | 200 | 401, 403, 404, 409 |
+| POST | `/photo-proposals/{id}/reject` | odrzucenie zdjęcia | autor mastera, `admin` | 200 | 401, 403, 404, 409 |
+
+`POST` przyjmuje `multipart/form-data` z jednym polem `photo`. Obowiązują te same reguły co dla zdjęć reportu: JPEG, PNG albo WebP do 10 MB, typ rozpoznawany po nagłówku pliku. Odpowiedź:
+
+```json
+{
+  "id": "9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
+  "master_report_id": "5d1f7a52-3c3e-4a7e-8b0a-1f6d2d9e7a20",
+  "user_id": "0b0c6f0e-6a1e-4a43-9c7e-2f5d6a1b9c11",
+  "storage_key": "proposals/9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d.jpg",
+  "state": "pending",
+  "decided_at": null,
+  "url": "/photo-proposals/9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/file",
+  "created_at": "2026-04-16T11:30:00Z"
+}
+```
+
+- Propozycję można złożyć tylko do mastera, którego żaden report nie ma zdjęcia. Jednocześnie czeka najwyżej jedna propozycja na master, co pilnuje częściowy indeks unikalny.
+- Decyduje autor mastera, czyli użytkownik najstarszego reportu mastera, zwracany jako `author_id` w master-reports. `admin` może zdecydować za niego.
+- Dopóki `state` to `pending`, master zwraca propozycję jako `pending_photo_id` i `pending_photo_url`, a aplikacja pokazuje ją ze znakiem zapytania.
+- `approve` zapisuje zdjęcie jako zdjęcie najstarszego reportu mastera, więc od tej chwili wychodzi w `photo_url` i `photos`, a plik przechodzi z `proposals/{id}.{ext}` na `reports/{report_id}/{photo_id}.{ext}`.
+- `reject` usuwa plik, a master znów przyjmuje propozycje. Wiersz zostaje ze stanem `rejected`.
+- Obie decyzje tworzą powiadomienie dla osoby, która zdjęcie zaproponowała. Nowa propozycja tworzy powiadomienie dla autora mastera, chyba że zaproponował je on sam: wtedy zdjęcie jest przyjmowane od razu i nie powstaje żadne powiadomienie.
+- `GET` filtruje po `state` (domyślnie `pending`); pusty filtr zwraca wszystkie propozycje mastera, od najstarszych.
+
+## notifications
+
+| Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
+| --- | --- | --- | --- | --- | --- |
+| GET | `/notifications` | własne powiadomienia, od najnowszych | zalogowany | 200 | 401, 422 |
+| GET | `/notifications/unread-count` | liczba nieodczytanych | zalogowany | 200 | 401 |
+| PUT | `/notifications/{id}/read` | oznaczenie jako odczytane | odbiorca | 200 | 401, 404 |
+| POST | `/notifications/read-all` | oznaczenie wszystkich jako odczytane | zalogowany | 200 | 401 |
+| DELETE | `/notifications/{id}` | usunięcie | odbiorca | 204 | 401, 404 |
+
+Powiadomienia tworzy wyłącznie backend, dlatego nie ma `POST` na kolekcji. Każdy widzi tylko swoje: dla cudzego id `PUT` i `DELETE` zwracają 404. Filtr `GET`: `unread=true` zwraca same nieodczytane. Odpowiedź:
+
+```json
+{
+  "id": "4c5d6e7f-8a9b-4c0d-8e1f-2a3b4c5d6e7f",
+  "user_id": "0b0c6f0e-6a1e-4a43-9c7e-2f5d6a1b9c11",
+  "kind": "photo_proposal",
+  "master_report_id": "5d1f7a52-3c3e-4a7e-8b0a-1f6d2d9e7a20",
+  "photo_proposal_id": "9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
+  "subject": "Dziura w jezdni przy ul. Długiej",
+  "detail": null,
+  "photo_proposal_state": "pending",
+  "photo_proposal_url": "/photo-proposals/9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/file",
+  "read_at": null,
+  "created_at": "2026-04-16T11:30:00Z"
+}
+```
+
+| `kind` | Kiedy powstaje | Kto dostaje |
+| --- | --- | --- |
+| `status_inprogress` | `PATCH /master-reports/{id}` zmienia status na `inprogress` | autorzy wszystkich reportów mastera |
+| `status_finished` | ten sam `PATCH` zmienia status na `finished` | autorzy wszystkich reportów mastera |
+| `update` | ten sam `PATCH` zmienia cokolwiek innego, na przykład `response` | autorzy wszystkich reportów mastera |
+| `comment` | `POST /master-reports/{id}/comments` | autorzy wszystkich reportów mastera poza autorem komentarza |
+| `photo_proposal` | `POST /master-reports/{id}/photo-proposals` | autor mastera |
+| `photo_approved` | `POST /photo-proposals/{id}/approve` | osoba, która zaproponowała zdjęcie |
+| `photo_rejected` | `POST /photo-proposals/{id}/reject` | osoba, która zaproponowała zdjęcie |
+
+- `subject` to tytuł mastera z chwili zdarzenia, więc lista czyta się także po zmianie tytułu. `detail` zawiera treść komentarza albo nową odpowiedź urzędu, inaczej `null`.
+- `photo_proposal_state` i `photo_proposal_url` dotyczą zaproponowanego zdjęcia i są `null` dla pozostałych rodzajów. Dzięki `state` aplikacja wie, czy przyciski przyjęcia i odrzucenia jeszcze mają sens.
+- Ustawienie tego samego statusu nie jest zmianą i nie tworzy powiadomienia.
+- `PUT /{id}/read` jest idempotentne: ponowne wywołanie nie zmienia `read_at`.
+- Usunięcie mastera, propozycji albo użytkownika usuwa związane z nimi powiadomienia.
 
 ## słowniki
 

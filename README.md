@@ -106,6 +106,10 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 
 The map loads pins from `GET /master-reports` and files new reports with `POST /reports` through [`reports.ts`](apps/web/src/api/reports.ts). Every request goes through `apiFetch` in [`client.ts`](apps/web/src/api/client.ts), which adds the stored token and drops it on a 401. Reading reports, masters and categories needs no token. Filing a report needs the signed-in session from [`session.ts`](apps/web/src/api/session.ts); signed out, adding a marker opens the sign-in dialog. The form has no title or category field yet, so the title is taken from the start of the description and the category is `issue`. Reports and image files are really saved, so use a development database.
 
+The notifications page reads `GET /notifications` through [`notifications.ts`](apps/web/src/api/notifications.ts), which also keeps the navbar's unread count. Each notification carries the buttons that act on it: open the case, mark it read, dismiss it, and for an offered photo take it or turn it down through [`photoProposals.ts`](apps/web/src/api/photoProposals.ts). "Open the case" points the hash at one master, as `#map/<master id>`, and the map opens that pin's sheet.
+
+A case with no photo shows the way to offer one, on the map's sheet and on the reports page. Until the case's author takes it, the offered photo stands in for the case's picture under a question mark, on the pin and in both sheets.
+
 In development Vite proxies `/api` to `http://127.0.0.1:8000`; `API_PROXY_TARGET` in the root `.env` can select another local API. Deployed builds get the API origin from `VITE_API_URL` at build time, so configure a same-origin proxy or CORS there.
 
 ### Automated Deployment
@@ -144,6 +148,8 @@ the linked `SKILL.md` instructions directly.
 - Reports store their location using PostGIS `geography(Point, 4326)`. They are saved before classification, so `reports.master_report_id` can be `NULL`. After classification, the backend creates or links a master report.
 - Master reports keep independent content, a shared status and response, and an optional responsible institution. Comments and likes belong to master reports.
 - Photos are represented by rows in `report_photos`. Each row stores a persistent `storage_key` that refers to a file managed by the API or storage layer.
+- A master report with no photo can be offered one by any signed-in resident. The offer waits in `master_report_photo_proposals` under a question mark until the resident who filed the case first takes it, which files the picture as a report photo, or turns it down, which deletes the file.
+- `notifications` records what happened to a case its recipient filed, commented on, or offered a photo for: the case taken up or finished, an office's update, a new comment, and an offered photo with its decision.
 - The workbook contains institution addresses, but no coordinates or boundary polygons.
 - New reports are accepted only in Małopolskie and store the TERYT codes and names of their municipality and county, determined from their coordinates using [GUGiK's PRG boundaries](https://uldk.gugik.gov.pl/opis.html). Existing reports keep these fields empty until their location is updated. The administrative area does not determine the institution responsible for the issue.
 

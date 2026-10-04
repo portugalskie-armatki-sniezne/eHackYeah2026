@@ -15,6 +15,11 @@ export type EventPin = {
   description: string;
   image: File | null;
   imageUrl: string | null;
+  /**
+   * Whether the framed photo is one a resident offered and the case's author
+   * has not taken yet: the pin then carries a question mark over it.
+   */
+  imagePending?: boolean;
   /** names the pin in its label: a fault or an improvement */
   category: ReportCategoryName;
   /**
@@ -51,6 +56,7 @@ type PinElementOptions = {
   title?: string;
   draft?: boolean;
   imageUrl?: string | null;
+  imagePending?: boolean;
   reportCount?: number;
   /** makes the pin a button that opens its sheet; a draft pin has none */
   onOpen?: () => void;
@@ -90,6 +96,7 @@ function pinElement(
     title,
     draft = false,
     imageUrl = null,
+    imagePending = false,
     reportCount = 1,
     onOpen,
   }: PinElementOptions,
@@ -143,6 +150,10 @@ function pinElement(
   if (imageUrl) {
     // only a pin with something to frame stretches on hover
     element.classList.add("event-pin--photo");
+    if (imagePending) {
+      // the photo is not the case's yet, so the head is drawn as a proposal
+      element.classList.add("event-pin--pending");
+    }
     // built as a node rather than markup: the url is user-supplied
     const photo = document.createElementNS(SVG_NS, "image");
     photo.setAttribute("class", "event-pin__photo");
@@ -191,6 +202,16 @@ function pinElement(
     drop.append(count);
   }
 
+  // An offered photo is marked as not settled: the question mark says the
+  // picture is a proposal, not the case's own. Its words are in the label.
+  if (imageUrl && imagePending) {
+    const mark = document.createElement("span");
+    mark.className = "event-pin__pending-mark";
+    mark.setAttribute("aria-hidden", "true");
+    mark.textContent = "?";
+    drop.append(mark);
+  }
+
   element.append(drop);
   return element;
 }
@@ -201,6 +222,7 @@ function sameMarker(a: EventPin, b: EventPin): boolean {
   return (
     a.description === b.description &&
     a.imageUrl === b.imageUrl &&
+    a.imagePending === b.imagePending &&
     a.category === b.category &&
     a.status === b.status &&
     a.reportCount === b.reportCount &&
@@ -216,13 +238,15 @@ function statusTitle(pin: EventPin, t: Messages): string | null {
 }
 
 function pinLabel(pin: EventPin, index: number, t: Messages): string {
-  return t.map.pinLabel(
+  const label = t.map.pinLabel(
     pin.category,
     index + 1,
     statusTitle(pin, t),
     pin.reportCount,
     pin.description,
   );
+  // the question mark on the head is a drawing, so the label spells it out
+  return pin.imagePending ? `${label} ${t.map.pinPendingPhoto}` : label;
 }
 
 /**
@@ -287,6 +311,7 @@ export default function EventMarkers({
           status: pin.status,
           title: statusTitle(pin, t) ?? undefined,
           imageUrl: pin.imageUrl,
+          imagePending: pin.imagePending,
           reportCount: pin.reportCount,
           onOpen: () => openPin(pin.id),
         }),

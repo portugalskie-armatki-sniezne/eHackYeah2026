@@ -103,6 +103,10 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 3. Gotowy build trafia do `apps/web/dist`.
 4. Aplikacja łączy się z API pod adresem `VITE_API_URL` z głównego `.env`. Bez tej zmiennej zapytania trafiają pod `/api`, skąd serwer deweloperski Vite przekazuje je do `http://127.0.0.1:8000` albo do `API_PROXY_TARGET`. Dodanie zgłoszenia wymaga zalogowania.
 
+Strona powiadomień czyta `GET /notifications` przez [`notifications.ts`](apps/web/src/api/notifications.ts), który prowadzi też licznik nieodczytanych w pasku nawigacji. Każde powiadomienie ma przy sobie przyciski działania: otwarcie sprawy, oznaczenie jako odczytane, usunięcie, a dla zaproponowanego zdjęcia jego przyjęcie albo odrzucenie przez [`photoProposals.ts`](apps/web/src/api/photoProposals.ts). „Otwórz zgłoszenie” wskazuje w adresie jedno zgłoszenie główne, jako `#map/<id zgłoszenia>`, a mapa otwiera arkusz tej pinezki.
+
+Sprawa bez zdjęcia pokazuje sposób, by je zaproponować, zarówno w arkuszu na mapie, jak i na stronie zgłoszeń. Dopóki autor sprawy go nie przyjmie, zaproponowane zdjęcie zastępuje jej obrazek ze znakiem zapytania: na pinezce i w obu arkuszach.
+
 ### Automatyczne wdrożenie
 
 1. W środowiskach GitHub `dev` i `prod` ustaw `VITE_API_URL` (adres backendu zapisany w buildzie frontendu), `VITE_GOOGLE_CLIENT_ID` (identyfikator klienta OAuth do logowania przez Google, ten sam co `GOOGLE_CLIENT_ID` w `.env` środowiska) i `DEPLOY_DIR` (katalog wdrożenia na serwerze).
@@ -134,6 +138,8 @@ Wszystkie trzy skille wymagają Gita. `pr` i `babysit` wymagają też uwierzytel
 - Zgłoszenia zapisują lokalizację jako PostGIS `geography(Point, 4326)`. Powstają przed klasyfikacją, więc `reports.master_report_id` może być `NULL`. Po klasyfikacji backend tworzy zgłoszenie główne lub łączy zgłoszenie z istniejącym.
 - Zgłoszenia główne mają własną treść, wspólny status i odpowiedź oraz opcjonalnie przypisaną instytucję. Komentarze i polubienia dotyczą zgłoszeń głównych.
 - Zdjęcia są zapisane w `report_photos`. Każdy rekord zawiera trwały `storage_key`, który wskazuje plik zarządzany przez API lub warstwę przechowywania danych.
+- Do zgłoszenia głównego bez zdjęcia każda zalogowana osoba może zdjęcie zaproponować. Propozycja czeka w `master_report_photo_proposals` ze znakiem zapytania, dopóki autor zgłoszenia jej nie przyjmie, co zapisuje zdjęcie jako zdjęcie zgłoszenia, albo nie odrzuci, co usuwa plik.
+- `notifications` zapisuje, co zdarzyło się w sprawach, które odbiorca zgłosił, skomentował albo do których zaproponował zdjęcie: przyjęcie sprawy do realizacji, jej zakończenie, aktualizację od urzędu, nowy komentarz oraz zaproponowane zdjęcie wraz z decyzją.
 - Arkusz zawiera adresy instytucji, ale nie zawiera współrzędnych ani granic obszarów.
 - Nowe zgłoszenia są przyjmowane wyłącznie z Małopolski. Zapisują kody TERYT oraz nazwy gminy i powiatu ustalone ze współrzędnych na podstawie [granic PRG z GUGiK](https://uldk.gugik.gov.pl/opis.html). W starszych zgłoszeniach pola pozostają puste do czasu aktualizacji lokalizacji. Obszar administracyjny nie przesądza o tym, która instytucja odpowiada za problem.
 

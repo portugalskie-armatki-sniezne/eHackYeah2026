@@ -107,6 +107,11 @@ def main():
         query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
         print("PASS: master reports, statuses, institutions, comments, likes, and constraints", flush=True)
         compose("run", "--rm", "--no-deps", "db-migrator", "down")
+        if query("SELECT to_regclass('notifications') IS NULL "
+                 "AND to_regclass('master_report_photo_proposals') IS NULL;") != "t":
+            raise RuntimeError("Notification and photo proposal rollback left its tables behind")
+        print("PASS: notifications and photo proposals migration rolled back successfully", flush=True)
+        compose("run", "--rm", "--no-deps", "db-migrator", "down")
         if query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'public' "
                  "AND table_name = 'master_report_comments' AND column_name = 'highlighted';") != "0":
             raise RuntimeError("Comment highlight rollback left the column behind")
@@ -187,7 +192,7 @@ def main():
             raise RuntimeError("Innovation library import after migration rollback failed")
         query((ROOT / "tests/fixtures/check_reports.sql").read_text())
         query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
-        print("PASS: all eleven migrations rolled back and reapplied successfully", flush=True)
+        print("PASS: all twelve migrations rolled back and reapplied successfully", flush=True)
     except Exception:
         print(compose("logs", "--no-color", "--tail", "50", check=False), flush=True)
         raise
