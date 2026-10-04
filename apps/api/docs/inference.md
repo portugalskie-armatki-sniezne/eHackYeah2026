@@ -35,9 +35,15 @@ pobranie można wznowić tym samym poleceniem. `.env` jest zachowywany.
 predykcji. Języki tłumacza ustalają `TRANSLATION_SOURCE_LANGUAGE` oraz
 `TRANSLATION_TARGET_LANGUAGE`; pobierany checkpoint obsługuje parę `pl` i `en`.
 
-Podstawowy obraz Docker API nadal instaluje tylko zależności podstawowe.
-Uruchomienie modeli w kontenerze wymaga obrazu z zestawem `inference`,
-udostępnienia checkpointów w kontenerze oraz przekazania powyższych zmiennych.
+Obraz Docker API instaluje zestaw `inference` i pobiera przypięte checkpointy
+podczas budowania. Modele są częścią obrazu, a ich domyślne ścieżki włączają
+analizę także bez dodatkowych wpisów w serwerowym `.env`. Instalacja na Linuksie
+korzysta z PyTorch dla CPU, bez bibliotek CUDA. Kontener nie pobiera modeli
+przy obsłudze żądań. Compose przekazuje
+powyższe zmienne z `.env`; jawnie pusta ścieżka wyłącza danego dostawcę.
+Po zmianie obrazu trzeba ponownie wdrożyć usługę `api`.
+Budowanie obrazu sprawdza rzeczywiste tłumaczenie i klasyfikację tekstu oraz
+obrazu, bez dostępu do sieci i jako nieuprzywilejowany użytkownik kontenera.
 
 ## Request API
 

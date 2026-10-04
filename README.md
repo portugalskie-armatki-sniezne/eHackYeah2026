@@ -112,6 +112,7 @@ In development Vite proxies `/api` to `http://127.0.0.1:8000`; `API_PROXY_TARGET
 5. After deploying `api`, run `[4] Seed` manually for `dev` or `prod` to import reference data from `db/seeds`. It waits for deployments to the same environment. Repeating the import preserves IDs and avoids duplicates; seed data overwrites manual edits, while records absent from the seed files remain in the database.
 6. Run `[2] Release` manually to deploy all three services to `prod`, then publish a Git tag and GitHub release. Versions use the UTC date and a daily counter, for example `v2026.10.03-1`.
 7. The Compose template stores report photos in `/app/uploads` on the `api_uploads` volume, so they survive deployments. `notify` mounts the same volume read-only to attach photos to emails.
+8. The API image includes the inference libraries and pinned model checkpoints. Recipient suggestions use CPU inference by default, without downloading models at request time. The server's `.env` can override the [model settings](apps/api/docs/inference.md); an explicitly empty model path disables that provider.
 
 > `[3] Lint` runs ESLint, Prettier, and Ruff on every pull request and push to `main`, using GitHub-hosted runners.
 

@@ -11,6 +11,14 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_dev_password}
       JWT_SECRET: ${JWT_SECRET:-}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      LAYA_MODEL_PATH: ${LAYA_MODEL_PATH-models/laya-vision}
+      TRANSLATION_MODEL_PATH: ${TRANSLATION_MODEL_PATH-models/opus-mt-pl-en}
+      LAYA_DEVICE: ${LAYA_DEVICE:-cpu}
+      LAYA_PERMUTATIONS: ${LAYA_PERMUTATIONS:-3}
+      LAYA_CALIBRATION_STRENGTH: ${LAYA_CALIBRATION_STRENGTH:-1}
+      LAYA_LOAD_OPTIONS: '${LAYA_LOAD_OPTIONS:-{"head_max_len":768,"max_len":2048}}'
+      TRANSLATION_SOURCE_LANGUAGE: ${TRANSLATION_SOURCE_LANGUAGE:-pl}
+      TRANSLATION_TARGET_LANGUAGE: ${TRANSLATION_TARGET_LANGUAGE:-en}
       # report photos, the image creates this directory for its unprivileged user
       UPLOAD_DIR: /app/uploads
     ports:

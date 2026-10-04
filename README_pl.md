@@ -107,6 +107,7 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 5. Po wdrożeniu `api` uruchom ręcznie `[4] Seed` dla `dev` lub `prod`, aby zaimportować dane z `db/seeds`. Import czeka na zakończenie wdrożeń w tym samym środowisku. Ponowne uruchomienie zachowuje identyfikatory i nie tworzy duplikatów; dane źródłowe nadpisują ręczne zmiany, a rekordy nieobecne w plikach pozostają w bazie.
 6. Uruchom ręcznie `[2] Release`, aby wdrożyć wszystkie trzy usługi na `prod`, a następnie utworzyć tag Git i wydanie na GitHubie. Wersje zawierają datę UTC i licznik wydań z danego dnia, np. `v2026.10.03-1`.
 7. Szablon Compose przechowuje zdjęcia zgłoszeń w `/app/uploads` na wolumenie `api_uploads`, dzięki czemu pozostają dostępne po wdrożeniu. `notify` montuje ten sam wolumen tylko do odczytu, aby dołączać zdjęcia do maili.
+8. Obraz API zawiera biblioteki analizy i przypięte checkpointy modeli. Sugestie adresatów domyślnie korzystają z CPU, bez pobierania modeli podczas obsługi żądań. Serwerowy `.env` pozwala nadpisać [ustawienia modeli](apps/api/docs/inference.md); jawnie pusta ścieżka modelu wyłącza danego dostawcę.
 
 > `[3] Lint` uruchamia ESLint, Prettier i Ruff dla każdego pull requesta i pusha do `main`, na runnerach GitHuba.
 
