@@ -1,3 +1,6 @@
+import { getLocale } from "../i18n/locale";
+import { messages } from "../i18n/messages";
+
 // Vite inlines the address at build time; without one, requests go to /api,
 // which the development server proxies to the local API
 const API_URL = (
@@ -40,6 +43,8 @@ export class ApiError extends Error {
   constructor(
     public readonly status: number,
     message: string,
+    /** the parsed error body, for callers that need more than the message */
+    public readonly body: unknown = null,
   ) {
     super(message);
     this.name = "ApiError";
@@ -63,7 +68,7 @@ function errorMessage(body: unknown, status: number): string {
       if (messages.length) return messages.join("; ");
     }
   }
-  return `Request failed (${status}).`;
+  return messages[getLocale()].api.requestFailed(status);
 }
 
 type RequestOptions = {
@@ -72,12 +77,15 @@ type RequestOptions = {
   json?: unknown;
   /** sent as is, for forms and files */
   body?: BodyInit;
+  /** extra request headers, such as an Idempotency-Key */
+  headers?: Record<string, string>;
   query?: Record<string, string | number | undefined>;
   /**
    * False leaves the token out, for sign-in requests: their 401 means wrong
    * credentials, not an expired session.
    */
   auth?: boolean;
+  responseType?: "json" | "blob";
   signal?: AbortSignal;
 };
 
@@ -88,12 +96,24 @@ export function apiUrl(path: string): string {
 /** The only place that calls the API: every request and error goes through it. */
 export async function apiFetch<T>(
   path: string,
-  { method, json, body, query, auth = true, signal }: RequestOptions = {},
+  {
+    method,
+    json,
+    body,
+    headers: extraHeaders,
+    query,
+    auth = true,
+    responseType = "json",
+    signal,
+  }: RequestOptions = {},
 ): Promise<T> {
   const headers = new Headers();
   const sentToken = auth ? token : null;
   if (sentToken) headers.set("Authorization", `Bearer ${sentToken}`);
   if (json !== undefined) headers.set("Content-Type", "application/json");
+  for (const [key, value] of Object.entries(extraHeaders ?? {})) {
+    headers.set(key, value);
+  }
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(query ?? {})) {
     if (value !== undefined) search.set(key, String(value));
@@ -118,8 +138,10 @@ export async function apiFetch<T>(
     throw new ApiError(
       response.status,
       errorMessage(errorBody, response.status),
+      errorBody,
     );
   }
   if (response.status === 204) return undefined as T;
+  if (responseType === "blob") return response.blob() as Promise<T>;
   return response.json() as Promise<T>;
 }

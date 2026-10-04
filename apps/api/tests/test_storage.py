@@ -33,3 +33,27 @@ def test_check_upload_dir_fails_when_not_writable(monkeypatch: pytest.MonkeyPatc
 
     with pytest.raises(RuntimeError, match="UPLOAD_DIR .* is not writable"):
         storage.check_upload_dir()
+
+
+def test_atomic_save_is_readable_by_shared_volume_connectors(upload_dir: Path):
+    key = "visualizations/test/result.png"
+    storage.save(key, b"original")
+    path = storage.file_path(key)
+    assert path.read_bytes() == b"original"
+    assert path.stat().st_mode & 0o004
+    assert list(path.parent.iterdir()) == [path]
+
+
+def test_failed_atomic_replace_preserves_existing_file(upload_dir: Path, monkeypatch: pytest.MonkeyPatch):
+    key = "visualizations/test/result.png"
+    storage.save(key, b"original")
+    path = storage.file_path(key)
+
+    def fail(*args):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(storage.os, "replace", fail)
+    with pytest.raises(OSError):
+        storage.save(key, b"replacement")
+    assert path.read_bytes() == b"original"
+    assert list(path.parent.iterdir()) == [path]

@@ -1,6 +1,8 @@
+from concurrent.futures import Future, ThreadPoolExecutor
 from io import BytesIO
+from threading import Event, Lock
 from unittest.mock import Mock
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, urlparse
 
 import psycopg
@@ -10,6 +12,19 @@ from fastapi.testclient import TestClient
 from app import municipalities
 from app.common import Location
 from conftest import JPEG, create_report, random_location, reference_id
+
+
+@pytest.fixture(autouse=True)
+def municipality_resolver(monkeypatch):
+    resolver = municipalities.MunicipalityResolver()
+    monkeypatch.setattr(municipalities, "_resolver", resolver)
+    monkeypatch.setattr(municipalities, "sleep", Mock())
+    yield resolver
+    resolver._executor.shutdown(wait=True, cancel_futures=True)
+
+
+def lookup_response(teryt="126101_1"):
+    return BytesIO(f"0\n{teryt}|Kraków (miasto)|powiat Kraków\n".encode())
 
 
 @pytest.mark.parametrize(
@@ -74,9 +89,259 @@ def test_invalid_or_ambiguous_response_is_unavailable(monkeypatch, data):
 
 @pytest.mark.parametrize("error", [TimeoutError(), URLError("unavailable")])
 def test_network_failure_is_unavailable(monkeypatch, error):
-    monkeypatch.setattr(municipalities, "urlopen", Mock(side_effect=error))
+    request = Mock(side_effect=error)
+    monkeypatch.setattr(municipalities, "urlopen", request)
     with pytest.raises(municipalities.MunicipalityUnavailableError):
         municipalities.resolve_municipality(Location(longitude=19.938, latitude=50.061))
+    assert request.call_count == municipalities.MAX_ATTEMPTS
+
+
+def test_success_is_cached_for_exact_coordinates(monkeypatch):
+    request = Mock(side_effect=lambda *args, **kwargs: lookup_response())
+    monkeypatch.setattr(municipalities, "urlopen", request)
+    location = Location(longitude=19.938, latitude=50.061)
+
+    expected = municipalities.resolve_municipality(location)
+    assert municipalities.resolve_municipality(location) == expected
+    request.assert_called_once()
+    municipalities.resolve_municipality(Location(longitude=19.9380001, latitude=50.061))
+    assert request.call_count == 2
+
+
+@pytest.mark.parametrize("error", [TimeoutError(), URLError("unavailable"), HTTPError("", 503, "", {}, None)])
+def test_temporary_failure_retries_and_caches_recovery(monkeypatch, error):
+    request = Mock(side_effect=[error, lookup_response()])
+    monkeypatch.setattr(municipalities, "urlopen", request)
+    location = Location(longitude=19.938, latitude=50.061)
+
+    result = municipalities.resolve_municipality(location)
+    assert result.teryt == "1261011"
+    assert request.call_count == 2
+    assert municipalities.resolve_municipality(location) == result
+    assert request.call_count == 2
+    municipalities.sleep.assert_called_once_with(municipalities.RETRY_DELAY_SECONDS)
+
+
+def test_expired_cache_is_refreshed_and_used_during_outage(monkeypatch):
+    clock = Mock(return_value=0.0)
+    monkeypatch.setattr(municipalities, "monotonic", clock)
+    request = Mock(side_effect=[lookup_response(), lookup_response("120601_2")])
+    monkeypatch.setattr(municipalities, "urlopen", request)
+    location = Location(longitude=19.938, latitude=50.061)
+    assert municipalities.resolve_municipality(location).teryt == "1261011"
+
+    clock.return_value = municipalities.CACHE_TTL_SECONDS + 1
+    refreshed = municipalities.resolve_municipality(location)
+    assert refreshed.teryt == "1206012"
+    clock.return_value *= 2
+    request.side_effect = TimeoutError()
+    assert municipalities.resolve_municipality(location) == refreshed
+    assert request.call_count == 2 + municipalities.MAX_ATTEMPTS
+    assert municipalities.resolve_municipality(location) == refreshed
+    assert request.call_count == 2 + 2 * municipalities.MAX_ATTEMPTS
+
+
+@pytest.mark.parametrize("response", ["-1 brak wyników\n".encode(), b"0\n126101_1|City|County\n120601_2|Other|County"])
+def test_expired_cache_does_not_override_missing_or_ambiguous_results(monkeypatch, response):
+    clock = Mock(return_value=0.0)
+    monkeypatch.setattr(municipalities, "monotonic", clock)
+    request = Mock(side_effect=[lookup_response(), BytesIO(response)])
+    monkeypatch.setattr(municipalities, "urlopen", request)
+    location = Location(longitude=19.938, latitude=50.061)
+    municipalities.resolve_municipality(location)
+    clock.return_value = municipalities.CACHE_TTL_SECONDS + 1
+
+    if response.startswith(b"-1"):
+        assert municipalities.resolve_municipality(location) is None
+    else:
+        with pytest.raises(municipalities.MunicipalityUnavailableError):
+            municipalities.resolve_municipality(location)
+    assert request.call_count == 2
+    request.side_effect = TimeoutError()
+    with pytest.raises(municipalities.MunicipalityUnavailableError):
+        municipalities.resolve_municipality(location)
+
+
+@pytest.mark.parametrize("code", [400, 403, 404])
+def test_permanent_http_errors_are_not_retried(monkeypatch, code):
+    request = Mock(side_effect=HTTPError("", code, "", {}, None))
+    monkeypatch.setattr(municipalities, "urlopen", request)
+    with pytest.raises(municipalities.MunicipalityUnavailableError):
+        municipalities.resolve_municipality(Location(longitude=19.938, latitude=50.061))
+    request.assert_called_once()
+
+
+def test_errors_and_missing_results_are_not_cached(monkeypatch):
+    request = Mock(side_effect=[BytesIO(b"invalid"), BytesIO("-1 brak wyników\n".encode()), lookup_response()])
+    monkeypatch.setattr(municipalities, "urlopen", request)
+    location = Location(longitude=19.938, latitude=50.061)
+
+    with pytest.raises(municipalities.MunicipalityUnavailableError):
+        municipalities.resolve_municipality(location)
+    assert municipalities.resolve_municipality(location) is None
+    assert municipalities.resolve_municipality(location).teryt == "1261011"
+    assert request.call_count == 3
+
+
+def test_cache_evicts_least_recently_used_coordinates(monkeypatch):
+    monkeypatch.setattr(municipalities, "MAX_CACHE_ENTRIES", 2)
+    request = Mock(side_effect=lambda *args, **kwargs: lookup_response())
+    monkeypatch.setattr(municipalities, "urlopen", request)
+    locations = [Location(longitude=19 + index, latitude=50) for index in range(3)]
+
+    for location in locations[:2]:
+        municipalities.resolve_municipality(location)
+    municipalities.resolve_municipality(locations[0])
+    municipalities.resolve_municipality(locations[2])
+    municipalities.resolve_municipality(locations[0])
+    assert request.call_count == 3
+    municipalities.resolve_municipality(locations[1])
+    assert request.call_count == 4
+
+
+def test_simultaneous_lookups_share_one_request_and_queue_other_coordinates(monkeypatch):
+    release = Event()
+    waiting = Event()
+    lock = Lock()
+    wait_count = 0
+    original_result = Future.result
+
+    def result(future, timeout=None):
+        nonlocal wait_count
+        if timeout == municipalities.QUEUE_TIMEOUT_SECONDS:
+            with lock:
+                wait_count += 1
+                if wait_count == 4:
+                    waiting.set()
+        return original_result(future, timeout)
+
+    monkeypatch.setattr(Future, "result", result)
+
+    def fetch(*args, **kwargs):
+        assert release.wait(5)
+        return lookup_response()
+
+    request = Mock(side_effect=fetch)
+    monkeypatch.setattr(municipalities, "urlopen", request)
+    location = Location(longitude=19.938, latitude=50.061)
+    other = Location(longitude=19.939, latitude=50.061)
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        try:
+            tasks = [executor.submit(municipalities.resolve_municipality, point) for point in [location] * 3 + [other]]
+            assert waiting.wait(5)
+            assert request.call_count == 1
+        finally:
+            release.set()
+        assert all(task.result(timeout=5).teryt == "1261011" for task in tasks)
+    assert request.call_count == 2
+
+
+def test_queue_is_bounded_and_recovers_after_completion(monkeypatch):
+    monkeypatch.setattr(municipalities, "MAX_PENDING_LOOKUPS", 1)
+    started = Event()
+    release = Event()
+
+    def fetch(*args, **kwargs):
+        started.set()
+        assert release.wait(5)
+        return lookup_response()
+
+    monkeypatch.setattr(municipalities, "urlopen", Mock(side_effect=fetch))
+    location = Location(longitude=19.938, latitude=50.061)
+    other = Location(longitude=19.939, latitude=50.061)
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        task = executor.submit(municipalities.resolve_municipality, location)
+        try:
+            assert started.wait(5)
+            with pytest.raises(municipalities.MunicipalityUnavailableError, match="queue is full"):
+                municipalities.resolve_municipality(other)
+        finally:
+            release.set()
+        task.result(timeout=5)
+    assert municipalities.resolve_municipality(other).teryt == "1261011"
+
+
+def test_queue_wait_is_bounded_and_lookup_can_finish_for_later_requests(monkeypatch):
+    monkeypatch.setattr(municipalities, "QUEUE_TIMEOUT_SECONDS", 0.05)
+    started = Event()
+    release = Event()
+
+    def fetch(*args, **kwargs):
+        started.set()
+        assert release.wait(5)
+        return lookup_response()
+
+    request = Mock(side_effect=fetch)
+    monkeypatch.setattr(municipalities, "urlopen", request)
+    location = Location(longitude=19.938, latitude=50.061)
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        task = executor.submit(municipalities.resolve_municipality, location)
+        try:
+            assert started.wait(5)
+            with pytest.raises(municipalities.MunicipalityUnavailableError, match="queue wait timed out"):
+                task.result(timeout=5)
+        finally:
+            release.set()
+    municipalities._resolver._executor.shutdown(wait=True)
+    assert municipalities.resolve_municipality(location).teryt == "1261011"
+    request.assert_called_once()
+
+
+def test_expired_queued_lookup_does_not_contact_upstream(monkeypatch):
+    clock = Mock(return_value=0.0)
+    monkeypatch.setattr(municipalities, "monotonic", clock)
+    started = Event()
+    release = Event()
+    queued = Event()
+    original_result = Future.result
+
+    def result(future, timeout=None):
+        if timeout == municipalities.QUEUE_TIMEOUT_SECONDS and started.is_set():
+            queued.set()
+        return original_result(future, timeout)
+
+    def fetch(*args, **kwargs):
+        started.set()
+        assert release.wait(5)
+        return lookup_response()
+
+    request = Mock(side_effect=fetch)
+    monkeypatch.setattr(municipalities, "urlopen", request)
+    first = Location(longitude=19.938, latitude=50.061)
+    second = Location(longitude=19.939, latitude=50.061)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        first_task = executor.submit(municipalities.resolve_municipality, first)
+        try:
+            assert started.wait(5)
+            monkeypatch.setattr(Future, "result", result)
+            second_task = executor.submit(municipalities.resolve_municipality, second)
+            assert queued.wait(5)
+            clock.return_value = municipalities.QUEUE_TIMEOUT_SECONDS + 1
+        finally:
+            release.set()
+        assert first_task.result(timeout=5).teryt == "1261011"
+        with pytest.raises(municipalities.MunicipalityUnavailableError, match="queue wait timed out"):
+            second_task.result(timeout=5)
+    request.assert_called_once()
+
+
+def test_report_submission_recovers_from_timeout_and_reuses_cache(
+    client, signed_in, monkeypatch, municipality_resolver
+):
+    user, headers = signed_in("user")
+    monkeypatch.setattr(municipalities, "resolve_municipality", municipality_resolver.resolve)
+    request = Mock(side_effect=[TimeoutError(), lookup_response()])
+    monkeypatch.setattr(municipalities, "urlopen", request)
+    location = {"longitude": 19.938, "latitude": 50.061}
+
+    report = create_report(client, headers, location)
+    assert report["municipality_teryt"] == "1261011"
+    assert request.call_count == 2
+    request.side_effect = TimeoutError()
+    second = create_report(client, headers, location)
+    assert second["municipality_teryt"] == report["municipality_teryt"]
+    assert request.call_count == 2
+    assert client.get("/reports", params={"user_id": user["id"]}).json()["total"] == 2
 
 
 def test_report_persists_municipality(client: TestClient, signed_in, connection: psycopg.Connection, monkeypatch):

@@ -8,6 +8,19 @@ export const locales = ["en", "pl"] as const;
 
 export type Locale = (typeof locales)[number];
 
+/** The two kinds of pin; mirrors ReportCategoryName of the API. */
+type PinKind = "issue" | "improvement";
+
+/** What a notification is about; mirrors NotificationKind of the API. */
+type NoticeKind =
+  | "status_inprogress"
+  | "status_finished"
+  | "comment"
+  | "update"
+  | "photo_proposal"
+  | "photo_approved"
+  | "photo_rejected";
+
 export function isLocale(value: unknown): value is Locale {
   return (
     typeof value === "string" && (locales as readonly string[]).includes(value)
@@ -18,6 +31,7 @@ const en = {
   language: {
     label: "Language",
     names: { en: "English", pl: "Polski" } as Record<Locale, string>,
+    switchTo: (name: string) => `Switch language to ${name}`,
   },
   nav: {
     skipToMap: "Skip to map",
@@ -28,10 +42,317 @@ const en = {
     reports: "Reports",
     initiatives: "Initiatives",
     about: "About",
+    notifications: "Notifications",
+    unreadNotifications: (count: number) =>
+      `${count} unread ${count === 1 ? "notification" : "notifications"}`,
     signIn: "Sign in",
     signedInAs: "Signed in as ",
     myProfile: "My Profile",
     logout: "Logout",
+  },
+  reports: {
+    title: "Reports",
+    lede: "Every case on the map in one list, with its status and the discussion under it. Office and admin accounts move cases along and answer them with official comments.",
+    backToMap: "Go back to map",
+    signInToComment: "Sign in to comment",
+    loading: "Loading cases...",
+    empty: "No cases match.",
+    search: "Search",
+    searchPlaceholder: "Search by title or description...",
+    filter: "Narrow the list",
+    allStatuses: "All",
+    onlyMine: "Only mine",
+    onlyMineHint: "Keeps only the cases you have filed a report for",
+    shown: (shown: number, total: number) => `${shown} of ${total} cases`,
+    kinds: { issue: "Fault report", improvement: "Improvement idea" },
+    statuses: {
+      created: "Created",
+      reported: "Reported",
+      inprogress: "In progress",
+      finished: "Finished",
+    },
+    setStatus: "Set status",
+    reportCount: (total: number) =>
+      `${total} ${total === 1 ? "report" : "reports"}`,
+    remove: "Remove case",
+    removeHint:
+      "Takes the pin off the map with its reports, photos, and comments.",
+    confirmRemove: "Remove for good",
+    removing: "Removing...",
+    cancel: "Cancel",
+    showComments: "Show comments",
+    hideComments: "Hide comments",
+    loadingComments: "Loading comments...",
+    noComments: "No comments yet.",
+    official: "Official",
+    office: "Office",
+    resident: "Resident",
+    you: "You",
+    deleteComment: "Delete",
+    composeLabel: "New comment",
+    composePlaceholder: "Write a comment...",
+    highlight: "Highlight as official",
+    post: "Post",
+    posting: "Posting...",
+    somethingWrong: "Something went wrong.",
+    officialResponse: "Official response",
+    photoOf: (title: string) => `Photo of the case "${title}"`,
+    noPhoto: "No photo yet",
+    proposePhoto: "Propose photo",
+    pendingPhoto: "Waiting for approval",
+    pendingPhotoAlt: (title: string) => `Photo offered for the case "${title}"`,
+    pendingPhotoHint:
+      "A resident offered this photo. It keeps its question mark until the person who filed the case takes it.",
+    usePhoto: "Use this photo",
+    turnDownPhoto: "Turn it down",
+    deciding: "Saving...",
+    signInToProposePhoto: "Sign in to propose a photo",
+  },
+  notifications: {
+    title: "Notifications",
+    lede: "What happened to the cases you filed: how far they have moved, what was said under them, and the photos neighbours offered for them.",
+    backToMap: "Go back to map",
+    loading: "Loading notifications...",
+    empty: "Nothing yet. What happens to your cases shows up here.",
+    emptyUnread: "You have opened everything.",
+    loadFailed: "Could not load your notifications.",
+    somethingWrong: "Something went wrong.",
+    signedOutTitle: "Sign in to read your notifications",
+    signedOutText:
+      "Notifications follow the cases filed from your account, so they come with it.",
+    signIn: "Sign in",
+    filter: "Show",
+    all: "All",
+    unreadOnly: "Unread",
+    shown: (shown: number, total: number) =>
+      `${shown} of ${total} ${total === 1 ? "notification" : "notifications"}`,
+    unread: "New",
+    markAllRead: "Mark all as read",
+    markRead: "Mark as read",
+    dismiss: "Dismiss",
+    openCase: "Open the case",
+    caseGone: "This case is no longer on the map.",
+    justNow: "just now",
+    kinds: {
+      status_inprogress: "Work has started",
+      status_finished: "The case is finished",
+      comment: "New comment",
+      update: "The case was updated",
+      photo_proposal: "A photo is waiting for you",
+      photo_approved: "Your photo was taken",
+      photo_rejected: "Your photo was turned down",
+    } as Record<NoticeKind, string>,
+    offeredPhotoAlt: (subject: string) => `Photo offered for: ${subject}`,
+    usePhoto: "Use this photo",
+    turnDownPhoto: "Turn it down",
+    deciding: "Saving...",
+    alreadyDecided: "This photo has already been decided on.",
+  },
+  status: {
+    created: "Created",
+    reported: "Reported",
+    inprogress: "In progress",
+    finished: "Finished",
+    unknown: "Unknown",
+  },
+  auth: {
+    signIn: "Sign in",
+    createAccount: "Create account",
+    register: "Register",
+    mode: "Mode",
+    firstName: "First name",
+    lastName: "Last name",
+    email: "Email",
+    phone: "Phone",
+    contactHint:
+      "Enter an email, a phone number, or both. Either one signs you in.",
+    contactRequired: "Enter an email address or a phone number.",
+    login: "Email or phone",
+    password: "Password",
+    passwordHint: (min: number) => `At least ${min} characters.`,
+    close: "Close",
+    pleaseWait: "Please wait...",
+    googleFailed: "Google sign-in failed.",
+    somethingWrong: "Something went wrong.",
+  },
+  signOut: {
+    title: "Sign out",
+    question: "Are you sure you want to sign out?",
+    cancel: "Cancel",
+    confirm: "Sign out",
+  },
+  map: {
+    label: "Map",
+    canvasLabel:
+      "Map. Use the arrow keys to pan and the plus and minus keys to zoom.",
+    categoriesError: "The report categories could not be loaded.",
+    newPin: "New pin",
+    pinLabel: (
+      kind: PinKind,
+      number: number,
+      status: string | null,
+      reportCount: number,
+      description: string,
+    ) =>
+      `${kind === "improvement" ? "Improvement" : "Fault"} pin ${number}${
+        status ? `, ${status.toLowerCase()}` : ""
+      }${reportCount > 1 ? `, ${reportCount} reports` : ""}: ${description}`,
+    pinPendingPhoto: "Its photo is waiting for approval.",
+  },
+  pin: {
+    issueTab: "Fault / report",
+    initiativeTab: "Community initiative",
+    newMarker: "New marker",
+    description: "Description",
+    descriptionPlaceholder: "What is happening here?",
+    image: "Image",
+    chosenImage: "Chosen image",
+    noImage: "No image",
+    changeImage: "Change image",
+    chooseImage: "Choose image",
+    close: "Close",
+    cancel: "Cancel",
+    saving: "Saving...",
+    addMarker: "Add marker",
+    saveFailed: "Could not save the report.",
+    matchFound: (percent: number) =>
+      `Similar innovation found (${percent}% match)`,
+    useProject: "Build on this project",
+    saveAsNew: "Submit as a new idea",
+    backToEdit: "Back to editing",
+    ideaLabel: "Your idea for this place",
+    ideaPlaceholder:
+      "Describe your proposal for an initiative or innovation at this location...",
+    checking: "Checking the database...",
+    sendInitiative: "Send initiative",
+  },
+  photoProposal: {
+    title: "Offer a photo",
+    hint: "The resident who filed this case decides whether it stays. Until then it shows under a question mark.",
+    photoAlt: "The photo being offered",
+    choose: "Choose a photo",
+    change: "Change photo",
+    none: "No photo chosen",
+    cancel: "Cancel",
+    send: "Offer the photo",
+    sending: "Sending...",
+    saveFailed: "Could not offer the photo.",
+  },
+  photoReport: {
+    title: "Photo report",
+    hint: "Filed where you are standing.",
+    photoAlt: "The photo just taken",
+    description: "Description",
+    descriptionPlaceholder: "What is in the photo?",
+    discard: "Discard photo",
+    send: "Send report",
+    saving: "Saving...",
+    saveFailed: "Could not save the photo report.",
+  },
+  marker: {
+    kinds: { issue: "Fault report", improvement: "Improvement idea" },
+    close: "Close",
+    photoOf: (title: string) => `Photo of: ${title}`,
+    reportPhoto: "Report photo",
+    loading: "Loading...",
+    noPhoto: "No photo yet",
+    photos: "Photos",
+    photoIndex: (number: number, total: number) =>
+      `Photo ${number} of ${total}`,
+    reportCount: (total: number) =>
+      `${total} ${total === 1 ? "report" : "reports"}`,
+    report: "Report",
+    loadingReport: "Loading report",
+    loadFailed: "Could not load the report.",
+    likeFailed: "Could not save the like.",
+    postFailed: "Could not post the comment.",
+    justNow: "just now",
+    to: "To",
+    subject: "Subject",
+    noEmail: "no email on record",
+    notAssigned: "not assigned yet",
+    ropsLabel: "ROPS innovation",
+    ropsLink: "See the innovation model on rops.krakow.pl",
+    officialResponse: "Official response",
+    comments: (total: number) =>
+      total === 0
+        ? "Comments"
+        : total === 1
+          ? "1 comment"
+          : `${total} comments`,
+    noComments: "Nobody has weighed in yet. Be the first.",
+    you: "You",
+    office: "Office",
+    resident: "Resident",
+    official: "Official",
+    likesUnlike: " likes, unlike",
+    likesLike: " likes, like",
+    newComment: "New comment",
+    writeComment: "Write a comment...",
+    posting: "Posting...",
+    post: "Post",
+    signInToComment: "Sign in to comment",
+    commentsTab: "Comments",
+    reportsTab: "Reports",
+    closePanel: "Close panel",
+    back: "Back",
+    reportsLoadFailed: "Could not load the reports.",
+    loadingReports: "Loading reports...",
+    noReports: "No reports to show.",
+    reportPhotoOf: (number: number, title: string) =>
+      `Photo ${number} of: ${title}`,
+    contactInstitution: "Contact institution",
+    recipientFailed: "Could not find a recipient.",
+    findingRecipient: "Finding a suggested recipient...",
+    recipientLoadFailed: "Could not load the suggested recipient.",
+    tryAgain: "Try again",
+    noInstitution: "No matching institution found.",
+    suggestedRecipient:
+      "Suggested recipient based on the report and location. Not assigned yet.",
+    checkingSignIn: "Checking sign-in...",
+    signInToFindRecipient: "Sign in to find a recipient",
+    offerPhoto: "Offer a photo",
+    offerPhotoHint: "This case has no photo yet. If you are there, add one.",
+    pendingPhoto: "Waiting for approval",
+    pendingPhotoAlt: (title: string) => `Photo offered for: ${title}`,
+    pendingPhotoHint:
+      "A resident offered this photo. It keeps its question mark until the person who filed the case takes it.",
+    usePhoto: "Use this photo",
+    turnDownPhoto: "Turn it down",
+    deciding: "Saving...",
+    decideFailed: "Could not save the decision.",
+    visualization: "Visualization",
+    visualizing: "Drawing the visualization...",
+    visualizationOf: (title: string) => `Visualization of: ${title}`,
+    visualizationFailed: "Could not draw the visualization.",
+  },
+  catalog: {
+    title: "Social Innovation Library",
+    lede: "Proven models and innovations from the library of ROPS Kraków, the regional social policy centre. Get inspired and propose bringing one to your neighbourhood.",
+    backToMap: "Go back to map",
+    search: "Search",
+    searchPlaceholder:
+      "Search innovations (e.g. seniors, board, integration)...",
+    categoryFilter: "Category",
+    all: (total: number) => `All (${total})`,
+    shown: (shown: number, total: number) => `${shown} of ${total} innovations`,
+    loadFailed: "Could not load the innovation library.",
+    loading: "Loading social innovations...",
+    empty: "No innovations match the chosen criteria.",
+    description: "What it is",
+    problem: "Problem",
+    targetGroup: "Target group",
+    beneficiaries: "For whom",
+    effectiveness: "Does it work",
+    authors: "Authors",
+    collapse: "Hide details",
+    details: "Innovation details",
+    source: "See on rops.krakow.pl",
+    proposeOnMap: "Propose on the map",
+    proposeTitle: "Go to the map and point out a location",
+  },
+  api: {
+    requestFailed: (status: number) => `Request failed (${status}).`,
   },
   about: {
     lede: "A unified platform for reporting local issues, proposing citizen initiatives, and tracking their progress. Changing your city without excessive complications.",
@@ -87,6 +408,22 @@ const en = {
     view: "View",
     recenterOnMe: "Recenter on me",
   },
+  filters: {
+    label: "Filter",
+    open: "Filter the pins on the map",
+    heading: "Show on the map",
+    kind: "Kind",
+    status: "Status",
+    author: "Author",
+    onlyMine: "Only my reports",
+    kinds: {
+      issue: "Fault reports",
+      improvement: "Improvement ideas",
+    } as Record<PinKind, string>,
+    shown: (shown: number, total: number) => `${shown} of ${total} pins shown`,
+    selectAll: "Show all",
+    clear: "Hide all",
+  },
   profile: {
     title: "Profile",
     section: "Section",
@@ -94,9 +431,7 @@ const en = {
       account: "Account",
       password: "Password",
       reports: "Reports",
-      preferences: "Preferences",
     },
-    language: "Language",
     close: "Close",
     edit: "Edit",
     cancel: "Cancel",
@@ -140,6 +475,7 @@ const pl: Messages = {
   language: {
     label: "Język",
     names: { en: "English", pl: "Polski" },
+    switchTo: (name: string) => `Zmień język na ${name}`,
   },
   nav: {
     skipToMap: "Przejdź do mapy",
@@ -150,10 +486,315 @@ const pl: Messages = {
     reports: "Zgłoszenia",
     initiatives: "Inicjatywy",
     about: "O nas",
+    notifications: "Powiadomienia",
+    unreadNotifications: (count: number) =>
+      `${plNotifications(count)} nieodczytanych`,
     signIn: "Zaloguj się",
     signedInAs: "Zalogowano jako ",
     myProfile: "Mój profil",
     logout: "Wyloguj",
+  },
+  reports: {
+    title: "Zgłoszenia",
+    lede: "Wszystkie sprawy z mapy na jednej liście, ze statusem i dyskusją pod każdą z nich. Konta urzędu i administratora zmieniają status i odpowiadają oficjalnymi komentarzami.",
+    backToMap: "Wróć do mapy",
+    signInToComment: "Zaloguj się, aby komentować",
+    loading: "Wczytywanie spraw...",
+    empty: "Brak spraw spełniających kryteria.",
+    search: "Szukaj",
+    searchPlaceholder: "Szukaj po tytule lub opisie...",
+    filter: "Zawęź listę",
+    allStatuses: "Wszystkie",
+    onlyMine: "Moje",
+    onlyMineHint: "Zostawia tylko sprawy z Twoim zgłoszeniem",
+    shown: (shown: number, total: number) => `${shown} z ${plCases(total)}`,
+    kinds: { issue: "Zgłoszenie usterki", improvement: "Pomysł na ulepszenie" },
+    statuses: {
+      created: "Utworzone",
+      reported: "Zgłoszone",
+      inprogress: "W trakcie",
+      finished: "Zakończone",
+    },
+    setStatus: "Ustaw status",
+    reportCount: (total: number) => plReports(total),
+    remove: "Usuń",
+    removeHint:
+      "Zdejmuje pinezkę z mapy razem ze zgłoszeniami, zdjęciami i komentarzami.",
+    confirmRemove: "Usuń bezpowrotnie",
+    removing: "Usuwanie...",
+    cancel: "Anuluj",
+    showComments: "Pokaż komentarze",
+    hideComments: "Ukryj komentarze",
+    loadingComments: "Wczytywanie komentarzy...",
+    noComments: "Nie ma jeszcze komentarzy.",
+    official: "Oficjalny",
+    office: "Urząd",
+    resident: "Mieszkaniec",
+    you: "Ty",
+    deleteComment: "Usuń",
+    composeLabel: "Nowy komentarz",
+    composePlaceholder: "Napisz komentarz...",
+    highlight: "Wyróżnij jako oficjalny",
+    post: "Opublikuj",
+    posting: "Publikowanie...",
+    somethingWrong: "Coś poszło nie tak.",
+    officialResponse: "Oficjalna odpowiedź",
+    photoOf: (title: string) => `Zdjęcie sprawy „${title}”`,
+    noPhoto: "zaproponuj zdjęcie",
+    proposePhoto: "Zaproponuj zdjęcie",
+    pendingPhoto: "Czeka na zatwierdzenie",
+    pendingPhotoAlt: (title: string) =>
+      `Zdjęcie zaproponowane do sprawy „${title}”`,
+    pendingPhotoHint:
+      "Ktoś zaproponował to zdjęcie. Znak zapytania zostaje, dopóki autor zgłoszenia go nie przyjmie.",
+    usePhoto: "Użyj tego zdjęcia",
+    turnDownPhoto: "Odrzuć",
+    deciding: "Zapisywanie...",
+    signInToProposePhoto: "Zaloguj się, aby zaproponować zdjęcie",
+  },
+  notifications: {
+    title: "Powiadomienia",
+    lede: "Co zdarzyło się w zgłoszeniach, które wysłałeś: jak daleko zaszły, co pod nimi napisano i jakie zdjęcia proponują sąsiedzi.",
+    backToMap: "Wróć do mapy",
+    loading: "Ładowanie powiadomień...",
+    empty: "Pusto :((",
+    emptyUnread: "Pusto :((",
+    loadFailed: "Nie udało się wczytać powiadomień.",
+    somethingWrong: "Coś poszło nie tak.",
+    signedOutTitle: "Zaloguj się, aby zobaczyć powiadomienia",
+    signedOutText:
+      "Powiadomienia dotyczą zgłoszeń wysłanych z Twojego konta, więc idą razem z nim.",
+    signIn: "Zaloguj się",
+    filter: "Pokaż",
+    all: "Wszystkie",
+    unreadOnly: "Nieodczytane",
+    shown: (shown: number, total: number) =>
+      `${shown} z ${plNotifications(total)}`,
+    unread: "Nowe",
+    markAllRead: "Oznacz wszystkie jako odczytane",
+    markRead: "Oznacz jako odczytane",
+    dismiss: "Usuń",
+    openCase: "Otwórz zgłoszenie",
+    caseGone: "Tego zgłoszenia nie ma już na mapie.",
+    justNow: "właśnie teraz",
+    kinds: {
+      status_inprogress: "Prace się rozpoczęły",
+      status_finished: "Zgłoszenie zakończone",
+      comment: "Nowy komentarz",
+      update: "Aktualizacja zgłoszenia",
+      photo_proposal: "Czeka na Ciebie zdjęcie",
+      photo_approved: "Twoje zdjęcie zostało przyjęte",
+      photo_rejected: "Twoje zdjęcie zostało odrzucone",
+    },
+    offeredPhotoAlt: (subject: string) =>
+      `Zdjęcie zaproponowane do: ${subject}`,
+    usePhoto: "Użyj tego zdjęcia",
+    turnDownPhoto: "Odrzuć",
+    deciding: "Zapisywanie...",
+    alreadyDecided: "Decyzja o tym zdjęciu już zapadła.",
+  },
+  status: {
+    created: "Utworzone",
+    reported: "Zgłoszone",
+    inprogress: "W trakcie",
+    finished: "Zakończone",
+    unknown: "Nieznany",
+  },
+  auth: {
+    signIn: "Zaloguj się",
+    createAccount: "Utwórz konto",
+    register: "Zarejestruj się",
+    mode: "Tryb",
+    firstName: "Imię",
+    lastName: "Nazwisko",
+    email: "E-mail",
+    phone: "Telefon",
+    contactHint:
+      "Podaj e-mail, numer telefonu lub oba. Każde z nich pozwala się zalogować.",
+    contactRequired: "Podaj adres e-mail lub numer telefonu.",
+    login: "E-mail lub telefon",
+    password: "Hasło",
+    passwordHint: (min: number) => `Co najmniej ${min} znaków.`,
+    close: "Zamknij",
+    pleaseWait: "Proszę czekać...",
+    googleFailed: "Logowanie przez Google nie powiodło się.",
+    somethingWrong: "Coś poszło nie tak.",
+  },
+  signOut: {
+    title: "Wyloguj",
+    question: "Czy na pewno chcesz się wylogować?",
+    cancel: "Anuluj",
+    confirm: "Wyloguj",
+  },
+  map: {
+    label: "Mapa",
+    canvasLabel:
+      "Mapa. Przesuwaj strzałkami, a przybliżaj i oddalaj klawiszami plus i minus.",
+    categoriesError: "Nie udało się wczytać kategorii zgłoszeń.",
+    newPin: "Nowa pinezka",
+    pinLabel: (
+      kind: PinKind,
+      number: number,
+      status: string | null,
+      reportCount: number,
+      description: string,
+    ) =>
+      `Pinezka ${kind === "improvement" ? "ulepszenia" : "usterki"} ${number}${
+        status ? `, ${status.toLowerCase()}` : ""
+      }${reportCount > 1 ? `, ${plReports(reportCount)}` : ""}: ${description}`,
+    pinPendingPhoto: "Jego zdjęcie czeka na zatwierdzenie.",
+  },
+  pin: {
+    issueTab: "Usterka / zgłoszenie",
+    initiativeTab: "Inicjatywa społeczna",
+    newMarker: "Nowe zgłoszenie",
+    description: "Opis",
+    descriptionPlaceholder: "Co się tu dzieje?",
+    image: "Zdjęcie",
+    chosenImage: "Wybrane zdjęcie",
+    noImage: "Dodaj zdjęcie",
+    changeImage: "Zmień zdjęcie",
+    chooseImage: "Wybierz zdjęcie",
+    close: "Zamknij",
+    cancel: "Anuluj",
+    saving: "Zapisywanie...",
+    addMarker: "Dodaj zgłoszenie",
+    saveFailed: "Nie udało się zapisać zgłoszenia.",
+    matchFound: (percent: number) =>
+      `Znaleziono podobną innowację (${percent}% zbieżności)`,
+    useProject: "Oprzyj się na tym projekcie",
+    saveAsNew: "Zgłoś jako nowy pomysł",
+    backToEdit: "Wróć do edycji",
+    ideaLabel: "Twój pomysł na to miejsce",
+    ideaPlaceholder:
+      "Opisz swoją propozycję inicjatywy lub innowacji w tej lokalizacji...",
+    checking: "Sprawdzam bazę...",
+    sendInitiative: "Wyślij inicjatywę",
+  },
+  photoProposal: {
+    title: "Zaproponuj zdjęcie",
+    hint: "O tym, czy zdjęcie zostanie, decyduje osoba, która wysłała zgłoszenie. Do tego czasu widać je ze znakiem zapytania.",
+    photoAlt: "Proponowane zdjęcie",
+    choose: "Wybierz zdjęcie",
+    change: "Zmień zdjęcie",
+    none: "Nie wybrano zdjęcia",
+    cancel: "Anuluj",
+    send: "Wyślij propozycję",
+    sending: "Wysyłanie...",
+    saveFailed: "Nie udało się wysłać propozycji zdjęcia.",
+  },
+  photoReport: {
+    title: "Zgłoszenie ze zdjęciem",
+    hint: "Zapiszemy je w miejscu, w którym jesteś.",
+    photoAlt: "Właśnie zrobione zdjęcie",
+    description: "Opis",
+    descriptionPlaceholder: "Co chcesz zglosić?",
+    discard: "Odrzuć zdjęcie",
+    send: "Wyślij zgłoszenie",
+    saving: "Zapisywanie...",
+    saveFailed: "Nie udało się zapisać zgłoszenia ze zdjęciem.",
+  },
+  marker: {
+    kinds: { issue: "Zgłoszenie usterki", improvement: "Pomysł na ulepszenie" },
+    close: "Zamknij",
+    photoOf: (title: string) => `Zdjęcie: ${title}`,
+    reportPhoto: "Zdjęcie ze zgłoszenia",
+    loading: "Wczytywanie...",
+    noPhoto: "Zaproponuj zdjęcie",
+    photos: "Zdjęcia",
+    photoIndex: (number: number, total: number) =>
+      `Zdjęcie ${number} z ${total}`,
+    reportCount: (total: number) => plReports(total),
+    report: "Zgłoszenie",
+    loadingReport: "Wczytywanie zgłoszenia",
+    loadFailed: "Nie udało się wczytać zgłoszenia.",
+    likeFailed: "Nie udało się zapisać polubienia.",
+    postFailed: "Nie udało się opublikować komentarza.",
+    justNow: "przed chwilą",
+    to: "Do",
+    subject: "Temat",
+    noEmail: "brak adresu e-mail w rejestrze",
+    notAssigned: "jeszcze nieprzypisane",
+    ropsLabel: "Innowacja ROPS",
+    ropsLink: "Zobacz model innowacji na rops.krakow.pl",
+    officialResponse: "Oficjalna odpowiedź",
+    comments: (total: number) =>
+      total === 0 ? "Komentarze" : plComments(total),
+    noComments: "Nikt jeszcze nie zabrał głosu. Bądź pierwszy.",
+    you: "Ty",
+    office: "Urząd",
+    resident: "Mieszkaniec",
+    official: "Oficjalny",
+    likesUnlike: " polubień, cofnij polubienie",
+    likesLike: " polubień, polub",
+    newComment: "Nowy komentarz",
+    writeComment: "Napisz komentarz...",
+    posting: "Publikowanie...",
+    post: "Opublikuj",
+    signInToComment: "Zaloguj się, aby komentować",
+    commentsTab: "Komentarze",
+    reportsTab: "Zgłoszenia",
+    closePanel: "Zamknij panel",
+    back: "Wstecz",
+    reportsLoadFailed: "Nie udało się wczytać zgłoszeń.",
+    loadingReports: "Wczytywanie zgłoszeń...",
+    noReports: "Brak zgłoszeń do wyświetlenia.",
+    reportPhotoOf: (number: number, title: string) =>
+      `Zdjęcie ${number}: ${title}`,
+    contactInstitution: "Skontaktuj się z instytucją",
+    recipientFailed: "Nie udało się znaleźć adresata.",
+    findingRecipient: "Szukanie sugerowanego adresata...",
+    recipientLoadFailed: "Nie udało się wczytać sugerowanego adresata.",
+    tryAgain: "Spróbuj ponownie",
+    noInstitution: "Nie znaleziono pasującej instytucji.",
+    suggestedRecipient:
+      "Adresat sugerowany na podstawie zgłoszenia i lokalizacji. Jeszcze nieprzypisany.",
+    checkingSignIn: "Sprawdzanie logowania...",
+    signInToFindRecipient: "Zaloguj się, aby znaleźć adresata",
+    offerPhoto: "Zaproponuj zdjęcie",
+    offerPhotoHint:
+      "To zgłoszenie nie ma jeszcze zdjęcia. Jeśli jesteś na miejscu, dodaj je.",
+    pendingPhoto: "Czeka na zatwierdzenie",
+    pendingPhotoAlt: (title: string) => `Zdjęcie zaproponowane do: ${title}`,
+    pendingPhotoHint:
+      "Ktoś zaproponował to zdjęcie. Znak zapytania zostaje, dopóki autor zgłoszenia go nie przyjmie.",
+    usePhoto: "Użyj tego zdjęcia",
+    turnDownPhoto: "Odrzuć",
+    deciding: "Zapisywanie...",
+    decideFailed: "Nie udało się zapisać decyzji.",
+    visualization: "Wizualizacja",
+    visualizing: "Rysowanie wizualizacji...",
+    visualizationOf: (title: string) => `Wizualizacja: ${title}`,
+    visualizationFailed: "Nie udało się narysować wizualizacji.",
+  },
+  catalog: {
+    title: "Biblioteka Innowacji Społecznych",
+    lede: "Sprawdzone modele i innowacje z biblioteki ROPS Kraków. Zainspiruj się i zaproponuj ich realizację w swojej okolicy.",
+    backToMap: "Wróć do mapy",
+    search: "Szukaj",
+    searchPlaceholder:
+      "Szukaj innowacji (np. seniorzy, tablica, integracja)...",
+    categoryFilter: "Kategoria",
+    all: (total: number) => `Wszystkie (${total})`,
+    shown: (shown: number, total: number) =>
+      `${shown} z ${plInnovations(total)}`,
+    loadFailed: "Nie udało się załadować biblioteki innowacji.",
+    loading: "Ładowanie innowacji społecznych...",
+    empty: "Nie znaleziono innowacji dla wybranych kryteriów.",
+    description: "Na czym polega",
+    problem: "Problem",
+    targetGroup: "Grupa docelowa",
+    beneficiaries: "Dla kogo",
+    effectiveness: "Czy to działa",
+    authors: "Autorzy",
+    collapse: "Zwiń szczegóły",
+    details: "Szczegóły innowacji",
+    source: "Zobacz na rops.krakow.pl",
+    proposeOnMap: "Zaproponuj na mapie",
+    proposeTitle: "Przejdź na mapę i wskaż lokalizację",
+  },
+  api: {
+    requestFailed: (status: number) => `Żądanie nie powiodło się (${status}).`,
   },
   about: {
     lede: "Jedna platforma do zgłaszania lokalnych problemów, proponowania inicjatyw obywatelskich i śledzenia ich postępów. Zmieniaj swoje miasto bez zbędnych komplikacji.",
@@ -209,6 +850,23 @@ const pl: Messages = {
     view: "Widok",
     recenterOnMe: "Wyśrodkuj na mnie",
   },
+  filters: {
+    label: "Filtruj",
+    open: "Filtruj pinezki na mapie",
+    heading: "Pokaż na mapie",
+    kind: "Rodzaj",
+    status: "Status",
+    author: "Autor",
+    onlyMine: "Moje zgłoszenia",
+    kinds: {
+      issue: "Usterki",
+      improvement: "Pomysły na ulepszenia",
+    } as Record<PinKind, string>,
+    shown: (shown: number, total: number) =>
+      `${shown} z ${total} pinezek na mapie`,
+    selectAll: "Pokaż wszystkie",
+    clear: "Ukryj wszystkie",
+  },
   profile: {
     title: "Profil",
     section: "Sekcja",
@@ -216,9 +874,7 @@ const pl: Messages = {
       account: "Konto",
       password: "Hasło",
       reports: "Zgłoszenia",
-      preferences: "Preferencje",
     },
-    language: "Język",
     close: "Zamknij",
     edit: "Edytuj",
     cancel: "Anuluj",
@@ -255,6 +911,16 @@ const pl: Messages = {
   },
 };
 
+/** Polish counts: 1 powiadomienie, 2-4 powiadomienia, 5+ powiadomień (with the teens). */
+function plNotifications(n: number) {
+  const last = n % 10;
+  const tens = n % 100;
+  if (n === 1) return "1 powiadomienie";
+  if (last >= 2 && last <= 4 && (tens < 12 || tens > 14))
+    return `${n} powiadomienia`;
+  return `${n} powiadomień`;
+}
+
 /** Polish counts: 1 zgłoszenie, 2-4 zgłoszenia, 5+ zgłoszeń (with the teens). */
 function plReports(n: number) {
   const last = n % 10;
@@ -263,6 +929,35 @@ function plReports(n: number) {
   if (last >= 2 && last <= 4 && (tens < 12 || tens > 14))
     return `${n} zgłoszenia`;
   return `${n} zgłoszeń`;
+}
+
+/** Polish counts: 1 sprawa, 2-4 sprawy, 5+ spraw (with the teens). */
+function plCases(n: number) {
+  const last = n % 10;
+  const tens = n % 100;
+  if (n === 1) return "1 sprawa";
+  if (last >= 2 && last <= 4 && (tens < 12 || tens > 14)) return `${n} sprawy`;
+  return `${n} spraw`;
+}
+
+/** Polish counts: 1 komentarz, 2-4 komentarze, 5+ komentarzy (with the teens). */
+function plComments(n: number) {
+  const last = n % 10;
+  const tens = n % 100;
+  if (n === 1) return "1 komentarz";
+  if (last >= 2 && last <= 4 && (tens < 12 || tens > 14))
+    return `${n} komentarze`;
+  return `${n} komentarzy`;
+}
+
+/** Polish counts: 1 innowacja, 2-4 innowacje, 5+ innowacji (with the teens). */
+function plInnovations(n: number) {
+  const last = n % 10;
+  const tens = n % 100;
+  if (n === 1) return "1 innowacja";
+  if (last >= 2 && last <= 4 && (tens < 12 || tens > 14))
+    return `${n} innowacje`;
+  return `${n} innowacji`;
 }
 
 export const messages: Record<Locale, Messages> = { en, pl };
