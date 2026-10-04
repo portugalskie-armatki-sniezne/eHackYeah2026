@@ -67,6 +67,26 @@ function formatDate(iso: string): string {
   });
 }
 
+function renderTextWithLinks(text: string) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  return parts.map((part, index) =>
+    urlRegex.test(part) ? (
+      <a
+        key={index}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="marker-dialog__link"
+      >
+        {part}
+      </a>
+    ) : (
+      part
+    ),
+  );
+}
+
 /**
  * The post a pin opens: the filing's photos, its title and letter to the
  * responsible body, its status, and the discussion under it. A native dialog
@@ -333,7 +353,9 @@ export default function MarkerDialog({
                 <dt>Subject</dt>
                 <dd>{letter.subject}</dd>
               </dl>
-              <p className="marker-dialog__text">{letter.body}</p>
+              <p className="marker-dialog__text">
+                {renderTextWithLinks(letter.body)}
+              </p>
             </div>
           )}
 
@@ -345,7 +367,9 @@ export default function MarkerDialog({
               <span className="marker-dialog__response-label">
                 Official response
               </span>
-              <p className="marker-dialog__text">{master.response}</p>
+              <p className="marker-dialog__text">
+                {renderTextWithLinks(master.response)}
+              </p>
             </aside>
           )}
         </div>
