@@ -1,6 +1,6 @@
 # Gemini (apps/gemini)
 
-Wewnętrzny serwis FastAPI do wizualizacji inicjatyw `improvement` przez Google Cloud (Vertex AI, obecnie Gemini Enterprise Agent Platform). [Gemini Flash](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-8-flash) (`gemini-3.8-flash`) analizuje opis i zdjęcia, a [Nano Banana 2](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/image-generation) (`gemini-3.1-flash-image`) generuje obraz na podstawie przygotowanego promptu i tych samych zdjęć. Serwis korzysta z `google-genai` i nie wymaga bazy danych. Główne API obsługuje autoryzację użytkownika, sprawdzenie kategorii zgłoszenia, limity i zapis historii obrazów. Kontrakt dla frontendu opisuje [integracja w API](../../api/docs/visualizations.md).
+Wewnętrzny serwis FastAPI do wizualizacji zgłoszeń przez Google Cloud (Vertex AI, obecnie Gemini Enterprise Agent Platform): inicjatywa `improvement` jest pokazywana jako zrealizowana, a usterka `issue` jako naprawiona. [Gemini Flash](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-8-flash) (`gemini-3.8-flash`) analizuje opis i zdjęcia, a [Nano Banana 2](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/image-generation) (`gemini-3.1-flash-image`) generuje obraz na podstawie przygotowanego promptu i tych samych zdjęć. Serwis korzysta z `google-genai` i nie wymaga bazy danych. Główne API obsługuje autoryzację użytkownika, sprawdzenie kategorii zgłoszenia, limity i zapis historii obrazów. Kontrakt dla frontendu opisuje [integracja w API](../../api/docs/visualizations.md).
 
 ## Uruchomienie lokalne
 
@@ -26,7 +26,7 @@ Wewnętrzny serwis FastAPI do wizualizacji inicjatyw `improvement` przez Google 
 
 Dokumentacja HTTP jest dostępna pod `http://127.0.0.1:8002/docs`.
 
-`UPLOAD_DIR` wskazuje katalog zdjęć współdzielony z API, tak jak w `notify`. Domyślnie jest to `apps/api/uploads`; ścieżki względne są liczone od `apps/api`. W kontenerze zamontuj wolumen `api_uploads` tylko do odczytu i ustaw `UPLOAD_DIR=/app/uploads`. Dane logowania GCP również montuj tylko do odczytu, wskazując ścieżkę wewnątrz kontenera w `GOOGLE_APPLICATION_CREDENTIALS`. Obraz działa jako UID 65534; przy pliku JSON ograniczonym do właściciela ustaw `GEMINI_UID` i `GEMINI_GID` na numeryczne identyfikatory właściciela pliku.
+`UPLOAD_DIR` wskazuje katalog zdjęć współdzielony z API, tak jak w `notify`. Domyślnie jest to `apps/api/uploads`; ścieżki względne są liczone od `apps/api`. W kontenerze zamontuj wolumen `api_uploads` tylko do odczytu pod `/app/uploads`; obraz ustawia domyślnie `UPLOAD_DIR=/app/uploads`, `GOOGLE_CLOUD_LOCATION=global` i `GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/gemini-service-account.json`, a `GOOGLE_CLOUD_PROJECT` pochodzi z `.env`. Dane logowania GCP montuj tylko do odczytu pod tą ścieżką albo wskaż inną w `GOOGLE_APPLICATION_CREDENTIALS`. Obraz działa jako UID 65534; przy pliku JSON ograniczonym do właściciela ustaw `GEMINI_UID` i `GEMINI_GID` na numeryczne identyfikatory właściciela pliku.
 
 ## Przykład Python
 
@@ -45,7 +45,9 @@ from app.gemini import generate_visualization
 from app.storage import read_photo
 
 photos = [read_photo("reports/11111111-1111-4111-8111-111111111111/22222222-2222-4222-8222-222222222222.jpg")]
-prompt, media_type, data = generate_visualization("Plac zabaw ze zjeżdżalnią, huśtawkami i piaskownicą.", photos)
+prompt, media_type, data = generate_visualization(
+    "improvement", "Plac zabaw ze zjeżdżalnią, huśtawkami i piaskownicą.", photos
+)
 ```
 
 ## HTTP
@@ -56,8 +58,8 @@ prompt, media_type, data = generate_visualization("Plac zabaw ze zjeżdżalnią,
 
 | Pole | Znaczenie |
 | --- | --- |
-| `report_type` | wymagane `"improvement"`; `"issue"` jest odrzucane |
-| `description` | wymagany, niepusty opis inicjatywy |
+| `report_type` | wymagane `"improvement"` (inicjatywa do zrealizowania) albo `"issue"` (usterka do naprawienia); wybiera reguły obrazu i promptu |
+| `description` | wymagany, niepusty opis inicjatywy albo usterki |
 | `photos` | 1-5 obiektów z `storage_key` zdjęć zapisanych przez API; JPEG, PNG lub WebP, do 10 MB każde i 20 MB łącznie |
 
 ```sh
@@ -67,7 +69,7 @@ curl --fail-with-body http://127.0.0.1:8002/generate \
   --output /tmp/gemini-visualization.json
 ```
 
-Zdjęcia muszą istnieć pod podanymi kluczami. Pierwsze wyznacza kadr wizualizacji, pozostałe dają kontekst tego samego miejsca. Wspólne reguły w `app/gemini.py` wymagają naturalnego wyglądu i zachowania otoczenia. Każde wywołanie generuje jeden obraz.
+Zdjęcia muszą istnieć pod podanymi kluczami. Pierwsze wyznacza kadr wizualizacji, pozostałe dają kontekst tego samego miejsca. Reguły w `app/gemini.py` wymagają naturalnego wyglądu i zachowania otoczenia; dla `improvement` zmienia się tylko obszar inicjatywy, dla `issue` tylko uszkodzone elementy z opisu, pokazane jako naprawione. Każde wywołanie generuje jeden obraz.
 
 Odpowiedź ma postać `{"prompt":"...","media_type":"image/png","image_base64":"..."}`. `image_base64` zawiera zakodowane bajty obrazu, bez prefiksu `data:`. Konektor czyta źródła ze wspólnego katalogu API. Główne API zapisuje wynik na wolumenie `api_uploads` i w tabeli `visualization_jobs`, oddzielnie od oryginalnych `report_photos`. Obsługiwane są także klucze `visualizations/<job_id>/<photo_id>.<extension>` oraz `visualizations/<job_id>/result.<extension>`.
 
@@ -75,7 +77,7 @@ Wywołanie wykonuje jedno żądanie do Flash i jedno do Nano Banana. Jeśli któ
 
 | Kod | Przyczyna |
 | --- | --- |
-| `422` | nieprawidłowe pola, typ inny niż `improvement`, niedozwolony klucz lub format zdjęcia |
+| `422` | nieprawidłowe pola, typ inny niż `improvement` lub `issue`, niedozwolony klucz lub format zdjęcia |
 | `404` | zdjęcie nie istnieje |
 | `413` | przekroczony rozmiar zdjęć |
 | `503` | brak Project ID, nieprawidłowe dane logowania GCP, przekroczony limit Gemini lub brak dostępu do pliku zdjęcia |

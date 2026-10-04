@@ -321,6 +321,10 @@ const en = {
     turnDownPhoto: "Turn it down",
     deciding: "Saving...",
     decideFailed: "Could not save the decision.",
+    visualization: "Visualization",
+    visualizing: "Drawing the visualization...",
+    visualizationOf: (title: string) => `Visualization of: ${title}`,
+    visualizationFailed: "Could not draw the visualization.",
   },
   catalog: {
     title: "Social Innovation Library",
@@ -758,6 +762,10 @@ const pl: Messages = {
     turnDownPhoto: "Odrzuć",
     deciding: "Zapisywanie...",
     decideFailed: "Nie udało się zapisać decyzji.",
+    visualization: "Wizualizacja",
+    visualizing: "Rysowanie wizualizacji...",
+    visualizationOf: (title: string) => `Wizualizacja: ${title}`,
+    visualizationFailed: "Nie udało się narysować wizualizacji.",
   },
   catalog: {
     title: "Biblioteka Innowacji Społecznych",

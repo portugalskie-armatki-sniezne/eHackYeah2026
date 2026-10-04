@@ -11,7 +11,8 @@ PHOTO = MOCK_DIR / "laka-po-deszczu-czyli-polana.jpg"
 
 def main() -> None:
     try:
-        prompt, media_type, data = generate_visualization(DESCRIPTION, [("image/jpeg", PHOTO.read_bytes())])
+        photos = [("image/jpeg", PHOTO.read_bytes())]
+        prompt, media_type, data = generate_visualization("improvement", DESCRIPTION, photos)
     except HTTPException as error:
         raise SystemExit(error.detail) from None
 
