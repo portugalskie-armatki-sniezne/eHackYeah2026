@@ -1,19 +1,24 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { SessionState } from "../api/session";
+import { useMessages } from "../i18n/locale";
+import type { Messages } from "../i18n/messages";
 import BrandMark from "./BrandMark";
 import useHashRoute from "./useHashRoute";
 import "./Navbar.css";
 
 type NavItem = {
   href: string;
-  label: string;
+  label: keyof Pick<
+    Messages["nav"],
+    "map" | "reports" | "initiatives" | "about"
+  >;
 };
 
 const items: NavItem[] = [
-  { href: "#map", label: "Map" },
-  { href: "#reports", label: "Reports" },
-  { href: "#initiatives", label: "Initiatives" },
-  { href: "#about", label: "About" },
+  { href: "#map", label: "map" },
+  { href: "#reports", label: "reports" },
+  { href: "#initiatives", label: "initiatives" },
+  { href: "#about", label: "about" },
 ];
 
 type NavbarProps = {
@@ -32,6 +37,7 @@ export default function Navbar({
   // only matters on narrow screens, where the list folds behind the hamburger
   const [open, setOpen] = useState(false);
   const menuId = useId();
+  const t = useMessages();
   // the map is current for every hash that is not its own page
   const current = `#${useHashRoute()}`;
 
@@ -51,7 +57,7 @@ export default function Navbar({
   return (
     <header className="navbar">
       <a className="navbar__skip" href="#main">
-        Skip to map
+        {t.nav.skipToMap}
       </a>
       <div
         className={open ? "navbar__frame navbar__frame--open" : "navbar__frame"}
@@ -75,10 +81,10 @@ export default function Navbar({
             <span className="navbar__burger-bar" />
           </span>
           <span className="visually-hidden">
-            {open ? "Close menu" : "Open menu"}
+            {open ? t.nav.closeMenu : t.nav.openMenu}
           </span>
         </button>
-        <nav id={menuId} className="navbar__nav" aria-label="Main">
+        <nav id={menuId} className="navbar__nav" aria-label={t.nav.main}>
           <ul className="navbar__list">
             {items.map((item, index) => (
               <li key={item.href} className="navbar__item">
@@ -91,7 +97,7 @@ export default function Navbar({
                   aria-current={item.href === current ? "page" : undefined}
                   onClick={() => setOpen(false)}
                 >
-                  {item.label}
+                  {t.nav[item.label]}
                 </a>
               </li>
             ))}
@@ -120,7 +126,7 @@ export default function Navbar({
                   onSignIn();
                 }}
               >
-                Sign in
+                {t.nav.signIn}
               </button>
             )}
           </div>
@@ -144,6 +150,7 @@ function AccountMenu({ name, onProfile, onSignOut }: AccountMenuProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const menuId = useId();
+  const t = useMessages();
 
   useEffect(() => {
     if (!open) {
@@ -191,7 +198,7 @@ function AccountMenu({ name, onProfile, onSignOut }: AccountMenuProps) {
         aria-controls={menuId}
         onClick={() => setOpen((current) => !current)}
       >
-        <span className="visually-hidden">Signed in as </span>
+        <span className="visually-hidden">{t.nav.signedInAs}</span>
         <span className="navbar__user-name">{name}</span>
         <span className="navbar__caret" aria-hidden="true" />
       </button>
@@ -202,7 +209,7 @@ function AccountMenu({ name, onProfile, onSignOut }: AccountMenuProps) {
             className="navbar__menu-item"
             onClick={() => choose(onProfile)}
           >
-            My Profile
+            {t.nav.myProfile}
           </button>
         </li>
         <li>
@@ -211,7 +218,7 @@ function AccountMenu({ name, onProfile, onSignOut }: AccountMenuProps) {
             className="navbar__menu-item"
             onClick={() => choose(onSignOut)}
           >
-            Logout
+            {t.nav.logout}
           </button>
         </li>
       </ul>
