@@ -35,7 +35,9 @@ class Location(BaseModel):
 
 
 class Photo(BaseModel):
-    storage_key: str = Field(pattern=r"^reports/[0-9a-f-]{36}/[0-9a-f-]{36}\.(jpg|png|webp)$")
+    storage_key: str = Field(
+        pattern=r"^reports/[0-9a-f-]{36}/[0-9a-f-]{36}(?:_generated(?:_[0-9a-f-]{36})?)?\.(jpg|png|webp)$"
+    )
 
 
 class Mail(BaseModel):
@@ -49,7 +51,7 @@ class Mail(BaseModel):
     last_name: Name | None = None
     anonymous: bool = Field(default=False, strict=True)
     location: Location | None = None
-    photos: list[Photo] = Field(default_factory=list, max_length=5)
+    photos: list[Photo] = Field(default_factory=list, max_length=6)
 
     @model_validator(mode="after")
     def require_reporter(self) -> "Mail":
