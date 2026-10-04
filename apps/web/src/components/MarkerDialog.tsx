@@ -541,12 +541,16 @@ export default function MarkerDialog({
                             }
                             aria-hidden="true"
                           >
-                            {mine ? myInitial : "R"}
+                            {mine
+                              ? myInitial
+                              : (
+                                  comment.author_first_name[0] ?? "?"
+                                ).toUpperCase()}
                           </span>
                           <div className="marker-dialog__bubble">
                             <div className="marker-dialog__comment-head">
                               <span className="marker-dialog__author">
-                                {mine ? "You" : "Resident"}
+                                {mine ? "You" : comment.author_first_name}
                               </span>
                               <time
                                 className="marker-dialog__when"

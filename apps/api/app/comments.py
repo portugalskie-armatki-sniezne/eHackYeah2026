@@ -12,7 +12,8 @@ from app.common import Connection, Limit, Offset, Page, Text, fetch_page
 router = APIRouter(tags=["comments"])
 
 COMMENT_COLUMNS = sql.SQL(
-    "c.id, c.master_report_id, c.user_id, c.content, "
+    "c.id, c.master_report_id, c.user_id, "
+    "(SELECT u.first_name FROM users u WHERE u.id = c.user_id) AS author_first_name, c.content, "
     "(SELECT count(*) FROM master_report_comment_likes l WHERE l.comment_id = c.id) AS like_count, "
     "EXISTS (SELECT 1 FROM master_report_comment_likes l "
     "WHERE l.comment_id = c.id AND l.user_id = %(viewer_id)s) AS liked_by_me, "
@@ -24,6 +25,7 @@ class Comment(BaseModel):
     id: UUID
     master_report_id: UUID
     user_id: UUID
+    author_first_name: str
     content: str
     like_count: int
     # false for anonymous requests.
