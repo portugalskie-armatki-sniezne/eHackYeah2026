@@ -18,6 +18,7 @@ erDiagram
     users ||--o{ master_report_comments : "user_id"
     master_report_comments ||--o{ master_report_comment_likes : "comment_id"
     users ||--o{ master_report_comment_likes : "user_id"
+    projects ||--o{ project_chunks : "project_slug"
 
     users {
         uuid id PK
@@ -78,6 +79,7 @@ erDiagram
         uuid master_report_id FK
         uuid user_id FK
         text content
+        boolean highlighted
         timestamptz created_at
     }
     master_report_comment_likes {
@@ -220,6 +222,7 @@ Ograniczenie: UNIQUE (report_id, storage_key).
 | master_report_id | uuid | NOT NULL, FK -> master_reports(id), ON DELETE CASCADE |
 | user_id | uuid | NOT NULL, FK -> users(id), bez akcji przy usuwaniu |
 | content | text | NOT NULL, niepusty po przycięciu spacji |
+| highlighted | boolean | NOT NULL, domyślnie `false`; komentarz `office` lub `admin` wyróżniony w dyskusji |
 | created_at | timestamptz | NOT NULL |
 
 Indeksy: `(master_report_id, created_at, id)` do odczytu komentarzy w kolejności oraz `user_id`.
@@ -319,6 +322,48 @@ za miasto. Brak potwierdzonego kodu pozostaje NULL; nie zgadujemy go z nazwy lub
 
 Indeksy: `teryt_code`, `entity_type`.
 
+### projects
+
+Biblioteka innowacji społecznych ROPS Kraków, importowana z `db/seeds/rops_projects.json`
+przez `tooling/seed/import_projects.py`. Migracja 10 tworzy tabelę; rekordy są
+upsertowane po `slug`. Kolumna `summary_vector vector(1024)` powstaje tylko, gdy obraz bazy
+ma rozszerzenie pgvector; obraz PostGIS go nie ma, a API używa jej tylko dla zapytań
+z gotowym wektorem.
+
+| Kolumna | Typ | Uwagi |
+| --- | --- | --- |
+| id | integer | PK, SERIAL |
+| slug | varchar(255) | NOT NULL, UNIQUE; slug innowacji z adresu jej strony |
+| title | text | NOT NULL, nazwa innowacji |
+| category | text | NOT NULL, nazwa kategorii biblioteki, np. `Dla seniorów` |
+| category_slug | varchar(255) | NULL, slug kategorii z adresu strony |
+| url | text | NOT NULL, adres strony innowacji na rops.krakow.pl |
+| summary | text | NOT NULL, lead z listy kategorii |
+| description | text | NULL, sekcja "Na czym polega rozwiązanie?" |
+| problem | text | NULL, sekcja "Jakich problemów dotyczy innowacja?" |
+| target_group | text | NULL, sekcja "Grupa docelowa" |
+| beneficiaries | text | NULL, sekcja "Kto może skorzystać z innowacji?" |
+| effectiveness | text | NULL, sekcja "Czy to działa?" |
+| authors | text | NULL, sekcja "Autorzy", nazwiska po przecinku |
+| created_at | timestamptz | NOT NULL, domyślnie NOW() |
+
+### project_chunks
+
+Teksty innowacji po jednym wierszu na sekcję, przeszukiwane przez `POST /projects/search`
+w poszukiwaniu dopasowanego fragmentu. Import zapisuje je na nowo dla każdej
+innowacji ze zbioru. Kolumna `tsv` używa konfiguracji `polish`, utworzonej przez
+migrację 10 jako kopia `simple`, gdy baza jej nie ma.
+
+| Kolumna | Typ | Uwagi |
+| --- | --- | --- |
+| id | integer | PK, SERIAL |
+| project_slug | varchar(255) | NOT NULL, FK do `projects.slug`, ON DELETE CASCADE |
+| chunk_index | integer | NOT NULL, kolejność sekcji na stronie |
+| source_file | text | NULL, adres strony innowacji |
+| content | text | NOT NULL, tekst sekcji |
+| tsv | tsvector | kolumna generowana z `content`, indeks GIN |
+| created_at | timestamptz | NOT NULL, domyślnie NOW() |
+
 ## Reguły usuwania
 
 | Usuwany rekord | Skutek |
@@ -354,6 +399,12 @@ i kody gmin ustalone przez ULDK. Źródła i wyjątki są opisane w TESTING.md.
 Obejmuje ZDMK, ZTP, MPK, Mobilis, MPO, ZZM, ZIW, Wodociągi Miasta Krakowa, MPEC
 oraz Straż Miejską, a także inne jednostki z Krakowa i Małopolski. Nie jest pełnym
 wykazem regionalnym. Brakujące lub niejednoznaczne dane pozostają NULL.
+
+Zbiór `db/seeds/rops_projects.json` zawiera bibliotekę innowacji społecznych
+[ROPS Kraków](https://rops.krakow.pl/innowacje-spoleczne/biblioteka-innowacji-spolecznych),
+zebraną przez `tooling/seed/collect_projects.py` ze stron kategorii i stron innowacji.
+Data zbioru jest zapisana w polu `collected_on`. Innowacja wymieniona w dwóch kategoriach
+zachowuje pierwszą z nich.
 
 Każda jednostka ma `source_urls` i `verified_on`. Data oznacza odczyt źródła,
 nie potwierdzenie aktualności wszystkich danych. Uzupełnienia są przechowywane

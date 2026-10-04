@@ -113,15 +113,35 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* The category pictogram is struck with the outline's pen and left square at the
-   ends, so the bar of the "!" and the dot under it are cut the same way. Like the
-   outline it keeps that one pen however far the head opens, rather than inking a
-   thicker line, which is why the dot is a stroke and not a filled square. */
+/* The status pictogram, the one the reports page's badge wears, struck with the
+   outline's pen and cut square at the ends the way the badge cuts it. Like the
+   outline it keeps that one pen however far the head opens, rather than inking
+   a thicker line. vector-effect is not inherited, so it goes on the shapes. */
 .event-pin__glyph {
   fill: none;
   stroke: var(--ink);
   stroke-width: 2.5;
+  stroke-linecap: square;
+  stroke-linejoin: round;
+}
+
+.event-pin__glyph > * {
   vector-effect: non-scaling-stroke;
+}
+
+.event-pin__glyph .status-glyph__fill {
+  fill: var(--ink);
+  stroke: none;
+}
+
+/* The paper takes the badge's colour for the status, needle and head alike so no
+   seam shows at the join: amber while the work is on, green once it is done. */
+.event-pin--inprogress .event-pin__paper {
+  fill: var(--amber-ghost);
+}
+
+.event-pin--finished .event-pin__paper {
+  fill: var(--green);
 }
 
 /* How many filings the pin stands for: the chrome's amber tile, straddling the

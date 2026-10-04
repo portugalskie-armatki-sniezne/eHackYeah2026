@@ -4,7 +4,7 @@ from uuid import UUID
 import psycopg
 from fastapi import APIRouter, HTTPException, Response, status
 from psycopg import errors, sql
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
 from app.auth import AdminUser, StaffUser
 from app.common import (
@@ -21,7 +21,7 @@ from app.common import (
     location_json,
     reject_nulls,
 )
-from app.photos import PHOTO_COLUMNS, PHOTO_ORDER, Photo
+from app.photos import PHOTO_COLUMNS, PHOTO_ORDER, Photo, photo_file_url
 
 router = APIRouter(prefix="/master-reports", tags=["master reports"])
 
@@ -30,6 +30,8 @@ MASTER_REPORT_COLUMNS = sql.SQL(
     "m.title, m.description, "
     "{location} AS location, m.response, "
     "(SELECT count(*) FROM reports r WHERE r.master_report_id = m.id) AS report_count, "
+    "(SELECT p.id FROM report_photos p JOIN reports r ON r.id = p.report_id "
+    f"WHERE r.master_report_id = m.id ORDER BY {PHOTO_ORDER} LIMIT 1) AS photo_id, "
     "m.edited_at, m.created_at"
 ).format(location=location_json("m"))
 
@@ -54,8 +56,16 @@ class MasterReport(BaseModel):
     location: Location
     response: str | None
     report_count: int
+    # the earliest photo among the master's reports, which the map shows on the pin
+    # without fetching every master's detail; the list carries it as photo_url only.
+    photo_id: UUID | None = Field(exclude=True)
     edited_at: datetime
     created_at: datetime
+
+    @computed_field
+    @property
+    def photo_url(self) -> str | None:
+        return photo_file_url(self.photo_id) if self.photo_id else None
 
 
 class MasterReportDetail(MasterReport):

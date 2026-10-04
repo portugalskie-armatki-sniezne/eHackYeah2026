@@ -1,56 +1,76 @@
+/* The initiatives page is the reports page's sheet with the ROPS library on it:
+   the same drawn frame on the drafting grid, scrolling on its own, with the
+   innovations ruled down it as paper cards. */
 .catalog {
-  position: relative;
-  min-height: calc(100dvh - 3.75rem);
-  padding: 1.5rem 1rem 3rem;
-  background: var(--surface-canvas);
-  color: var(--ink);
+  --catalog-inset: 0.75rem;
+
+  position: fixed;
+  inset: 0;
+  padding: calc(var(--catalog-inset) + var(--safe-top))
+    calc(var(--catalog-inset) + var(--scaffold-offset) + var(--safe-right))
+    calc(var(--catalog-inset) + var(--scaffold-offset) + var(--safe-bottom))
+    calc(var(--catalog-inset) + var(--safe-left));
+  background: var(--paper);
 }
 
 .catalog__frame {
-  max-width: 72rem;
-  margin: 0 auto;
+  height: 100%;
+  overflow: auto;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background-color: #efe8d6;
+  background-image:
+    linear-gradient(to right, rgba(20, 20, 20, 0.07) 1px, transparent 0),
+    linear-gradient(to bottom, rgba(20, 20, 20, 0.07) 1px, transparent 0);
+  background-size: 2rem 2rem;
+  box-shadow: var(--scaffold-shadow);
 }
 
+/* The column is as wide as the navbar and starts below it. */
 .catalog__sheet {
-  padding: 2rem 2.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: min(100%, 62rem);
+  margin: 0 auto;
+  padding: calc(6.5rem + var(--safe-top)) 1.5rem 3rem;
+}
+
+.catalog__header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1.5rem;
   border: var(--scaffold-line) solid var(--ink);
   border-radius: var(--scaffold-radius);
   background: var(--paper);
   box-shadow: var(--scaffold-shadow);
 }
 
-.catalog__header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: var(--scaffold-line) solid var(--ink);
-}
-
 .catalog__title {
-  margin: 0 0 0.5rem;
-  font-size: clamp(1.5rem, 2.5vw + 1rem, 2.25rem);
+  margin: 0;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
   font-weight: 800;
+  line-height: 1.05;
   letter-spacing: -0.02em;
-  line-height: 1.15;
 }
 
 .catalog__lede {
+  max-width: 38rem;
   margin: 0;
-  max-width: 44rem;
   font-size: 1rem;
   line-height: 1.5;
   color: var(--ink-soft);
 }
 
-.catalog__back-button {
+/* Buttons are the toolbar's outlined tiles on amber blocks. */
+.catalog__button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 2.25rem;
-  padding: 0 1rem;
+  padding: 0 0.875rem;
   border: var(--scaffold-line) solid var(--ink);
   border-radius: var(--scaffold-radius);
   background: var(--paper);
@@ -58,7 +78,7 @@
   font: inherit;
   font-size: 0.8125rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
@@ -68,45 +88,86 @@
     background-color 120ms ease;
 }
 
-.catalog__back-button:hover {
+.catalog__button:hover {
   background: var(--amber-ghost);
   box-shadow: 4px 4px 0 var(--amber);
   transform: translate(-1px, -1px);
 }
 
-.catalog__controls {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1.5rem 0;
-  border-bottom: var(--scaffold-line) solid var(--ink);
+.catalog__button:active {
+  box-shadow: 0 0 0 var(--amber);
+  transform: translate(2px, 2px);
 }
 
-.catalog__search-input {
+.catalog__button--primary {
+  background: var(--amber);
+  box-shadow: var(--scaffold-shadow-ink);
+  transform: translate(-1px, -1px);
+}
+
+.catalog__button--primary:hover {
+  background: var(--amber);
+  box-shadow: var(--scaffold-shadow-ink);
+}
+
+.catalog__state {
+  margin: 0;
+  padding: 2rem 1rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.catalog__error {
+  margin: 0;
+  padding: 0.5rem 0.625rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--amber-ghost);
+  font-size: 0.875rem;
+}
+
+/* Search and the category pills share one ruled strip. */
+.catalog__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 0.875rem 1rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+}
+
+.catalog__search {
+  flex: 1 1 16rem;
+}
+
+.catalog__input {
   width: 100%;
-  max-width: 36rem;
-  padding: 0.625rem 0.875rem;
+  min-height: 2.25rem;
+  padding: 0.375rem 0.625rem;
   border: var(--scaffold-line) solid var(--ink);
   border-radius: var(--scaffold-radius);
   background: var(--paper);
   color: var(--ink);
   font: inherit;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
 }
 
-.catalog__search-input:focus-visible {
-  outline: var(--scaffold-line) solid var(--focus);
-  outline-offset: 2px;
+.catalog__input::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.7;
 }
 
-.catalog__categories {
+.catalog__pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.375rem;
 }
 
-.catalog__cat-pill {
-  padding: 0.35rem 0.75rem;
+.catalog__pill {
+  padding: 0.3rem 0.75rem;
   border: var(--scaffold-line) solid var(--ink);
   border-radius: 999px;
   background: var(--paper);
@@ -115,175 +176,193 @@
   font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;
-  transition:
-    transform 100ms ease,
-    background-color 100ms ease,
-    box-shadow 100ms ease;
 }
 
-.catalog__cat-pill:hover {
+.catalog__pill:hover {
   background: var(--amber-ghost);
-  transform: translate(-1px, -1px);
 }
 
-.catalog__cat-pill--active {
+.catalog__pill[aria-pressed="true"] {
   background: var(--amber);
   box-shadow: 2px 2px 0 var(--ink);
 }
 
-.catalog__error {
-  padding: 0.75rem 1rem;
-  margin: 1.5rem 0 0;
-  border: var(--scaffold-line) solid #e05252;
-  border-radius: var(--scaffold-radius);
-  background: #fdf2f2;
-  color: #c53030;
-  font-weight: 600;
-}
-
-.catalog__loading,
-.catalog__empty {
-  padding: 3rem 1rem;
-  text-align: center;
-  font-size: 1rem;
+.catalog__count {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--ink-soft);
-  font-weight: 600;
 }
 
-/* Flashcards grid */
-.catalog__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
-  gap: 1.25rem;
-  margin-top: 1.75rem;
+.catalog__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
+/* Each innovation is a paper card with an ink shadow, like the reports page's cases. */
 .catalog__card {
   display: flex;
   flex-direction: column;
+  gap: 0.875rem;
   padding: 1.25rem;
   border: var(--scaffold-line) solid var(--ink);
   border-radius: var(--scaffold-radius);
   background: var(--paper);
   box-shadow: 3px 3px 0 var(--ink);
-  transition:
-    transform 120ms ease,
-    box-shadow 120ms ease;
 }
 
-.catalog__card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0 var(--amber);
+.catalog__card-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.catalog__card-badge {
-  align-self: flex-start;
-  padding: 0.2rem 0.5rem;
-  margin-bottom: 0.75rem;
-  border: 1.5px solid var(--ink);
-  border-radius: 999px;
+.catalog__card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+/* The category is an outlined tile like the status badge. */
+.catalog__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.625rem;
+  padding: 0 0.5rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
   background: var(--surface-section);
-  color: var(--ink-soft);
   font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .catalog__card-title {
-  margin: 0 0 0.5rem;
-  font-size: 1.125rem;
+  margin: 0;
+  font-size: 1.25rem;
   font-weight: 800;
   line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
-.catalog__card-summary {
-  margin: 0 0 1rem;
-  font-size: 0.84375rem;
-  line-height: 1.45;
-  color: var(--ink);
-  flex-grow: 1;
-}
-
-.catalog__card-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  border-top: 1px dashed var(--ink-soft);
-  background: var(--surface-section);
-  border-radius: var(--scaffold-radius);
-  font-size: 0.8125rem;
-  line-height: 1.35;
-}
-
-.catalog__card-section strong {
-  display: block;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  margin-bottom: 0.125rem;
-}
-
-.catalog__card-section p {
+.catalog__card-text {
   margin: 0;
+  font-size: 0.9375rem;
   white-space: pre-wrap;
 }
 
-.catalog__card-footer {
+.catalog__actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  margin-top: auto;
-  padding-top: 0.75rem;
+  gap: 0.75rem;
+  padding-top: 0.875rem;
   border-top: var(--scaffold-line) solid var(--ink);
 }
 
-.catalog__card-btn-more {
-  border: none;
-  background: transparent;
+/* The page's sections fold under the card on sectioned paper, like a thread. */
+.catalog__more {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0 -1.25rem -1.25rem;
+  padding: 0.75rem 1.25rem 1rem;
+  border-top: var(--scaffold-line) solid var(--ink);
+  background: var(--surface-section);
+}
+
+.catalog__fold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--ink);
   font: inherit;
   font-size: 0.75rem;
   font-weight: 700;
-  text-decoration: underline;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   cursor: pointer;
-  padding: 0.25rem 0;
 }
 
-.catalog__card-btn-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.35rem 0.75rem;
+/* A small ink triangle that turns over while the sections are open. */
+.catalog__caret {
+  flex: none;
+  border-top: 5px solid currentColor;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  transition: transform 120ms ease;
+}
+
+.catalog__fold[aria-expanded="true"] .catalog__caret {
+  transform: rotate(180deg);
+}
+
+.catalog__details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.catalog__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.625rem 0.75rem;
   border: var(--scaffold-line) solid var(--ink);
   border-radius: var(--scaffold-radius);
-  background: var(--amber);
-  color: var(--ink);
-  font: inherit;
-  font-size: 0.75rem;
-  font-weight: 800;
-  text-decoration: none;
-  cursor: pointer;
-  transition:
-    transform 100ms ease,
-    box-shadow 100ms ease;
+  background: var(--paper);
 }
 
-.catalog__card-btn-action:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 2px 2px 0 var(--ink);
+.catalog__section dt {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
 }
 
-@media (max-width: 48rem) {
+.catalog__section dd {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalog__button,
+  .catalog__caret {
+    transition: none;
+  }
+}
+
+/* Phones: the sheet hugs the edges and the cards lose their side padding. */
+@media (max-width: 40rem) {
   .catalog__sheet {
-    padding: 1.25rem;
+    padding: calc(5.5rem + var(--safe-top)) 0.75rem 2rem;
   }
 
-  .catalog__grid {
-    grid-template-columns: 1fr;
+  .catalog__header,
+  .catalog__card {
+    padding: 1rem;
+  }
+
+  .catalog__more {
+    margin: 0 -1rem -1rem;
+    padding: 0.75rem 1rem 1rem;
   }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { authApi } from "../api/auth";
 import { signIn, signInWithGoogle } from "../api/session";
+import { useMessages } from "../i18n/locale";
 import GoogleButton from "./GoogleButton";
 import "./AuthDialog.css";
 
@@ -30,6 +31,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
   const [error, setError] = useState<string | null>(null);
   const busyRef = useRef(false);
   const id = useId();
+  const t = useMessages().auth;
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -50,7 +52,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
     }
     const contact = { email: email.trim(), phone: phone.trim() };
     if (!contact.email && !contact.phone) {
-      throw new Error("Enter an email address or a phone number.");
+      throw new Error(t.contactRequired);
     }
     await authApi.register({
       first_name: firstName.trim(),
@@ -82,9 +84,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
       await action();
       onClose();
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Something went wrong.",
-      );
+      setError(error instanceof Error ? error.message : t.somethingWrong);
     } finally {
       busyRef.current = false;
       setBusy(false);
@@ -97,7 +97,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
   };
 
   const registering = mode === "register";
-  const title = registering ? "Create account" : "Sign in";
+  const title = registering ? t.createAccount : t.signIn;
 
   return (
     <dialog
@@ -114,7 +114,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
           <h2 id={`${id}-title`} className="auth-dialog__title">
             {title}
           </h2>
-          <div className="auth-dialog__switch" role="group" aria-label="Mode">
+          <div className="auth-dialog__switch" role="group" aria-label={t.mode}>
             <button
               type="button"
               className="auth-dialog__tab"
@@ -122,7 +122,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
               disabled={busy}
               onClick={() => switchMode("sign-in")}
             >
-              Sign in
+              {t.signIn}
             </button>
             <button
               type="button"
@@ -131,7 +131,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
               disabled={busy}
               onClick={() => switchMode("register")}
             >
-              Register
+              {t.register}
             </button>
           </div>
         </header>
@@ -147,7 +147,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
             <div className="auth-dialog__row">
               <div className="auth-dialog__field">
                 <label className="auth-dialog__label" htmlFor={`${id}-first`}>
-                  First name
+                  {t.firstName}
                 </label>
                 <input
                   id={`${id}-first`}
@@ -162,7 +162,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
               </div>
               <div className="auth-dialog__field">
                 <label className="auth-dialog__label" htmlFor={`${id}-last`}>
-                  Last name
+                  {t.lastName}
                 </label>
                 <input
                   id={`${id}-last`}
@@ -178,7 +178,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
             </div>
             <div className="auth-dialog__field">
               <label className="auth-dialog__label" htmlFor={`${id}-email`}>
-                Email
+                {t.email}
               </label>
               <input
                 id={`${id}-email`}
@@ -194,7 +194,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
             </div>
             <div className="auth-dialog__field">
               <label className="auth-dialog__label" htmlFor={`${id}-phone`}>
-                Phone
+                {t.phone}
               </label>
               <input
                 id={`${id}-phone`}
@@ -208,15 +208,14 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
                 onChange={(event) => setPhone(event.target.value)}
               />
               <p id={`${id}-contact-hint`} className="auth-dialog__hint">
-                Enter an email, a phone number, or both. Either one signs you
-                in.
+                {t.contactHint}
               </p>
             </div>
           </>
         ) : (
           <div className="auth-dialog__field">
             <label className="auth-dialog__label" htmlFor={`${id}-login`}>
-              Email or phone
+              {t.login}
             </label>
             <input
               id={`${id}-login`}
@@ -233,7 +232,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
 
         <div className="auth-dialog__field">
           <label className="auth-dialog__label" htmlFor={`${id}-password`}>
-            Password
+            {t.password}
           </label>
           <input
             id={`${id}-password`}
@@ -250,7 +249,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
           />
           {registering && (
             <p id={`${id}-password-hint`} className="auth-dialog__hint">
-              At least {MIN_PASSWORD_LENGTH} characters.
+              {t.passwordHint(MIN_PASSWORD_LENGTH)}
             </p>
           )}
         </div>
@@ -262,14 +261,14 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
             onClick={() => dialogRef.current?.close()}
             disabled={busy}
           >
-            Close
+            {t.close}
           </button>
           <button
             type="submit"
             className="auth-dialog__button auth-dialog__button--primary"
             disabled={busy}
           >
-            {busy ? "Please wait..." : title}
+            {busy ? t.pleaseWait : title}
           </button>
         </footer>
 
@@ -278,7 +277,7 @@ export default function AuthDialog({ onClose }: AuthDialogProps) {
           onCredential={(credential) =>
             void run(() => signInWithGoogle(credential))
           }
-          onError={() => setError("Google sign-in failed.")}
+          onError={() => setError(t.googleFailed)}
         />
       </form>
     </dialog>

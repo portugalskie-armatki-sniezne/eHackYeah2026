@@ -523,6 +523,31 @@
   transform: rotate(45deg);
 }
 
+/* An office's comment is slipped in on amber with an ink edge, so it reads as
+   the official word among the residents' bubbles. */
+.marker-dialog__comment--official .marker-dialog__bubble {
+  border-width: var(--scaffold-line);
+  background: var(--amber-ghost);
+  box-shadow: 3px 3px 0 var(--amber);
+}
+
+.marker-dialog__comment--official .marker-dialog__bubble::before {
+  border-width: var(--scaffold-line);
+  background: var(--amber-ghost);
+}
+
+.marker-dialog__official {
+  margin-left: 0.5rem;
+  padding: 0.0625rem 0.375rem;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--amber);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .marker-dialog__comment-head {
   display: flex;
   justify-content: space-between;

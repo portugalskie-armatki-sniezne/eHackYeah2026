@@ -107,6 +107,15 @@ def main():
         query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
         print("PASS: master reports, statuses, institutions, comments, likes, and constraints", flush=True)
         compose("run", "--rm", "--no-deps", "db-migrator", "down")
+        if query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'public' "
+                 "AND table_name = 'master_report_comments' AND column_name = 'highlighted';") != "0":
+            raise RuntimeError("Comment highlight rollback left the column behind")
+        print("PASS: comment highlight migration rolled back successfully", flush=True)
+        compose("run", "--rm", "--no-deps", "db-migrator", "down")
+        if query("SELECT to_regclass('projects') IS NULL AND to_regclass('project_chunks') IS NULL;") != "t":
+            raise RuntimeError("Innovation library rollback left its tables behind")
+        print("PASS: innovation library migration rolled back successfully", flush=True)
+        compose("run", "--rm", "--no-deps", "db-migrator", "down")
         if query("SELECT to_regclass('report_visualization_attempts') IS NULL;") != "t":
             raise RuntimeError("Visualization attempts migration rollback left its table behind")
         print("PASS: visualization attempts migration rolled back successfully", flush=True)
@@ -165,7 +174,7 @@ def main():
                           "AND table_name IN ('users', 'report_categories', 'master_report_statuses', "
                           "'master_reports', 'reports', 'report_photos', 'master_report_comments', "
                           "'report_visualization_attempts', 'master_report_comment_likes', "
-                          "'local_government_offices', 'service_entities');")
+                          "'local_government_offices', 'service_entities', 'projects', 'project_chunks');")
         if remaining != "0":
             raise RuntimeError("Migration rollback left application tables behind")
         compose("run", "--rm", "--no-deps", "db-migrator", "up")
@@ -174,9 +183,11 @@ def main():
             raise RuntimeError("Import after migration rollback failed")
         if query("SELECT COUNT(*) FROM service_entities;") != str(entity_count):
             raise RuntimeError("Service entity import after migration rollback failed")
+        if query("SELECT COUNT(*) FROM projects;") == "0":
+            raise RuntimeError("Innovation library import after migration rollback failed")
         query((ROOT / "tests/fixtures/check_reports.sql").read_text())
         query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
-        print("PASS: all nine migrations rolled back and reapplied successfully", flush=True)
+        print("PASS: all eleven migrations rolled back and reapplied successfully", flush=True)
     except Exception:
         print(compose("logs", "--no-color", "--tail", "50", check=False), flush=True)
         raise

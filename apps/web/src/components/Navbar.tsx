@@ -65,7 +65,7 @@ export default function Navbar({
         <a className="navbar__brand" href="#map">
           <BrandMark className="navbar__mark" />
           <span className="navbar__wordmark">
-            eHackYeah<span className="navbar__brand-accent">2026</span>
+            PomozeMy<span className="navbar__brand-accent"></span>
           </span>
         </a>
         <button

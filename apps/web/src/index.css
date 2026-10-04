@@ -5,6 +5,8 @@
   --amber: #efb33f;
   --amber-soft: #f7dba6;
   --amber-ghost: #fbeed2;
+  /* the one colour beside amber: a finished case */
+  --green: #8ccf6f;
 
   --surface: var(--paper);
   --surface-section: #f1efe8;

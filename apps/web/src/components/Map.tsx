@@ -26,27 +26,26 @@ import ReportClusters from "./ReportClusters";
 import { isClusterAt } from "./reportClusterHit";
 import { createTiltPrewarmer } from "./mapPrewarm";
 import {
-  readLastKnownPosition,
-  saveLastKnownPosition,
-} from "./lastKnownPosition";
-import {
   reportsApi,
   type MasterReport,
   type MasterReportDetail,
+  type MasterReportStatusName,
   type Report,
   type ReportCategoryName,
   type ReportLocation,
 } from "../api/reports";
 import { useSession } from "../api/session";
+import { useMessages } from "../i18n/locale";
+import { isStatusName } from "./statusGlyphs";
 import "./Map.css";
 
 // maplibre resolves its worker next to its own file at runtime, which the bundler cannot see
 setWorkerUrl(maplibreWorkerUrl);
 
-// Where the map opens when the device has never been located in this browser.
-const MALOPOLSKA: [number, number] = [20.25, 49.85];
-// wide enough to open on Małopolska, not one city
-const ZOOM = 7;
+// Where the map always opens; the user's own position is one button away.
+const KRAKOW: [number, number] = [19.945, 50.0614];
+// the whole city in view, not one district
+const ZOOM = 11;
 // Close enough to read the street you are standing on.
 const LOCATE_ZOOM = 16.5;
 const TILTED_VIEW = { pitch: 55, bearing: -20 };
@@ -74,6 +73,9 @@ function isReportCategory(name: string): name is ReportCategoryName {
   return (CATEGORY_NAMES as readonly string[]).includes(name);
 }
 
+// master_report_statuses.id to the name the pin's pictogram and colour are picked by
+type StatusNames = ReadonlyMap<number, MasterReportStatusName>;
+
 // The sheet has no title field, so a report is titled by the start of its
 // description: the first line, cut where a sentence or the limit ends.
 const TITLE_LIMIT = 80;
@@ -86,22 +88,28 @@ function titleFrom(description: string): string {
   return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), 40)).trimEnd()}…`;
 }
 
-// The map draws master reports, so each pin is an aggregate: its pictogram comes
-// from the category and its count from the filings folded into it.
+// The map draws master reports, so each pin is an aggregate: its pictogram and
+// colour come from the status, the same as the reports page's badge, and its
+// count from the filings folded into it.
 function masterPin(
   master: MasterReport | MasterReportDetail,
   categories: CategoryNames,
+  statuses: StatusNames,
   imageUrl: string | null = null,
 ): EventPin {
+  // the list carries the master's first photo as a path; the detail has them all
   const photo = "photos" in master ? master.photos[0] : undefined;
+  const photoPath = photo?.url ?? master.photo_url;
   return {
     id: master.id,
     lngLat: [master.location.longitude, master.location.latitude],
     // a pin's label is a one-liner, so the master's title stands in for it
     description: master.title,
     image: null,
-    imageUrl: imageUrl ?? (photo ? reportsApi.photoUrl(photo) : null),
+    imageUrl:
+      imageUrl ?? (photoPath ? reportsApi.photoUrl({ url: photoPath }) : null),
     category: categories.get(master.report_category_id) ?? DEFAULT_PIN_CATEGORY,
+    status: statuses.get(master.status_id) ?? null,
     reportCount: master.report_count,
   };
 }
@@ -438,6 +446,7 @@ type MapProps = {
 
 export default function Map({ onSignInRequired }: MapProps) {
   const session = useSession();
+  const t = useMessages().map;
   const containerRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -449,6 +458,7 @@ export default function Map({ onSignInRequired }: MapProps) {
   const photoSavingRef = useRef(false);
   // filled by the first load; a report saved before then falls back to the default
   const categoriesRef = useRef<CategoryNames>(new globalThis.Map());
+  const statusesRef = useRef<StatusNames>(new globalThis.Map());
   // Which reports escaped grouping, so only those get a pin. Null until the
   // clusters have first reported, when every pin is drawn.
   const [ungroupedIds, setUngroupedIds] = useState<ReadonlySet<string> | null>(
@@ -461,7 +471,6 @@ export default function Map({ onSignInRequired }: MapProps) {
   const { fix } = useUserPosition();
   // The camera eases to the first fix so the dot isn't off-screen, then leaves
   // the view alone: later fixes only move the dot.
-  const centredRef = useRef(false);
 
   // Reports are saved for the signed-in user. While the session is still
   // being restored the answer is not known yet, so nothing happens.
@@ -479,8 +488,9 @@ export default function Map({ onSignInRequired }: MapProps) {
     const controller = new AbortController();
     async function loadMasterReports() {
       try {
-        const [categories, masters] = await Promise.all([
+        const [categories, statuses, masters] = await Promise.all([
           reportsApi.categories(controller.signal),
+          reportsApi.statuses(controller.signal),
           reportsApi.allMasterReports(controller.signal),
         ]);
         const names = new globalThis.Map<number, ReportCategoryName>();
@@ -490,10 +500,20 @@ export default function Map({ onSignInRequired }: MapProps) {
           }
         }
         categoriesRef.current = names;
+        const statusNames = new globalThis.Map<
+          number,
+          MasterReportStatusName
+        >();
+        for (const status of statuses) {
+          if (isStatusName(status.name)) {
+            statusNames.set(status.id, status.name);
+          }
+        }
+        statusesRef.current = statusNames;
         // most-reported first, so the pin numbering follows how much a place is reported
         const loaded = [...masters]
           .sort((left, right) => right.report_count - left.report_count)
-          .map((master) => masterPin(master, names));
+          .map((master) => masterPin(master, names, statusNames));
         setPins((current) => loaded.reduce(upsertPin, current));
       } catch (error) {
         if (controller.signal.aborted) return;
@@ -513,7 +533,7 @@ export default function Map({ onSignInRequired }: MapProps) {
       if (report.master_report_id) {
         try {
           const master = await reportsApi.masterReport(report.master_report_id);
-          return masterPin(master, categories, imageUrl);
+          return masterPin(master, categories, statusesRef.current, imageUrl);
         } catch (error) {
           console.error("Could not load the saved report's master.", error);
         }
@@ -526,6 +546,8 @@ export default function Map({ onSignInRequired }: MapProps) {
         imageUrl,
         category:
           categories.get(report.report_category_id) ?? DEFAULT_PIN_CATEGORY,
+        // its master could not be read, so its status is not known either
+        status: null,
         reportCount: 1,
       };
     },
@@ -538,15 +560,11 @@ export default function Map({ onSignInRequired }: MapProps) {
       return;
     }
 
-    // The map opens on the device's position: the place it was last seen if this
-    // browser knows one, and the region view until the first fix lands otherwise.
-    const lastKnown = readLastKnownPosition();
-
     const map = new MapLibreMap({
       container,
       style: BASEMAP_STYLES.streets,
-      center: lastKnown ?? MALOPOLSKA,
-      zoom: lastKnown ? LOCATE_ZOOM : ZOOM,
+      center: KRAKOW,
+      zoom: ZOOM,
       ...FLAT_VIEW,
       maxPitch: 70,
       attributionControl: false,
@@ -593,13 +611,6 @@ export default function Map({ onSignInRequired }: MapProps) {
       handleMapClick([event.lngLat.lng, event.lngLat.lat]);
     });
 
-    map
-      .getCanvas()
-      .setAttribute(
-        "aria-label",
-        "Map. Use the arrow keys to pan and the plus and minus keys to zoom.",
-      );
-
     mapRef.current = map;
 
     return () => {
@@ -610,20 +621,14 @@ export default function Map({ onSignInRequired }: MapProps) {
     };
   }, []);
 
+  // the canvas is named in the interface language, and renamed as it changes
+  useEffect(() => {
+    mapRef.current?.getCanvas().setAttribute("aria-label", t.canvasLabel);
+  }, [t.canvasLabel]);
+
   const flyToFix = useCallback((lngLat: [number, number]) => {
     mapRef.current?.flyTo({ center: lngLat, zoom: LOCATE_ZOOM });
   }, []);
-
-  // The first fix is the starting view, so the camera is set there outright
-  // rather than flown across the city; later recentres animate.
-  useEffect(() => {
-    if (!fix || centredRef.current) {
-      return;
-    }
-    centredRef.current = true;
-    mapRef.current?.jumpTo({ center: fix.lngLat, zoom: LOCATE_ZOOM });
-    saveLastKnownPosition(fix.lngLat);
-  }, [fix]);
 
   const handleRecenterOnMe = useCallback(() => {
     if (fix) {
@@ -657,7 +662,7 @@ export default function Map({ onSignInRequired }: MapProps) {
         )?.id;
       }
       if (categoryId === undefined) {
-        throw new Error("The report categories could not be loaded.");
+        throw new Error(t.categoriesError);
       }
       return reportsApi.create({
         report_category_id: categoryId,
@@ -667,7 +672,7 @@ export default function Map({ onSignInRequired }: MapProps) {
         photos: image ? [image] : [],
       });
     },
-    [],
+    [t.categoriesError],
   );
 
   const handleAddPin = useCallback(
@@ -700,7 +705,7 @@ export default function Map({ onSignInRequired }: MapProps) {
       setSaveError(null);
       try {
         const report = await saveReport(
-          "Photo report",
+          t.photoReportTitle,
           { longitude: fix.lngLat[0], latitude: fix.lngLat[1] },
           photo,
         );
@@ -709,22 +714,20 @@ export default function Map({ onSignInRequired }: MapProps) {
         flyToFix(fix.lngLat);
       } catch (error) {
         setSaveError(
-          error instanceof Error
-            ? error.message
-            : "Could not save the photo report.",
+          error instanceof Error ? error.message : t.photoReportFailed,
         );
       } finally {
         photoSavingRef.current = false;
       }
     },
-    [fix, flyToFix, saveReport, pinForSavedReport],
+    [fix, flyToFix, saveReport, pinForSavedReport, t],
   );
 
   const handleZoomIn = useCallback(() => mapRef.current?.zoomIn(), []);
   const handleZoomOut = useCallback(() => mapRef.current?.zoomOut(), []);
   const handleRecenter = useCallback(() => {
     mapRef.current?.flyTo({
-      center: MALOPOLSKA,
+      center: KRAKOW,
       zoom: ZOOM,
       ...(tilted ? TILTED_VIEW : FLAT_VIEW),
     });
@@ -739,7 +742,7 @@ export default function Map({ onSignInRequired }: MapProps) {
   }, [tilted]);
 
   return (
-    <section className="map" aria-label="Map">
+    <section className="map" aria-label={t.label}>
       {saveError && (
         <aside className="map__notice" role="alert">
           {saveError}
