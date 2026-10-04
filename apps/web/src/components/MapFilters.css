@@ -26,7 +26,7 @@
 
 .map-filters {
   position: absolute;
-  bottom: calc(100% + 0.625rem);
+  bottom: calc(100% + 1rem);
   right: 0;
   z-index: 1;
   display: flex;
@@ -216,17 +216,11 @@
     box-shadow: var(--scaffold-shadow-ink);
   }
 
-  /* The open list covers the tile, so the tile's own block would only peek out
-     from under the sheet. */
-  .map-filters__toggle[aria-expanded="true"] {
-    box-shadow: none;
-  }
-
-  /* Rises off the tile itself rather than off a gap above it, so the list
-     stands where the pictogram was. */
+  /* Rises off the tile's own column, clear of the pictogram so the toggle
+     stays visible under the open list. */
   .map-filters {
     left: 0;
     right: auto;
-    bottom: 0;
+    bottom: calc(100% + 0.625rem);
   }
 }

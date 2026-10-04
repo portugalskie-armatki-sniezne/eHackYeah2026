@@ -167,7 +167,9 @@
 }
 
 .catalog__pill {
+  max-width: 11rem;
   padding: 0.3rem 0.75rem;
+  overflow: hidden;
   border: var(--scaffold-line) solid var(--ink);
   border-radius: 999px;
   background: var(--paper);
@@ -175,6 +177,8 @@
   font: inherit;
   font-size: 0.75rem;
   font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -364,5 +368,24 @@
   .catalog__more {
     margin: 0 -1rem -1rem;
     padding: 0.75rem 1rem 1rem;
+  }
+
+  .catalog__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .catalog__button {
+    width: 100%;
+  }
+
+  .catalog__pills {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .catalog__pill {
+    max-width: none;
+    text-align: center;
   }
 }
