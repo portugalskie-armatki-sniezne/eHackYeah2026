@@ -62,7 +62,10 @@
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
-  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
 }
 
 .catalog__back-button:hover {
@@ -112,7 +115,10 @@
   font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 100ms ease, background-color 100ms ease, box-shadow 100ms ease;
+  transition:
+    transform 100ms ease,
+    background-color 100ms ease,
+    box-shadow 100ms ease;
 }
 
 .catalog__cat-pill:hover {
@@ -160,7 +166,9 @@
   border-radius: var(--scaffold-radius);
   background: var(--paper);
   box-shadow: 3px 3px 0 var(--ink);
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
 }
 
 .catalog__card:hover {
@@ -260,7 +268,9 @@
   font-weight: 800;
   text-decoration: none;
   cursor: pointer;
-  transition: transform 100ms ease, box-shadow 100ms ease;
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease;
 }
 
 .catalog__card-btn-action:hover {

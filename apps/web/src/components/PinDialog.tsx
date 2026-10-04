@@ -44,7 +44,8 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [checkingSimilarity, setCheckingSimilarity] = useState(false);
-  const [detectedMatch, setDetectedMatch] = useState<ProjectSearchResult | null>(null);
+  const [detectedMatch, setDetectedMatch] =
+    useState<ProjectSearchResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const savingRef = useRef(false);
   const addedRef = useRef(false);
@@ -94,7 +95,9 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
       addedRef.current = true;
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not save the report.");
+      setError(
+        err instanceof Error ? err.message : "Could not save the report.",
+      );
     } finally {
       savingRef.current = false;
       setSaving(false);
@@ -187,7 +190,11 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
       </div>
 
       {activeTab === "issue" ? (
-        <form className="pin-dialog__form" method="dialog" onSubmit={handleSubmitIssue}>
+        <form
+          className="pin-dialog__form"
+          method="dialog"
+          onSubmit={handleSubmitIssue}
+        >
           <header className="pin-dialog__header">
             <h2 id={`${id}-title`} className="pin-dialog__title">
               New marker
@@ -195,7 +202,11 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
             <p className="pin-dialog__coords">{formatLngLat(lngLat)}</p>
           </header>
 
-          {error && <p className="pin-dialog__alert" role="alert">{error}</p>}
+          {error && (
+            <p className="pin-dialog__alert" role="alert">
+              {error}
+            </p>
+          )}
 
           <div className="pin-dialog__field">
             <label className="pin-dialog__label" htmlFor={`${id}-description`}>
@@ -220,7 +231,11 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
             </span>
             <div className="pin-dialog__image">
               {imageUrl ? (
-                <img className="pin-dialog__preview" src={imageUrl} alt={image?.name ?? "Chosen image"} />
+                <img
+                  className="pin-dialog__preview"
+                  src={imageUrl}
+                  alt={image?.name ?? "Chosen image"}
+                />
               ) : (
                 <span className="pin-dialog__placeholder" aria-hidden="true">
                   No image
@@ -260,7 +275,11 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
           </footer>
         </form>
       ) : (
-        <form className="pin-dialog__form" method="dialog" onSubmit={handleInitiativeSubmit}>
+        <form
+          className="pin-dialog__form"
+          method="dialog"
+          onSubmit={handleInitiativeSubmit}
+        >
           <header className="pin-dialog__header">
             <h2 id={`${id}-title`} className="pin-dialog__title">
               Inicjatywa społeczna
@@ -268,17 +287,26 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
             <p className="pin-dialog__coords">{formatLngLat(lngLat)}</p>
           </header>
 
-          {error && <p className="pin-dialog__alert" role="alert">{error}</p>}
+          {error && (
+            <p className="pin-dialog__alert" role="alert">
+              {error}
+            </p>
+          )}
 
           {detectedMatch ? (
             <div className="pin-dialog__match-box">
               <div className="pin-dialog__match-badge">
-                Znaleziono podobną innowację ({Math.round(detectedMatch.score * 100)}% zbieżności)
+                Znaleziono podobną innowację (
+                {Math.round(detectedMatch.score * 100)}% zbieżności)
               </div>
               <h3 className="pin-dialog__match-title">{detectedMatch.title}</h3>
-              <span className="pin-dialog__match-category">{detectedMatch.category}</span>
+              <span className="pin-dialog__match-category">
+                {detectedMatch.category}
+              </span>
               <p className="pin-dialog__match-desc">
-                {detectedMatch.matched_snippet || detectedMatch.description || detectedMatch.summary}
+                {detectedMatch.matched_snippet ||
+                  detectedMatch.description ||
+                  detectedMatch.summary}
               </p>
               <div className="pin-dialog__match-actions">
                 <button
@@ -310,7 +338,10 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
           ) : (
             <>
               <div className="pin-dialog__field">
-                <label className="pin-dialog__label" htmlFor={`${id}-initiative-desc`}>
+                <label
+                  className="pin-dialog__label"
+                  htmlFor={`${id}-initiative-desc`}
+                >
                   Twój pomysł na to miejsce
                 </label>
                 <textarea
@@ -340,7 +371,11 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
                   className="pin-dialog__button pin-dialog__button--primary"
                   disabled={!canAdd || saving || checkingSimilarity}
                 >
-                  {checkingSimilarity ? "Sprawdzam bazę..." : saving ? "Zapisywanie..." : "Wyślij inicjatywę"}
+                  {checkingSimilarity
+                    ? "Sprawdzam bazę..."
+                    : saving
+                      ? "Zapisywanie..."
+                      : "Wyślij inicjatywę"}
                 </button>
               </footer>
             </>
