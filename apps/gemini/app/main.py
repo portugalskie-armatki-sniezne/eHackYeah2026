@@ -1,11 +1,20 @@
 import base64
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
 from app import gemini, storage
 
-app = FastAPI(title="eHackYeah2026 Gemini")
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    gemini.log_credentials_status()
+    yield
+
+
+app = FastAPI(title="eHackYeah2026 Gemini", lifespan=lifespan)
 
 
 class Photo(BaseModel):

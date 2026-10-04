@@ -15,7 +15,7 @@ Wewnętrzny serwis FastAPI do wizualizacji zgłoszeń przez Google Cloud (Vertex
    GOOGLE_APPLICATION_CREDENTIALS=../../project-key.json
    ```
 
-   Ścieżka względna zaczyna się w `apps/gemini`. Możesz też użyć ścieżki bezwzględnej. Puste `GOOGLE_APPLICATION_CREDENTIALS` korzysta ze standardowego [ADC](https://docs.cloud.google.com/docs/authentication/application-default-credentials). Serwis nie korzysta z `GEMINI_API_KEY` ani z klienta OAuth `client_secret.json`.
+   Ścieżka względna zaczyna się w `apps/gemini`. Możesz też użyć ścieżki bezwzględnej. Puste `GOOGLE_APPLICATION_CREDENTIALS` korzysta ze standardowego [ADC](https://docs.cloud.google.com/docs/authentication/application-default-credentials). Serwis nie korzysta z `GEMINI_API_KEY` ani z klienta OAuth `client_secret.json`. Przy starcie serwis zapisuje w logu wiersz `Google credentials: ...` z informacją, czy klucz się wczytał. Nie łączy się przy tym z Google, więc cofniętego klucza w ten sposób nie wykryje.
 5. Zainstaluj zależności i uruchom serwis:
 
    ```sh

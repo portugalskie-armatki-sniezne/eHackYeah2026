@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Annotated, Literal
 
@@ -6,6 +7,7 @@ from fastapi import HTTPException
 from google import genai
 from google.auth.exceptions import GoogleAuthError
 from google.genai import errors, types
+from google.oauth2 import service_account
 from pydantic import BaseModel, StringConstraints, ValidationError
 
 PROMPT_MODEL = "gemini-3.8-flash"
@@ -36,6 +38,39 @@ PLANNING_SUBJECTS = {
     "improvement": ("a civic initiative description", "implement the described initiative", "design"),
     "issue": ("a civic fault report", "show the reported fault repaired", "repair"),
 }
+
+
+# uvicorn's logger, so the startup messages reach the container log without separate logging setup.
+logger = logging.getLogger("uvicorn.error")
+
+
+def log_credentials_status() -> None:
+    """report whether the service-account key can be loaded; Google is not contacted."""
+    path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "").strip()
+    project = os.environ.get("GOOGLE_CLOUD_PROJECT", "").strip() or "not set"
+    if not path:
+        logger.info("Google credentials: no key file is set, Application Default Credentials are used")
+        return
+    try:
+        credentials = service_account.Credentials.from_service_account_file(path)
+    except IsADirectoryError:
+        # Docker mounts a directory when the key file does not exist on the host.
+        logger.error("Google credentials: %s is a directory, the key file is missing on the host", path)
+    except PermissionError:
+        logger.error("Google credentials: %s exists, but the service user cannot read it", path)
+    except FileNotFoundError:
+        logger.error("Google credentials: %s does not exist", path)
+    except Exception as error:
+        # only the error type is logged, its message could quote the key file.
+        logger.error("Google credentials: %s is not a valid service-account key (%s)", path, type(error).__name__)
+    else:
+        logger.info(
+            "Google credentials: loaded %s, account %s, key project %s, GOOGLE_CLOUD_PROJECT %s",
+            path,
+            credentials.service_account_email,
+            credentials.project_id or "unknown",
+            project,
+        )
 
 
 def planning_instructions(report_type: ReportType) -> str:
