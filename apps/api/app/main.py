@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from psycopg_pool import PoolTimeout
 from starlette.concurrency import run_in_threadpool
 
 from app import (
@@ -63,6 +64,13 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["Retry-After"],
 )
+
+
+@app.exception_handler(PoolTimeout)
+async def database_busy(_request, _error) -> JSONResponse:
+    return JSONResponse(
+        status_code=503, content={"detail": "Database is busy, try again"}, headers={"Retry-After": "5"}
+    )
 
 
 @app.exception_handler(InferenceUnavailableError)
