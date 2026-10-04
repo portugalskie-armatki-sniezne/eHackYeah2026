@@ -21,6 +21,11 @@ def conninfo() -> str:
 pool = ConnectionPool(
     conninfo(),
     open=False,
+    # a request keeps its connection until it ends, so the default of 4 runs out under a few slow requests.
+    min_size=4,
+    max_size=20,
+    # a request that cannot get a connection fails with 503 instead of hanging.
+    timeout=10,
     kwargs={"autocommit": True, "row_factory": dict_row},
 )
 

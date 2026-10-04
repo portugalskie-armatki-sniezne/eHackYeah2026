@@ -730,6 +730,7 @@ export default function Map({ onSignInRequired }: MapProps) {
       location: ReportLocation,
       image: File | null,
       categoryName: ReportCategoryName = DEFAULT_PIN_CATEGORY,
+      title?: string,
     ) => {
       let categoryId: number | undefined;
       for (const [id, name] of categoriesRef.current) {
@@ -745,7 +746,7 @@ export default function Map({ onSignInRequired }: MapProps) {
       }
       return reportsApi.create({
         report_category_id: categoryId,
-        title: titleFrom(description),
+        title: title ?? titleFrom(description),
         description,
         location,
         photos: image ? [image] : [],
@@ -766,6 +767,7 @@ export default function Map({ onSignInRequired }: MapProps) {
         { longitude: draftLngLat[0], latitude: draftLngLat[1] },
         draft.image,
         categoryName,
+        draft.title,
       );
       const pin = await pinForSavedReport(report, draft.imageUrl);
       setPins((current) => upsertPin(current, pin));
