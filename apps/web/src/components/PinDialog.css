@@ -190,13 +190,13 @@
   }
 }
 
-/* Phones: the sheet rises from the bottom edge, above the home bar, and the
-   two actions share the width so both are thumb-sized. */
+/* Phones: the sheet sits in the centre, clear of the notch and the home bar,
+   and the two actions share the width so both are thumb-sized. */
 @media (max-width: 40rem) {
   .pin-dialog {
     width: calc(100% - 1.5rem);
-    max-height: calc(100dvh - 1.5rem - var(--safe-bottom));
-    margin: auto auto calc(0.75rem + var(--safe-bottom));
+    max-height: calc(100dvh - 1.5rem - var(--safe-top) - var(--safe-bottom));
+    margin: auto;
     box-shadow: 4px 4px 0 var(--amber);
   }
 

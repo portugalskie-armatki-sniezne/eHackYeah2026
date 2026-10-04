@@ -383,6 +383,7 @@
 
   .navbar__link {
     display: block;
+    flex: 1;
     padding: 0.625rem 0.875rem;
     text-align: center;
   }
