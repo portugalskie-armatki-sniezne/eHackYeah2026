@@ -8,7 +8,7 @@ Wartości pochodzą z głównego `.env`. Domyślne ustawienia dokumentuje `.env.
 
 | Zmienna | Domyślnie | Znaczenie |
 | --- | --- | --- |
-| `GEMINI_USER_LIMIT` | `10` | próby generacji na użytkownika w ruchomym oknie |
+| `GEMINI_USER_LIMIT` | `50` | próby generacji na użytkownika w ruchomym oknie |
 | `SMTP_USER_LIMIT` | `50` | próby wywołania konektora SMTP na użytkownika w tym samym oknie |
 | `RATE_LIMIT_WINDOW_SECONDS` | `86400` | długość okna limitów w sekundach |
 | `VISUALIZATION_DRAFT_TTL_DAYS` | `7` | ważność nieopublikowanego formularza od jego utworzenia |
