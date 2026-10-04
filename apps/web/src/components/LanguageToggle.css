@@ -1,0 +1,52 @@
+/* The language switch: one drawn tile split by a ruled line, the chosen
+   language filled amber like the current page link. */
+.lang-toggle {
+  display: inline-flex;
+  flex: none;
+  /* keeps its own width inside stretching columns such as a dialog field */
+  align-self: flex-start;
+  width: max-content;
+  overflow: hidden;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+}
+
+.lang-toggle__option {
+  padding: 0.3125rem 0.625rem;
+  border: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.lang-toggle__option + .lang-toggle__option {
+  border-left: var(--scaffold-line) solid var(--ink);
+}
+
+.lang-toggle__option:hover {
+  background: var(--amber-ghost);
+}
+
+.lang-toggle__option[aria-pressed="true"] {
+  background: var(--amber);
+  color: var(--ink);
+  cursor: default;
+}
+
+.lang-toggle__option:focus-visible {
+  outline: var(--scaffold-line) solid var(--focus);
+  outline-offset: -4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lang-toggle__option {
+    transition: none;
+  }
+}
