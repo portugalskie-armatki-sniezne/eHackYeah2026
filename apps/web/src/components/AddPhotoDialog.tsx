@@ -3,24 +3,24 @@ import { useMessages } from "../i18n/locale";
 import "./PinDialog.css";
 import "./PhotoReportDialog.css";
 
-type PhotoProposalDialogProps = {
+type AddPhotoDialogProps = {
   onClose: () => void;
   /**
-   * Offers the chosen photo for the case. The api serves the saved file at
+   * adds the chosen photo to the case. The api serves the saved file at
    * once, so the sheet reads the photo back from there rather than from here.
    */
   onSubmit: (photo: File) => Promise<void>;
 };
 
 /**
- * The sheet that offers a photo for a case that has none: pick a picture, send
- * it, and it waits under a question mark until whoever filed the case takes it.
+ * the sheet that adds a photo to a case: pick a picture and save it,
+ * and it appears with the case immediately.
  * It shares the pin sheet's look; Escape and Cancel drop the choice.
  */
-export default function PhotoProposalDialog({
+export default function AddPhotoDialog({
   onClose,
   onSubmit,
-}: PhotoProposalDialogProps) {
+}: AddPhotoDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
@@ -28,7 +28,7 @@ export default function PhotoProposalDialog({
   const [error, setError] = useState<string | null>(null);
   const savingRef = useRef(false);
   const id = useId();
-  const t = useMessages().photoProposal;
+  const t = useMessages().addPhoto;
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -116,7 +116,7 @@ export default function PhotoProposalDialog({
 
         <div className="pin-dialog__field">
           <span className="pin-dialog__label" id={`${id}-photo-label`}>
-            {t.title}
+            {t.photo}
           </span>
           <label className="pin-dialog__button pin-dialog__file">
             {photo ? t.change : t.choose}

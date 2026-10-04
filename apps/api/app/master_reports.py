@@ -1,13 +1,14 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
 import psycopg
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
 from psycopg import errors, sql
 from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
-from app import notifications
-from app.auth import AdminUser, StaffUser
+from app import notifications, storage
+from app.auth import AdminUser, CurrentUser, StaffUser
 from app.common import (
     Connection,
     Limit,
@@ -24,6 +25,7 @@ from app.common import (
 )
 from app.photo_proposals import proposal_file_url
 from app.photos import PHOTO_COLUMNS, PHOTO_ORDER, Photo, photo_file_url
+from app.reports import Report, fetch_report, read_photos, save_photos
 
 router = APIRouter(prefix="/master-reports", tags=["master reports"])
 
@@ -200,6 +202,35 @@ def list_master_reports(
 @router.get("/{master_report_id}")
 def get_master_report(master_report_id: UUID, connection: Connection) -> MasterReportDetail:
     return fetch_master_report(master_report_id, connection)
+
+
+@router.post("/{master_report_id}/photos", status_code=status.HTTP_201_CREATED)
+def add_master_report_photo(
+    master_report_id: UUID,
+    user: CurrentUser,
+    connection: Connection,
+    photo: Annotated[UploadFile, File(description="one JPEG, PNG, or WebP image, 10 MB at most")],
+) -> Report:
+    """attach a photo through a copy of the case's first report owned by the uploader."""
+    uploads = read_photos([photo])
+    with storage.cleanup_on_error() as saved, connection.transaction():
+        master = connection.execute(
+            "SELECT id FROM master_reports WHERE id = %s FOR UPDATE", (master_report_id,)
+        ).fetchone()
+        if master is None:
+            raise master_report_not_found()
+        report = connection.execute(
+            "INSERT INTO reports (user_id, master_report_id, report_category_id, title, description, location, "
+            "municipality_teryt, municipality_name, county_teryt, county_name) "
+            "SELECT %s, master_report_id, report_category_id, title, description, location, "
+            "municipality_teryt, municipality_name, county_teryt, county_name FROM reports "
+            "WHERE master_report_id = %s ORDER BY created_at, id LIMIT 1 RETURNING id",
+            (user.id, master_report_id),
+        ).fetchone()
+        if report is None:
+            raise HTTPException(status.HTTP_409_CONFLICT, "The case has no report left to copy")
+        save_photos(connection, report["id"], uploads, saved)
+    return fetch_report(report["id"], connection)
 
 
 @router.patch("/{master_report_id}")
