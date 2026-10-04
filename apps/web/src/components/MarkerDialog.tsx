@@ -17,6 +17,7 @@ import { useSession } from "../api/session";
 import MasterReports from "./MasterReports";
 import { formatDate, timeAgo } from "./relativeTime";
 import StatusBadge from "./StatusBadge";
+import MarkerRecipient from "./MarkerRecipient";
 import "./MarkerDialog.css";
 
 type MarkerDialogProps = {
@@ -387,6 +388,7 @@ export default function MarkerDialog({
             )}
 
             {letter &&
+              master &&
               (() => {
                 const { cleanText, ropsInnovation } = parseRopsInnovation(
                   letter.body,
@@ -396,29 +398,11 @@ export default function MarkerDialog({
                     <dl className="marker-dialog__envelope">
                       <dt>To</dt>
                       <dd>
-                        {letter.recipient ? (
-                          <>
-                            <span className="marker-dialog__recipient">
-                              {letter.recipient.name}
-                            </span>
-                            {letter.recipient.email ? (
-                              <a
-                                className="marker-dialog__link"
-                                href={`mailto:${letter.recipient.email}`}
-                              >
-                                {letter.recipient.email}
-                              </a>
-                            ) : (
-                              <span className="marker-dialog__hint">
-                                no email on record
-                              </span>
-                            )}
-                          </>
-                        ) : (
-                          <span className="marker-dialog__hint">
-                            not assigned yet
-                          </span>
-                        )}
+                        <MarkerRecipient
+                          master={master}
+                          letter={letter}
+                          onSignInRequired={onSignInRequired}
+                        />
                       </dd>
                       <dt>Subject</dt>
                       <dd>{letter.subject}</dd>

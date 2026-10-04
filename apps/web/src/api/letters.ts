@@ -1,11 +1,12 @@
 import { apiFetch } from "./client";
-import type { MasterReport } from "./reports";
+import type { MasterReport, MasterReportDetail } from "./reports";
 
 /** Who a master is addressed to, as far as the responsible body's record says. */
 export type LetterRecipient = {
   name: string;
   /** null when the body's record has no address to write to */
   email: string | null;
+  contact?: { url: string; description: string | null };
 };
 
 /**
@@ -33,6 +34,7 @@ type ServiceEntity = {
   email: string | null;
   /** a form URL, or a tel: or mailto: URI */
   reporting_channel: string | null;
+  reporting_channel_description?: string | null;
 };
 
 function office(
@@ -53,9 +55,25 @@ function serviceEntity(
 function entityEmail(entity: ServiceEntity): string | null {
   const channel = entity.reporting_channel?.trim() ?? "";
   if (/^mailto:/i.test(channel)) {
-    return channel.slice("mailto:".length).split("?", 1)[0] || null;
+    const address = channel.slice("mailto:".length).split("?", 1)[0].trim();
+    if (address) return address;
   }
-  return entity.email;
+  return entity.email?.trim() || null;
+}
+
+function entityRecipient(entity: ServiceEntity): LetterRecipient {
+  const recipient: LetterRecipient = {
+    name: entity.name,
+    email: entityEmail(entity),
+  };
+  const channel = entity.reporting_channel?.trim();
+  if (!recipient.email && channel && /^(https?:\/\/|tel:)/i.test(channel)) {
+    recipient.contact = {
+      url: channel,
+      description: entity.reporting_channel_description ?? null,
+    };
+  }
+  return recipient;
 }
 
 /** The body the master is assigned to, or null while it is not assigned. */
@@ -68,7 +86,7 @@ export async function letterRecipient(
       master.responsible_service_entity_id,
       signal,
     );
-    return { name: entity.name, email: entityEmail(entity) };
+    return entityRecipient(entity);
   }
   if (master.responsible_office_id !== null) {
     const record = await office(master.responsible_office_id, signal);
@@ -90,4 +108,45 @@ export async function letterFor(
     subject: master.title,
     body: master.description,
   };
+}
+
+export async function recommendedRecipient(
+  master: MasterReportDetail,
+  signal?: AbortSignal,
+): Promise<LetterRecipient | null> {
+  const form = new FormData();
+  form.set(
+    "payload",
+    JSON.stringify({
+      title: master.title,
+      description: master.description,
+      source_language: "pl",
+      location: master.location,
+    }),
+  );
+  const photo = master.photos[0];
+  if (photo) {
+    const image = await apiFetch<Blob>(photo.url, {
+      responseType: "blob",
+      signal,
+    });
+    form.set("image", image, photo.storage_key.split("/").pop());
+  }
+  const result = await apiFetch<{
+    recommendation: { entity: ServiceEntity } | null;
+  }>("/inference/service-entity/recommendation", {
+    method: "POST",
+    body: form,
+    signal,
+  });
+  if (!result.recommendation) return null;
+  const { entity } = result.recommendation;
+  return entityRecipient(entity);
+}
+
+export function letterMailto(
+  recipient: LetterRecipient,
+  letter: ReportLetter,
+): string {
+  return `mailto:${recipient.email ?? ""}?subject=${encodeURIComponent(letter.subject)}&body=${encodeURIComponent(letter.body)}`;
 }
