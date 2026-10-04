@@ -14,7 +14,8 @@ eHackYeah2026/
 ├── apps/
 │   ├── web/                         # frontend workspace
 │   ├── api/                         # backend workspace
-│   └── notify/                      # internal SMTP relay
+│   ├── notify/                      # internal SMTP relay
+│   └── gemini/                      # internal initiative visualization connector
 ├── db/
 │   ├── migrations/                  # dbmate SQL migrations
 │   └── seeds/                       # reference data and the contacts workbook
@@ -81,6 +82,10 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 - Authenticated `POST /inference` accepts text, supplied classification questions, and an optional photo. `POST /inference/service-entity` classifies a title, description, and optional photo into one service entity type. The model paths in `.env.example` enable local inference. For an existing `.env`, add `LAYA_MODEL_PATH=models/laya-vision` and `TRANSLATION_MODEL_PATH=models/opus-mt-pl-en`; setup preserves existing values. See [model setup and provider configuration](apps/api/docs/inference.md).
 - Changes under `apps/api/app` reload the API automatically.
 - Run `task be:lint` to check the API with Ruff, or `task be:lint:fix` to apply fixes and formatting.
+
+#### Gemini Connector
+
+`apps/gemini` is an internal development service for `improvement` reports. Gemini Flash prepares one image prompt from the description and shared report photos; Nano Banana uses that prompt and the photos to generate one visualization. `POST /generate` returns the prompt and image as base64. It reads the API upload directory but does not save the generated file or attach it to a report. The API still needs to add authenticated generation, a retry limit, and photo persistence. See the [Gemini API guide](apps/gemini/docs/api.md) for setup and the request format. The connector is not yet included in the deployment workflow.
 
 #### Web Application
 

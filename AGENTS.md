@@ -30,7 +30,7 @@
 
 ## Architecture and repository layout
 
-- `apps/web/`, `apps/api/`, and `apps/notify/` are frontend, backend, and mail relay workspaces. `apps/api/docs/` and `apps/notify/docs/` document their implemented behavior.
+- `apps/web/`, `apps/api/`, `apps/notify/`, and `apps/gemini/` are frontend, backend, mail relay, and image-generation workspaces. `apps/api/docs/`, `apps/notify/docs/`, and `apps/gemini/docs/` document their implemented behavior.
 - `db/migrations/` contains dbmate SQL migrations, with `-- migrate:up` and `-- migrate:down` sections.
 - `db/seeds/` contains development and reference data, including the institution contacts workbook.
 - `docker-compose.yaml` at the repository root defines the PostGIS database, dbmate migrations, and the seed importer. Run `docker compose up`; optional root `.env` values override local defaults.
@@ -42,7 +42,7 @@
 - `Taskfile.yml` at the repository root defines root development commands. `mise.toml` pins Bun, Task, and uv, and `setup-dev-env.sh` installs mise, the pinned tools, and dependencies.
 - `tests/e2e/` is reserved for cross-application scenarios, and `tests/fixtures/` for shared behavioral examples.
 - `.agents/skills/` is reserved for repository-local agent skills.
-- `.github/workflows/` contains CI workflows. `deploy.yml` builds the web, API, and notify images and deploys them: the changed services to the dev environment when changes reach `main`, or the chosen service, or all of them, to the environment chosen in a manual run. Before restarting `api`, it applies `db/migrations` to the database of the target environment. `release.yml` is started manually: it calls `deploy.yml` to deploy all three services to prod, then publishes a GitHub release versioned by date. `lint.yml` runs the web, API, and notify linters on pull requests and pushes to `main`. `seed.yml` is started manually: it imports `db/seeds` into the database of the chosen environment with the importer from `tooling/seed`.
+- `.github/workflows/` contains CI workflows. `deploy.yml` builds the web, API, and notify images and deploys them: the changed services to the dev environment when changes reach `main`, or the chosen service, or all of them, to the environment chosen in a manual run. Before restarting `api`, it applies `db/migrations` to the database of the target environment. `release.yml` is started manually: it calls `deploy.yml` to deploy all three services to prod, then publishes a GitHub release versioned by date. `lint.yml` runs the web, API, notify, and Gemini linters on pull requests and pushes to `main`. `seed.yml` is started manually: it imports `db/seeds` into the database of the chosen environment with the importer from `tooling/seed`.
 - `.env` holds optional local environment overrides and is ignored by Git. `.env.example` documents the available values.
 - `README.md` and `README_pl.md` are the English and Polish project documentation. `docs/` contains their teaser images.
 - `TESTING.md` documents database setup and validation.

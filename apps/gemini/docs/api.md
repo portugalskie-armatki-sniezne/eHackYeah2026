@@ -30,23 +30,22 @@ Dokumentacja HTTP jest dostępna pod `http://127.0.0.1:8002/docs`.
 
 ## Przykład Python
 
-`example.py` korzysta ze zdjęcia polany i opisu placu zabaw w `mock/`. Możesz zmienić `DESCRIPTION`, `PHOTO` i `VARIANTS`. Z katalogu `apps/gemini` uruchom:
+`example.py` korzysta ze zdjęcia polany i opisu placu zabaw w `mock/`. Możesz zmienić `DESCRIPTION` lub `PHOTO`. Z katalogu `apps/gemini` uruchom:
 
 ```sh
 uv run --env-file ../../.env python example.py
 ```
 
-Przykład uruchamia oba etapy bez serwera HTTP i zapisuje trzy obrazy w `output/variant-1.png`, `output/variant-2.png` i `output/variant-3.png` (lub `.jpg` albo `.webp`, zależnie od odpowiedzi). `output/prompts.json` zawiera użyte prompty i nazwy plików. Katalog `output/` jest ignorowany przez Git. Ponowne uruchomienie nadpisuje pliki danego formatu. Dane wejściowe są przykładowe, ale generacja korzysta z prawdziwego API i rozliczeń projektu Google.
+Przykład uruchamia oba etapy bez serwera HTTP i zapisuje jeden obraz w `output/visualization.png` (lub `.jpg` albo `.webp`, zależnie od odpowiedzi). `output/prompt.txt` zawiera prompt użyty przez Nano Banana. Katalog `output/` jest ignorowany przez Git. Ponowne uruchomienie nadpisuje poprzedni obraz. Dane wejściowe są przykładowe, ale generacja korzysta z prawdziwego API i rozliczeń projektu Google.
 
 Konektor można też wywołać bezpośrednio z kodu Python:
 
 ```python
-from app.gemini import generate_visualizations
+from app.gemini import generate_visualization
 from app.storage import read_photo
 
 photos = [read_photo("reports/11111111-1111-4111-8111-111111111111/22222222-2222-4222-8222-222222222222.jpg")]
-images = generate_visualizations("Plac zabaw ze zjeżdżalnią, huśtawkami i piaskownicą.", photos, variants=3)
-# each tuple contains the prompt, media type and image bytes
+prompt, media_type, data = generate_visualization("Plac zabaw ze zjeżdżalnią, huśtawkami i piaskownicą.", photos)
 ```
 
 ## HTTP
@@ -60,20 +59,19 @@ images = generate_visualizations("Plac zabaw ze zjeżdżalnią, huśtawkami i pi
 | `report_type` | wymagane `"improvement"`; `"issue"` jest odrzucane |
 | `description` | wymagany, niepusty opis inicjatywy |
 | `photos` | 1-5 obiektów z `storage_key` zdjęć zapisanych przez API; JPEG, PNG lub WebP, do 10 MB każde i 20 MB łącznie |
-| `variants` | liczba propozycji od 1 do 3, domyślnie 3 |
 
 ```sh
 curl --fail-with-body http://127.0.0.1:8002/generate \
   -H 'Content-Type: application/json' \
-  -d '{"report_type":"improvement","description":"Plac zabaw ze zjeżdżalnią, huśtawkami i piaskownicą.","photos":[{"storage_key":"reports/11111111-1111-4111-8111-111111111111/22222222-2222-4222-8222-222222222222.jpg"}],"variants":3}' \
-  --output /tmp/gemini-variants.json
+  -d '{"report_type":"improvement","description":"Plac zabaw ze zjeżdżalnią, huśtawkami i piaskownicą.","photos":[{"storage_key":"reports/11111111-1111-4111-8111-111111111111/22222222-2222-4222-8222-222222222222.jpg"}]}' \
+  --output /tmp/gemini-visualization.json
 ```
 
-Zdjęcia muszą istnieć pod podanymi kluczami. Pierwsze wyznacza kadr wizualizacji, pozostałe dają kontekst tego samego miejsca. Wspólne reguły w `app/gemini.py` wymagają naturalnego wyglądu i zachowania otoczenia. Warianty mają różnić się układem, materiałami lub wyposażeniem.
+Zdjęcia muszą istnieć pod podanymi kluczami. Pierwsze wyznacza kadr wizualizacji, pozostałe dają kontekst tego samego miejsca. Wspólne reguły w `app/gemini.py` wymagają naturalnego wyglądu i zachowania otoczenia. Każde wywołanie generuje jeden obraz.
 
-Odpowiedź ma postać `{"variants":[{"prompt":"...","media_type":"image/png","image_base64":"..."}]}`. `image_base64` zawiera zakodowane bajty obrazu, bez prefiksu `data:`. Backend dekoduje i zapisuje je po swojej stronie. Serwis nie zapisuje wyników. Dotychczasowy kontrakt z samym `prompt` i odpowiedzią binarną został zastąpiony.
+Odpowiedź ma postać `{"prompt":"...","media_type":"image/png","image_base64":"..."}`. `image_base64` zawiera zakodowane bajty obrazu, bez prefiksu `data:`. Serwis czyta źródła ze wspólnego katalogu API, ale nie zapisuje wyniku ani nie tworzy wiersza `report_photos`; integracja z API musi to zrobić.
 
-Wywołanie wykonuje jedno żądanie do Flash i osobne żądanie do Nano Banana dla każdego wariantu. Jeśli którykolwiek etap zawiedzie, endpoint zwraca błąd bez częściowych wyników. Wcześniejsze udane wywołania mogą już być rozliczone; ponowienie uruchamia cały pipeline. Endpoint służy wywołaniom wewnętrznym i nie ma własnego uwierzytelniania ani limitu na użytkownika.
+Wywołanie wykonuje jedno żądanie do Flash i jedno do Nano Banana. Jeśli którykolwiek etap zawiedzie, endpoint zwraca błąd. Ponowienie uruchamia cały pipeline, a poprzednie wywołanie może już być rozliczone. Endpoint służy wywołaniom wewnętrznym i nie ma własnego uwierzytelniania ani limitu na użytkownika; sprawdzenie użytkownika i limit ponowień należą do API.
 
 | Kod | Przyczyna |
 | --- | --- |
@@ -81,7 +79,7 @@ Wywołanie wykonuje jedno żądanie do Flash i osobne żądanie do Nano Banana d
 | `404` | zdjęcie nie istnieje |
 | `413` | przekroczony rozmiar zdjęć |
 | `503` | brak Project ID, nieprawidłowe dane logowania GCP, przekroczony limit Gemini lub brak dostępu do pliku zdjęcia |
-| `502` | błąd połączenia, błąd API, nieprawidłowe prompty lub odpowiedź bez obrazu |
+| `502` | błąd połączenia, błąd API, nieprawidłowy prompt lub odpowiedź bez obrazu |
 
 Limit czasu każdego żądania do Google wynosi 120 sekund. Cały pipeline może trwać dłużej; backend powinien uwzględnić wszystkie etapy w swoim limicie czasu. Odpowiedzi błędów nie ujawniają klucza ani treści błędów Google.
 

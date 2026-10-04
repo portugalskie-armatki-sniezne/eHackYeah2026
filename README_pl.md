@@ -14,7 +14,8 @@ eHackYeah2026/
 ├── apps/
 │   ├── web/                         # frontend
 │   ├── api/                         # backend
-│   └── notify/                      # wewnętrzny serwis wysyłki maili
+│   ├── notify/                      # wewnętrzny serwis wysyłki maili
+│   └── gemini/                      # wewnętrzny konektor wizualizacji inicjatyw
 ├── db/
 │   ├── migrations/                  # migracje SQL dla dbmate
 │   └── seeds/                       # dane referencyjne i arkusz kontaktów
@@ -81,6 +82,10 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 - `POST /inference` wymaga zalogowania i przyjmuje tekst, pytania klasyfikacyjne oraz opcjonalne zdjęcie. `POST /inference/service-entity` wybiera typ jednostki usługowej na podstawie tytułu, opisu i opcjonalnego zdjęcia. Ścieżki modeli w `.env.example` włączają lokalną analizę. Do istniejącego `.env` dodaj `LAYA_MODEL_PATH=models/laya-vision` i `TRANSLATION_MODEL_PATH=models/opus-mt-pl-en`; konfiguracja zachowuje istniejące wartości. Zobacz [konfigurację modeli i dostawców](apps/api/docs/inference.md).
 - Zmiany w `apps/api/app` automatycznie przeładowują API.
 - Uruchom `task be:lint`, aby sprawdzić API za pomocą Ruff, lub `task be:lint:fix`, aby zastosować poprawki i formatowanie.
+
+#### Konektor Gemini
+
+`apps/gemini` to wewnętrzny serwis deweloperski do wizualizacji zgłoszeń `improvement`. Gemini Flash tworzy jeden prompt na podstawie opisu i zdjęć zgłoszenia, a Nano Banana używa go razem ze zdjęciami do wygenerowania jednej wizualizacji. `POST /generate` zwraca prompt i obraz zakodowany w base64. Serwis odczytuje zdjęcia ze wspólnego katalogu API, ale nie zapisuje wyniku ani nie przypisuje go do zgłoszenia. API musi jeszcze dodać uwierzytelnione generowanie, limit ponowień i zapis zdjęcia. Instrukcję konfiguracji i format żądania opisuje [dokumentacja konektora Gemini](apps/gemini/docs/api.md). Konektor nie jest jeszcze częścią workflow wdrożeniowego.
 
 #### Aplikacja web
 
