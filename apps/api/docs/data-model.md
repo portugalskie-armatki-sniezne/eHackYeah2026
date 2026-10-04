@@ -410,10 +410,10 @@ z gotowym wektorem.
 
 ### project_chunks
 
-Teksty innowacji po jednym wierszu na sekcję, przeszukiwane przez `POST /projects/search`
-w poszukiwaniu dopasowanego fragmentu. Import zapisuje je na nowo dla każdej
-innowacji ze zbioru. Kolumna `tsv` używa konfiguracji `polish`, utworzonej przez
-migrację 10 jako kopia `simple`, gdy baza jej nie ma.
+Teksty innowacji po jednym wierszu na sekcję. Import zapisuje je na nowo dla każdej
+innowacji ze zbioru. `POST /projects/search` z nich nie korzysta, bo wyszukuje i wybiera
+dopasowany fragment bezpośrednio z kolumn `projects`. Kolumna `tsv` używa konfiguracji
+`polish`, utworzonej przez migrację 10 jako kopia `simple`, gdy baza jej nie ma.
 
 | Kolumna | Typ | Uwagi |
 | --- | --- | --- |

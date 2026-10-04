@@ -522,7 +522,7 @@ Parametry `GET /projects`:
 
 Tryby wyszukiwania:
 1. **Wyszukiwanie wektorowe**: Jeśli pole `query_vector` zawiera 1024-wymiarowy wektor embeddingu, endpoint wykonuje wyszukiwanie po odległości cosinusowej (`<=>`) na kolumnie `summary_vector`, z opcjonalnym filtrem kategorii. Zwraca wynik podobieństwa `score` od 0 do 1.
-2. **Wyszukiwanie słów kluczowych ze stemmingiem**: Gdy `query_vector` nie jest podany, zapytanie tekstowe oczyszczane jest z polskich słów pospolitych (stop words) oraz znaków diakrytycznych. Z kluczowych słów wyznaczane są 5-znakowe rdzenie gramatyczne, a zapytanie przeszukuje bazę `projects` i fragmenty `project_chunks`. Dynamiczny system wag punktuje dopasowania w tytule (+0.40), kategorii (+0.30) oraz streszczeniu (+0.15) z bonusem za jednoczesne trafienie wielu słów kluczowych (do maksymalnego wyniku 0.96).
+2. **Wyszukiwanie słów kluczowych ze stemmingiem**: Gdy `query_vector` nie jest podany, zapytanie i teksty innowacji tracą polskie znaki, słowa pospolite (stop words) oraz końcówki fleksyjne, więc np. `gry` i `gra` dają ten sam rdzeń. Porównywane są całe rdzenie, a nie fragmenty słów. Każdy rdzeń zapytania ma wagę zależną od tego, jak rzadko występuje w katalogu, więc słowa obecne w większości innowacji, np. `osoby`, prawie nie wpływają na wynik. Trafienia w tytule liczą się najmocniej, potem w streszczeniu, a słabiej w kategorii i pozostałych sekcjach. Słowa nieobecne w katalogu są pomijane. `score` od 0 do 1 to udział wagi zapytania pokrytej przez innowację. Zapytania z kilkoma pospolitymi słowami nie osiągają wysokiego wyniku. `matched_snippet` to fragment sekcji opisu, która ma najwięcej wspólnych rdzeni z zapytaniem. Formularz inicjatywy proponuje innowację z wynikiem powyżej 0.5.
 
 ## inference
 
