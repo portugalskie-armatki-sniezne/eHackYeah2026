@@ -1,5 +1,46 @@
 /* The profile reuses the account sheet from AuthDialog.css and only adds the
    read-only details, the confirmation line, and the list of reports. */
+
+/* One sheet for four tabs: the height is fixed to the tallest of them, so
+   moving between account, password, reports and preferences never resizes the
+   dialog under the pointer. A tab that outgrows it scrolls inside instead. The
+   width comes from .auth-dialog and does not follow the content either. */
+.profile-dialog {
+  height: min(27rem, 100dvh - 2rem);
+}
+
+/* The sheet is a fixed frame, so the tab's body is what gives: the header, the
+   standalone lines and the actions row keep their own size, and the list or
+   fieldset between them takes the rest and scrolls when it holds more. */
+.profile-dialog .auth-dialog__form {
+  height: 100%;
+}
+
+.profile-dialog .auth-dialog__form > * {
+  flex: none;
+}
+
+.profile-dialog .auth-dialog__form > .profile-dialog__section,
+.profile-dialog .auth-dialog__form > .profile-dialog__details,
+.profile-dialog .auth-dialog__form > .profile-dialog__reports {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* the actions row rests on the bottom edge whatever the tab above it holds */
+.profile-dialog .auth-dialog__actions {
+  margin-top: auto;
+}
+
+/* a tab whose fields and buttons share one form scrolls them together, so the
+   buttons stay on the bottom edge of that scroll rather than off it */
+.profile-dialog .profile-dialog__section > .auth-dialog__actions {
+  position: sticky;
+  bottom: 0;
+  background: var(--paper);
+}
+
 .profile-dialog__section {
   display: flex;
   flex-direction: column;
@@ -17,7 +58,7 @@
 
 .profile-dialog__details {
   display: grid;
-  gap: 0.75rem;
+  gap: 0px;
   margin: 0;
 }
 
@@ -37,10 +78,8 @@
 .profile-dialog__reports {
   display: flex;
   flex-direction: column;
-  max-height: 20rem;
   margin: 0;
   padding: 0;
-  overflow: auto;
   border: var(--scaffold-line) solid var(--ink);
   border-radius: var(--scaffold-radius);
   list-style: none;
@@ -113,6 +152,11 @@
 
 /* Phones: each label sits above its value. */
 @media (max-width: 40rem) {
+  /* matches the sheet's phone max-height, which leaves room for the home bar */
+  .profile-dialog {
+    height: min(27rem, 100dvh - 1.5rem - var(--safe-bottom));
+  }
+
   .profile-dialog__detail {
     grid-template-columns: 1fr;
     gap: 0.125rem;
