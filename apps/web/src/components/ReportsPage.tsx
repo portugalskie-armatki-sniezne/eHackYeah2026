@@ -11,7 +11,7 @@ import { photoProposalsApi } from "../api/photoProposals";
 import { isStaff, type SessionState } from "../api/session";
 import { useLocale, useMessages } from "../i18n/locale";
 import type { Messages } from "../i18n/messages";
-import PhotoProposalDialog from "./PhotoProposalDialog";
+import AddPhotoDialog from "./AddPhotoDialog";
 import StatusBadge from "./StatusBadge";
 import useMyCases from "./useMyCases";
 import "./ReportsPage.css";
@@ -94,7 +94,7 @@ export default function ReportsPage({ session, onSignIn }: ReportsPageProps) {
   const [query, setQuery] = useState("");
   // the viewer's own cases, which the author pill narrows the list to; null
   // while signed out or still being read, and then the pill is not offered
-  const { cases: myCases } = useMyCases();
+  const { cases: myCases, note: noteMyCase } = useMyCases();
   const powers: Powers = {
     me: session.status === "signed-in" ? session.user.id : null,
     staff: isStaff(session),
@@ -267,6 +267,7 @@ export default function ReportsPage({ session, onSignIn }: ReportsPageProps) {
                     signedOut={session.status === "signed-out"}
                     onSignIn={onSignIn}
                     onChange={replaceMaster}
+                    onPhotoAdded={noteMyCase}
                     onRemoved={() => dropMaster(master.id)}
                   />
                 </li>
@@ -288,6 +289,7 @@ type CaseCardProps = {
   signedOut: boolean;
   onSignIn: () => void;
   onChange: (master: MasterReport) => void;
+  onPhotoAdded: (masterId: string) => void;
   onRemoved: () => void;
 };
 
@@ -303,6 +305,7 @@ function CaseCard({
   signedOut,
   onSignIn,
   onChange,
+  onPhotoAdded,
   onRemoved,
 }: CaseCardProps) {
   const t = useMessages().reports;
@@ -453,6 +456,7 @@ function CaseCard({
           signedOut={signedOut}
           onSignIn={onSignIn}
           onChange={onChange}
+          onPhotoAdded={onPhotoAdded}
         />
       </div>
 
@@ -474,13 +478,14 @@ type CaseMediaProps = {
   signedOut: boolean;
   onSignIn: () => void;
   onChange: (master: MasterReport) => void;
+  onPhotoAdded: (masterId: string) => void;
 };
 
 /**
- * The case's picture, which on a wide screen stands to the right of its text:
+ * the case's picture, which on a wide screen stands to the right of its text:
  * the earliest photo among its filings; a photo a resident offered, under a
  * question mark, which whoever filed the case takes or turns down here; or,
- * for a case with neither, the drafting frame with the way to offer one.
+ * for a case with neither, the drafting frame with the way to add one.
  */
 function CaseMedia({
   master,
@@ -489,9 +494,10 @@ function CaseMedia({
   signedOut,
   onSignIn,
   onChange,
+  onPhotoAdded,
 }: CaseMediaProps) {
   const t = useMessages().reports;
-  const [offering, setOffering] = useState(false);
+  const [addingPhoto, setAddingPhoto] = useState(false);
   const [deciding, setDeciding] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -577,20 +583,20 @@ function CaseMedia({
         </figure>
       ) : (
         <div className="reports-page__photo reports-page__photo--empty">
-          {/* The pictogram is the way to offer a photo. While the session is
+          {/* the pictogram is the way to add a photo. While the session is
               still being restored neither answer applies, so it stays a drawing. */}
           {powers.me !== null || signedOut ? (
             <button
               type="button"
               className="reports-page__photo-glyph reports-page__photo-glyph--action"
               onClick={() => {
-                if (powers.me) setOffering(true);
+                if (powers.me) setAddingPhoto(true);
                 else onSignIn();
               }}
             >
               <span aria-hidden="true">{kind ? KIND_GLYPHS[kind] : "?"}</span>
               <span className="visually-hidden">
-                {powers.me ? t.proposePhoto : t.signInToProposePhoto}
+                {powers.me ? t.addPhoto : t.signInToAddPhoto}
               </span>
             </button>
           ) : (
@@ -599,7 +605,7 @@ function CaseMedia({
             </span>
           )}
           <span className="reports-page__photo-text">
-            {powers.me !== null || signedOut ? t.proposePhoto : t.noPhoto}
+            {powers.me !== null || signedOut ? t.addPhoto : t.noPhoto}
           </span>
         </div>
       )}
@@ -610,11 +616,12 @@ function CaseMedia({
         </p>
       )}
 
-      {offering && (
-        <PhotoProposalDialog
-          onClose={() => setOffering(false)}
+      {addingPhoto && (
+        <AddPhotoDialog
+          onClose={() => setAddingPhoto(false)}
           onSubmit={async (photo) => {
-            await photoProposalsApi.offer(master.id, photo);
+            await reportsApi.addMasterPhoto(master.id, photo);
+            onPhotoAdded(master.id);
             await reload();
           }}
         />
