@@ -1,5 +1,6 @@
-"""mock matching of reports to master reports by place and title, until an LLM classifier replaces it."""
+"""matching of reports to master reports by place and title, with a model for titles worded differently."""
 
+import logging
 import re
 import unicodedata
 from difflib import SequenceMatcher
@@ -9,9 +10,14 @@ import psycopg
 from psycopg import sql
 
 from app.common import NAMED_POINT, POINT, Location
+from app.inference.masters import MasterMatcher
+
+logger = logging.getLogger(__name__)
 
 MATCH_RADIUS_M = 50
 MIN_TITLE_SIMILARITY = 0.5
+# the nearest masters offered to the model, so its prompt stays short.
+MAX_MODEL_CANDIDATES = 5
 # serializes matching and master cleanup, so concurrent reports about one issue get one master.
 MATCHING_LOCK_KEY = 20260001
 
@@ -31,9 +37,9 @@ def lock(connection: psycopg.Connection) -> None:
     connection.execute("SELECT pg_advisory_xact_lock(%s)", (MATCHING_LOCK_KEY,))
 
 
-def find_master(connection: psycopg.Connection, report_category_id: int, title: str, location: Location) -> UUID | None:
-    """return the open master within the radius whose title, or a title of its reports, fits best."""
-    rows = connection.execute(
+def candidates(connection: psycopg.Connection, report_category_id: int, location: Location) -> list[dict]:
+    """return open masters of the category within the radius, nearest first."""
+    return connection.execute(
         sql.SQL(
             "SELECT m.id, m.title, ST_Distance(m.location, {point}) AS distance, "
             "array_remove(array_agg(r.title), NULL) AS report_titles "
@@ -42,7 +48,7 @@ def find_master(connection: psycopg.Connection, report_category_id: int, title: 
             "LEFT JOIN reports r ON r.master_report_id = m.id "
             "WHERE m.report_category_id = %(report_category_id)s AND s.name <> 'finished' "
             "AND ST_DWithin(m.location, {point}, %(radius_m)s) "
-            "GROUP BY m.id"
+            "GROUP BY m.id ORDER BY distance, m.id"
         ).format(point=NAMED_POINT),
         {
             "report_category_id": report_category_id,
@@ -51,6 +57,10 @@ def find_master(connection: psycopg.Connection, report_category_id: int, title: 
             "latitude": location.latitude,
         },
     ).fetchall()
+
+
+def best_title_match(rows: list[dict], title: str) -> UUID | None:
+    """return the candidate whose title, or a title of its reports, fits best."""
     # the most similar title wins, the nearer master breaks ties.
     matches = [
         (
@@ -62,6 +72,27 @@ def find_master(connection: psycopg.Connection, report_category_id: int, title: 
     ]
     matches = [match for match in matches if match[0] >= MIN_TITLE_SIMILARITY]
     return max(matches)[2] if matches else None
+
+
+def find_master(connection: psycopg.Connection, report_category_id: int, title: str, location: Location) -> UUID | None:
+    """return the open master within the radius whose title, or a title of its reports, fits best."""
+    return best_title_match(candidates(connection, report_category_id, location), title)
+
+
+def suggest_master(
+    connection: psycopg.Connection, matcher: MasterMatcher, report_category_id: int, title: str, location: Location
+) -> UUID | None:
+    """ask the model for an open master nearby when no title is similar, call before taking the matching lock."""
+    rows = candidates(connection, report_category_id, location)
+    if not rows or best_title_match(rows, title) is not None:
+        return None
+    try:
+        choice = matcher.choose(title, {str(row["id"]): row["title"] for row in rows[:MAX_MODEL_CANDIDATES]})
+    except Exception:
+        # the report is still saved, matched by titles only.
+        logger.warning("Master matching model failed", exc_info=True)
+        return None
+    return UUID(choice) if choice else None
 
 
 def create_master(
@@ -86,10 +117,19 @@ def assign_master(
 
 
 def assign_master_for_publication(
-    connection: psycopg.Connection, report_category_id: int, title: str, description: str, location: Location
+    connection: psycopg.Connection,
+    report_category_id: int,
+    title: str,
+    description: str,
+    location: Location,
+    suggested_master_id: UUID | None = None,
 ) -> tuple[UUID, bool]:
+    """join a similar master, then the model's suggestion if it is still a candidate, or create a master."""
     lock(connection)
-    master_id = find_master(connection, report_category_id, title, location)
+    rows = candidates(connection, report_category_id, location)
+    master_id = best_title_match(rows, title)
+    if master_id is None and suggested_master_id in {row["id"] for row in rows}:
+        master_id = suggested_master_id
     if master_id is not None:
         return master_id, False
     return create_master(connection, report_category_id, title, description, location), True

@@ -124,7 +124,7 @@ Run the integration checks with the migrated database available:
 
 ```sh
 cd apps/api
-uv run pytest tests/test_workflows.py tests/test_reports.py tests/test_master_reports.py tests/test_inference_startup.py
+uv run pytest tests/test_workflows.py tests/test_reports.py tests/test_master_matching.py tests/test_master_reports.py tests/test_inference_startup.py
 ```
 
 The notify and Gemini suites also replace their providers. Run `uv run pytest` in
