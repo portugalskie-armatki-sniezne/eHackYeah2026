@@ -49,7 +49,8 @@ distance queries, reports saved before classification, master report links and i
 content, statuses, assignment to either an office or a service entity, exclusive assignment,
 referenced entity deletion restrictions, shared comments and likes, photo relationships,
 visualization attempt cleanup, edit timestamps, the innovation library import, and
-reference data rollback. All eleven migrations are rolled back and reapplied. Its
+reference data rollback, and visualization and delivery queue tables. All migrations
+are rolled back and reapplied. Its
 containers, volume, and local image tag are removed afterward.
 
 Report locations use `geography(Point, 4326)`. Supply longitude before latitude, for
@@ -106,6 +107,23 @@ Existing environment variables take precedence. This keeps plain `pytest` runs o
 same configured database as the API, rather than silently using the local defaults.
 Each database test rolls back its transaction; photo files use temporary directories.
 Database tests are skipped when the configured database is unavailable.
+
+The workflow tests replace the Gemini and notify HTTP calls. They cover draft and
+published generation, private files, image history, publication during generation,
+idempotency, limits, leases after restart, file errors, draft cleanup, and one test mail
+per new master. No Google generation or SMTP delivery is performed. The concurrency
+test uses a temporary schema with separate committed connections and removes it afterward.
+
+Run the integration checks with the migrated database available:
+
+```sh
+cd apps/api
+uv run pytest tests/test_workflows.py tests/test_reports.py tests/test_master_reports.py tests/test_inference_startup.py
+```
+
+The notify and Gemini suites also replace their providers. Run `uv run pytest` in
+each workspace. See the [frontend contract](apps/api/docs/visualizations.md) for the
+new endpoints and the mandatory hackathon test destination, including on prod.
 
 ## Mock demo data
 

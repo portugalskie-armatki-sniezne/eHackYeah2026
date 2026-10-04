@@ -1,6 +1,6 @@
 # Gemini (apps/gemini)
 
-Wewnętrzny serwis FastAPI do wizualizacji inicjatyw `improvement` przez Google Cloud (Vertex AI, obecnie Gemini Enterprise Agent Platform). [Gemini Flash](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-8-flash) (`gemini-3.8-flash`) analizuje opis i zdjęcia, a [Nano Banana 2](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/image-generation) (`gemini-3.1-flash-image`) generuje obraz na podstawie przygotowanego promptu i tych samych zdjęć. Serwis korzysta z `google-genai` i nie wymaga bazy danych. Autoryzacja użytkownika, sprawdzenie typu zgłoszenia w bazie, ograniczanie liczby wywołań i zapis obrazu należą do przyszłej integracji w backendzie.
+Wewnętrzny serwis FastAPI do wizualizacji inicjatyw `improvement` przez Google Cloud (Vertex AI, obecnie Gemini Enterprise Agent Platform). [Gemini Flash](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-8-flash) (`gemini-3.8-flash`) analizuje opis i zdjęcia, a [Nano Banana 2](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/image-generation) (`gemini-3.1-flash-image`) generuje obraz na podstawie przygotowanego promptu i tych samych zdjęć. Serwis korzysta z `google-genai` i nie wymaga bazy danych. Główne API obsługuje autoryzację użytkownika, sprawdzenie kategorii zgłoszenia, limity i zapis historii obrazów. Kontrakt dla frontendu opisuje [integracja w API](../../api/docs/visualizations.md).
 
 ## Uruchomienie lokalne
 
@@ -69,9 +69,9 @@ curl --fail-with-body http://127.0.0.1:8002/generate \
 
 Zdjęcia muszą istnieć pod podanymi kluczami. Pierwsze wyznacza kadr wizualizacji, pozostałe dają kontekst tego samego miejsca. Wspólne reguły w `app/gemini.py` wymagają naturalnego wyglądu i zachowania otoczenia. Każde wywołanie generuje jeden obraz.
 
-Odpowiedź ma postać `{"prompt":"...","media_type":"image/png","image_base64":"..."}`. `image_base64` zawiera zakodowane bajty obrazu, bez prefiksu `data:`. Konektor czyta źródła ze wspólnego katalogu API, ale nie zapisuje wyniku ani nie tworzy wiersza `report_photos`; przyszła integracja z API musi to zrobić.
+Odpowiedź ma postać `{"prompt":"...","media_type":"image/png","image_base64":"..."}`. `image_base64` zawiera zakodowane bajty obrazu, bez prefiksu `data:`. Konektor czyta źródła ze wspólnego katalogu API. Główne API zapisuje wynik na wolumenie `api_uploads` i w tabeli `visualization_jobs`, oddzielnie od oryginalnych `report_photos`. Obsługiwane są także klucze `visualizations/<job_id>/<photo_id>.<extension>` oraz `visualizations/<job_id>/result.<extension>`.
 
-Wywołanie wykonuje jedno żądanie do Flash i jedno do Nano Banana. Jeśli którykolwiek etap zawiedzie, endpoint zwraca błąd. Ponowienie uruchamia cały pipeline, a poprzednie wywołanie może już być rozliczone. Endpoint służy wywołaniom wewnętrznym; nie ma własnego uwierzytelniania ani limitu na użytkownika. Dla przyszłej integracji ustalono maksymalnie trzy próby na zgłoszenie w ciągu 24 godzin, wliczając nieudane wywołania, oraz zastępowanie poprzedniego obrazu po udanej generacji. Migracja `09_addVisualizationAttempts.sql` przygotowuje tabelę prób; konektor z niej nie korzysta.
+Wywołanie wykonuje jedno żądanie do Flash i jedno do Nano Banana. Jeśli którykolwiek etap zawiedzie, endpoint zwraca błąd. Ponowienie uruchamia cały pipeline, a poprzednie wywołanie może już być rozliczone. Endpoint służy wywołaniom wewnętrznym; nie ma własnego uwierzytelniania ani limitu na użytkownika. Główne API rezerwuje próbę przed generacją i zachowuje historię udanych obrazów. Limit określa `GEMINI_USER_LIMIT` w `.env`, domyślnie 10 prób na użytkownika w ruchomych 24 godzinach, również nieudanych. Formularze i opublikowane zgłoszenia korzystają ze wspólnego limitu. Migracja 13 dodaje trwałe zlecenia i robocze zasoby; dawna tabela z migracji 09 nie obsługuje tego przepływu.
 
 | Kod | Przyczyna |
 | --- | --- |
@@ -81,7 +81,7 @@ Wywołanie wykonuje jedno żądanie do Flash i jedno do Nano Banana. Jeśli któ
 | `503` | brak Project ID, nieprawidłowe dane logowania GCP, przekroczony limit Gemini lub brak dostępu do pliku zdjęcia |
 | `502` | błąd połączenia, błąd API, nieprawidłowy prompt lub odpowiedź bez obrazu |
 
-Limit czasu każdego żądania do Google wynosi 120 sekund. Cały pipeline może trwać dłużej; backend powinien uwzględnić oba etapy w swoim limicie czasu. Odpowiedzi błędów nie ujawniają klucza ani treści błędów Google.
+Limit czasu każdego żądania do Google wynosi 120 sekund. SDK ma jawnie wyłączone automatyczne ponawianie, aby nie powtarzać generacji o niepewnym wyniku. Cały pipeline może trwać dłużej; backend uwzględnia oba etapy w limicie 300 sekund. Odpowiedzi błędów nie ujawniają klucza ani treści błędów Google.
 
 ## Walidacja
 
