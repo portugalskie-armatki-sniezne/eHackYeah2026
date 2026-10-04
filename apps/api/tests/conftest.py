@@ -46,6 +46,9 @@ def connection() -> Iterator[psycopg.Connection]:
 def client(connection: psycopg.Connection, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
     from app import municipalities
     from app.db import get_connection
+    from app.inference.masters import MasterMatcher, get_master_matcher
+    from app.inference.service import EmptyClassifier
+    from app.inference.translation import EmptyTranslator
     from app.main import app
 
     monkeypatch.setattr(
@@ -54,6 +57,8 @@ def client(connection: psycopg.Connection, monkeypatch: pytest.MonkeyPatch) -> I
         lambda location: municipalities.Municipality("1261011", "Kraków (miasto)", "powiat Kraków"),
     )
     app.dependency_overrides[get_connection] = lambda: connection
+    # reports are matched by titles only unless a test supplies a model.
+    app.dependency_overrides[get_master_matcher] = lambda: MasterMatcher(EmptyTranslator(), EmptyClassifier())
     # no context manager, so the lifespan does not open the shared pool.
     yield TestClient(app)
     app.dependency_overrides.clear()
