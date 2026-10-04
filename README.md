@@ -14,7 +14,8 @@ eHackYeah2026/
 ├── apps/
 │   ├── web/                         # frontend workspace
 │   ├── api/                         # backend workspace
-│   └── notify/                      # internal SMTP relay
+│   ├── notify/                      # internal SMTP relay
+│   └── gemini/                      # internal initiative visualization connector
 ├── db/
 │   ├── migrations/                  # dbmate SQL migrations
 │   └── seeds/                       # reference data and the contacts workbook
@@ -27,7 +28,7 @@ eHackYeah2026/
 │   ├── e2e/                         # cross-application scenarios
 │   └── fixtures/                    # shared behavioral examples
 ├── docker-compose.yaml              # database, migrations, and seed import
-├── docker-compose.app.yaml          # api, web, and notify containers from published images
+├── docker-compose.app.yaml          # api, web, notify, and gemini containers from published images
 ├── Taskfile.yml                     # development commands
 ├── mise.toml                        # pinned Bun, Task, and uv versions
 ├── setup-dev-env.sh                 # installs mise, pinned tools, and dependencies
@@ -83,6 +84,10 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 - Changes under `apps/api/app` reload the API automatically.
 - Run `task be:lint` to check the API with Ruff, or `task be:lint:fix` to apply fixes and formatting.
 
+#### Gemini Connector
+
+`apps/gemini` is an internal image-generation service for `improvement` reports. Gemini Flash prepares one image prompt from the description and shared report photos; Nano Banana uses that prompt and the photos to generate one visualization. `POST /generate` returns the prompt and image as base64. It reads the API upload directory but does not save the generated file or attach it to a report. Authentication, the retry limit, and photo persistence still need to be integrated in the API. The connector is deployed on the internal Compose network. See the [Gemini API guide](apps/gemini/docs/api.md) for local setup and the request format.
+
 #### Web Application
 
 1. Edit `apps/web/src/App.tsx` for the UI and `apps/web/src/index.css` for styles. Run `task fe:lint` to check ESLint and Prettier, or `task fe:lint:fix` to apply fixes and formatting.
@@ -106,12 +111,14 @@ In development Vite proxies `/api` to `http://127.0.0.1:8000`; `API_PROXY_TARGET
 ### Automated Deployment
 
 1. Configure the GitHub environments `dev` and `prod` with `VITE_API_URL` (the backend URL included in the frontend build), `VITE_GOOGLE_CLIENT_ID` (the OAuth client ID for Google sign-in, also set as `GOOGLE_CLIENT_ID` in the environment's `.env`), and `DEPLOY_DIR` (the deployment directory on the target machine).
-2. Create `DEPLOY_DIR` on the target machine and place the environment's `.env` in it. The database runs in a separate Compose project; `DB_NETWORK` selects its network (default `ehackyeah2026_default`) and `POSTGRES_HOST` selects its host (default `db`). Keep `.env` valid for both Compose and a shell script, with database credentials safe to use in a URL. Configure Gmail and test delivery for `notify` using the [mail setup instructions](apps/notify/docs/deployment.md).
-3. Use `[1] Deploy` in GitHub Actions to deploy `web`, `api`, `notify`, or `all` of them at once to `dev` or `prod`. Pushes to `main` deploy changed services to `dev`; changes to `db/migrations` deploy `api`. The workflow builds images from `apps/web/Dockerfile`, `apps/api/Dockerfile`, and `apps/notify/Dockerfile` and publishes them to `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web`, `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api`, and `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-notify`, tagged with the environment and `<environment>-<commit SHA>`.
-4. The self-hosted runner copies `docker-compose.app.yaml` to `DEPLOY_DIR/docker-compose.yml`, updates `WEB_IMAGE_TAG`, `API_IMAGE_TAG`, or `NOTIFY_IMAGE_TAG` in `DEPLOY_DIR/.env`, pulls images, applies migrations before restarting `api`, and restarts the selected services. A failed migration leaves the previous API container running. Deployment does not import seed data. Keep self-hosted runners out of workflows triggered by pull requests.
+2. Create `DEPLOY_DIR` on the target machine and place the environment's `.env` in it. Set `GOOGLE_CLOUD_PROJECT` and `GOOGLE_CLOUD_LOCATION`, copy the service-account JSON to the deployment host, and set `GEMINI_CREDENTIALS_FILE` to its path relative to `docker-compose.yml` (default `./project-key.json`). Set `GEMINI_UID` and `GEMINI_GID` to the numeric output of `id -u` and `id -g` for the account that owns the file, so the unprivileged container can read it. Keep the credentials file private and outside Git. The database runs in a separate Compose project; `DB_NETWORK` selects its network (default `ehackyeah2026_default`) and `POSTGRES_HOST` selects its host (default `db`). Keep `.env` valid for both Compose and a shell script, with database credentials safe to use in a URL. Configure Gmail and test delivery for `notify` using the [mail setup instructions](apps/notify/docs/deployment.md).
+3. Use `[1] Deploy` in GitHub Actions to deploy `web`, `api`, `notify`, `gemini`, or all of them to `dev` or `prod`. Pushes to `main` deploy changed services to `dev`; changes to `db/migrations` deploy `api`. The workflow builds images from the four service Dockerfiles and publishes them to `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-web`, `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-api`, `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-notify`, and `ghcr.io/portugalskie-armatki-sniezne/ehackyeah2026-gemini`, tagged with the environment and `<environment>-<commit SHA>`.
+4. The self-hosted runner copies `docker-compose.app.yaml` to `DEPLOY_DIR/docker-compose.yml`, updates the selected service's `*_IMAGE_TAG` in `DEPLOY_DIR/.env`, pulls images, applies migrations before restarting `api`, and restarts the selected services. A failed migration leaves the previous API container running. Deployment does not import seed data. Keep self-hosted runners out of workflows triggered by pull requests.
 5. After deploying `api`, run `[4] Seed` manually for `dev` or `prod` to import reference data from `db/seeds`. It waits for deployments to the same environment. Repeating the import preserves IDs and avoids duplicates; seed data overwrites manual edits, while records absent from the seed files remain in the database.
-6. Run `[2] Release` manually to deploy all three services to `prod`, then publish a Git tag and GitHub release. Versions use the UTC date and a daily counter, for example `v2026.10.03-1`.
-7. The Compose template stores report photos in `/app/uploads` on the `api_uploads` volume, so they survive deployments. `notify` mounts the same volume read-only to attach photos to emails.
+6. Run `[2] Release` manually to deploy all four services to `prod`, then publish a Git tag and GitHub release. Versions use the UTC date and a daily counter, for example `v2026.10.03-1`.
+7. The Compose template stores report photos in `/app/uploads` on the `api_uploads` volume, so they survive deployments. `notify` and `gemini` mount the same volume read-only.
+
+The API image includes CPU inference dependencies and pinned Laya and PL-to-EN translation models. GitHub Actions downloads the models in a cached image layer and checks real Polish classification with and without an image during the build, without network access. Compose enables them on both dev and prod without additional server configuration. API startup repeats the text check and reports readiness at `/ready` only after it succeeds. Deployment waits up to 10 minutes for readiness; a model failure fails the deployment. See [inference deployment](apps/api/docs/inference.md#wdrożenie-na-vps).
 
 > `[3] Lint` runs ESLint, Prettier, and Ruff on every pull request and push to `main`, using GitHub-hosted runners.
 

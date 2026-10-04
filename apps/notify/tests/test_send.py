@@ -413,6 +413,21 @@ def test_photos_attach_existing_api_files(
     assert path.read_bytes() == content
 
 
+def test_generated_photo_key_is_accepted(smtp: MagicMock, photo_root: Path):
+    key = PHOTO_KEY.removesuffix(".png") + "_generated_7e8d9c0b-1a2f-4b3c-8d9e-0f1a2b3c4d5e.png"
+    path = photo_root / key
+    path.parent.mkdir(parents=True)
+    path.write_bytes(b"\x89PNG\r\n\x1a\nimage")
+
+    response = TestClient(app).post("/send", json=PAYLOAD | {"photos": [{"storage_key": key}]})
+
+    assert response.status_code == 200
+    message = smtp.return_value.__enter__.return_value.send_message.call_args.args[0]
+    attachment = next(message.iter_attachments())
+    assert attachment.get_filename() == path.name
+    assert attachment.get_payload(decode=True) == b"\x89PNG\r\n\x1a\nimage"
+
+
 @pytest.mark.parametrize(
     "key", ["/etc/passwd", "../secret.png", PHOTO_KEY.replace("reports/", "uploads/"), "https://example.com/photo.png"]
 )
@@ -424,7 +439,7 @@ def test_invalid_photo_keys_block_sending(smtp: MagicMock, key: str):
 
 
 def test_too_many_photos_block_sending(smtp: MagicMock):
-    response = TestClient(app).post("/send", json=PAYLOAD | {"photos": [{"storage_key": PHOTO_KEY}] * 6})
+    response = TestClient(app).post("/send", json=PAYLOAD | {"photos": [{"storage_key": PHOTO_KEY}] * 7})
 
     assert response.status_code == 422
     smtp.assert_not_called()
