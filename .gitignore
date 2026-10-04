@@ -2,6 +2,8 @@
 .env
 .env.*
 !.env.example
+project-key.json
+gcp_service_account.json
 *.key
 *.p12
 *.pfx
@@ -36,6 +38,7 @@ coverage.xml
 
 # Downloaded inference checkpoints
 /apps/api/models/
+/apps/gemini/output/
 
 # JavaScript dependencies and tooling caches
 node_modules/
