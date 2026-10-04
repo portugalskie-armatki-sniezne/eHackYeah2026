@@ -121,30 +121,38 @@ def search_projects(
     connection: Connection,
     request: ProjectSearchQuery,
 ) -> list[ProjectSearchResult]:
+    params: dict[str, object] = {"limit": request.limit}
+
     # if vector is provided, execute cosine similarity search on summary_vector
     if request.query_vector and len(request.query_vector) == 1024:
+        cat_filter = sql.SQL("")
+        if request.category:
+            cat_filter = sql.SQL("WHERE (category = %(category)s OR category_slug = %(category)s) ")
+            params["category"] = request.category
+
         query_sql = sql.SQL(
             "SELECT id, slug, title, category, category_slug, url, description, summary, "
             "       NULL AS matched_snippet, "
             "       round((1 - (summary_vector <=> %(vector)s::vector))::numeric, 4)::float AS score "
             "FROM projects "
-            "WHERE (%(category)s IS NULL OR category = %(category)s OR category_slug = %(category)s) "
+            "{cat_filter}"
             "ORDER BY summary_vector <=> %(vector)s::vector ASC "
             "LIMIT %(limit)s"
-        )
-        vector_str = "[" + ",".join(str(val) for val in request.query_vector) + "]"
-        rows = connection.execute(
-            query_sql,
-            {
-                "vector": vector_str,
-                "category": request.category,
-                "limit": request.limit,
-            },
-        ).fetchall()
+        ).format(cat_filter=cat_filter)
+        params["vector"] = "[" + ",".join(str(val) for val in request.query_vector) + "]"
+        rows = connection.execute(query_sql, params).fetchall()
         return [ProjectSearchResult.model_validate(row) for row in rows]
 
     # hybrid search with PostgreSQL text search and project_chunks snippet matching
+    cat_filter = sql.SQL("")
+    if request.category:
+        cat_filter = sql.SQL("WHERE (p.category = %(category)s OR p.category_slug = %(category)s) ")
+        params["category"] = request.category
+
     like_query = "%" + request.query.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+    params["query"] = request.query
+    params["like_query"] = like_query
+
     query_sql = sql.SQL(
         "WITH matched_chunks AS ("
         "    SELECT project_slug, content, "
@@ -156,13 +164,13 @@ def search_projects(
         "), "
         "ranked_projects AS ("
         "    SELECT p.id, p.slug, p.title, p.category, p.category_slug, p.url, p.description, p.summary, "
-        "           coalesce(max(mc.chunk_score), 0.0) AS chunk_score, "
+        "           coalesce(max(mc.chunk_score), 0.0)::float AS chunk_score, "
         "           ts_rank_cd( "
         "               to_tsvector('polish', "
         "                   p.title || ' ' || p.category || ' ' || p.summary || ' ' || coalesce(p.description, '') "
         "               ), "
         "               plainto_tsquery('polish', %(query)s) "
-        "           ) AS direct_score, "
+        "           )::float AS direct_score, "
         "           ( "
         "               SELECT mc2.content "
         "               FROM matched_chunks mc2 "
@@ -172,27 +180,44 @@ def search_projects(
         "           ) AS matched_snippet "
         "    FROM projects p "
         "    LEFT JOIN matched_chunks mc ON mc.project_slug = p.slug "
-        "    WHERE (%(category)s IS NULL OR p.category = %(category)s OR p.category_slug = %(category)s) "
+        "    {cat_filter}"
         "    GROUP BY p.id, p.slug, p.title, p.category, p.category_slug, p.url, p.description, p.summary "
         ") "
         "SELECT id, slug, title, category, category_slug, url, description, summary, "
         "       substring(matched_snippet from 1 for 300) AS matched_snippet, "
-        "       round((least(1.0, direct_score * 0.8 + chunk_score * 0.5 + "
-        "             case when title ILIKE %(like_query)s then 0.4 else 0.0 end + "
-        "             case when summary ILIKE %(like_query)s then 0.2 else 0.0 end))::numeric, 4)::float AS score "
+        "       round( "
+        "           least( "
+        "               1.0::float, "
+        "               direct_score * 0.8::float + chunk_score * 0.5::float + "
+        "               case when title ILIKE %(like_query)s then 0.4::float else 0.0::float end + "
+        "               case when summary ILIKE %(like_query)s then 0.2::float else 0.0::float end "
+        "           )::numeric, "
+        "           4 "
+        "       )::float AS score "
         "FROM ranked_projects "
         "WHERE direct_score > 0 OR chunk_score > 0 OR title ILIKE %(like_query)s OR summary ILIKE %(like_query)s "
         "ORDER BY score DESC "
         "LIMIT %(limit)s"
-    )
-    rows = connection.execute(
-        query_sql,
-        {
-            "query": request.query,
-            "like_query": like_query,
-            "category": request.category,
-            "limit": request.limit,
-        },
-    ).fetchall()
+    ).format(cat_filter=cat_filter)
+
+    rows = connection.execute(query_sql, params).fetchall()
+
+    # fallback to keyword matching if full-text search yielded no results
+    if not rows:
+        words = [f"%{w}%" for w in request.query.split() if len(w) >= 3][:5]
+        if words:
+            fb_filter = sql.SQL("")
+            if request.category:
+                fb_filter = sql.SQL("AND (category = %(category)s OR category_slug = %(category)s) ")
+            fallback_sql = sql.SQL(
+                "SELECT id, slug, title, category, category_slug, url, description, summary, "
+                "       substring(summary from 1 for 300) AS matched_snippet, "
+                "       0.68::float AS score "
+                "FROM projects "
+                "WHERE (title ILIKE ANY(%(words)s) OR summary ILIKE ANY(%(words)s)) "
+                "{fb_filter}"
+                "LIMIT %(limit)s"
+            ).format(fb_filter=fb_filter)
+            rows = connection.execute(fallback_sql, params | {"words": words}).fetchall()
 
     return [ProjectSearchResult.model_validate(row) for row in rows]
