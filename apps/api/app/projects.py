@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from typing import Annotated
 
@@ -8,6 +9,132 @@ from pydantic import BaseModel, Field
 from app.common import Connection, Limit, Offset, Page, fetch_page
 
 router = APIRouter(prefix="/projects", tags=["projects"])
+
+STOP_WORDS = {
+    "a",
+    "aby",
+    "ale",
+    "bardzo",
+    "bez",
+    "bo",
+    "by",
+    "byl",
+    "byla",
+    "byli",
+    "bylo",
+    "byc",
+    "chce",
+    "chcecie",
+    "chcemy",
+    "chcialbym",
+    "chcialabym",
+    "chca",
+    "co",
+    "coraz",
+    "cos",
+    "czy",
+    "dla",
+    "do",
+    "gdzie",
+    "go",
+    "i",
+    "ich",
+    "im",
+    "ja",
+    "jak",
+    "jaka",
+    "jaki",
+    "jakie",
+    "jako",
+    "jest",
+    "jestem",
+    "jestesmy",
+    "jeszcze",
+    "juz",
+    "kiedy",
+    "kto",
+    "ktora",
+    "ktore",
+    "ktory",
+    "lub",
+    "ma",
+    "maja",
+    "mamy",
+    "miejsce",
+    "miejsca",
+    "miejscu",
+    "mnie",
+    "moga",
+    "moze",
+    "mozna",
+    "my",
+    "na",
+    "nad",
+    "nam",
+    "nami",
+    "nas",
+    "nasz",
+    "nasza",
+    "nasze",
+    "nie",
+    "nowe",
+    "nowa",
+    "nowy",
+    "o",
+    "od",
+    "on",
+    "ona",
+    "oni",
+    "ono",
+    "oraz",
+    "po",
+    "pod",
+    "przed",
+    "przez",
+    "przy",
+    "robic",
+    "sie",
+    "stworzyc",
+    "stworzenie",
+    "ta",
+    "tak",
+    "taki",
+    "takze",
+    "tam",
+    "te",
+    "tego",
+    "tej",
+    "temu",
+    "ten",
+    "to",
+    "tutaj",
+    "twoj",
+    "twoja",
+    "twoje",
+    "ty",
+    "tylko",
+    "w",
+    "we",
+    "wiec",
+    "wszystko",
+    "wraz",
+    "z",
+    "za",
+    "ze",
+    "zeby",
+    "zrobic",
+}
+ACCENTS_TRANS = str.maketrans("ąćęłńóśźż", "acelnoszz")
+
+
+def extract_keywords(query: str) -> list[str]:
+    raw_words = re.findall(r"[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]{3,}", query.lower())
+    clean_words = []
+    for word in raw_words:
+        normalized = word.translate(ACCENTS_TRANS)
+        if normalized not in STOP_WORDS:
+            clean_words.append(word)
+    return clean_words
 
 
 class ProjectSummary(BaseModel):
@@ -143,81 +270,78 @@ def search_projects(
         rows = connection.execute(query_sql, params).fetchall()
         return [ProjectSearchResult.model_validate(row) for row in rows]
 
-    # hybrid search with PostgreSQL text search and project_chunks snippet matching
+    keywords = extract_keywords(request.query)
+    if not keywords:
+        return []
+
+    # extract stems of keywords for Polish grammatical inflection tolerance
+    stems = [w[:5] if len(w) >= 5 else w for w in keywords]
+    patterns = [f"%{s}%" for s in stems]
+
     cat_filter = sql.SQL("")
+    params["patterns"] = patterns
     if request.category:
-        cat_filter = sql.SQL("WHERE (p.category = %(category)s OR p.category_slug = %(category)s) ")
+        cat_filter = sql.SQL("AND (p.category = %(category)s OR p.category_slug = %(category)s) ")
         params["category"] = request.category
 
-    like_query = "%" + request.query.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
-    params["query"] = request.query
-    params["like_query"] = like_query
-
     query_sql = sql.SQL(
-        "WITH matched_chunks AS ("
-        "    SELECT project_slug, content, "
-        "           ts_rank_cd(tsv, plainto_tsquery('polish', %(query)s)) AS chunk_score "
-        "    FROM project_chunks "
-        "    WHERE tsv @@ plainto_tsquery('polish', %(query)s) "
-        "    ORDER BY chunk_score DESC "
-        "    LIMIT 50"
-        "), "
-        "ranked_projects AS ("
-        "    SELECT p.id, p.slug, p.title, p.category, p.category_slug, p.url, p.description, p.summary, "
-        "           coalesce(max(mc.chunk_score), 0.0)::float AS chunk_score, "
-        "           ts_rank_cd( "
-        "               to_tsvector('polish', "
-        "                   p.title || ' ' || p.category || ' ' || p.summary || ' ' || coalesce(p.description, '') "
-        "               ), "
-        "               plainto_tsquery('polish', %(query)s) "
-        "           )::float AS direct_score, "
-        "           ( "
-        "               SELECT mc2.content "
-        "               FROM matched_chunks mc2 "
-        "               WHERE mc2.project_slug = p.slug "
-        "               ORDER BY mc2.chunk_score DESC "
-        "               LIMIT 1 "
-        "           ) AS matched_snippet "
-        "    FROM projects p "
-        "    LEFT JOIN matched_chunks mc ON mc.project_slug = p.slug "
-        "    {cat_filter}"
-        "    GROUP BY p.id, p.slug, p.title, p.category, p.category_slug, p.url, p.description, p.summary "
-        ") "
-        "SELECT id, slug, title, category, category_slug, url, description, summary, "
-        "       substring(matched_snippet from 1 for 300) AS matched_snippet, "
-        "       round( "
-        "           least( "
-        "               1.0::float, "
-        "               direct_score * 0.8::float + chunk_score * 0.5::float + "
-        "               case when title ILIKE %(like_query)s then 0.4::float else 0.0::float end + "
-        "               case when summary ILIKE %(like_query)s then 0.2::float else 0.0::float end "
-        "           )::numeric, "
-        "           4 "
-        "       )::float AS score "
-        "FROM ranked_projects "
-        "WHERE direct_score > 0 OR chunk_score > 0 OR title ILIKE %(like_query)s OR summary ILIKE %(like_query)s "
-        "ORDER BY score DESC "
-        "LIMIT %(limit)s"
+        "SELECT p.id, p.slug, p.title, p.category, p.category_slug, p.url, p.description, p.summary, "
+        "       ( "
+        "           SELECT substring(c.content from 1 for 300) "
+        "           FROM project_chunks c "
+        "           WHERE c.project_slug = p.slug AND c.content ILIKE ANY(%(patterns)s) "
+        "           LIMIT 1 "
+        "       ) AS matched_snippet "
+        "FROM projects p "
+        "WHERE (p.title ILIKE ANY(%(patterns)s) "
+        "   OR p.summary ILIKE ANY(%(patterns)s) "
+        "   OR coalesce(p.category, '') ILIKE ANY(%(patterns)s)) "
+        "{cat_filter}"
     ).format(cat_filter=cat_filter)
 
     rows = connection.execute(query_sql, params).fetchall()
 
-    # fallback to keyword matching if full-text search yielded no results
-    if not rows:
-        words = [f"%{w}%" for w in request.query.split() if len(w) >= 3][:5]
-        if words:
-            fb_filter = sql.SQL("")
-            if request.category:
-                fb_filter = sql.SQL("AND (category = %(category)s OR category_slug = %(category)s) ")
-            fallback_sql = sql.SQL(
-                "SELECT id, slug, title, category, category_slug, url, description, summary, "
-                "       substring(summary from 1 for 300) AS matched_snippet, "
-                "       0.68::float AS score "
-                "FROM projects "
-                "WHERE (title ILIKE ANY(%(words)s) OR summary ILIKE ANY(%(words)s)) "
-                "{fb_filter}"
-                "LIMIT %(limit)s"
-            ).format(fb_filter=fb_filter)
-            rows = connection.execute(fallback_sql, params | {"words": words}).fetchall()
+    scored_results: list[ProjectSearchResult] = []
+    for row in rows:
+        title_l = row["title"].lower()
+        cat_l = (row["category"] or "").lower()
+        sum_l = row["summary"].lower()
 
-    return [ProjectSearchResult.model_validate(row) for row in rows]
+        score = 0.0
+        matched_count = 0
+        for stem in stems:
+            if stem in title_l:
+                score += 0.40
+                matched_count += 1
+            elif stem in cat_l:
+                score += 0.30
+                matched_count += 1
+            elif stem in sum_l:
+                score += 0.15
+                matched_count += 1
+
+        if matched_count >= 2:
+            score += 0.15 * (matched_count - 1)
+
+        final_score = min(0.96, round(score, 2))
+        snippet = row["matched_snippet"] or row["description"] or row["summary"]
+        if snippet and len(snippet) > 300:
+            snippet = snippet[:300] + "..."
+
+        scored_results.append(
+            ProjectSearchResult(
+                id=row["id"],
+                slug=row["slug"],
+                title=row["title"],
+                category=row["category"],
+                category_slug=row["category_slug"],
+                url=row["url"],
+                description=row["description"],
+                summary=row["summary"],
+                matched_snippet=snippet,
+                score=final_score,
+            )
+        )
+
+    scored_results.sort(key=lambda r: r.score, reverse=True)
+    return scored_results[: request.limit]
