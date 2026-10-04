@@ -62,7 +62,11 @@ def match_rank(report_teryt: str, seat_teryt: str) -> int:
 def choose_candidate(
     candidates: list[Candidate], entity_type: ServiceEntityType, report_teryt: str
 ) -> RecommendedEntity | None:
-    candidates = [candidate for candidate in candidates if candidate.entity.entity_type == entity_type]
+    candidates = [
+        candidate
+        for candidate in candidates
+        if candidate.entity.entity_type == entity_type and candidate.entity.is_active
+    ]
     if not candidates:
         return None
     candidate = min(
@@ -101,7 +105,7 @@ def recommend_entity(
             row["distance_m"],
         )
         for row in rows
-        if row["current_address"] and row["distance_m"] is not None
+        if row["is_active"] and row["current_address"] and row["distance_m"] is not None
     ]
     return EntityRecommendationResult(
         **classification.model_dump(),

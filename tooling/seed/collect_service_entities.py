@@ -62,7 +62,7 @@ def clean(value: str | None) -> str | None:
 def new_entity(key: str, name: str, kind: str, source: str, verified: str) -> dict:
     record = dict.fromkeys(COLUMNS)
     record.update(source_key=key, name=clean(name), entity_type=kind,
-                  source_urls=[source], verified_on=verified)
+                  source_urls=[source], verified_on=verified, is_active=True)
     return record
 
 
@@ -229,7 +229,10 @@ def contact_articles(context: dict, cache: Path | None) -> list[str]:
             article_id = listing.get("mainArticleId")
             if article_id:
                 articles.append(REGIONAL_API + "articles/" + str(article_id))
-        if len(articles) == 2:
+            else:
+                for article in listing.get("articles", [])[:2 - len(articles)]:
+                    articles.append(REGIONAL_API + "articles/" + str(article["id"]))
+        if len(articles) >= 2:
             break
     return articles
 
@@ -325,7 +328,7 @@ def merge_records(central: list[dict], regional: list[dict], supplements: list[d
             fields["verified_on"] = min(existing["verified_on"], fields["verified_on"])
             existing.update(fields)
         else:
-            records[key] = dict.fromkeys(COLUMNS) | fields
+            records[key] = dict.fromkeys(COLUMNS) | {"is_active": True} | fields
     # preserve identities if a previously regional-only entity enters the central export.
     old_urls = {url_identity(record["bip_url"]): record["source_key"]
                 for record in previous if record["bip_url"]}

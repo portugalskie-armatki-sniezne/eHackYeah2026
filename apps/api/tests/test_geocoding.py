@@ -8,7 +8,7 @@ import pytest
 
 from app import geocoding
 
-RESULT = {"city": "Kraków", "number": "53", "accuracy": "1", "x": "572085.53", "y": "244516.83"}
+RESULT = {"city": "Kraków", "street": "Centralna", "number": "53", "accuracy": "1", "x": "572085.53", "y": "244516.83"}
 
 
 def response(results, **extra):
@@ -23,7 +23,7 @@ def test_address_lookup_uses_strict_number(monkeypatch):
     query = parse_qs(urlparse(fetch.call_args.args[0].full_url).query)
     assert query == {
         "request": ["GetAddress"],
-        "address": ["Kraków, Centralna 53"],
+        "address": ["Kraków, centralna 53"],
         "accuracy": ["0.8"],
         "exact_number": ["1"],
     }
@@ -36,7 +36,9 @@ def test_missing_or_ambiguous_addresses_are_not_chosen(monkeypatch, results):
     assert geocoding.address_point("Kraków", "Centralna", "53") is None
 
 
-@pytest.mark.parametrize("change", [{"city": "Inne miasto"}, {"number": "54"}, {"accuracy": "0.79"}])
+@pytest.mark.parametrize(
+    "change", [{"city": "Inne miasto"}, {"number": "54"}, {"accuracy": "0.79"}, {"street": "Inna"}]
+)
 def test_inexact_addresses_are_not_chosen(monkeypatch, change):
     monkeypatch.setattr(geocoding, "urlopen", Mock(return_value=response({"1": RESULT | change})))
     assert geocoding.address_point("Kraków", "Centralna", "53") is None
@@ -63,3 +65,28 @@ def test_network_errors_are_not_cached(monkeypatch):
         geocoding.address_point("Kraków", "Centralna", "53")
     assert geocoding.address_point("Kraków", "Centralna", "53") is not None
     assert fetch.call_count == 2
+
+
+def test_exact_address_survives_low_accuracy_alternatives(monkeypatch):
+    monkeypatch.setattr(
+        geocoding,
+        "urlopen",
+        Mock(
+            return_value=response(
+                {
+                    "1": RESULT,
+                    "2": RESULT | {"street": "Inna", "accuracy": "0.5"},
+                }
+            )
+        ),
+    )
+    assert geocoding.address_point("Kraków", "ul. Centralna", "53") is not None
+
+
+def test_postal_code_disambiguates_villages_but_not_duplicate_points(monkeypatch):
+    results = {"1": RESULT | {"code": "31-001"}, "2": RESULT | {"code": "32-001"}}
+    monkeypatch.setattr(geocoding, "urlopen", Mock(return_value=response(results)))
+    assert geocoding.address_point("Kraków", "Centralna", "53", "31-001") is not None
+    results["2"]["code"] = "31-001"
+    monkeypatch.setattr(geocoding, "urlopen", Mock(return_value=response(results)))
+    assert geocoding.address_point("Kraków", "Centralna", "53", "31-001") is None

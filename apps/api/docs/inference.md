@@ -192,9 +192,13 @@ Współrzędne i kod gminy siedziby są zapisane w `service_entities` w polach
 instytucji przy obsłudze zgłoszenia. `seat_geocoded_at` przechowuje datę ustalenia
 lokalizacji, a `seat_address` adres użyty do geokodowania. Po zmianie adresu
 jednostka jest pomijana do czasu ponownego uzupełnienia lokalizacji.
-Historyczne `teryt_code` z katalogu nie wpływa na wybór.
+Historyczne `teryt_code` z katalogu nie wpływa na wybór. Nieaktywne jednostki
+(`is_active=false`) pozostają w katalogu, ale nie są kandydatami do rekomendacji.
 
-Po zastosowaniu migracji 07 i imporcie katalogu uzupełnij lokalizacje:
+Zwykły import zapisuje przejrzane lokalizacje ze zbioru
+`db/seeds/service_entity_seats.json`. Źródła, wyjątki i odświeżanie zbioru opisuje
+[TESTING.md](../../../TESTING.md#reference-data-import-and-refresh).
+Po zmianie adresu lub przy ręcznym uzupełnianiu siedzib możesz użyć:
 
 ```sh
 cd apps/api
@@ -211,8 +215,10 @@ Ponowny import niezmienionego katalogu zachowuje współrzędne.
 Polecenie pobiera punkty adresowe z
 [GUGiK UUG](https://services.gugik.gov.pl/uug/opis.html), z operacji `GetAddress`.
 Wymagane są miejscowość i numer budynku; ulica jest opcjonalna dla miejscowości
-bez ulic. Akceptujemy pojedynczy wynik, zgodną miejscowość i numer oraz ocenę
-dopasowania co najmniej `0.8`. Nie zastępujemy adresu środkiem ulicy lub miejscowości.
+bez ulic. Akceptujemy pojedynczy dokładny wynik o zgodnej miejscowości, ulicy i numerze oraz
+ocenie dopasowania co najmniej `0.8`. Wyniki alternatywne o niższej ocenie nie blokują
+dokładnego punktu. Kod pocztowy rozróżnia miejscowości o tej samej nazwie; dwa punkty
+tego samego adresu pozostają niejednoznaczne. Nie zastępujemy adresu środkiem ulicy lub miejscowości.
 PostGIS przelicza EPSG:2180 na WGS 84, a ULDK wyznacza region siedziby.
 Do UUG trafiają wyłącznie adresy instytucji, do ULDK współrzędne.
 
