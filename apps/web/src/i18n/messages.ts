@@ -648,7 +648,7 @@ const pl: Messages = {
     descriptionPlaceholder: "Co się tu dzieje?",
     image: "Zdjęcie",
     chosenImage: "Wybrane zdjęcie",
-    noImage: "zaproponuj zdjęcie",
+    noImage: "Dodaj zdjęcie",
     changeImage: "Zmień zdjęcie",
     chooseImage: "Wybierz zdjęcie",
     close: "Zamknij",
