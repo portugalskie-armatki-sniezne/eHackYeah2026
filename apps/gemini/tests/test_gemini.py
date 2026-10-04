@@ -1,10 +1,13 @@
 import base64
 import json
+import logging
 from pathlib import Path
 from unittest.mock import MagicMock
 
 import httpx
 import pytest
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 from google.auth.exceptions import DefaultCredentialsError, RefreshError
@@ -333,3 +336,80 @@ def test_core_requires_description_photos_and_valid_count(client: MagicMock):
         gemini.generate_visualization("complaint", "A playground", [("image/jpeg", PHOTO)])
     assert error.value.status_code == 422
     client.models.generate_content.assert_not_called()
+
+
+def service_account_key(path: Path) -> Path:
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048).private_bytes(
+        serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()
+    )
+    path.write_text(
+        json.dumps(
+            {
+                "type": "service_account",
+                "project_id": "key-project",
+                "private_key_id": "test",
+                "private_key": private_key.decode(),
+                "client_email": "visualizer@key-project.iam.gserviceaccount.com",
+                "client_id": "1",
+                "token_uri": "https://oauth2.googleapis.com/token",
+            }
+        )
+    )
+    return path
+
+
+def test_startup_logs_loaded_credentials(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, caplog: pytest.LogCaptureFixture
+):
+    monkeypatch.setenv("GOOGLE_APPLICATION_CREDENTIALS", str(service_account_key(tmp_path / "key.json")))
+    monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", "test-project")
+
+    with caplog.at_level(logging.INFO, logger="uvicorn.error"), TestClient(app):
+        pass
+
+    record = caplog.records[-1]
+    assert record.levelno == logging.INFO
+    assert "loaded" in record.getMessage()
+    assert "visualizer@key-project.iam.gserviceaccount.com" in record.getMessage()
+    assert "key project key-project, GOOGLE_CLOUD_PROJECT test-project" in record.getMessage()
+    assert "PRIVATE KEY" not in caplog.text
+
+
+@pytest.mark.parametrize(
+    ("content", "reason"),
+    [
+        (None, "does not exist"),
+        ("directory", "is a directory, the key file is missing on the host"),
+        ("not json", "is not a valid service-account key (JSONDecodeError)"),
+        ('{"type": "service_account", "private_key": "secret-material"}', "is not a valid service-account key"),
+    ],
+)
+def test_startup_logs_unusable_credentials(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, caplog: pytest.LogCaptureFixture, content: str | None, reason: str
+):
+    path = tmp_path / "key.json"
+    if content == "directory":
+        path.mkdir()
+    elif content is not None:
+        path.write_text(content)
+    monkeypatch.setenv("GOOGLE_APPLICATION_CREDENTIALS", str(path))
+
+    with caplog.at_level(logging.INFO, logger="uvicorn.error"):
+        gemini.log_credentials_status()
+
+    record = caplog.records[-1]
+    assert record.levelno == logging.ERROR
+    assert f"{path} {reason}" in record.getMessage()
+    assert "secret-material" not in caplog.text
+
+
+def test_startup_logs_default_credentials_without_key_file(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+):
+    monkeypatch.setenv("GOOGLE_APPLICATION_CREDENTIALS", "")
+
+    with caplog.at_level(logging.INFO, logger="uvicorn.error"):
+        gemini.log_credentials_status()
+
+    assert caplog.records[-1].levelno == logging.INFO
+    assert "Application Default Credentials" in caplog.text
