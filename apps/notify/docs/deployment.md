@@ -46,8 +46,10 @@ Port pozostaje wewnętrzny. `task api` uruchamia backend na hoście, więc nie k
 
 Compose montuje `api_uploads` w `notify` pod `/app/uploads` tylko do odczytu. API nadal zapisuje tam zdjęcia. Po zmianie szablonu Compose wdróż `api` i `notify` ponownie, aby wysyłka załączników widziała te same pliki. Backend przekazuje `photos` i `location` zgodnie z [kontraktem HTTP](api.md).
 
-Po zmianie `.env` odtwórz kontener z katalogu `DEPLOY_DIR`:
+Po zmianie ustawień SMTP w `.env` odtwórz `api` i `notify` z katalogu `DEPLOY_DIR`. Obie usługi wymagają `SMTP_MOCK=true` i poprawnego `SMTP_MOCK_DESTINATION`:
 
 ```sh
-docker compose up -d notify
+docker compose up -d --force-recreate api notify
 ```
+
+Błędna konfiguracja po stronie API pozostawia mail w kolejce z kodem `smtp_configuration`; worker sprawdza ją ponownie po minucie. Zlecenia zakończone jako `failed` lub `unknown` nie są automatycznie ponawiane. Sama zmiana `.env` ani restart usług nie wysyłają ich ponownie.
