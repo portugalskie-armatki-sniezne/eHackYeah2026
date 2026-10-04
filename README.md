@@ -56,6 +56,7 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
    ```
 
    > `task setup` creates `.env` from `.env.example` if it is missing and preserves an existing file.
+   > `task setup`, `task web`, `task db`, and `task api` enable the pre-commit hook from `.githooks`, which runs `task fe:lint` or `task be:lint` when a commit changes `apps/web` or `apps/api`.
 
 3. Review the database settings and replace the environment variable placeholders in `.env` with appropriate values and a random `JWT_SECRET` before starting the API. The generation command is included in `.env.example`.
 

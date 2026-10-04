@@ -4,6 +4,7 @@ import About from "./components/About";
 import AuthDialog from "./components/AuthDialog";
 import Map from "./components/Map";
 import Navbar from "./components/Navbar";
+import ProjectsCatalog from "./components/ProjectsCatalog";
 import ProfileDialog from "./components/ProfileDialog";
 import SignOutDialog from "./components/SignOutDialog";
 import useHashRoute from "./components/useHashRoute";
@@ -30,6 +31,8 @@ export default function App() {
       />
       {route === "about" ? (
         <About />
+      ) : route === "initiatives" ? (
+        <ProjectsCatalog />
       ) : (
         <Map onSignInRequired={() => setAuthOpen(true)} />
       )}
