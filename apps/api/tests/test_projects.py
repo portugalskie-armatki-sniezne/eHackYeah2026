@@ -1,8 +1,15 @@
+import json
+from pathlib import Path
 from uuid import uuid4
 
 import psycopg
 import pytest
 from fastapi.testclient import TestClient
+
+from app.projects import score_projects, search_terms
+
+# the frontend suggests an innovation only above this score
+SUGGESTION_THRESHOLD = 0.5
 
 
 @pytest.fixture
@@ -154,3 +161,36 @@ def test_search_projects_text(client: TestClient, sample_projects):
     top = results[0]
     assert "BaWita" in top["title"]
     assert top["score"] > 0
+
+
+@pytest.fixture(scope="module")
+def catalog() -> list[dict]:
+    path = Path(__file__).resolve().parents[3] / "db/seeds/rops_projects.json"
+    return json.loads(path.read_text(encoding="utf-8"))["projects"]
+
+
+def test_search_terms_share_stems_across_inflections():
+    assert search_terms("gry gra grach") == ["gr", "gr", "gr"]
+    assert search_terms("pracy praca pracę") == ["prac", "prac", "prac"]
+    assert search_terms("osoby osobom osób") == ["osob", "osob", "osob"]
+
+
+def test_score_projects_suggests_matching_innovation(catalog: list[dict]):
+    scored = score_projects("zorganizowałbym tutaj gry które nauczą osoby rynku pracy", catalog)
+    scores = {project["slug"]: score for score, project in scored}
+    assert scored[0][1]["slug"] == "gra-o-zdrowie"
+    assert scored[0][0] > SUGGESTION_THRESHOLD
+    assert scores["osoby-niewidome-i-niedowidzace-jako-nauczyciele-jezyka-polskiego"] < SUGGESTION_THRESHOLD
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        "pomoc dla osób",
+        "dziura w jezdni na skrzyżowaniu, trzeba naprawić asfalt",
+        "zorganizowałbym festyn dla mieszkańców osiedla",
+    ],
+)
+def test_score_projects_keeps_unrelated_queries_below_threshold(catalog: list[dict], query: str):
+    scored = score_projects(query, catalog)
+    assert all(score < SUGGESTION_THRESHOLD for score, _ in scored)
