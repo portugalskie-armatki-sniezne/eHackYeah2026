@@ -44,9 +44,9 @@ import "./Map.css";
 setWorkerUrl(maplibreWorkerUrl);
 
 // Where the map opens when the device has never been located in this browser.
-const POZNAN: [number, number] = [16.929, 52.407];
-// wide enough to open on most of the reported city, not one street of it
-const ZOOM = 14;
+const MALOPOLSKA: [number, number] = [20.25, 49.85];
+// wide enough to open on Małopolska, not one city
+const ZOOM = 7;
 // Close enough to read the street you are standing on.
 const LOCATE_ZOOM = 16.5;
 const TILTED_VIEW = { pitch: 55, bearing: -20 };
@@ -539,13 +539,13 @@ export default function Map({ onSignInRequired }: MapProps) {
     }
 
     // The map opens on the device's position: the place it was last seen if this
-    // browser knows one, and the city view until the first fix lands otherwise.
+    // browser knows one, and the region view until the first fix lands otherwise.
     const lastKnown = readLastKnownPosition();
 
     const map = new MapLibreMap({
       container,
       style: BASEMAP_STYLES.streets,
-      center: lastKnown ?? POZNAN,
+      center: lastKnown ?? MALOPOLSKA,
       zoom: lastKnown ? LOCATE_ZOOM : ZOOM,
       ...FLAT_VIEW,
       maxPitch: 70,
@@ -597,7 +597,7 @@ export default function Map({ onSignInRequired }: MapProps) {
       .getCanvas()
       .setAttribute(
         "aria-label",
-        "Map of Poznań. Use the arrow keys to pan and the plus and minus keys to zoom.",
+        "Map. Use the arrow keys to pan and the plus and minus keys to zoom.",
       );
 
     mapRef.current = map;
@@ -724,7 +724,7 @@ export default function Map({ onSignInRequired }: MapProps) {
   const handleZoomOut = useCallback(() => mapRef.current?.zoomOut(), []);
   const handleRecenter = useCallback(() => {
     mapRef.current?.flyTo({
-      center: POZNAN,
+      center: MALOPOLSKA,
       zoom: ZOOM,
       ...(tilted ? TILTED_VIEW : FLAT_VIEW),
     });
@@ -739,7 +739,7 @@ export default function Map({ onSignInRequired }: MapProps) {
   }, [tilted]);
 
   return (
-    <section className="map" aria-label="Map of Poznań">
+    <section className="map" aria-label="Map">
       {saveError && (
         <aside className="map__notice" role="alert">
           {saveError}
