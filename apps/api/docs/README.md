@@ -8,7 +8,7 @@ API w FastAPI do zgłaszania problemów, łączenia podobnych zgłoszeń w maste
 | --- | --- |
 | [data-model.md](data-model.md) | ERD (Mermaid), tabele kolumn, relacje i reguły usuwania |
 | [api.md](api.md) | konwencje, dostęp, endpointy, dopasowanie do mastera, przykłady JSON, kody błędów |
-| [inference.md](inference.md) | tłumaczenie, klasyfikacja typów jednostek, opcjonalne zdjęcia i pomiar trafności |
+| [inference.md](inference.md) | tłumaczenie, klasyfikacja typów jednostek, dopasowanie do mastera, opcjonalne zdjęcia i pomiar trafności |
 
 ## Zasady dla agentów i ludzi
 
@@ -26,7 +26,7 @@ API w FastAPI do zgłaszania problemów, łączenia podobnych zgłoszeń w maste
 | `mock` | działa na danych testowych |
 | `done` | działa na bazie, są testy |
 
-Endpointy CRUD z [api.md](api.md) oraz katalog innowacji `/projects` mają status `done`. `/inference` udostępnia analizę z wymiennymi dostawcami. `/inference/service-entity` wybiera jeden typ jednostki po skonfigurowaniu modeli. Dopasowanie reportów do masterów też działa na bazie i ma testy, ale jest tymczasową heurystyką, którą zastąpi klasyfikator LLM.
+Endpointy CRUD z [api.md](api.md) oraz katalog innowacji `/projects` mają status `done`. `/inference` udostępnia analizę z wymiennymi dostawcami. `/inference/service-entity` wybiera jeden typ jednostki po skonfigurowaniu modeli. Dopasowanie reportów do masterów też działa na bazie i ma testy. Łączy heurystykę tytułów z wyborem modelu Laya dla tytułów sformułowanych inaczej.
 
 ## Uruchomienie
 
@@ -64,7 +64,7 @@ Polecenie uruchamia bazę, migracje i import seeda, a potem API pod <http://127.
 | `collect_service_entity_seats.py` | gromadzenie siedzib jednostek usługowych |
 | `geocode_service_entities.py` | geokodowanie siedzib jednostek usługowych |
 | `projects.py` | `/projects`, katalog innowacji społecznych ROPS i wyszukiwanie |
-| `inference/` | `/inference`, wymienny tłumacz, klasyfikator i adapter Laya |
+| `inference/` | `/inference`, wymienny tłumacz, klasyfikator, adapter Laya i wybór mastera przez model |
 | `set_role.py` | skrypt nadający rolę użytkownikowi |
 
 ## Testy
@@ -92,7 +92,7 @@ Dostępne role to `user`, `office` i `admin`. Później role może zmieniać `ad
 
 Report to pojedyncze zgłoszenie użytkownika. Master to wspólna sprawa dla podobnych reportów: ma status, odpowiedź, odpowiedzialny podmiot (urząd albo jednostkę usługową), komentarze i polubienia.
 
-`POST /reports` od razu przypina nowy report do mastera. Kandydaci to mastery z tą samą kategorią, ze statusem innym niż `finished`, do 50 m od punktu mastera. Spośród nich wygrywa ten o najbardziej podobnym tytule. Jeśli żaden nie przekroczy progu podobieństwa, report tworzy nowy master. Gdy master straci ostatni report, API usuwa go razem z dyskusją. Szczegóły są w [api.md](api.md#dopasowanie-do-mastera), a promień i próg w `app/matching.py`.
+`POST /reports` od razu przypina nowy report do mastera. Kandydaci to mastery z tą samą kategorią, ze statusem innym niż `finished`, do 50 m od punktu mastera. Spośród nich wygrywa ten o najbardziej podobnym tytule. Jeśli żaden nie przekroczy progu podobieństwa, model wybiera master opisujący ten sam problem. Bez wyboru modelu report tworzy nowy master. Gdy master straci ostatni report, API usuwa go razem z dyskusją. Szczegóły są w [api.md](api.md#dopasowanie-do-mastera), promień i próg tytułów w `app/matching.py`, a próg modelu w `app/inference/masters.py`.
 
 ## Zdjęcia
 

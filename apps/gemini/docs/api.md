@@ -26,7 +26,7 @@ Wewnętrzny serwis FastAPI do wizualizacji zgłoszeń przez Google Cloud (Vertex
 
 Dokumentacja HTTP jest dostępna pod `http://127.0.0.1:8002/docs`.
 
-`UPLOAD_DIR` wskazuje katalog zdjęć współdzielony z API, tak jak w `notify`. Domyślnie jest to `apps/api/uploads`; ścieżki względne są liczone od `apps/api`. W kontenerze zamontuj wolumen `api_uploads` tylko do odczytu pod `/app/uploads`; obraz ustawia domyślnie `UPLOAD_DIR=/app/uploads`, `GOOGLE_CLOUD_LOCATION=global` i `GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/gemini-service-account.json`, a `GOOGLE_CLOUD_PROJECT` pochodzi z `.env`. Dane logowania GCP montuj tylko do odczytu pod tą ścieżką albo wskaż inną w `GOOGLE_APPLICATION_CREDENTIALS`. Obraz działa jako UID 65534; przy pliku JSON ograniczonym do właściciela ustaw `GEMINI_UID` i `GEMINI_GID` na numeryczne identyfikatory właściciela pliku.
+`UPLOAD_DIR` wskazuje katalog zdjęć współdzielony z API, tak jak w `notify`. Domyślnie jest to `apps/api/uploads`; ścieżki względne są liczone od `apps/api`. W kontenerze zamontuj wolumen `api_uploads` tylko do odczytu pod `/app/uploads`; obraz ustawia domyślnie `UPLOAD_DIR=/app/uploads`, `GOOGLE_CLOUD_LOCATION=global` i `GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/gemini-service-account.json`, a `GOOGLE_CLOUD_PROJECT` pochodzi z `.env`. Główne API wywołuje serwis w sieci aplikacji pod `http://gemini:<GEMINI_PORT>`; port pozostaje wewnętrzny, domyślnie `8000`, a `.env.example` ustawia `8002`. Dane logowania GCP montuj tylko do odczytu pod tą ścieżką albo wskaż inną w `GOOGLE_APPLICATION_CREDENTIALS`. Obraz działa jako UID 65534; przy pliku JSON ograniczonym do właściciela ustaw `GEMINI_UID` i `GEMINI_GID` na numeryczne identyfikatory właściciela pliku.
 
 ## Przykład Python
 

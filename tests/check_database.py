@@ -114,6 +114,20 @@ def main():
         if query(report_type_column) != "0":
             raise RuntimeError("Visualization report type rollback left the column behind")
         print("PASS: visualization report type migration rolled back successfully", flush=True)
+        legacy_user = query("INSERT INTO users (first_name, last_name, email, google_sub) "
+                            "VALUES ('Migration', 'Check', 'migration-check@example.invalid', 'migration-check') "
+                            "RETURNING id;").splitlines()[0]
+        legacy_job = str(uuid.uuid4())
+        query("INSERT INTO visualization_jobs "
+              "(id, user_id, idempotency_key, request_hash, description, source_keys) "
+              f"VALUES ('{legacy_job}', '{legacy_user}', 'migration-check', 'migration-check', "
+              "'Legacy visualization', '[]');")
+        compose("run", "--rm", "--no-deps", "db-migrator", "up")
+        legacy_result = query(f"SELECT report_type, description FROM visualization_jobs WHERE id = '{legacy_job}';")
+        if legacy_result != "improvement|Legacy visualization":
+            raise RuntimeError("Visualization report type migration did not preserve the legacy job")
+        print("PASS: visualization report type upgrade preserved an existing job", flush=True)
+        compose("run", "--rm", "--no-deps", "db-migrator", "down")
         workflow_tables = "'visualization_drafts', 'visualization_jobs', 'mail_delivery_jobs'"
         if query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' "
                  f"AND table_name IN ({workflow_tables});") != "3":

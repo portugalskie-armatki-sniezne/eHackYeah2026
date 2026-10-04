@@ -12,6 +12,8 @@ import { useMessages } from "../i18n/locale";
 import "./PinDialog.css";
 
 export type PinDraft = {
+  /** Left out when empty, so the report is titled by its description. */
+  title?: string;
   description: string;
   image: File | null;
   /** Object URL for the chosen image, owned by the pin once added. */
@@ -31,6 +33,7 @@ function formatLngLat([lng, lat]: [number, number]): string {
 }
 
 const SIMILARITY_THRESHOLD = 0.5;
+const TITLE_MAX_LENGTH = 80;
 
 /**
  * The sheet that opens when a pin is dropped. Supports two modes:
@@ -40,6 +43,7 @@ const SIMILARITY_THRESHOLD = 0.5;
 export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [activeTab, setActiveTab] = useState<"issue" | "initiative">("issue");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -88,6 +92,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
     setError(null);
     try {
       await onAdd({
+        title: title.trim() || undefined,
         description: finalDescription,
         image: img,
         imageUrl: imgUrl,
@@ -203,6 +208,23 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
               {error}
             </p>
           )}
+
+          <div className="pin-dialog__field">
+            <label className="pin-dialog__label" htmlFor={`${id}-report-title`}>
+              {t.titleLabel}
+            </label>
+            <input
+              id={`${id}-report-title`}
+              className="pin-dialog__input"
+              type="text"
+              name="title"
+              maxLength={TITLE_MAX_LENGTH}
+              disabled={saving}
+              placeholder={t.titlePlaceholder}
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+            />
+          </div>
 
           <div className="pin-dialog__field">
             <label className="pin-dialog__label" htmlFor={`${id}-description`}>
@@ -337,6 +359,26 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
             </div>
           ) : (
             <>
+              <div className="pin-dialog__field">
+                <label
+                  className="pin-dialog__label"
+                  htmlFor={`${id}-initiative-title`}
+                >
+                  {t.titleLabel}
+                </label>
+                <input
+                  id={`${id}-initiative-title`}
+                  className="pin-dialog__input"
+                  type="text"
+                  name="title"
+                  maxLength={TITLE_MAX_LENGTH}
+                  disabled={saving || checkingSimilarity}
+                  placeholder={t.titlePlaceholder}
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                />
+              </div>
+
               <div className="pin-dialog__field">
                 <label
                   className="pin-dialog__label"

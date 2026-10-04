@@ -265,14 +265,15 @@ przy edycji zachowuje poprzednie dane.
 
 ### Dopasowanie do mastera
 
-`POST /reports` w jednej transakcji zapisuje report i od razu przypina go do mastera. To tymczasowy mock w `app/matching.py`, który później zastąpi klasyfikator LLM:
+`POST /reports` w jednej transakcji zapisuje report i od razu przypina go do mastera. Dopasowanie jest w `app/matching.py`:
 
 1. Kandydaci to mastery z tą samą `report_category_id`, ze statusem innym niż `finished`, w promieniu 50 m od punktu mastera.
 2. Dla każdego kandydata liczone jest podobieństwo tytułu nowego reportu do tytułu mastera i tytułów jego reportów, a wynikiem jest najlepsze z nich. Tytuły są porównywane bez wielkości liter, polskich znaków i interpunkcji (`difflib`, wynik od 0 do 1).
 3. Kandydaci z wynikiem poniżej 0.5 odpadają. Wygrywa najwyższy wynik, a przy remisie bliższy master.
-4. Bez pasującego kandydata backend tworzy nowy master ze statusem `created`, kopiując `report_category_id`, `title`, `description` i `location` reportu.
+4. Gdy kandydaci są, ale żaden tytuł nie przekroczył progu, model Laya wybiera spośród 5 najbliższych masterów ten, który opisuje ten sam problem, albo żaden. Szczegóły są w [inference.md](inference.md#dopasowanie-do-mastera).
+5. Bez pasującego kandydata backend tworzy nowy master ze statusem `created`, kopiując `report_category_id`, `title`, `description` i `location` reportu.
 
-Przykład: przy masterze „Dziura w jezdni” report „Dziura w jezdni na Długiej” 20 m dalej trafia pod ten master, a report „Zepsuta latarnia” 5 m dalej tworzy nowy. Dopasowania wykonują się po kolei (advisory lock), więc dwa równoczesne zgłoszenia tego samego problemu nie tworzą dwóch masterów.
+Przykład: przy masterze „Dziura w jezdni” report „Dziura w jezdni na Długiej” 20 m dalej trafia pod ten master już po tytule. Report „Wyrwa w asfalcie” trafia tam tylko wtedy, gdy wskaże go model, a „Zepsuta latarnia” 5 m dalej tworzy nowy master. Model działa przed blokadą dopasowania. Same dopasowania wykonują się po kolei (advisory lock), więc dwa równoczesne zgłoszenia o podobnych tytułach nie tworzą dwóch masterów. Wskazanie modelu obowiązuje tylko wtedy, gdy master nadal jest kandydatem.
 
 Pola `PATCH`: `report_category_id`, `title`, `description`, `location` (JSON). Pole `user_id` jest niezmienne, a `master_report_id` zmienia tylko `move`. Edycja nie uruchamia ponownego dopasowania i nie zmienia treści mastera.
 

@@ -26,6 +26,7 @@ from app.common import (
     location_json,
     reject_nulls,
 )
+from app.inference.masters import MasterMatch
 from app.models import User
 from app.photos import PHOTO_COLUMNS, PHOTO_ORDER, Photo
 
@@ -185,6 +186,7 @@ def save_photos(
 def create_report(
     user: CurrentUser,
     connection: Connection,
+    master_matcher: MasterMatch,
     report_category_id: Annotated[int, Form()],
     title: Annotated[Text, Form()],
     description: Annotated[Text, Form()],
@@ -196,11 +198,13 @@ def create_report(
     uploads = read_photos(photos or [])
     location = Location(longitude=longitude, latitude=latitude)
     municipality = municipality_for(location)
+    # the model runs before the transaction, so it does not hold the matching lock.
+    suggested_master_id = matching.suggest_master(connection, master_matcher, report_category_id, title, location)
     try:
         with storage.cleanup_on_error() as saved, connection.transaction():
             # the report joins a similar open master nearby or becomes the first report of a new one.
             master_report_id, new_master = matching.assign_master_for_publication(
-                connection, report_category_id, title, description, location
+                connection, report_category_id, title, description, location, suggested_master_id
             )
             report_id = connection.execute(
                 sql.SQL(
