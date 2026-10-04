@@ -783,6 +783,7 @@ export default function Map({ onSignInRequired }: MapProps) {
       )}
       {openPin && (
         <MarkerDialog
+          key={openPin.id}
           masterId={openPin.id}
           category={openPin.category}
           onClose={handleClosePin}
