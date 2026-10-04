@@ -53,6 +53,7 @@ export type MasterReportComment = {
   id: string;
   master_report_id: string;
   user_id: string;
+  author_first_name: string;
   content: string;
   like_count: number;
   /** false without a token */
