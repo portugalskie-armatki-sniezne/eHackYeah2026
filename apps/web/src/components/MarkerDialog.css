@@ -501,6 +501,61 @@
 }
 
 /* Phones: the sheet sits in the centre, clear of the notch and the home bar. */
+.marker-dialog__rops-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--surface-section);
+  box-shadow: 2px 2px 0 var(--amber);
+}
+
+.marker-dialog__rops-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.marker-dialog__rops-badge {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--amber);
+  color: var(--ink);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.marker-dialog__rops-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.marker-dialog__rops-title {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.marker-dialog__rops-link {
+  align-self: flex-start;
+  color: var(--ink);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.marker-dialog__rops-link:hover {
+  color: var(--amber-soft);
+}
+
 @media (max-width: 40rem) {
   .marker-dialog {
     width: calc(100% - 1.5rem);
