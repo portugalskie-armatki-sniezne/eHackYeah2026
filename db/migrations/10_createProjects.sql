@@ -8,7 +8,7 @@ DO $$ BEGIN
     END IF;
 END $$;
 
-CREATE TABLE projects (
+CREATE TABLE IF NOT EXISTS projects (
     id SERIAL PRIMARY KEY,
     slug VARCHAR(255) UNIQUE NOT NULL,
     title TEXT NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE projects (
 );
 
 -- the sections of an innovation page, one row each, searched for the matched snippet.
-CREATE TABLE project_chunks (
+CREATE TABLE IF NOT EXISTS project_chunks (
     id SERIAL PRIMARY KEY,
     project_slug VARCHAR(255) NOT NULL REFERENCES projects(slug) ON DELETE CASCADE,
     chunk_index INT NOT NULL,
@@ -36,15 +36,15 @@ CREATE TABLE project_chunks (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX project_chunks_project_slug_idx ON project_chunks (project_slug);
-CREATE INDEX project_chunks_tsv_idx ON project_chunks USING GIN (tsv);
+CREATE INDEX IF NOT EXISTS project_chunks_project_slug_idx ON project_chunks (project_slug);
+CREATE INDEX IF NOT EXISTS project_chunks_tsv_idx ON project_chunks USING GIN (tsv);
 
 -- the embedding columns need pgvector, which only some database images ship.
 DO $$ BEGIN
     IF EXISTS (SELECT 1 FROM pg_available_extensions WHERE name = 'vector') THEN
         CREATE EXTENSION IF NOT EXISTS vector;
-        EXECUTE 'ALTER TABLE projects ADD COLUMN summary_vector vector(1024)';
-        EXECUTE 'ALTER TABLE project_chunks ADD COLUMN content_vector vector(1024)';
+        EXECUTE 'ALTER TABLE projects ADD COLUMN IF NOT EXISTS summary_vector vector(1024)';
+        EXECUTE 'ALTER TABLE project_chunks ADD COLUMN IF NOT EXISTS content_vector vector(1024)';
     END IF;
 END $$;
 
