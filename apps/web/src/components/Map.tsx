@@ -26,6 +26,10 @@ import ReportClusters from "./ReportClusters";
 import { isClusterAt } from "./reportClusterHit";
 import { createTiltPrewarmer } from "./mapPrewarm";
 import {
+  readLastKnownPosition,
+  saveLastKnownPosition,
+} from "./lastKnownPosition";
+import {
   reportsApi,
   type MasterReport,
   type MasterReportDetail,
@@ -39,6 +43,7 @@ import "./Map.css";
 // maplibre resolves its worker next to its own file at runtime, which the bundler cannot see
 setWorkerUrl(maplibreWorkerUrl);
 
+// Where the map opens when the device has never been located in this browser.
 const POZNAN: [number, number] = [16.929, 52.407];
 // wide enough to open on most of the reported city, not one street of it
 const ZOOM = 14;
@@ -533,11 +538,15 @@ export default function Map({ onSignInRequired }: MapProps) {
       return;
     }
 
+    // The map opens on the device's position: the place it was last seen if this
+    // browser knows one, and the city view until the first fix lands otherwise.
+    const lastKnown = readLastKnownPosition();
+
     const map = new MapLibreMap({
       container,
       style: BASEMAP_STYLES.streets,
-      center: POZNAN,
-      zoom: ZOOM,
+      center: lastKnown ?? POZNAN,
+      zoom: lastKnown ? LOCATE_ZOOM : ZOOM,
       ...FLAT_VIEW,
       maxPitch: 70,
       attributionControl: false,
@@ -605,13 +614,16 @@ export default function Map({ onSignInRequired }: MapProps) {
     mapRef.current?.flyTo({ center: lngLat, zoom: LOCATE_ZOOM });
   }, []);
 
+  // The first fix is the starting view, so the camera is set there outright
+  // rather than flown across the city; later recentres animate.
   useEffect(() => {
     if (!fix || centredRef.current) {
       return;
     }
     centredRef.current = true;
-    flyToFix(fix.lngLat);
-  }, [fix, flyToFix]);
+    mapRef.current?.jumpTo({ center: fix.lngLat, zoom: LOCATE_ZOOM });
+    saveLastKnownPosition(fix.lngLat);
+  }, [fix]);
 
   const handleRecenterOnMe = useCallback(() => {
     if (fix) {

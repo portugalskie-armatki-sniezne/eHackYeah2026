@@ -9,10 +9,13 @@ import {
 import { authApi, type User, type UserUpdate } from "../api/auth";
 import { reportsApi, type Report } from "../api/reports";
 import { updateUser } from "../api/session";
+import { useLocale, useMessages } from "../i18n/locale";
+import LanguageToggle from "./LanguageToggle";
+import type { Locale, Messages } from "../i18n/messages";
 import "./AuthDialog.css";
 import "./ProfileDialog.css";
 
-type ProfileTab = "account" | "password" | "reports";
+type ProfileTab = "account" | "password" | "reports" | "preferences";
 
 type ProfileDialogProps = {
   user: User;
@@ -22,20 +25,18 @@ type ProfileDialogProps = {
 const MIN_PASSWORD_LENGTH = 8;
 const REPORTS_LIMIT = 50;
 
-const ROLE_LABELS: Record<User["role"], string> = {
-  user: "Resident",
-  office: "Office",
-  admin: "Administrator",
-};
+type ProfileMessages = Messages["profile"];
 
-const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
-
-function formatDate(value: string) {
-  return dateFormat.format(new Date(value));
+function formatDate(value: string, locale: Locale) {
+  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(
+    new Date(value),
+  );
 }
 
-function errorText(error: unknown) {
-  return error instanceof Error ? error.message : "Something went wrong.";
+// server errors arrive in whatever language the API speaks; only the
+// fallback for a non-Error is ours to translate
+function errorText(error: unknown, t: ProfileMessages) {
+  return error instanceof Error ? error.message : t.somethingWrong;
 }
 
 /**
@@ -49,6 +50,7 @@ export default function ProfileDialog({ user, onClose }: ProfileDialogProps) {
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
   const id = useId();
+  const t = useMessages().profile;
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -74,9 +76,10 @@ export default function ProfileDialog({ user, onClose }: ProfileDialogProps) {
   };
 
   const tabs: { value: ProfileTab; label: string }[] = [
-    { value: "account", label: "Account" },
-    { value: "password", label: "Password" },
-    { value: "reports", label: "Reports" },
+    { value: "account", label: t.tabs.account },
+    { value: "password", label: t.tabs.password },
+    { value: "reports", label: t.tabs.reports },
+    { value: "preferences", label: t.tabs.preferences },
   ];
 
   return (
@@ -92,12 +95,12 @@ export default function ProfileDialog({ user, onClose }: ProfileDialogProps) {
       <div className="auth-dialog__form">
         <header className="auth-dialog__header">
           <h2 id={`${id}-title`} className="auth-dialog__title">
-            Profile
+            {t.title}
           </h2>
           <div
             className="auth-dialog__switch"
             role="group"
-            aria-label="Section"
+            aria-label={t.section}
           >
             {tabs.map((item) => (
               <button
@@ -133,6 +136,7 @@ export default function ProfileDialog({ user, onClose }: ProfileDialogProps) {
         {tab === "reports" && (
           <ReportsSection user={user} dialogRef={dialogRef} />
         )}
+        {tab === "preferences" && <PreferencesSection dialogRef={dialogRef} />}
       </div>
     </dialog>
   );
@@ -148,12 +152,11 @@ type SectionProps = {
 function CloseButton({
   dialogRef,
   disabled,
-  label = "Close",
 }: {
   dialogRef: RefObject<HTMLDialogElement | null>;
   disabled?: boolean;
-  label?: string;
 }) {
+  const label = useMessages().profile.close;
   return (
     <button
       type="button"
@@ -175,6 +178,8 @@ function AccountSection({ user, busy, run, dialogRef }: SectionProps) {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const id = useId();
+  const t = useMessages().profile;
+  const locale = useLocale();
 
   const startEditing = () => {
     setFirstName(user.first_name);
@@ -208,7 +213,7 @@ function AccountSection({ user, busy, run, dialogRef }: SectionProps) {
     void run(async () => {
       setError(null);
       if (!email.trim() && !phone.trim()) {
-        setError("Enter an email address or a phone number.");
+        setError(t.contactRequired);
         return;
       }
       const update = changes();
@@ -219,21 +224,21 @@ function AccountSection({ user, busy, run, dialogRef }: SectionProps) {
       try {
         updateUser(await authApi.updateUser(user.id, update));
         setEditing(false);
-        setNotice("Your details have been saved.");
+        setNotice(t.detailsSaved);
       } catch (error) {
-        setError(errorText(error));
+        setError(errorText(error, t));
       }
     });
   };
 
   if (!editing) {
     const details: [string, string][] = [
-      ["Name", `${user.first_name} ${user.last_name}`],
-      ["Email", user.email ?? "Not set"],
-      ["Phone", user.phone ?? "Not set"],
-      ["Role", ROLE_LABELS[user.role]],
-      ["Google", user.google_linked ? "Linked" : "Not linked"],
-      ["Member since", formatDate(user.created_at)],
+      [t.name, `${user.first_name} ${user.last_name}`],
+      [t.email, user.email ?? t.notSet],
+      [t.phone, user.phone ?? t.notSet],
+      [t.role, t.roles[user.role]],
+      [t.google, user.google_linked ? t.linked : t.notLinked],
+      [t.memberSince, formatDate(user.created_at, locale)],
     ];
     return (
       <>
@@ -257,7 +262,7 @@ function AccountSection({ user, busy, run, dialogRef }: SectionProps) {
             className="auth-dialog__button auth-dialog__button--primary"
             onClick={startEditing}
           >
-            Edit
+            {t.edit}
           </button>
         </footer>
       </>
@@ -274,7 +279,7 @@ function AccountSection({ user, busy, run, dialogRef }: SectionProps) {
       <div className="auth-dialog__row">
         <div className="auth-dialog__field">
           <label className="auth-dialog__label" htmlFor={`${id}-first`}>
-            First name
+            {t.firstName}
           </label>
           <input
             id={`${id}-first`}
@@ -289,7 +294,7 @@ function AccountSection({ user, busy, run, dialogRef }: SectionProps) {
         </div>
         <div className="auth-dialog__field">
           <label className="auth-dialog__label" htmlFor={`${id}-last`}>
-            Last name
+            {t.lastName}
           </label>
           <input
             id={`${id}-last`}
@@ -305,7 +310,7 @@ function AccountSection({ user, busy, run, dialogRef }: SectionProps) {
       </div>
       <div className="auth-dialog__field">
         <label className="auth-dialog__label" htmlFor={`${id}-email`}>
-          Email
+          {t.email}
         </label>
         <input
           id={`${id}-email`}
@@ -321,7 +326,7 @@ function AccountSection({ user, busy, run, dialogRef }: SectionProps) {
       </div>
       <div className="auth-dialog__field">
         <label className="auth-dialog__label" htmlFor={`${id}-phone`}>
-          Phone
+          {t.phone}
         </label>
         <input
           id={`${id}-phone`}
@@ -335,7 +340,7 @@ function AccountSection({ user, busy, run, dialogRef }: SectionProps) {
           onChange={(event) => setPhone(event.target.value)}
         />
         <p id={`${id}-contact-hint`} className="auth-dialog__hint">
-          Keep an email, a phone number, or both. Either one signs you in.
+          {t.contactHint}
         </p>
       </div>
       <footer className="auth-dialog__actions">
@@ -348,14 +353,14 @@ function AccountSection({ user, busy, run, dialogRef }: SectionProps) {
             setEditing(false);
           }}
         >
-          Cancel
+          {t.cancel}
         </button>
         <button
           type="submit"
           className="auth-dialog__button auth-dialog__button--primary"
           disabled={busy}
         >
-          {busy ? "Please wait..." : "Save"}
+          {busy ? t.pleaseWait : t.save}
         </button>
       </footer>
     </form>
@@ -368,6 +373,7 @@ function PasswordSection({ user, busy, run, dialogRef }: SectionProps) {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const id = useId();
+  const t = useMessages().profile;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -375,16 +381,16 @@ function PasswordSection({ user, busy, run, dialogRef }: SectionProps) {
       setError(null);
       setNotice(null);
       if (password !== confirmation) {
-        setError("The passwords do not match.");
+        setError(t.passwordMismatch);
         return;
       }
       try {
         await authApi.updateUser(user.id, { password });
         setPassword("");
         setConfirmation("");
-        setNotice("Your password has been changed.");
+        setNotice(t.passwordChanged);
       } catch (error) {
-        setError(errorText(error));
+        setError(errorText(error, t));
       }
     });
   };
@@ -412,7 +418,7 @@ function PasswordSection({ user, busy, run, dialogRef }: SectionProps) {
       />
       <div className="auth-dialog__field">
         <label className="auth-dialog__label" htmlFor={`${id}-password`}>
-          New password
+          {t.newPassword}
         </label>
         <input
           id={`${id}-password`}
@@ -428,12 +434,12 @@ function PasswordSection({ user, busy, run, dialogRef }: SectionProps) {
           onChange={(event) => setPassword(event.target.value)}
         />
         <p id={`${id}-password-hint`} className="auth-dialog__hint">
-          At least {MIN_PASSWORD_LENGTH} characters.
+          {t.passwordHint(MIN_PASSWORD_LENGTH)}
         </p>
       </div>
       <div className="auth-dialog__field">
         <label className="auth-dialog__label" htmlFor={`${id}-confirmation`}>
-          Repeat new password
+          {t.repeatPassword}
         </label>
         <input
           id={`${id}-confirmation`}
@@ -455,10 +461,32 @@ function PasswordSection({ user, busy, run, dialogRef }: SectionProps) {
           className="auth-dialog__button auth-dialog__button--primary"
           disabled={busy}
         >
-          {busy ? "Please wait..." : "Change password"}
+          {busy ? t.pleaseWait : t.changePassword}
         </button>
       </footer>
     </form>
+  );
+}
+
+/** Settings kept in this browser rather than on the account. */
+function PreferencesSection({ dialogRef }: Pick<SectionProps, "dialogRef">) {
+  const t = useMessages().profile;
+  const id = useId();
+  return (
+    <>
+      <div className="profile-dialog__section">
+        <div className="auth-dialog__field">
+          <span id={`${id}-language`} className="auth-dialog__label">
+            {t.language}
+          </span>
+          <LanguageToggle labelledBy={`${id}-language`} />
+          <p className="auth-dialog__hint">{t.languageHint}</p>
+        </div>
+      </div>
+      <footer className="auth-dialog__actions">
+        <CloseButton dialogRef={dialogRef} />
+      </footer>
+    </>
   );
 }
 
@@ -477,6 +505,8 @@ function ReportsSection({
   dialogRef,
 }: Pick<SectionProps, "user" | "dialogRef">) {
   const [state, setState] = useState<ReportsState>({ status: "loading" });
+  const t = useMessages().profile;
+  const locale = useLocale();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -498,18 +528,18 @@ function ReportsSection({
       )
       .catch((error: unknown) => {
         if (!signal.aborted) {
-          setState({ status: "failed", error: errorText(error) });
+          setState({ status: "failed", error: errorText(error, t) });
         }
       });
     return () => controller.abort();
-  }, [user.id]);
+  }, [user.id, t]);
 
   return (
     <>
       {state.status === "loading" && (
         <div className="profile-dialog__loading" role="status">
           <span className="profile-dialog__spinner" aria-hidden="true" />
-          <span className="visually-hidden">Loading your reports...</span>
+          <span className="visually-hidden">{t.loadingReports}</span>
         </div>
       )}
       {state.status === "failed" && (
@@ -519,15 +549,13 @@ function ReportsSection({
       )}
       {state.status === "ready" &&
         (state.reports.length === 0 ? (
-          <p className="auth-dialog__text">
-            You have not sent any reports yet.
-          </p>
+          <p className="auth-dialog__text">{t.noReports}</p>
         ) : (
           <>
             <p className="auth-dialog__hint">
               {state.total > state.reports.length
-                ? `Showing the latest ${state.reports.length} of ${state.total} reports.`
-                : `${state.total} ${state.total === 1 ? "report" : "reports"}.`}
+                ? t.showingLatest(state.reports.length, state.total)
+                : t.reportCount(state.total)}
             </p>
             <ul className="profile-dialog__reports">
               {state.reports.map((report) => (
@@ -552,7 +580,7 @@ function ReportsSection({
                     <p className="auth-dialog__hint">
                       {[
                         state.categories.get(report.report_category_id),
-                        formatDate(report.created_at),
+                        formatDate(report.created_at, locale),
                       ]
                         .filter(Boolean)
                         .join(" - ")}
