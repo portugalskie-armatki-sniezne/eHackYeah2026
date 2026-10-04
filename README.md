@@ -41,9 +41,28 @@ eHackYeah2026/
 └── TESTING.md
 ```
 
-## Access
+## Access and Environments
 
-You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.jakubowskii.pl/#main), at least during the HackYeah 2026 hackathon.
+The platform is deployed and publicly accessible:
+
+- **Production environment (`prod`)**: Available at [hackyeah.jakubowskii.pl/#main](https://hackyeah.jakubowskii.pl/#main) with Google OAuth integration, production database, geocoded institutions, and the ROPS social innovations database.
+- **Development environment (`dev`)**: Continuously updated on pushes to `main` via GitHub Actions for verifying changes and integrating new features.
+
+Both environments run three containerized services configured via Docker Compose:
+- **`web`**: Single-page application built with React, Vite, TypeScript, and MapLibre GL JS.
+- **`api`**: REST API backend built with FastAPI, PostgreSQL, PostGIS, and pgvector.
+- **`notify`**: Internal mail relay microservice sending email notifications to institutions using Markdown templates and Gmail SMTP.
+
+## Core Features
+
+- **Interactive Map and Geolocation**: Explore local reports and initiatives clustered on an interactive map. Center view on user GPS location, drop pins at exact coordinates, and inspect active issues.
+- **Civic Reporting and Master Grouping**: File issues or civic initiatives with descriptions, photos, and coordinates. The API automatically clusters similar nearby reports into shared master reports to prevent duplicate municipal tickets.
+- **Administrative Assignment**: Automatic identification of municipalities and counties in Małopolskie via the GUGiK ULDK service.
+- **Institution Routing and Recommendation**: Match reports to competent public offices or municipal service entities using AI classification (Laya Vision) and nearest geocoded seat locations.
+- **ROPS Social Innovations Catalog**: Explore and search the Regional Center for Social Policy (ROPS) catalog of proven social initiatives. Features hybrid search combining vector embeddings (cosine similarity) and Polish stemming with dynamic relevance scoring.
+- **Official Mail Notifications**: Internal relay transforms verified issues and initiatives into structured official notifications and sends them directly to competent offices with photos and Google Maps links.
+- **Authentication and Profiles**: Sign in using email/password or Google SSO, manage user profile, and track filed reports and comments.
+- **Bilingual Interface**: Full Polish and English language localization with on-the-fly switching.
 
 ## Deployment
 
