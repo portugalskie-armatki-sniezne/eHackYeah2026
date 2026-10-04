@@ -60,6 +60,32 @@ function timeAgo(iso: string): string {
   return "just now";
 }
 
+const ROPS_PATTERN =
+  /\[?Inicjatywa oparta na innowacji ROPS:\s*([^\n()[\]]+?)(?:\s*\((https?:\/\/[^\s)]+)\)|\s*\n\s*(https?:\/\/[^\s)]+))\]?/i;
+
+type ParsedBody = {
+  cleanText: string;
+  ropsInnovation: {
+    title: string;
+    url: string;
+  } | null;
+};
+
+function parseRopsInnovation(body: string): ParsedBody {
+  const match = ROPS_PATTERN.exec(body);
+  if (!match) {
+    return { cleanText: body, ropsInnovation: null };
+  }
+  const title = match[1]?.trim() ?? "";
+  const rawUrl = match[2] || match[3] || "";
+  const url = rawUrl.replace(/[)\]]+$/, "");
+  const cleanText = body.replace(match[0], "").trim();
+  return {
+    cleanText,
+    ropsInnovation: { title, url },
+  };
+}
+
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {
     dateStyle: "medium",
@@ -321,43 +347,76 @@ export default function MarkerDialog({
             </p>
           )}
 
-          {letter && (
-            <div className="marker-dialog__letter">
-              <dl className="marker-dialog__envelope">
-                <dt>To</dt>
-                <dd>
-                  {letter.recipient ? (
-                    <>
-                      <span className="marker-dialog__recipient">
-                        {letter.recipient.name}
-                      </span>
-                      {letter.recipient.email ? (
-                        <a
-                          className="marker-dialog__link"
-                          href={`mailto:${letter.recipient.email}`}
-                        >
-                          {letter.recipient.email}
-                        </a>
+          {letter &&
+            (() => {
+              const { cleanText, ropsInnovation } = parseRopsInnovation(
+                letter.body,
+              );
+              return (
+                <div className="marker-dialog__letter">
+                  <dl className="marker-dialog__envelope">
+                    <dt>To</dt>
+                    <dd>
+                      {letter.recipient ? (
+                        <>
+                          <span className="marker-dialog__recipient">
+                            {letter.recipient.name}
+                          </span>
+                          {letter.recipient.email ? (
+                            <a
+                              className="marker-dialog__link"
+                              href={`mailto:${letter.recipient.email}`}
+                            >
+                              {letter.recipient.email}
+                            </a>
+                          ) : (
+                            <span className="marker-dialog__hint">
+                              no email on record
+                            </span>
+                          )}
+                        </>
                       ) : (
                         <span className="marker-dialog__hint">
-                          no email on record
+                          not assigned yet
                         </span>
                       )}
-                    </>
-                  ) : (
-                    <span className="marker-dialog__hint">
-                      not assigned yet
-                    </span>
+                    </dd>
+                    <dt>Subject</dt>
+                    <dd>{letter.subject}</dd>
+                  </dl>
+                  {cleanText && (
+                    <p className="marker-dialog__text">
+                      {renderTextWithLinks(cleanText)}
+                    </p>
                   )}
-                </dd>
-                <dt>Subject</dt>
-                <dd>{letter.subject}</dd>
-              </dl>
-              <p className="marker-dialog__text">
-                {renderTextWithLinks(letter.body)}
-              </p>
-            </div>
-          )}
+                  {ropsInnovation && (
+                    <aside
+                      className="marker-dialog__rops-box"
+                      aria-label="Innowacja ROPS"
+                    >
+                      <div className="marker-dialog__rops-header">
+                        <span className="marker-dialog__rops-badge">
+                          Innowacja ROPS
+                        </span>
+                      </div>
+                      <div className="marker-dialog__rops-content">
+                        <strong className="marker-dialog__rops-title">
+                          {ropsInnovation.title}
+                        </strong>
+                        <a
+                          href={ropsInnovation.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="marker-dialog__rops-link"
+                        >
+                          Zobacz model innowacji na rops.krakow.pl &rarr;
+                        </a>
+                      </div>
+                    </aside>
+                  )}
+                </div>
+              );
+            })()}
 
           {sheet && master?.response && (
             <aside
