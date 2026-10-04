@@ -1,0 +1,31 @@
+/* The language switch rides the bottom-right corner, nudged a step in from
+   the edge, sharing the map toolbar's bottom edge and the amber shadow of the
+   other floating tiles. It sits above the toolbar's layer so it never ends up
+   beneath it. */
+.lang-corner {
+  position: fixed;
+  right: calc(
+    var(--pill-inset) + var(--scaffold-offset) + 1rem + var(--safe-right)
+  );
+  bottom: calc(
+    var(--pill-inset) + 3 * var(--scaffold-offset) + var(--safe-bottom)
+  );
+  z-index: 21;
+}
+
+.lang-corner .lang-toggle {
+  box-shadow: var(--scaffold-shadow);
+}
+
+/* A phone-width map toolbar fills the bottom edge, so there the switch steps
+   up and rests just above it: the toolbar's own bottom plus its narrow-screen
+   height (2.5rem tiles, 0.375rem padding and the 2px rule on each side) and
+   the amber offset between them. */
+@media (max-width: 40rem) {
+  .lang-corner--on-map {
+    bottom: calc(
+      var(--pill-inset) + 3 * var(--scaffold-offset) + var(--safe-bottom) +
+        2.5rem + 0.75rem + 2 * var(--scaffold-line) + 2 * var(--scaffold-offset)
+    );
+  }
+}

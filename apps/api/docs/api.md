@@ -44,17 +44,18 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 | słowniki | `/report-categories`, `/master-report-statuses` | list (tylko odczyt) |
 | local_government_offices | `/institution-contacts` | list, get (tylko odczyt) |
 | service_entities | `/service-entities` | list, get (tylko odczyt) |
+| projects | `/projects`, `/projects/categories`, `/projects/search` | list, categories, get, search (tylko odczyt); biblioteka innowacji ROPS z `db/seeds/rops_projects.json` |
 | inference | `/inference`, `/inference/service-entity`, `/inference/service-entity/recommendation` | tłumaczenie, klasyfikacja, wybór typu i rekomendacja instytucji według lokalizacji siedziby; [kontrakt](inference.md#rekomendacja-instytucji-dla-nowego-zgłoszenia) |
 
 ### Dostęp
 
 | Kto | Co może |
 | --- | --- |
-| publiczny | rejestracja, logowanie, odczyt reportów i metadanych zdjęć, mastery, komentarze, słowniki, urzędy, jednostki usługowe, pliki zdjęć |
+| publiczny | rejestracja, logowanie, odczyt reportów i metadanych zdjęć, mastery, komentarze, słowniki, urzędy, jednostki usługowe, innowacje ROPS, pliki zdjęć |
 | zalogowany | dodawanie reportów, komentarzy i polubień, analiza przez `/inference`, połączenie własnego konta z Google |
 | autor reportu | edycja i usuwanie reportu oraz jego zdjęć |
 | autor komentarza | usuwanie komentarza |
-| `office` | jak zalogowany oraz edycja masterów, przepinanie reportów, usuwanie dowolnych komentarzy |
+| `office` | jak zalogowany oraz edycja masterów, przepinanie reportów, usuwanie dowolnych komentarzy, wyróżnianie komentarzy |
 | `admin` | jak `office` oraz edycja i usuwanie dowolnych reportów, usuwanie masterów |
 
 ## auth
@@ -311,13 +312,14 @@ Odpowiedź `GET /master-reports/{id}`:
   "location": { "longitude": 19.9449, "latitude": 50.0647 },
   "response": "Zgłoszenie przekazano do zarządcy drogi.",
   "report_count": 3,
+  "photo_url": "/photos/c3d4e5f6-1a2b-4c3d-8e9f-0a1b2c3d4e5f/file",
   "photos": [],
   "edited_at": "2026-04-16T12:00:00Z",
   "created_at": "2026-04-16T10:00:00Z"
 }
 ```
 
-`photos` zawiera zdjęcia wszystkich reportów mastera i występuje tylko w szczegółach. Elementy listy mają te same pola bez `photos`. Reporty mastera zwraca `GET /reports?master_report_id=...`.
+`photos` zawiera zdjęcia wszystkich reportów mastera i występuje tylko w szczegółach. Elementy listy mają te same pola bez `photos`. `photo_url` to najstarsze zdjęcie spośród reportów mastera (albo `null`), żeby mapa mogła pokazać je na pinezce bez pobierania szczegółów każdego mastera. Reporty mastera zwraca `GET /reports?master_report_id=...`.
 
 Pola `PATCH`: `report_category_id`, `status_id`, `responsible_office_id`, `responsible_service_entity_id`, `title`, `description`, `location`, `response`. `null` jest dozwolony tylko dla obu pól odpowiedzialnego podmiotu i `response`. Master wskazuje najwyżej jeden podmiot: urząd albo jednostkę usługową. Zmiana odbiorcy na podmiot innego rodzaju wymaga przesłania obu pól, na przykład `{"responsible_office_id": null, "responsible_service_entity_id": 17}`, inaczej API zwraca 422. Status można zmienić na dowolny, także wstecz. Zmiana treści mastera nie zmienia jego reportów. ID w przykładzie są ilustracyjne; wartości słowników należy pobrać z endpointów słowników.
 
@@ -326,12 +328,12 @@ Pola `PATCH`: `report_category_id`, `status_id`, `responsible_office_id`, `respo
 | Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
 | --- | --- | --- | --- | --- | --- |
 | GET | `/master-reports/{id}/comments` | lista komentarzy mastera | publiczny | 200 | 401 (nieważny token), 404 |
-| POST | `/master-reports/{id}/comments` | dodanie | zalogowany | 201 | 401, 404, 422 |
+| POST | `/master-reports/{id}/comments` | dodanie | zalogowany | 201 | 401, 403 (`highlighted` bez roli `office` lub `admin`), 404, 422 |
 | DELETE | `/comments/{id}` | usunięcie | autor, `office`, `admin` | 204 | 401, 403, 404 |
 | PUT | `/comments/{id}/like` | polubienie | zalogowany | 200 | 401, 404 |
 | DELETE | `/comments/{id}/like` | cofnięcie polubienia | zalogowany | 200 | 401, 404 |
 
-Request `POST` to `{"content": "Potwierdzam, dziura jest coraz większa."}`. Odpowiedź:
+Request `POST` to `{"content": "Potwierdzam, dziura jest coraz większa."}`. Opcjonalne `highlighted: true` wyróżnia komentarz jako oficjalny i jest dostępne tylko dla `office` i `admin`; dla roli `user` zwraca 403. Odpowiedź:
 
 ```json
 {
@@ -341,6 +343,7 @@ Request `POST` to `{"content": "Potwierdzam, dziura jest coraz większa."}`. Odp
   "content": "Potwierdzam, dziura jest coraz większa.",
   "like_count": 4,
   "liked_by_me": true,
+  "highlighted": false,
   "created_at": "2026-04-16T11:00:00Z"
 }
 ```

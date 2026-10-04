@@ -64,6 +64,14 @@ export function updateUser(user: User) {
   if (state.status === "signed-in") setState({ status: "signed-in", user });
 }
 
+/** Whether the session belongs to an office or admin account. */
+export function isStaff(session: SessionState): boolean {
+  return (
+    session.status === "signed-in" &&
+    (session.user.role === "office" || session.user.role === "admin")
+  );
+}
+
 function subscribe(listener: () => void) {
   listeners.add(listener);
   return () => {

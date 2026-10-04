@@ -2,10 +2,12 @@ import { useState } from "react";
 import { signOut, useSession } from "./api/session";
 import About from "./components/About";
 import AuthDialog from "./components/AuthDialog";
+import LanguageCorner from "./components/LanguageCorner";
 import Map from "./components/Map";
 import Navbar from "./components/Navbar";
 import ProjectsCatalog from "./components/ProjectsCatalog";
 import ProfileDialog from "./components/ProfileDialog";
+import ReportsPage from "./components/ReportsPage";
 import SignOutDialog from "./components/SignOutDialog";
 import useHashRoute from "./components/useHashRoute";
 
@@ -33,9 +35,12 @@ export default function App() {
         <About />
       ) : route === "initiatives" ? (
         <ProjectsCatalog />
+      ) : route === "reports" ? (
+        <ReportsPage session={session} onSignIn={() => setAuthOpen(true)} />
       ) : (
         <Map onSignInRequired={() => setAuthOpen(true)} />
       )}
+      <LanguageCorner />
       {authOpen && <AuthDialog onClose={() => setAuthOpen(false)} />}
       {profileOpen && session.status === "signed-in" && (
         <ProfileDialog

@@ -1,4 +1,4 @@
-import { apiFetch, apiUrl } from "./client";
+import { ApiError, apiFetch, apiUrl } from "./client";
 
 export type ReportLocation = {
   longitude: number;
@@ -57,6 +57,8 @@ export type MasterReportComment = {
   like_count: number;
   /** false without a token */
   liked_by_me: boolean;
+  /** an office or admin comment that stands out in the discussion */
+  highlighted: boolean;
   created_at: string;
 };
 
@@ -81,6 +83,8 @@ export type MasterReport = {
   location: ReportLocation;
   response: string | null;
   report_count: number;
+  /** the earliest photo among the master's reports, as a path under the api, or null */
+  photo_url: string | null;
   edited_at: string;
   created_at: string;
 };
@@ -89,6 +93,12 @@ export type MasterReport = {
 export type MasterReportDetail = MasterReport & { photos: ReportPhoto[] };
 
 export type MasterReportPage = Page<MasterReport>;
+
+/** What office and admin can change on a master; a null clears the response. */
+export type MasterReportUpdate = {
+  status_id?: number;
+  response?: string | null;
+};
 
 export type MasterReportFilters = {
   status_id?: number;
@@ -107,6 +117,13 @@ function masterReports(
   signal?: AbortSignal,
 ): Promise<MasterReportPage> {
   return apiFetch("/master-reports", { query: params, signal });
+}
+
+// the reports folded into one master, a page at a time
+function masterReportsOf(masterId: string): Promise<ReportPage> {
+  return apiFetch("/reports", {
+    query: { master_report_id: masterId, limit: MAX_PAGE_SIZE },
+  });
 }
 
 export const reportsApi = {
@@ -147,10 +164,53 @@ export const reportsApi = {
     return apiFetch("/reports", { query: params, signal });
   },
 
+  deleteReport(id: string): Promise<void> {
+    return apiFetch(`/reports/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
+  },
+
   masterReports,
 
   masterReport(id: string, signal?: AbortSignal): Promise<MasterReportDetail> {
     return apiFetch(`/master-reports/${encodeURIComponent(id)}`, { signal });
+  },
+
+  updateMasterReport(
+    id: string,
+    body: MasterReportUpdate,
+  ): Promise<MasterReportDetail> {
+    return apiFetch(`/master-reports/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      json: body,
+    });
+  },
+
+  deleteMasterReport(id: string): Promise<void> {
+    return apiFetch(`/master-reports/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
+  },
+
+  /**
+   * Takes a pin off the map for good: the master cannot be deleted while it
+   * has reports, so those go first, each with its photos, and the last one
+   * takes the master and its discussion with it. Admin only.
+   */
+  async removeMaster(id: string): Promise<void> {
+    for (;;) {
+      const page = await masterReportsOf(id);
+      if (page.items.length === 0) break;
+      for (const report of page.items) {
+        await reportsApi.deleteReport(report.id);
+      }
+    }
+    try {
+      await reportsApi.deleteMasterReport(id);
+    } catch (error) {
+      // already gone with its last report
+      if (!(error instanceof ApiError && error.status === 404)) throw error;
+    }
   },
 
   /** Every master report, paged through at the largest page the api serves. */
@@ -169,7 +229,8 @@ export const reportsApi = {
     return items;
   },
 
-  photoUrl(photo: ReportPhoto): string {
+  /** The address a photo is served from, given its path under the api. */
+  photoUrl(photo: Pick<ReportPhoto, "url">): string {
     return apiUrl(photo.url);
   },
 
@@ -184,11 +245,22 @@ export const reportsApi = {
     );
   },
 
-  addComment(masterId: string, content: string): Promise<MasterReportComment> {
+  // only office and admin may highlight; the api answers 403 otherwise
+  addComment(
+    masterId: string,
+    content: string,
+    highlighted = false,
+  ): Promise<MasterReportComment> {
     return apiFetch(
       `/master-reports/${encodeURIComponent(masterId)}/comments`,
-      { method: "POST", json: { content } },
+      { method: "POST", json: { content, highlighted } },
     );
+  },
+
+  deleteComment(id: string): Promise<void> {
+    return apiFetch(`/comments/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
   },
 
   // both are idempotent and answer with the comment and its current count

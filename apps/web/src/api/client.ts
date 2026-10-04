@@ -1,3 +1,6 @@
+import { getLocale } from "../i18n/locale";
+import { messages } from "../i18n/messages";
+
 // Vite inlines the address at build time; without one, requests go to /api,
 // which the development server proxies to the local API
 const API_URL = (
@@ -63,7 +66,7 @@ function errorMessage(body: unknown, status: number): string {
       if (messages.length) return messages.join("; ");
     }
   }
-  return `Request failed (${status}).`;
+  return messages[getLocale()].api.requestFailed(status);
 }
 
 type RequestOptions = {

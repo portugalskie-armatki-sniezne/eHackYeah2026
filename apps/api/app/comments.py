@@ -16,7 +16,7 @@ COMMENT_COLUMNS = sql.SQL(
     "(SELECT count(*) FROM master_report_comment_likes l WHERE l.comment_id = c.id) AS like_count, "
     "EXISTS (SELECT 1 FROM master_report_comment_likes l "
     "WHERE l.comment_id = c.id AND l.user_id = %(viewer_id)s) AS liked_by_me, "
-    "c.created_at"
+    "c.highlighted, c.created_at"
 )
 
 
@@ -28,6 +28,8 @@ class Comment(BaseModel):
     like_count: int
     # false for anonymous requests.
     liked_by_me: bool
+    # an office or admin comment that stands out in the discussion.
+    highlighted: bool
     created_at: datetime
 
 
@@ -35,6 +37,8 @@ class CommentCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     content: Text
+    # only office or admin can highlight a comment.
+    highlighted: bool = False
 
 
 def comment_not_found() -> HTTPException:
@@ -72,12 +76,14 @@ def list_comments(
 
 @router.post("/master-reports/{master_report_id}/comments", status_code=status.HTTP_201_CREATED)
 def create_comment(master_report_id: UUID, body: CommentCreate, user: CurrentUser, connection: Connection) -> Comment:
+    if body.highlighted and user.role == "user":
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only office or admin can highlight a comment")
     try:
         with connection.transaction():
             comment_id = connection.execute(
-                "INSERT INTO master_report_comments (master_report_id, user_id, content) "
-                "VALUES (%s, %s, %s) RETURNING id",
-                (master_report_id, user.id, body.content),
+                "INSERT INTO master_report_comments (master_report_id, user_id, content, highlighted) "
+                "VALUES (%s, %s, %s, %s) RETURNING id",
+                (master_report_id, user.id, body.content, body.highlighted),
             ).fetchone()["id"]
     except errors.ForeignKeyViolation:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Master report not found") from None

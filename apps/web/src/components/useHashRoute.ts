@@ -1,12 +1,13 @@
 import { useSyncExternalStore } from "react";
 
-export type Route = "map" | "about" | "initiatives";
+export type Route = "map" | "about" | "initiatives" | "reports";
 
 // Every navbar link is a hash, so the page is whatever the hash names. Anything
 // else, including the empty hash and the skip link's "#main", is the map.
 function readRoute(): Route {
   if (window.location.hash === "#about") return "about";
   if (window.location.hash === "#initiatives") return "initiatives";
+  if (window.location.hash === "#reports") return "reports";
   return "map";
 }
 

@@ -14,6 +14,7 @@ import {
   type ReportCategoryName,
 } from "../api/reports";
 import { useSession } from "../api/session";
+import { useLocale, useMessages } from "../i18n/locale";
 import MasterReports from "./MasterReports";
 import { formatDate, timeAgo } from "./relativeTime";
 import StatusBadge from "./StatusBadge";
@@ -40,11 +41,6 @@ type Sheet = {
 
 // what the side panel beside the post shows
 type PanelView = "comments" | "reports";
-
-const KIND_LABELS: Record<ReportCategoryName, string> = {
-  issue: "Fault report",
-  improvement: "Improvement idea",
-};
 
 // the pin's pictogram in text: "!" for a fault, "+" for an improvement
 const KIND_GLYPHS: Record<ReportCategoryName, string> = {
@@ -76,10 +72,6 @@ function parseRopsInnovation(body: string): ParsedBody {
     cleanText,
     ropsInnovation: { title, url },
   };
-}
-
-function countLabel(count: number, noun: string): string {
-  return count === 1 ? `1 ${noun}` : `${count} ${noun}s`;
 }
 
 function renderTextWithLinks(text: string) {
@@ -114,6 +106,8 @@ export default function MarkerDialog({
   onSignInRequired,
 }: MarkerDialogProps) {
   const session = useSession();
+  const t = useMessages().marker;
+  const locale = useLocale();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const id = useId();
   const [sheet, setSheet] = useState<Sheet | null>(null);
@@ -177,13 +171,13 @@ export default function MarkerDialog({
         setComments(discussion.items);
       } catch (error) {
         if (signal.aborted) return;
-        setError(
-          error instanceof Error ? error.message : "Could not load the report.",
-        );
+        setError(error instanceof Error ? error.message : t.loadFailed);
       }
     }
     void load();
     return () => controller.abort();
+    // the fallback text is read once, when the load fails
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [masterId]);
 
   const togglePanel = (view: PanelView) => {
@@ -229,9 +223,7 @@ export default function MarkerDialog({
           : await reportsApi.likeComment(comment.id),
       );
     } catch (error) {
-      setCommentError(
-        error instanceof Error ? error.message : "Could not save the like.",
-      );
+      setCommentError(error instanceof Error ? error.message : t.likeFailed);
     }
   };
 
@@ -249,9 +241,7 @@ export default function MarkerDialog({
       setComments((current) => [...current, comment]);
       setDraft("");
     } catch (error) {
-      setCommentError(
-        error instanceof Error ? error.message : "Could not post the comment.",
-      );
+      setCommentError(error instanceof Error ? error.message : t.postFailed);
     } finally {
       postingRef.current = false;
       setPosting(false);
@@ -290,7 +280,7 @@ export default function MarkerDialog({
             onClick={() => dialogRef.current?.close()}
           >
             <span aria-hidden="true">&times;</span>
-            <span className="visually-hidden">Close</span>
+            <span className="visually-hidden">{t.close}</span>
           </button>
 
           {/* The photo leads, the way a post does; a filing without one gets the
@@ -300,7 +290,7 @@ export default function MarkerDialog({
               <img
                 className="marker-dialog__photo"
                 src={reportsApi.photoUrl(photo)}
-                alt={master ? `Photo of: ${master.title}` : "Report photo"}
+                alt={master ? t.photoOf(master.title) : t.reportPhoto}
               />
             ) : (
               <div className="marker-dialog__photo marker-dialog__photo--empty">
@@ -312,12 +302,12 @@ export default function MarkerDialog({
                 </span>
                 {!sheet && !error && (
                   <span className="marker-dialog__placeholder-text">
-                    Loading...
+                    {t.loading}
                   </span>
                 )}
                 {sheet && (
                   <span className="marker-dialog__placeholder-text">
-                    No photo yet
+                    {t.noPhoto}
                   </span>
                 )}
               </div>
@@ -333,7 +323,7 @@ export default function MarkerDialog({
             <div
               className="marker-dialog__strip"
               role="group"
-              aria-label="Photos"
+              aria-label={t.photos}
             >
               {photos.map((item, index) => (
                 <button
@@ -345,7 +335,7 @@ export default function MarkerDialog({
                 >
                   <img src={reportsApi.photoUrl(item)} alt="" />
                   <span className="visually-hidden">
-                    Photo {index + 1} of {photos.length}
+                    {t.photoIndex(index + 1, photos.length)}
                   </span>
                 </button>
               ))}
@@ -361,16 +351,14 @@ export default function MarkerDialog({
                 {KIND_GLYPHS[category]}
               </span>
               <div className="marker-dialog__who">
-                <span className="marker-dialog__kind">
-                  {KIND_LABELS[category]}
-                </span>
+                <span className="marker-dialog__kind">{t.kinds[category]}</span>
                 {master && (
                   <span className="marker-dialog__when">
                     <time
                       dateTime={master.created_at}
-                      title={formatDate(master.created_at)}
+                      title={formatDate(master.created_at, locale)}
                     >
-                      {timeAgo(master.created_at)}
+                      {timeAgo(master.created_at, locale, t.justNow)}
                     </time>
                   </span>
                 )}
@@ -378,7 +366,7 @@ export default function MarkerDialog({
             </header>
 
             <h2 id={`${id}-title`} className="marker-dialog__title">
-              {master ? master.title : error ? "Report" : "Loading report"}
+              {master ? master.title : error ? t.report : t.loadingReport}
             </h2>
 
             {error && (
@@ -396,7 +384,7 @@ export default function MarkerDialog({
                 return (
                   <div className="marker-dialog__letter">
                     <dl className="marker-dialog__envelope">
-                      <dt>To</dt>
+                      <dt>{t.to}</dt>
                       <dd>
                         <MarkerRecipient
                           master={master}
@@ -404,7 +392,7 @@ export default function MarkerDialog({
                           onSignInRequired={onSignInRequired}
                         />
                       </dd>
-                      <dt>Subject</dt>
+                      <dt>{t.subject}</dt>
                       <dd>{letter.subject}</dd>
                     </dl>
                     {cleanText && (
@@ -415,11 +403,11 @@ export default function MarkerDialog({
                     {ropsInnovation && (
                       <aside
                         className="marker-dialog__rops-box"
-                        aria-label="Innowacja ROPS"
+                        aria-label={t.ropsLabel}
                       >
                         <div className="marker-dialog__rops-header">
                           <span className="marker-dialog__rops-badge">
-                            Innowacja ROPS
+                            {t.ropsLabel}
                           </span>
                         </div>
                         <div className="marker-dialog__rops-content">
@@ -432,7 +420,7 @@ export default function MarkerDialog({
                             rel="noopener noreferrer"
                             className="marker-dialog__rops-link"
                           >
-                            Zobacz model innowacji na rops.krakow.pl &rarr;
+                            {t.ropsLink} &rarr;
                           </a>
                         </div>
                       </aside>
@@ -444,10 +432,10 @@ export default function MarkerDialog({
             {sheet && master?.response && (
               <aside
                 className="marker-dialog__response"
-                aria-label="Official response"
+                aria-label={t.officialResponse}
               >
                 <span className="marker-dialog__response-label">
-                  Official response
+                  {t.officialResponse}
                 </span>
                 <p className="marker-dialog__text">
                   {renderTextWithLinks(master.response)}
@@ -468,7 +456,7 @@ export default function MarkerDialog({
                 aria-controls={`${id}-panel`}
                 onClick={() => togglePanel("comments")}
               >
-                Comments
+                {t.commentsTab}
                 <span className="marker-dialog__count">{comments.length}</span>
               </button>
               <button
@@ -481,7 +469,7 @@ export default function MarkerDialog({
                 aria-controls={`${id}-panel`}
                 onClick={() => togglePanel("reports")}
               >
-                Reports
+                {t.reportsTab}
                 <span className="marker-dialog__count">
                   {sheet.master.report_count}
                 </span>
@@ -500,10 +488,8 @@ export default function MarkerDialog({
             <header className="marker-dialog__panel-head">
               <h3 id={`${id}-panel-title`} className="marker-dialog__label">
                 {panel === "reports"
-                  ? countLabel(sheet.master.report_count, "report")
-                  : comments.length === 0
-                    ? "Comments"
-                    : countLabel(comments.length, "comment")}
+                  ? t.reportCount(sheet.master.report_count)
+                  : t.comments(comments.length)}
               </h3>
               <button
                 ref={panelCloseRef}
@@ -513,10 +499,10 @@ export default function MarkerDialog({
               >
                 <span className="marker-dialog__panel-close-icon">
                   <span aria-hidden="true">&times;</span>
-                  <span className="visually-hidden">Close panel</span>
+                  <span className="visually-hidden">{t.closePanel}</span>
                 </span>
                 <span className="marker-dialog__panel-back">
-                  <span aria-hidden="true">&larr;</span> Back
+                  <span aria-hidden="true">&larr;</span> {t.back}
                 </span>
               </button>
             </header>
@@ -524,36 +510,52 @@ export default function MarkerDialog({
             <div className="marker-dialog__panel-scroll">
               {panel === "comments" &&
                 (comments.length === 0 ? (
-                  <p className="marker-dialog__hint">
-                    Nobody has weighed in yet. Be the first.
-                  </p>
+                  <p className="marker-dialog__hint">{t.noComments}</p>
                 ) : (
                   <ul className="marker-dialog__feed">
                     {comments.map((comment) => {
                       const mine = comment.user_id === me;
+                      // an office's word stands out from the residents' thread
+                      const official = comment.highlighted;
                       return (
-                        <li key={comment.id} className="marker-dialog__comment">
+                        <li
+                          key={comment.id}
+                          className={
+                            official
+                              ? "marker-dialog__comment marker-dialog__comment--official"
+                              : "marker-dialog__comment"
+                          }
+                        >
                           <span
                             className={
-                              mine
+                              mine || official
                                 ? "marker-dialog__avatar marker-dialog__avatar--me"
                                 : "marker-dialog__avatar"
                             }
                             aria-hidden="true"
                           >
-                            {mine ? myInitial : "R"}
+                            {mine ? myInitial : official ? "!" : "R"}
                           </span>
                           <div className="marker-dialog__bubble">
                             <div className="marker-dialog__comment-head">
                               <span className="marker-dialog__author">
-                                {mine ? "You" : "Resident"}
+                                {mine
+                                  ? t.you
+                                  : official
+                                    ? t.office
+                                    : t.resident}
+                                {official && (
+                                  <span className="marker-dialog__official">
+                                    {t.official}
+                                  </span>
+                                )}
                               </span>
                               <time
                                 className="marker-dialog__when"
                                 dateTime={comment.created_at}
-                                title={formatDate(comment.created_at)}
+                                title={formatDate(comment.created_at, locale)}
                               >
-                                {timeAgo(comment.created_at)}
+                                {timeAgo(comment.created_at, locale, t.justNow)}
                               </time>
                             </div>
                             <p className="marker-dialog__comment-text">
@@ -571,8 +573,8 @@ export default function MarkerDialog({
                               {comment.like_count}
                               <span className="visually-hidden">
                                 {comment.liked_by_me
-                                  ? " likes, unlike"
-                                  : " likes, like"}
+                                  ? t.likesUnlike
+                                  : t.likesLike}
                               </span>
                             </button>
                           </div>
@@ -613,14 +615,14 @@ export default function MarkerDialog({
                       className="visually-hidden"
                       htmlFor={`${id}-comment`}
                     >
-                      New comment
+                      {t.newComment}
                     </label>
                     <textarea
                       id={`${id}-comment`}
                       className="marker-dialog__textarea"
                       rows={1}
                       disabled={posting}
-                      placeholder="Write a comment..."
+                      placeholder={t.writeComment}
                       value={draft}
                       onChange={(event) => setDraft(event.target.value)}
                     />
@@ -629,7 +631,7 @@ export default function MarkerDialog({
                       className="marker-dialog__button marker-dialog__button--primary"
                       disabled={!draft.trim() || posting}
                     >
-                      {posting ? "Posting..." : "Post"}
+                      {posting ? t.posting : t.post}
                     </button>
                   </form>
                 ) : (
@@ -639,7 +641,7 @@ export default function MarkerDialog({
                       className="marker-dialog__button"
                       onClick={onSignInRequired}
                     >
-                      Sign in to comment
+                      {t.signInToComment}
                     </button>
                   )
                 )}

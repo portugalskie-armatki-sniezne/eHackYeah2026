@@ -1,6 +1,12 @@
 import { useEffect, useEffectEvent, useRef, type RefObject } from "react";
 import { Marker, type Map as MapLibreMap } from "maplibre-gl";
-import type { ReportCategoryName } from "../api/reports";
+import type {
+  MasterReportStatusName,
+  ReportCategoryName,
+} from "../api/reports";
+import { useMessages } from "../i18n/locale";
+import type { Messages } from "../i18n/messages";
+import { STATUS_GLYPHS } from "./statusGlyphs";
 import "./EventMarkers.css";
 
 export type EventPin = {
@@ -9,8 +15,13 @@ export type EventPin = {
   description: string;
   image: File | null;
   imageUrl: string | null;
-  /** picks the head's pictogram: "!" for a fault, "+" for an improvement */
+  /** names the pin in its label: a fault or an improvement */
   category: ReportCategoryName;
+  /**
+   * Picks the head's pictogram and colour, the same ones the status badge
+   * shows; null when the master's status is not one the interface knows.
+   */
+  status: MasterReportStatusName | null;
   /** how many filings the pin stands for; above one it carries a count */
   reportCount: number;
 };
@@ -35,7 +46,9 @@ type EventMarkersProps = {
 };
 
 type PinElementOptions = {
-  category: ReportCategoryName;
+  status?: MasterReportStatusName | null;
+  /** the status in words, shown on hover the way the badge spells it out */
+  title?: string;
   draft?: boolean;
   imageUrl?: string | null;
   reportCount?: number;
@@ -45,21 +58,18 @@ type PinElementOptions = {
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-// The head's centre mark doubles as the category pictogram, drawn on the head's
-// own grid around the point the plain reticle dot used to sit on: a bar and a dot
-// for a fault, a cross for an improvement. Both are struck with the outline's pen.
-const CATEGORY_GLYPHS: Record<ReportCategoryName, string> = {
-  // bar, gap, dot: an "!" 11.5 units tall, so it squares off against the cross.
-  // The dot is a stroke of the pen's own width rather than a filled square, so it
-  // keeps step with the bar instead of fattening as the head opens.
-  issue: `
-    <path class="event-pin__glyph" d="M0 -33.75 V-26.25 M0 -24.75 V-22.25" />
-  `,
-  // arms of that same length, crossed on the centre point
-  improvement: `
-    <path class="event-pin__glyph" d="M-5.75 -28 H5.75 M0 -33.75 V-22.25" />
-  `,
-};
+// The head's centre mark is the status pictogram the reports page's badge
+// shows, struck with the outline's pen. The badge draws it on a 16-unit grid
+// with its centre at (8, 8); shifted by (-8, -36) that centre lands on the
+// head's own, (0, -28), with four units of paper around it on every side.
+function statusGlyph(status: MasterReportStatusName | null): string {
+  if (!status) return "";
+  return `
+    <g class="event-pin__glyph" transform="translate(-8 -36)">
+      ${STATUS_GLYPHS[status]}
+    </g>
+  `;
+}
 
 // One layer of the head, drawn on the head's own grid: the viewBox is exactly
 // the paper rect, so stretching the element opens the drawing off a bottom edge
@@ -76,7 +86,8 @@ function headPlate(className: string, content: string): SVGSVGElement {
 function pinElement(
   label: string,
   {
-    category,
+    status = null,
+    title,
     draft = false,
     imageUrl = null,
     reportCount = 1,
@@ -85,7 +96,11 @@ function pinElement(
 ): HTMLElement {
   const element = document.createElement("div");
   element.className = draft ? "event-pin event-pin--draft" : "event-pin";
+  // the paper takes the badge's colour for the status: amber while the work is
+  // on, green once it is done
+  if (status) element.classList.add(`event-pin--${status}`);
   element.setAttribute("aria-label", label);
+  if (title) element.title = title;
   if (onOpen) {
     // the map's own click handler steps aside for marker elements, so the pin
     // answers the pointer itself and is reachable from the keyboard too
@@ -121,7 +136,7 @@ function pinElement(
     "event-pin__head",
     `
     <rect class="event-pin__paper" x="-12" y="-40" width="24" height="24" />
-    ${CATEGORY_GLYPHS[category]}
+    ${statusGlyph(status)}
   `,
   );
 
@@ -187,16 +202,27 @@ function sameMarker(a: EventPin, b: EventPin): boolean {
     a.description === b.description &&
     a.imageUrl === b.imageUrl &&
     a.category === b.category &&
+    a.status === b.status &&
     a.reportCount === b.reportCount &&
     a.lngLat[0] === b.lngLat[0] &&
     a.lngLat[1] === b.lngLat[1]
   );
 }
 
-function pinLabel(pin: EventPin, index: number): string {
-  const kind = pin.category === "improvement" ? "Improvement" : "Fault";
-  const aggregate = pin.reportCount > 1 ? `, ${pin.reportCount} reports` : "";
-  return `${kind} pin ${index + 1}${aggregate}: ${pin.description}`;
+// the status in the interface language, as the badge spells it; null when the
+// name is not one it knows, and the label leaves it out
+function statusTitle(pin: EventPin, t: Messages): string | null {
+  return pin.status ? t.status[pin.status] : null;
+}
+
+function pinLabel(pin: EventPin, index: number, t: Messages): string {
+  return t.map.pinLabel(
+    pin.category,
+    index + 1,
+    statusTitle(pin, t),
+    pin.reportCount,
+    pin.description,
+  );
 }
 
 /**
@@ -216,6 +242,7 @@ export default function EventMarkers({
     new globalThis.Map<string, { marker: Marker; pin: EventPin }>(),
   );
   const draftRef = useRef<Marker | null>(null);
+  const t = useMessages();
   // read through an event so a new handler does not rebuild every marker
   const openPin = useEffectEvent((id: string) => onPinClick?.(id));
 
@@ -242,6 +269,11 @@ export default function EventMarkers({
       if (!wanted.has(id) || !pin || !sameMarker(entry.pin, pin)) {
         entry.marker.remove();
         markers.delete(id);
+      } else {
+        // a kept marker follows the interface language without being rebuilt
+        const element = entry.marker.getElement();
+        element.setAttribute("aria-label", pinLabel(pin, pins.indexOf(pin), t));
+        element.title = statusTitle(pin, t) ?? "";
       }
     }
 
@@ -251,8 +283,9 @@ export default function EventMarkers({
         return;
       }
       const marker = new Marker({
-        element: pinElement(pinLabel(pin, index), {
-          category: pin.category,
+        element: pinElement(pinLabel(pin, index, t), {
+          status: pin.status,
+          title: statusTitle(pin, t) ?? undefined,
           imageUrl: pin.imageUrl,
           reportCount: pin.reportCount,
           onOpen: () => openPin(pin.id),
@@ -263,7 +296,7 @@ export default function EventMarkers({
         .addTo(map);
       markers.set(pin.id, { marker, pin });
     });
-  }, [mapRef, pins, styleReady, ungroupedIds]);
+  }, [mapRef, pins, styleReady, ungroupedIds, t]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -271,10 +304,7 @@ export default function EventMarkers({
       return;
     }
     const marker = new Marker({
-      element: pinElement("New pin", {
-        category: DEFAULT_PIN_CATEGORY,
-        draft: true,
-      }),
+      element: pinElement(t.map.newPin, { draft: true }),
       anchor: "bottom",
     })
       .setLngLat(draftLngLat)
@@ -284,7 +314,7 @@ export default function EventMarkers({
       marker.remove();
       draftRef.current = null;
     };
-  }, [draftLngLat, mapRef, styleReady]);
+  }, [draftLngLat, mapRef, styleReady, t.map.newPin]);
 
   useEffect(() => {
     const markers = markersRef.current;
