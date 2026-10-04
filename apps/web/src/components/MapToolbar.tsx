@@ -108,8 +108,9 @@ export default function MapToolbar({
             disabled={!canRecenterOnMe}
             title={canRecenterOnMe ? undefined : t.noFix}
           >
+            {/* Wide screens: a drafting crosshair, as the map cursor draws. */}
             <svg
-              className="toolbar__icon"
+              className="toolbar__icon toolbar__icon--crosshair"
               viewBox="-10 -10 20 20"
               aria-hidden="true"
               focusable="false"
@@ -119,6 +120,16 @@ export default function MapToolbar({
                 d="M-9 0 H-4 M4 0 H9 M0 -9 V-4 M0 4 V9"
               />
               <circle className="toolbar__icon-dot" r="2.25" />
+            </svg>
+            {/* Phones: the survey dot that marks the device on the map, since
+                there is no mouse cursor for a crosshair to echo. */}
+            <svg
+              className="toolbar__icon toolbar__icon--position"
+              viewBox="-10 -10 20 20"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <circle className="toolbar__icon-disc" r="6" />
             </svg>
             <span className="toolbar__label">{t.recenterOnMe}</span>
           </button>
