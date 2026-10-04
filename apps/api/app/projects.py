@@ -137,6 +137,60 @@ def extract_keywords(query: str) -> list[str]:
     return clean_words
 
 
+def extract_context_snippet(
+    content: str | None,
+    stems: list[str],
+    window_before: int = 50,
+    window_after: int = 150,
+) -> str | None:
+    if not content:
+        return None
+
+    clean = re.sub(r"\s+", " ", content).strip()
+    if len(clean) < 40:
+        return None
+
+    clean_lower = clean.lower()
+    best_pos = -1
+    for stem in stems:
+        pos = clean_lower.find(stem.lower())
+        if pos != -1:
+            if best_pos == -1 or pos < best_pos:
+                best_pos = pos
+
+    if best_pos == -1:
+        return None
+
+    start = max(0, best_pos - window_before)
+    end = min(len(clean), best_pos + window_after)
+
+    if start > 0:
+        space_idx = clean.find(" ", start)
+        if space_idx != -1 and space_idx < best_pos:
+            start = space_idx + 1
+
+    if end < len(clean):
+        space_idx = clean.rfind(" ", best_pos, end)
+        if space_idx != -1 and space_idx > best_pos:
+            end = space_idx
+
+    snippet = clean[start:end].strip()
+    if not snippet:
+        return None
+
+    if start > 0:
+        snippet = "..." + snippet
+    if end < len(clean):
+        snippet = snippet + "..."
+
+    words = re.findall(r"[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]{3,}", snippet)
+    if len(words) < 4:
+        return None
+
+    return snippet
+
+
+
 class ProjectSummary(BaseModel):
     id: int
     slug: str
@@ -276,7 +330,8 @@ def search_projects(
 
     # extract stems of keywords for Polish grammatical inflection tolerance
     stems = [w[:5] if len(w) >= 5 else w for w in keywords]
-    patterns = [f"%{s}%" for s in stems]
+    unique_stems = list(dict.fromkeys(stems))
+    patterns = [f"%{s}%" for s in unique_stems]
 
     cat_filter = sql.SQL("")
     params["patterns"] = patterns
@@ -287,11 +342,11 @@ def search_projects(
     query_sql = sql.SQL(
         "SELECT p.id, p.slug, p.title, p.category, p.category_slug, p.url, p.description, p.summary, "
         "       ( "
-        "           SELECT substring(c.content from 1 for 300) "
+        "           SELECT substring(c.content from 1 for 1500) "
         "           FROM project_chunks c "
         "           WHERE c.project_slug = p.slug AND c.content ILIKE ANY(%(patterns)s) "
         "           LIMIT 1 "
-        "       ) AS matched_snippet "
+        "       ) AS raw_chunk "
         "FROM projects p "
         "WHERE (p.title ILIKE ANY(%(patterns)s) "
         "   OR p.summary ILIKE ANY(%(patterns)s) "
@@ -301,32 +356,41 @@ def search_projects(
 
     rows = connection.execute(query_sql, params).fetchall()
 
+    total_stems = len(unique_stems)
     scored_results: list[ProjectSearchResult] = []
     for row in rows:
         title_l = row["title"].lower()
         cat_l = (row["category"] or "").lower()
-        sum_l = row["summary"].lower()
+        sum_l = (row["summary"] or "").lower()
+        desc_l = (row["description"] or "").lower()
+        raw_chunk = row["raw_chunk"] or ""
+        chunk_l = raw_chunk.lower()
 
-        score = 0.0
-        matched_count = 0
-        for stem in stems:
-            if stem in title_l:
-                score += 0.40
-                matched_count += 1
-            elif stem in cat_l:
-                score += 0.30
-                matched_count += 1
-            elif stem in sum_l:
-                score += 0.15
-                matched_count += 1
+        matched_weights: list[float] = []
+        for stem in unique_stems:
+            stem_l = stem.lower()
+            if stem_l in title_l:
+                matched_weights.append(1.0)
+            elif stem_l in sum_l or stem_l in desc_l:
+                matched_weights.append(0.7)
+            elif stem_l in cat_l:
+                matched_weights.append(0.4)
+            elif stem_l in chunk_l:
+                matched_weights.append(0.2)
 
-        if matched_count >= 2:
-            score += 0.15 * (matched_count - 1)
+        if not matched_weights:
+            continue
 
-        final_score = min(0.96, round(score, 2))
-        snippet = row["matched_snippet"] or row["description"] or row["summary"]
-        if snippet and len(snippet) > 300:
-            snippet = snippet[:300] + "..."
+        matched_count = len(matched_weights)
+        coverage = matched_count / total_stems
+        avg_weight = sum(matched_weights) / matched_count
+
+        # Score balances how many query stems matched with match location quality
+        score = (coverage**0.8) * avg_weight
+        final_score = min(0.98, round(score, 2))
+
+        # Extract contextual snippet around matched stems
+        snippet = extract_context_snippet(raw_chunk, unique_stems)
 
         scored_results.append(
             ProjectSearchResult(

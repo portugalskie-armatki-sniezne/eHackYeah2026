@@ -29,7 +29,7 @@ function formatLngLat([lng, lat]: [number, number]): string {
   return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 }
 
-const SIMILARITY_THRESHOLD = 0.55;
+const SIMILARITY_THRESHOLD = 0.5;
 
 /**
  * The sheet that opens when a pin is dropped. Supports two modes:
@@ -288,18 +288,28 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
           {detectedMatch ? (
             <div className="pin-dialog__match-box">
               <div className="pin-dialog__match-badge">
-                Znaleziono podobną innowację (
-                {Math.round(detectedMatch.score * 100)}% zbieżności)
+                {detectedMatch.score >= 0.75
+                  ? `Sugerowana innowacja (${Math.round(detectedMatch.score * 100)}% zbieżności)`
+                  : `Podobna innowacja (${Math.round(detectedMatch.score * 100)}% zbieżności)`}
               </div>
               <h3 className="pin-dialog__match-title">{detectedMatch.title}</h3>
               <span className="pin-dialog__match-category">
                 {detectedMatch.category}
               </span>
               <p className="pin-dialog__match-desc">
-                {detectedMatch.matched_snippet ||
+                {detectedMatch.summary ||
                   detectedMatch.description ||
-                  detectedMatch.summary}
+                  detectedMatch.matched_snippet}
               </p>
+              {detectedMatch.matched_snippet &&
+                detectedMatch.matched_snippet !== detectedMatch.summary && (
+                  <blockquote className="pin-dialog__match-quote">
+                    <span className="pin-dialog__match-quote-label">
+                      Fragment z dokumentacji:
+                    </span>{" "}
+                    {detectedMatch.matched_snippet}
+                  </blockquote>
+                )}
               <div className="pin-dialog__match-actions">
                 <button
                   type="button"
