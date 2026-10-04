@@ -26,10 +26,12 @@ def workflow_configuration(monkeypatch):
     monkeypatch.setenv("SMTP_MOCK_DESTINATION", "demo@example.com")
 
 
-def generate(client, headers, *, key=None, draft_id=None, description="A playground"):
+def generate(client, headers, *, key=None, draft_id=None, description="A playground", report_type=None):
     data = {"description": description}
     if draft_id:
         data["draft_id"] = str(draft_id)
+    if report_type:
+        data["report_type"] = report_type
     return client.post(
         "/visualizations",
         headers=headers | {"Idempotency-Key": key or str(uuid4())},
@@ -46,10 +48,16 @@ def image_response(data=PNG):
     }
 
 
-def process(connection, monkeypatch, kind="visualization", response=None):
+def process(connection, monkeypatch, kind="visualization", response=None, requests=None):
     job = worker.claim(connection, kind, settings())
     assert job is not None
-    monkeypatch.setattr(worker, "post_json", lambda *args: response or image_response())
+
+    def post_json(url, payload, timeout):
+        if requests is not None:
+            requests.append(payload)
+        return response or image_response()
+
+    monkeypatch.setattr(worker, "post_json", post_json)
     worker.execute(connection, kind, job, settings())
     return job
 
@@ -153,12 +161,39 @@ def test_missing_draft_source_rolls_back_publication(client, signed_in, connecti
     assert client.get(draft["status_url"], headers=headers).json()["report_id"] is None
 
 
-def test_only_improvement_owner_can_generate_or_attach(client, signed_in, connection):
+def test_issue_reports_are_drawn_repaired(client, signed_in, connection, monkeypatch):
     _, headers = signed_in()
-    _, other = signed_in()
     issue = create_report(client, headers, random_location(), photos=[PNG])
     endpoint = f"/reports/{issue['id']}/visualizations"
-    assert client.post(endpoint, headers=headers | {"Idempotency-Key": "issue"}).status_code == 422
+    accepted = client.post(endpoint, headers=headers | {"Idempotency-Key": "issue"})
+    assert accepted.status_code == 202, accepted.text
+    assert accepted.json()["report_type"] == "issue"
+    requests = []
+    process(connection, monkeypatch, requests=requests)
+    # the connector is told which kind of picture to draw.
+    assert requests[0]["report_type"] == "issue"
+    history = client.get(f"/reports/{issue['id']}/visualizations").json()["items"]
+    assert [item["report_type"] for item in history] == ["issue"]
+
+    # a draft names its kind up front, and only a report of that kind can publish it.
+    draft = generate(client, headers, report_type="issue").json()
+    assert draft["report_type"] == "issue"
+    assert generate(client, headers, report_type="complaint").status_code == 422
+    form = {
+        "report_category_id": reference_id(client, "/report-categories", "improvement"),
+        "title": "A new playground",
+        "description": "A playground",
+        **random_location(),
+        "visualization_draft_id": draft["draft_id"],
+    }
+    assert client.post("/reports", data=form, headers=headers).status_code == 422
+    form["report_category_id"] = reference_id(client, "/report-categories", "issue")
+    assert client.post("/reports", data=form, headers=headers).status_code == 201
+
+
+def test_only_the_owner_can_generate_or_attach(client, signed_in, connection):
+    _, headers = signed_in()
+    _, other = signed_in()
     initiative = create_report(client, headers, random_location(), category="improvement", photos=[PNG])
     assert (
         client.post(
@@ -419,7 +454,7 @@ def test_concurrent_idempotency_and_worker_claims(connection, upload_dir):
                 with psycopg.connect(
                     conninfo(), autocommit=True, row_factory=dict_row, options=f"-c search_path={schema},public"
                 ) as db:
-                    return visualizations.enqueue(db, user, key, "A playground", [("png", PNG)]).id
+                    return visualizations.enqueue(db, user, key, "improvement", "A playground", [("png", PNG)]).id
 
             def take(_):
                 with psycopg.connect(
@@ -451,7 +486,9 @@ def test_concurrent_idempotency_and_worker_claims(connection, upload_dir):
                     conninfo(), autocommit=True, row_factory=dict_row, options=f"-c search_path={schema},public"
                 ) as db:
                     try:
-                        visualizations.enqueue(db, user, f"limit-{index}", "A playground", [("png", PNG)])
+                        visualizations.enqueue(
+                            db, user, f"limit-{index}", "improvement", "A playground", [("png", PNG)]
+                        )
                         return 202
                     except HTTPException as error:
                         return error.status_code

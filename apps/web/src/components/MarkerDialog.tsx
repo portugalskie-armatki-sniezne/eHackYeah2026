@@ -15,6 +15,11 @@ import {
   type ReportCategoryName,
 } from "../api/reports";
 import { useSession } from "../api/session";
+import {
+  activeJobId,
+  visualizationsApi,
+  type Visualization,
+} from "../api/visualizations";
 import { useLocale, useMessages } from "../i18n/locale";
 import MasterReports from "./MasterReports";
 import PhotoProposalDialog from "./PhotoProposalDialog";
@@ -146,6 +151,25 @@ export default function MarkerDialog({
   const [offering, setOffering] = useState(false);
   const [deciding, setDeciding] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
+  // The picture Gemini drew over the case's photos: a fault repaired, or an
+  // idea carried out. The sheet reads the case's history when it opens; a
+  // case without one is queued for drawing once per open, by its author or
+  // an admin, and the sheet follows the job until the picture is saved.
+  const [visualization, setVisualization] = useState<Visualization | null>(
+    null,
+  );
+  // whether the history has been read, so a drawing is only queued after it
+  const [historyRead, setHistoryRead] = useState(false);
+  const [visualizing, setVisualizing] = useState(false);
+  const [visualizationError, setVisualizationError] = useState<string | null>(
+    null,
+  );
+  // whether the frame shows the drawn idea instead of the photo
+  const [showVisualization, setShowVisualization] = useState(false);
+  // one drawing per open, however often the session or the case reloads
+  const queuedRef = useRef(false);
+  // the drawing under way, abandoned only when the sheet closes
+  const drawingRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -196,11 +220,89 @@ export default function MarkerDialog({
         setError(error instanceof Error ? error.message : t.loadFailed);
       }
     }
+    // the newest saved picture, if the case has one; its absence is no error
+    async function readHistory() {
+      try {
+        const page = await visualizationsApi.history(masterId, signal);
+        if (signal.aborted) return;
+        setVisualization(page.items.find((item) => item.url) ?? null);
+      } catch {
+        // the toggle stays away; the sheet is still readable without it
+      } finally {
+        if (!signal.aborted) setHistoryRead(true);
+      }
+    }
     void load();
+    void readHistory();
     return () => controller.abort();
     // the fallback text is read once, when the load fails
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [masterId]);
+
+  useEffect(() => () => drawingRef.current?.abort(), []);
+
+  // Queue the drawing once the case and its history are in. The api draws a
+  // published report for its author or an admin, from the report's own
+  // photos; the case's oldest photo names that report.
+  useEffect(() => {
+    const master = sheet?.master;
+    if (
+      !master ||
+      !historyRead ||
+      visualization ||
+      queuedRef.current ||
+      session.status !== "signed-in" ||
+      master.photos.length === 0
+    ) {
+      return;
+    }
+    const mine =
+      session.user.role === "admin" || session.user.id === master.author_id;
+    if (!mine) return;
+    queuedRef.current = true;
+    const reportId = master.photos[0].report_id;
+    const controller = new AbortController();
+    drawingRef.current = controller;
+    const { signal } = controller;
+    async function draw() {
+      setVisualizing(true);
+      setVisualizationError(null);
+      try {
+        let job: Visualization;
+        try {
+          job = await visualizationsApi.generate(
+            reportId,
+            crypto.randomUUID(),
+            signal,
+          );
+        } catch (error) {
+          // the account already has a drawing under way: follow that one if
+          // it is this report's, otherwise there is nothing to wait for
+          const active = activeJobId(error);
+          if (!active) throw error;
+          job = await visualizationsApi.status(active, signal);
+          if (job.report_id !== reportId) throw error;
+        }
+        const done = await visualizationsApi.follow(job, signal);
+        if (signal.aborted) return;
+        if (done.status === "succeeded" && done.url) {
+          setVisualization(done);
+        } else {
+          setVisualizationError(t.visualizationFailed);
+        }
+      } catch (error) {
+        if (signal.aborted) return;
+        setVisualizationError(
+          error instanceof Error ? error.message : t.visualizationFailed,
+        );
+      } finally {
+        if (!signal.aborted) setVisualizing(false);
+      }
+    }
+    void draw();
+    // the fallback text is read once, when the drawing fails
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sheet, historyRead, visualization, session]);
 
   // a taken photo is the case's own now, so the sheet reads the case again
   const reloadMaster = async () => {
@@ -321,6 +423,9 @@ export default function MarkerDialog({
   const master = sheet?.master;
   const photos = master?.photos ?? [];
   const photo = photos[Math.min(photoIndex, photos.length - 1)];
+  // the drawn idea takes the frame only while the toggle is pressed
+  const drawn =
+    showVisualization && visualization?.url ? { url: visualization.url } : null;
   const letter = sheet?.letter;
   // the offered photo is only the case's picture while the case has none
   const waiting = photos.length === 0 ? offered : null;
@@ -362,11 +467,38 @@ export default function MarkerDialog({
             drafting grid the marker sheet shows before an image is chosen. */}
             <figure className="marker-dialog__figure">
               {photo ? (
-                <img
-                  className="marker-dialog__photo"
-                  src={reportsApi.photoUrl(photo)}
-                  alt={master ? t.photoOf(master.title) : t.reportPhoto}
-                />
+                <>
+                  <img
+                    className="marker-dialog__photo"
+                    src={
+                      drawn
+                        ? visualizationsApi.fileUrl(drawn)
+                        : reportsApi.photoUrl(photo)
+                    }
+                    alt={
+                      master
+                        ? drawn
+                          ? t.visualizationOf(master.title)
+                          : t.photoOf(master.title)
+                        : t.reportPhoto
+                    }
+                  />
+                  {/* The toggle rides the frame's top-left corner, clear of
+                      the close button; pressed, it swaps the photo for the
+                      drawn idea. It waits, disabled, while Gemini draws. */}
+                  {(visualization || visualizing) && (
+                    <button
+                      type="button"
+                      className="marker-dialog__vision"
+                      aria-pressed={showVisualization}
+                      disabled={!visualization}
+                      onClick={() => setShowVisualization((shown) => !shown)}
+                    >
+                      <span aria-hidden="true">✦</span>{" "}
+                      {visualization ? t.visualization : t.visualizing}
+                    </button>
+                  )}
+                </>
               ) : waiting ? (
                 <>
                   <img
@@ -454,6 +586,12 @@ export default function MarkerDialog({
               </p>
             )}
 
+            {visualizationError && (
+              <p className="marker-dialog__photo-error">
+                {t.visualizationFailed}
+              </p>
+            )}
+
             {photos.length > 1 && (
               <div
                 className="marker-dialog__strip"
@@ -465,8 +603,11 @@ export default function MarkerDialog({
                     key={item.id}
                     type="button"
                     className="marker-dialog__thumb"
-                    aria-pressed={index === photoIndex}
-                    onClick={() => setPhotoIndex(index)}
+                    aria-pressed={index === photoIndex && !drawn}
+                    onClick={() => {
+                      setPhotoIndex(index);
+                      setShowVisualization(false);
+                    }}
                   >
                     <img src={reportsApi.photoUrl(item)} alt="" />
                     <span className="visually-hidden">

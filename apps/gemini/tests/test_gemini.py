@@ -64,7 +64,7 @@ def test_endpoint_runs_both_stages_with_all_reference_photos(client: MagicMock, 
     calls = client.models.generate_content.call_args_list
     assert [call.kwargs["model"] for call in calls] == [gemini.PROMPT_MODEL, gemini.IMAGE_MODEL]
     assert payload["description"] in calls[0].kwargs["contents"][0].text
-    assert calls[0].kwargs["config"].system_instruction == gemini.PLANNING_INSTRUCTIONS
+    assert calls[0].kwargs["config"].system_instruction == gemini.planning_instructions("improvement")
     for call in calls:
         references = [part.inline_data for part in call.kwargs["contents"][1:]]
         assert [(part.mime_type, part.data) for part in references] == [
@@ -73,10 +73,24 @@ def test_endpoint_runs_both_stages_with_all_reference_photos(client: MagicMock, 
         ]
     result = response.json()
     assert DESIGN in result["prompt"]
-    assert gemini.VISUALIZATION_GUIDANCE in result["prompt"]
+    assert gemini.VISUALIZATION_GUIDANCE["improvement"] in result["prompt"]
     assert result["prompt"] == calls[1].kwargs["contents"][0].text
     assert result["media_type"] == "image/png"
     assert base64.b64decode(result["image_base64"]) == b"generated"
+
+
+def test_issue_report_is_drawn_repaired(client: MagicMock, payload: dict):
+    payload["report_type"] = "issue"
+    payload["description"] = "A broken bench with missing slats"
+
+    response = TestClient(app).post("/generate", json=payload)
+
+    assert response.status_code == 200
+    calls = client.models.generate_content.call_args_list
+    assert "Reported fault: " + payload["description"] in calls[0].kwargs["contents"][0].text
+    assert calls[0].kwargs["config"].system_instruction == gemini.planning_instructions("issue")
+    assert "repaired" in gemini.planning_instructions("issue")
+    assert response.json()["prompt"].startswith(gemini.VISUALIZATION_GUIDANCE["issue"])
 
 
 @pytest.mark.parametrize("suffix", ["_generated", "_generated_7e8d9c0b-1a2f-4b3c-8d9e-0f1a2b3c4d5e"])
@@ -197,7 +211,7 @@ def test_errors_in_either_stage_are_sanitized(
 @pytest.mark.parametrize(
     "changes",
     [
-        {"report_type": "issue"},
+        {"report_type": "complaint"},
         {"report_type": None},
         {"description": ""},
         {"description": "   "},
@@ -304,7 +318,7 @@ def test_example_saves_image_and_prompt(monkeypatch: pytest.MonkeyPatch, tmp_pat
     mock = MagicMock(return_value=(DESIGN, "image/jpeg", b"generated"))
     monkeypatch.setattr(example, "generate_visualization", mock)
     example.main()
-    mock.assert_called_once_with(example.DESCRIPTION, [("image/jpeg", example.PHOTO.read_bytes())])
+    mock.assert_called_once_with("improvement", example.DESCRIPTION, [("image/jpeg", example.PHOTO.read_bytes())])
     path = tmp_path / "output" / "visualization.jpg"
     assert path.read_bytes() == b"generated"
     assert (tmp_path / "output" / "prompt.txt").read_text() == DESIGN + "\n"
@@ -313,6 +327,9 @@ def test_example_saves_image_and_prompt(monkeypatch: pytest.MonkeyPatch, tmp_pat
 
 def test_core_requires_description_photos_and_valid_count(client: MagicMock):
     with pytest.raises(HTTPException) as error:
-        gemini.generate_visualization("A playground", [])
+        gemini.generate_visualization("improvement", "A playground", [])
+    assert error.value.status_code == 422
+    with pytest.raises(HTTPException) as error:
+        gemini.generate_visualization("complaint", "A playground", [("image/jpeg", PHOTO)])
     assert error.value.status_code == 422
     client.models.generate_content.assert_not_called()

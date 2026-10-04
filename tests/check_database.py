@@ -106,6 +106,14 @@ def main():
         query((ROOT / "tests/fixtures/check_reports.sql").read_text())
         query((ROOT / "tests/fixtures/check_constraints.sql").read_text())
         print("PASS: master reports, statuses, institutions, comments, likes, and constraints", flush=True)
+        report_type_column = ("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'public' "
+                              "AND table_name = 'visualization_jobs' AND column_name = 'report_type';")
+        if query(report_type_column) != "1":
+            raise RuntimeError("Visualization report type migration did not add the column")
+        compose("run", "--rm", "--no-deps", "db-migrator", "down")
+        if query(report_type_column) != "0":
+            raise RuntimeError("Visualization report type rollback left the column behind")
+        print("PASS: visualization report type migration rolled back successfully", flush=True)
         workflow_tables = "'visualization_drafts', 'visualization_jobs', 'mail_delivery_jobs'"
         if query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' "
                  f"AND table_name IN ({workflow_tables});") != "3":

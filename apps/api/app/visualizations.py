@@ -19,8 +19,10 @@ from app.workflow_settings import settings
 
 router = APIRouter(tags=["visualizations"])
 IdempotencyKey = Annotated[str, Header(alias="Idempotency-Key", min_length=1, max_length=200)]
+# what the picture shows, by report_categories.name: an improvement carried out, or an issue repaired.
+ReportType = Literal["improvement", "issue"]
 JOB_COLUMNS = (
-    "j.id, j.user_id, j.draft_id, d.report_id, j.status, j.prompt, j.media_type, j.error_code, "
+    "j.id, j.user_id, j.draft_id, d.report_id, j.report_type, j.status, j.prompt, j.media_type, j.error_code, "
     "j.created_at, j.completed_at, j.storage_key, "
     "(d.report_id IS NOT NULL OR (d.published_at IS NULL AND d.expires_at > statement_timestamp())) AS available"
 )
@@ -30,6 +32,7 @@ class Visualization(BaseModel):
     id: UUID
     draft_id: UUID | None
     report_id: UUID | None
+    report_type: ReportType
     status: Literal["queued", "running", "succeeded", "failed"]
     prompt: str | None
     media_type: str | None
@@ -82,6 +85,7 @@ def enqueue(
     connection: psycopg.Connection,
     user: User,
     key: str,
+    report_type: ReportType,
     description: str,
     photos: list[tuple[str, bytes]],
     *,
@@ -95,6 +99,7 @@ def enqueue(
             {
                 "draft_id": str(draft_id),
                 "report_id": str(report_id),
+                "report_type": report_type,
                 "description": description,
                 "photos": [hashlib.sha256(data).hexdigest() for _, data in photos],
             },
@@ -165,9 +170,9 @@ def enqueue(
             storage.save(source_key, data)
             keys.append(source_key)
         connection.execute(
-            "INSERT INTO visualization_jobs (id, user_id, draft_id, idempotency_key, request_hash, description, "
-            "source_keys) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-            (job_id, user.id, draft_id, key, fingerprint, description, Jsonb(keys)),
+            "INSERT INTO visualization_jobs (id, user_id, draft_id, idempotency_key, request_hash, report_type, "
+            "description, source_keys) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+            (job_id, user.id, draft_id, key, fingerprint, report_type, description, Jsonb(keys)),
         )
         return result(fetch_job(job_id, connection), accepted=True)
 
@@ -180,10 +185,11 @@ def generate_draft(
     description: Annotated[Text, Form()],
     photos: Annotated[list[UploadFile], File()],
     draft_id: Annotated[UUID | None, Form()] = None,
+    report_type: Annotated[ReportType, Form()] = "improvement",
 ) -> AcceptedVisualization:
     from app.reports import read_photos
 
-    return enqueue(connection, user, idempotency_key, description, read_photos(photos), draft_id=draft_id)
+    return enqueue(connection, user, idempotency_key, report_type, description, read_photos(photos), draft_id=draft_id)
 
 
 @router.post("/reports/{report_id}/visualizations", status_code=202, response_model=AcceptedVisualization)
@@ -204,13 +210,11 @@ def generate_report(
             "WHERE r.id = %s",
             (report_id,),
         ).fetchone()
-        if row["name"] != "improvement":
-            raise HTTPException(422, "Only improvement reports can have visualizations")
         rows = connection.execute(
             "SELECT storage_key FROM report_photos WHERE report_id = %s ORDER BY created_at, id", (report_id,)
         ).fetchall()
         photos = read_saved_photos([row["storage_key"] for row in rows])
-        return enqueue(connection, user, idempotency_key, row["description"], photos, report_id=report_id)
+        return enqueue(connection, user, idempotency_key, row["name"], row["description"], photos, report_id=report_id)
 
 
 def attach_draft(
@@ -223,13 +227,16 @@ def attach_draft(
         raise HTTPException(403, "Only the draft owner can publish it")
     if draft["published_at"] is not None:
         raise HTTPException(409, "Visualization draft was already published")
+    # the draft's pictures were drawn for one kind of report, which the published report must be.
     valid = connection.execute(
-        "SELECT d.expires_at > statement_timestamp() AS available, c.name FROM visualization_drafts d "
-        "CROSS JOIN report_categories c WHERE d.id = %s AND c.id = %s",
+        "SELECT d.expires_at > statement_timestamp() AS available, c.name, "
+        "(SELECT j.report_type FROM visualization_jobs j WHERE j.draft_id = d.id "
+        "ORDER BY j.created_at DESC, j.id DESC LIMIT 1) AS report_type "
+        "FROM visualization_drafts d CROSS JOIN report_categories c WHERE d.id = %s AND c.id = %s",
         (draft_id, category_id),
     ).fetchone()
-    if valid is None or valid["name"] != "improvement":
-        raise HTTPException(422, "Only improvement reports can publish a visualization draft")
+    if valid is None or (valid["report_type"] is not None and valid["report_type"] != valid["name"]):
+        raise HTTPException(422, "The visualization draft was made for another report category")
     if not valid["available"]:
         raise HTTPException(410, "Visualization draft expired")
     connection.execute(

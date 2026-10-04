@@ -18,7 +18,8 @@ RUN python -m app.inference.download
 FROM python:3.14-slim
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PATH="/app/.venv/bin:$PATH" \
     LAYA_MODEL_PATH=/app/models/laya-vision TRANSLATION_MODEL_PATH=/app/models/opus-mt-pl-en \
-    LAYA_DEVICE=cpu INFERENCE_REQUIRED=true HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HOME=/tmp/huggingface
+    LAYA_DEVICE=cpu INFERENCE_REQUIRED=true HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HOME=/tmp/huggingface \
+    UPLOAD_DIR=/app/uploads GEMINI_URL=http://gemini:8000 NOTIFY_URL=http://notify:8000
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*

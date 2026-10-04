@@ -199,7 +199,7 @@ def execute(connection: psycopg.Connection, kind: str, job: dict, config: Settin
             response = post_json(
                 config.gemini_url + "/generate",
                 {
-                    "report_type": "improvement",
+                    "report_type": job["report_type"],
                     "description": job["description"],
                     "photos": [{"storage_key": key} for key in job["source_keys"]],
                 },
