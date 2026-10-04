@@ -48,6 +48,10 @@ Platforma jest wdrożona i publicznie dostępna:
 - **Środowisko produkcyjne (`prod`)**: Dostępne pod adresem [hackyeah.jakubowskii.pl/#main](https://hackyeah.jakubowskii.pl/#main) z integracją Google OAuth, produkcyjną bazą danych, zgeokodowanymi instytucjami i bazą innowacji ROPS.
 - **Środowisko deweloperskie (`dev`)**: Aktualizowane automatycznie przy każdym pushu do `main` przez GitHub Actions na potrzeby testów i weryfikacji.
 
+Aby przetestować platformę, można zalogować się na konto testowe:
+- **Email**: `user@mock.ehackyeah.pl`
+- **Hasło**: `mock_demo_password`
+
 Oba środowiska uruchamiają trzy skonteneryzowane usługi zarządzane przez Docker Compose:
 - **`web`**: Aplikacja frontendowa SPA (React, Vite, TypeScript, MapLibre GL JS).
 - **`api`**: Backend REST API (FastAPI, PostgreSQL, PostGIS, pgvector).
@@ -93,7 +97,7 @@ Oba środowiska uruchamiają trzy skonteneryzowane usługi zarządzane przez Doc
 
 > Przy uruchamianiu bazy importowany jest arkusz urzędów JST, przejrzane zbiory jednostek usługowych i ich siedzib oraz biblioteka innowacji społecznych ROPS pokazywana na stronie inicjatyw. `task db` kończy działanie po zakończeniu importu.
 
-> Na potrzeby prezentacji `docker compose run --rm mock-seeder` podmienia przykładowych użytkowników, zgłoszenia, zdjęcia i dyskusje w Krakowie. Szczegóły i konta demo opisuje sekcja [mock demo data](TESTING.md#mock-demo-data).
+> Na potrzeby prezentacji `docker compose run --rm mock-seeder` podmienia przykładowych użytkowników, zgłoszenia, zdjęcia i dyskusje w Krakowie. Do logowania można użyć konta `user@mock.ehackyeah.pl` z hasłem `mock_demo_password`. Szczegóły i konta demo opisuje sekcja [mock demo data](TESTING.md#mock-demo-data).
 
 #### Aplikacja API
 
