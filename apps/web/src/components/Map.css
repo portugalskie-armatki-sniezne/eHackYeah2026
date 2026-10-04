@@ -68,6 +68,14 @@
   cursor: none;
 }
 
+/* Pins and map controls set their own cursors, which would show up next to the
+   crosshair, so everything inside the map hides the system cursor as well. */
+@media (pointer: fine) and (hover: hover) {
+  .map__frame .maplibregl-map * {
+    cursor: none;
+  }
+}
+
 /* Touch has no cursor to replace, so keep MapLibre's own. */
 @media (pointer: coarse) {
   .map__frame,
