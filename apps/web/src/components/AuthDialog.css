@@ -134,7 +134,7 @@
 
 .auth-dialog__actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 0.5rem;
   padding-top: 0.75rem;
   border-top: var(--scaffold-line) solid var(--ink);

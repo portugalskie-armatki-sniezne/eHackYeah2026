@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { MAX_PAGE_SIZE, reportsApi, type Report } from "../api/reports";
+import { useLocale, useMessages } from "../i18n/locale";
 import { formatDate, timeAgo } from "./relativeTime";
 import "./MarkerDialog.css";
 
@@ -16,6 +17,8 @@ export default function MasterReports({
   masterId,
   hidden,
 }: MasterReportsProps) {
+  const t = useMessages().marker;
+  const locale = useLocale();
   const [reports, setReports] = useState<Report[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,15 +35,13 @@ export default function MasterReports({
         setReports(page.items);
       } catch (error) {
         if (signal.aborted) return;
-        setError(
-          error instanceof Error
-            ? error.message
-            : "Could not load the reports.",
-        );
+        setError(error instanceof Error ? error.message : t.reportsLoadFailed);
       }
     }
     void load();
     return () => controller.abort();
+    // the fallback text is read once, when the load fails
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [masterId]);
 
   return (
@@ -50,9 +51,9 @@ export default function MasterReports({
           {error}
         </p>
       ) : !reports ? (
-        <p className="marker-dialog__hint">Loading reports...</p>
+        <p className="marker-dialog__hint">{t.loadingReports}</p>
       ) : reports.length === 0 ? (
-        <p className="marker-dialog__hint">No reports to show.</p>
+        <p className="marker-dialog__hint">{t.noReports}</p>
       ) : (
         <ul className="marker-dialog__feed">
           {reports.map((report) => (
@@ -62,9 +63,9 @@ export default function MasterReports({
                 <time
                   className="marker-dialog__when"
                   dateTime={report.created_at}
-                  title={formatDate(report.created_at)}
+                  title={formatDate(report.created_at, locale)}
                 >
-                  {timeAgo(report.created_at)}
+                  {timeAgo(report.created_at, locale, t.justNow)}
                 </time>
               </div>
               <p className="marker-dialog__comment-text">
@@ -76,7 +77,7 @@ export default function MasterReports({
                     <img
                       key={photo.id}
                       src={reportsApi.photoUrl(photo)}
-                      alt={`Photo ${index + 1} of: ${report.title}`}
+                      alt={t.reportPhotoOf(index + 1, report.title)}
                     />
                   ))}
                 </div>

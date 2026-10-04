@@ -89,6 +89,8 @@ Report to pojedyncze zgłoszenie użytkownika. Master to wspólna sprawa dla pod
 
 ## Zdjęcia
 
+Generacja wizualizacji przed publikacją i przy zapisanej inicjatywie, historia obrazów, limity oraz automatyczna wysyłka testowa mają osobny [kontrakt integracji](visualizations.md). Worker działa wraz z API, a pliki korzystają z tego samego trwałego katalogu co zdjęcia.
+
 Pliki zdjęć trafiają do katalogu z opcjonalnej zmiennej `UPLOAD_DIR`. Domyślnie jest to `apps/api/uploads`, ignorowany przez Git. Ścieżka względna zaczyna się w `apps/api`. Report ma najwyżej 5 zdjęć JPEG, PNG lub WebP do 10 MB.
 
 Przy starcie API tworzy ten katalog i sprawdza, czy da się w nim zapisywać. Jeśli nie, kończy start błędem `UPLOAD_DIR ... is not writable`, zamiast zwracać 500 przy pierwszym zdjęciu.

@@ -1,8 +1,8 @@
 /* The profile reuses the account sheet from AuthDialog.css and only adds the
    read-only details, the confirmation line, and the list of reports. */
 
-/* One sheet for four tabs: the height is fixed to the tallest of them, so
-   moving between account, password, reports and preferences never resizes the
+/* One sheet for three tabs: the height is fixed to the tallest of them, so
+   moving between account, password and reports never resizes the
    dialog under the pointer. A tab that outgrows it scrolls inside instead. The
    width comes from .auth-dialog and does not follow the content either. */
 .profile-dialog {

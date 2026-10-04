@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef } from "react";
+import { useMessages } from "../i18n/locale";
 import "./AuthDialog.css";
 
 type SignOutDialogProps = {
@@ -16,6 +17,7 @@ export default function SignOutDialog({
 }: SignOutDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const id = useId();
+  const t = useMessages().signOut;
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -36,12 +38,12 @@ export default function SignOutDialog({
       <div className="auth-dialog__form">
         <header className="auth-dialog__header">
           <h2 id={`${id}-title`} className="auth-dialog__title">
-            Sign out
+            {t.title}
           </h2>
         </header>
 
         <p id={`${id}-text`} className="auth-dialog__text">
-          Are you sure you want to sign out?
+          {t.question}
         </p>
 
         <footer className="auth-dialog__actions">
@@ -51,7 +53,7 @@ export default function SignOutDialog({
             autoFocus
             onClick={() => dialogRef.current?.close()}
           >
-            Cancel
+            {t.cancel}
           </button>
           <button
             type="button"
@@ -61,7 +63,7 @@ export default function SignOutDialog({
               onClose();
             }}
           >
-            Sign out
+            {t.confirm}
           </button>
         </footer>
       </div>

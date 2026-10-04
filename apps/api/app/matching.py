@@ -85,6 +85,16 @@ def assign_master(
     return master_id or create_master(connection, report_category_id, title, description, location)
 
 
+def assign_master_for_publication(
+    connection: psycopg.Connection, report_category_id: int, title: str, description: str, location: Location
+) -> tuple[UUID, bool]:
+    lock(connection)
+    master_id = find_master(connection, report_category_id, title, location)
+    if master_id is not None:
+        return master_id, False
+    return create_master(connection, report_category_id, title, description, location), True
+
+
 def delete_if_empty(connection: psycopg.Connection, master_report_id: UUID | None) -> None:
     """delete a master without reports together with its comments, call inside a transaction."""
     if master_report_id is None:

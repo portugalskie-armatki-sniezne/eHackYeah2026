@@ -20,6 +20,15 @@ are retained. Polish source values are preserved; database identifiers are Engli
 fields are validated as part of the source layout but are not stored. Both datasets
 are validated before writing and imported in one transaction.
 
+The same run imports `db/seeds/rops_projects.json` into `projects` and `project_chunks`
+when the file is present. The snapshot holds the social innovation library of ROPS
+Kraków, collected from the category and innovation pages of
+<https://rops.krakow.pl/innowacje-spoleczne/biblioteka-innowacji-spolecznych> by
+`tooling/seed/collect_projects.py`. Each innovation keeps its library slug, category,
+page address, lead, and the numbered sections of its page. Projects are upserted by slug;
+their chunks, one per section, are written afresh. Refresh the snapshot with
+`python3 tooling/seed/collect_projects.py` from the repository root.
+
 The PostGIS image keeps PostgreSQL 18 and the `/var/lib/postgresql` volume path.
 The upstream image supports amd64, so ARM machines need Docker's amd64 emulation.
 These edited initial migrations target a fresh database. If versions 01-03 were already
@@ -39,8 +48,11 @@ BIP filtering, distinct transport roles, stable IDs, atomic upserts, spatial
 distance queries, reports saved before classification, master report links and independent
 content, statuses, assignment to either an office or a service entity, exclusive assignment,
 referenced entity deletion restrictions, shared comments and likes, photo relationships,
-edit timestamps, and reference data rollback. All eight migrations are rolled back and
-reapplied. Its containers, volume, and local image tag are removed afterward.
+visualization attempt cleanup, edit timestamps, the innovation library import, the one
+waiting photo proposal per master with its decision date, notification kinds and their
+cascades, visualization and delivery queue tables, and reference data rollback.
+All migrations are rolled back and reapplied. Its containers, volume, and local
+image tag are removed afterward.
 
 Report locations use `geography(Point, 4326)`. Supply longitude before latitude, for
 example `ST_SetSRID(ST_MakePoint(19.94, 50.06), 4326)::geography`. Validate longitude
@@ -73,6 +85,15 @@ Migration 07 adds persistent institution seat coordinates, their municipality co
 the geocoding timestamp, and the source address. API tests cover geocoding updates,
 unchanged addresses, stale coordinates, and administrative recommendation priority.
 External geocoding is mocked in these tests.
+Migration 11 marks office and admin comments as highlighted. Migration 10 creates the
+ROPS innovation library tables `projects` and `project_chunks`, with a `polish` text search
+configuration copied from `simple` for the chunk index, and adds pgvector embedding columns
+only when the database image ships the extension; the PostGIS image does not.
+Migration 12 creates `master_report_photo_proposals` and `notifications`. A partial unique
+index allows one waiting proposal per master, and a check keeps `decided_at` set exactly
+when the state is not `pending`; a decided proposal frees the master for another photo.
+Notifications belong to their recipient and go with the user, master, or proposal they
+point at.
 The statuses mean: `created` is saved in the application, `reported` is successfully
 sent to the responsible institution, `inprogress` has confirmed work in progress,
 and `finished` has confirmed completion. The backend owns classification, master
@@ -92,6 +113,23 @@ Existing environment variables take precedence. This keeps plain `pytest` runs o
 same configured database as the API, rather than silently using the local defaults.
 Each database test rolls back its transaction; photo files use temporary directories.
 Database tests are skipped when the configured database is unavailable.
+
+The workflow tests replace the Gemini and notify HTTP calls. They cover draft and
+published generation, private files, image history, publication during generation,
+idempotency, limits, leases after restart, file errors, draft cleanup, and one test mail
+per new master. No Google generation or SMTP delivery is performed. The concurrency
+test uses a temporary schema with separate committed connections and removes it afterward.
+
+Run the integration checks with the migrated database available:
+
+```sh
+cd apps/api
+uv run pytest tests/test_workflows.py tests/test_reports.py tests/test_master_reports.py tests/test_inference_startup.py
+```
+
+The notify and Gemini suites also replace their providers. Run `uv run pytest` in
+each workspace. See the [frontend contract](apps/api/docs/visualizations.md) for the
+new endpoints and the mandatory hackathon test destination, including on prod.
 
 ## Mock demo data
 

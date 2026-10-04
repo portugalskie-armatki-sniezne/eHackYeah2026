@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [api, notify]
+        service: [api, notify, gemini]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -53,3 +53,8 @@ jobs:
       - name: Ruff format
         working-directory: apps/${{ matrix.service }}
         run: uv run ruff format --check .
+
+      - name: Test inference startup
+        if: ${{ matrix.service == 'api' }}
+        working-directory: apps/api
+        run: uv run pytest tests/test_inference_startup.py

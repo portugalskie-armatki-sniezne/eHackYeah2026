@@ -1,0 +1,777 @@
+/* The reports page is the about page's sheet put to work: the same drawn frame
+   on the drafting grid, scrolling on its own, with the cases ruled down it as
+   paper cards. */
+.reports-page {
+  --reports-inset: 0.75rem;
+
+  position: fixed;
+  inset: 0;
+  padding: calc(var(--reports-inset) + var(--safe-top))
+    calc(var(--reports-inset) + var(--scaffold-offset) + var(--safe-right))
+    calc(var(--reports-inset) + var(--scaffold-offset) + var(--safe-bottom))
+    calc(var(--reports-inset) + var(--safe-left));
+  background: var(--paper);
+}
+
+.reports-page__frame {
+  height: 100%;
+  overflow: auto;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background-color: #efe8d6;
+  background-image:
+    linear-gradient(to right, rgba(20, 20, 20, 0.07) 1px, transparent 0),
+    linear-gradient(to bottom, rgba(20, 20, 20, 0.07) 1px, transparent 0);
+  background-size: 2rem 2rem;
+  box-shadow: var(--scaffold-shadow);
+}
+
+/* The column is as wide as the navbar and starts below it. */
+.reports-page__sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: min(100%, 62rem);
+  margin: 0 auto;
+  padding: calc(6.5rem + var(--safe-top)) 1.5rem 3rem;
+}
+
+.reports-page__header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  box-shadow: var(--scaffold-shadow);
+}
+
+.reports-page__title {
+  margin: 0;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.reports-page__lede {
+  max-width: 38rem;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* Buttons are the toolbar's outlined tiles on amber blocks. */
+.reports-page__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.25rem;
+  padding: 0 0.875rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+}
+
+.reports-page__button:hover {
+  background: var(--amber-ghost);
+  box-shadow: 4px 4px 0 var(--amber);
+  transform: translate(-1px, -1px);
+}
+
+.reports-page__button:active {
+  box-shadow: 0 0 0 var(--amber);
+  transform: translate(2px, 2px);
+}
+
+.reports-page__button--primary {
+  background: var(--amber);
+  box-shadow: var(--scaffold-shadow-ink);
+  transform: translate(-1px, -1px);
+}
+
+.reports-page__button--primary:hover {
+  background: var(--amber);
+  box-shadow: var(--scaffold-shadow-ink);
+}
+
+/* Removal is the one red mark on the sheet. */
+.reports-page__button--danger {
+  border-color: #b3261e;
+  color: #b3261e;
+}
+
+.reports-page__button--danger:hover {
+  background: #fbe9e7;
+  box-shadow: 4px 4px 0 #b3261e;
+}
+
+.reports-page__button:disabled {
+  background: var(--paper);
+  box-shadow: none;
+  color: var(--ink-soft);
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+/* A visitor without a staff account gets one paper slip and the way in. */
+.reports-page__notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding: 1rem 1.25rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+}
+
+.reports-page__notice-text {
+  margin: 0;
+}
+
+.reports-page__state {
+  margin: 0;
+  padding: 2rem 1rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.reports-page__error {
+  margin: 0;
+  padding: 0.5rem 0.625rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--amber-ghost);
+  font-size: 0.875rem;
+}
+
+/* Search and the status pills share one ruled strip. */
+.reports-page__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 0.875rem 1rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+}
+
+.reports-page__search {
+  flex: 1 1 16rem;
+}
+
+.reports-page__input {
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0.375rem 0.625rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.reports-page__input::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.7;
+}
+
+.reports-page__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.reports-page__pill {
+  padding: 0.3rem 0.75rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.reports-page__pill:hover {
+  background: var(--amber-ghost);
+}
+
+.reports-page__pill[aria-pressed="true"] {
+  background: var(--amber);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.reports-page__count {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.reports-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Each case is a paper card with an ink shadow, like the catalogue's. */
+.reports-page__case {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 1.25rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+/* On a wide screen the case reads as text on the left with its picture held
+   to the right; narrow, the picture comes first and the text under it. */
+.reports-page__case-grid {
+  display: grid;
+  gap: 0.875rem 1.25rem;
+}
+
+.reports-page__case-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+@media (min-width: 48rem) {
+  .reports-page__case-grid {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    align-items: start;
+  }
+}
+
+/* The picture column: the frame, and under it the way to offer one. */
+.reports-page__media {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: stretch;
+  margin: 0;
+}
+
+.reports-page__photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--surface-section);
+  object-fit: cover;
+}
+
+/* A photo somebody offered is not the case's own yet: it is drawn back, and the
+   mark under it says it is still a proposal. */
+.reports-page__waiting {
+  position: relative;
+  margin: 0;
+}
+
+.reports-page__photo--pending {
+  opacity: 0.82;
+}
+
+/* The mark rides the picture's top-left corner, clear of the decision below it. */
+.reports-page__photo-mark {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  max-width: calc(100% - 1rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.1875rem 0.5rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--amber);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.reports-page__photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+/* Over a picture the buttons are tiles rather than full-width controls, so the
+   pair fits the frame in the narrow column. */
+.reports-page__button--compact {
+  min-height: 1.75rem;
+  padding: 0 0.5rem;
+  font-size: 0.625rem;
+}
+
+/* A case with no photo gets the drafting grid the map's sheet shows. */
+.reports-page__photo--empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  color: var(--ink-soft);
+  background-color: #efe8d6;
+  background-image:
+    linear-gradient(to right, rgba(20, 20, 20, 0.07) 1px, transparent 0),
+    linear-gradient(to bottom, rgba(20, 20, 20, 0.07) 1px, transparent 0);
+  background-size: 1rem 1rem;
+}
+
+.reports-page__photo-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 1.5rem;
+  font-weight: 800;
+  box-shadow: 4px 4px 0 var(--amber);
+}
+
+/* As a button it offers a photo: the tile lifts off its amber block on hover
+   and lands on it when pressed, like the toolbar's own tiles. */
+.reports-page__photo-glyph--action {
+  padding: 0;
+  font: inherit;
+  font-size: 1.5rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+}
+
+.reports-page__photo-glyph--action:hover {
+  background: var(--amber);
+  box-shadow: 6px 6px 0 var(--ink);
+  transform: translate(-2px, -2px);
+}
+
+.reports-page__photo-glyph--action:active {
+  box-shadow: 0 0 0 var(--ink);
+  transform: translate(2px, 2px);
+}
+
+.reports-page__photo-glyph--action:focus-visible {
+  outline: var(--scaffold-line) solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* the frame answers the pointer as one target, wherever it is over the tile */
+.reports-page__photo--empty:has(.reports-page__photo-glyph--action:hover)
+  .reports-page__photo-text {
+  color: var(--ink);
+}
+
+.reports-page__photo-text {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.reports-page__case-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reports-page__case-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.reports-page__kind {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.reports-page__when {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.reports-page__case-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+/* The text keeps its line breaks and stops after a few of them. */
+.reports-page__case-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  margin: 0;
+  overflow: hidden;
+  font-size: 0.9375rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* The institution's answer sits on amber under the case, as in the map's sheet. */
+.reports-page__response {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.625rem 0.75rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--amber-ghost);
+}
+
+.reports-page__response-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.reports-page__response-text {
+  margin: 0;
+  font-size: 0.9375rem;
+  white-space: pre-wrap;
+}
+
+.reports-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.875rem;
+  border-top: var(--scaffold-line) solid var(--ink);
+}
+
+/* The status switch: the account sheet's outlined tiles joined into one bar,
+   the current status inked on amber. */
+.reports-page__switch {
+  display: inline-flex;
+  flex-wrap: wrap;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  overflow: hidden;
+}
+
+.reports-page__tab {
+  padding: 0.375rem 0.75rem;
+  border: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.reports-page__tab + .reports-page__tab {
+  border-left: var(--scaffold-line) solid var(--ink);
+}
+
+.reports-page__tab:hover {
+  background: var(--amber-ghost);
+}
+
+.reports-page__tab[aria-pressed="true"] {
+  background: var(--amber);
+  cursor: default;
+}
+
+.reports-page__tab:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.reports-page__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reports-page__hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+
+/* The thread folds under the case on sectioned paper. */
+.reports-page__thread {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0 -1.25rem -1.25rem;
+  padding: 0.75rem 1.25rem 1rem;
+  border-top: var(--scaffold-line) solid var(--ink);
+  background: var(--surface-section);
+}
+
+.reports-page__fold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+/* A small ink triangle that turns over while the thread is open. */
+.reports-page__caret {
+  flex: none;
+  border-top: 5px solid currentColor;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  transition: transform 120ms ease;
+}
+
+.reports-page__fold[aria-expanded="true"] .reports-page__caret {
+  transform: rotate(180deg);
+}
+
+.reports-page__thread-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.reports-page__comments {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Each comment is a paper slip; an official one is slipped in on amber. */
+.reports-page__comment {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+}
+
+.reports-page__comment--official {
+  border-width: var(--scaffold-line);
+  background: var(--amber-ghost);
+  box-shadow: 3px 3px 0 var(--amber);
+}
+
+.reports-page__comment-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.reports-page__author {
+  font-weight: 700;
+}
+
+.reports-page__official {
+  margin-left: 0.5rem;
+  padding: 0.0625rem 0.375rem;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--amber);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.reports-page__comment-text {
+  margin: 0;
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.reports-page__link-button {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.reports-page__link-button:hover {
+  color: #b3261e;
+}
+
+.reports-page__link-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.reports-page__compose {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reports-page__textarea {
+  resize: vertical;
+}
+
+.reports-page__compose-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.reports-page__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.reports-page__check input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--amber);
+}
+
+.reports-page__input:focus-visible,
+.reports-page__button:focus-visible,
+.reports-page__pill:focus-visible,
+.reports-page__tab:focus-visible,
+.reports-page__fold:focus-visible,
+.reports-page__link-button:focus-visible,
+.reports-page__check input:focus-visible {
+  outline: var(--scaffold-line) solid var(--focus);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reports-page__button,
+  .reports-page__caret {
+    transition: none;
+  }
+}
+
+/* Phones: the sheet hugs the edges and the cards lose their side padding. */
+@media (max-width: 40rem) {
+  .reports-page__sheet {
+    padding: calc(5.5rem + var(--safe-top)) 0.75rem 2rem;
+  }
+
+  .reports-page__header,
+  .reports-page__case {
+    padding: 1rem;
+  }
+
+  .reports-page__thread {
+    margin: 0 -1rem -1rem;
+    padding: 0.75rem 1rem 1rem;
+  }
+
+  .reports-page__media {
+    order: -1;
+  }
+
+  .reports-page__switch {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+  }
+
+  .reports-page__tab,
+  .reports-page__tab + .reports-page__tab {
+    border-left: 0;
+    border-right: var(--scaffold-line) solid var(--ink);
+    border-bottom: var(--scaffold-line) solid var(--ink);
+  }
+
+  .reports-page__tab:nth-child(even) {
+    border-right: 0;
+  }
+
+  .reports-page__tab:nth-child(n + 3) {
+    border-bottom: 0;
+  }
+
+  .reports-page__actions,
+  .reports-page__confirm {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reports-page__actions > .reports-page__button,
+  .reports-page__confirm .reports-page__button {
+    width: 100%;
+  }
+}

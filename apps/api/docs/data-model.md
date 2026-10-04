@@ -1,6 +1,8 @@
 # Model danych
 
-Źródło: migracje w `db/migrations/`. Migracje 01 i 02 tworzą tabele, 03 dodaje ograniczenia, a 04 wstawia początkowe kategorie i statusy. Migracja 06 dodaje gminę i powiat zgłoszenia w Małopolsce, a 07 zapisaną lokalizację siedziby instytucji.
+Źródło: migracje w `db/migrations/`. Migracje 01 i 02 tworzą tabele, 03 dodaje ograniczenia, a 04 wstawia początkowe kategorie i statusy. Migracja 06 dodaje gminę i powiat zgłoszenia w Małopolsce, a 07 zapisaną lokalizację siedziby instytucji. Migracja 12 dodaje propozycje zdjęć do masterów i powiadomienia.
+
+Migracja 13 dodaje `visualization_drafts` (właściciel, termin wygaśnięcia i powiązanie ze zgłoszeniem), `visualization_jobs` (kopie źródeł, idempotencja, dzierżawa i wynik każdej próby) oraz `mail_delivery_jobs` (unikalne zlecenie na master, zależność od generacji, dzierżawa i wynik SMTP). Migracja 14 dodaje do `visualization_jobs` kolumnę `report_type` (`improvement` albo `issue`), czyli rodzaj obrazu przekazywany konektorowi. Zlecenia pozostają po usunięciu zgłoszenia, aby zachować liczniki limitów. Worker usuwa wtedy powiązane pliki i formularz. Szczegóły opisuje [kontrakt integracji](visualizations.md).
 
 ## ERD
 
@@ -18,6 +20,12 @@ erDiagram
     users ||--o{ master_report_comments : "user_id"
     master_report_comments ||--o{ master_report_comment_likes : "comment_id"
     users ||--o{ master_report_comment_likes : "user_id"
+    master_reports ||--o{ master_report_photo_proposals : "master_report_id"
+    users ||--o{ master_report_photo_proposals : "user_id"
+    users ||--o{ notifications : "user_id"
+    master_reports |o--o{ notifications : "master_report_id"
+    master_report_photo_proposals |o--o{ notifications : "photo_proposal_id"
+    projects ||--o{ project_chunks : "project_slug"
 
     users {
         uuid id PK
@@ -78,11 +86,32 @@ erDiagram
         uuid master_report_id FK
         uuid user_id FK
         text content
+        boolean highlighted
         timestamptz created_at
     }
     master_report_comment_likes {
         uuid comment_id PK,FK
         uuid user_id PK,FK
+        timestamptz created_at
+    }
+    master_report_photo_proposals {
+        uuid id PK
+        uuid master_report_id FK
+        uuid user_id FK
+        text storage_key
+        text state
+        timestamptz decided_at
+        timestamptz created_at
+    }
+    notifications {
+        uuid id PK
+        uuid user_id FK
+        text kind
+        uuid master_report_id FK
+        uuid photo_proposal_id FK
+        text subject
+        text detail
+        timestamptz read_at
         timestamptz created_at
     }
     service_entities {
@@ -220,6 +249,7 @@ Ograniczenie: UNIQUE (report_id, storage_key).
 | master_report_id | uuid | NOT NULL, FK -> master_reports(id), ON DELETE CASCADE |
 | user_id | uuid | NOT NULL, FK -> users(id), bez akcji przy usuwaniu |
 | content | text | NOT NULL, niepusty po przycięciu spacji |
+| highlighted | boolean | NOT NULL, domyślnie `false`; komentarz `office` lub `admin` wyróżniony w dyskusji |
 | created_at | timestamptz | NOT NULL |
 
 Indeksy: `(master_report_id, created_at, id)` do odczytu komentarzy w kolejności oraz `user_id`.
@@ -233,6 +263,40 @@ Indeksy: `(master_report_id, created_at, id)` do odczytu komentarzy w kolejnośc
 | created_at | timestamptz | NOT NULL |
 
 Klucz główny `(comment_id, user_id)` pozwala użytkownikowi polubić komentarz tylko raz. Indeks: `user_id`. Liczba polubień jest wyliczana z wierszy tej tabeli.
+
+### master_report_photo_proposals
+
+Zdjęcie zaproponowane do mastera, który nie ma własnego. Czeka na decyzję autora mastera, czyli użytkownika jego najstarszego reportu; aplikacja pokazuje je do tego czasu ze znakiem zapytania.
+
+| Kolumna | Typ | Ograniczenia |
+| --- | --- | --- |
+| id | uuid | PK |
+| master_report_id | uuid | NOT NULL, FK -> master_reports(id), ON DELETE CASCADE |
+| user_id | uuid | NOT NULL, FK -> users(id), ON DELETE CASCADE |
+| storage_key | text | NOT NULL, niepusty po przycięciu spacji; `proposals/{id}.{ext}` |
+| state | text | NOT NULL, domyślnie `pending`, jedno z `pending`, `approved`, `rejected` |
+| decided_at | timestamptz | NULL dokładnie wtedy, gdy `state` to `pending` |
+| created_at | timestamptz | NOT NULL |
+
+Indeksy: `(master_report_id, created_at, id)` do odczytu propozycji w kolejności, `user_id` oraz częściowy indeks unikalny na `master_report_id` dla `state = 'pending'`, który dopuszcza najwyżej jedną czekającą propozycję na master. Przyjęcie propozycji zapisuje nowy wiersz w `report_photos` najstarszego reportu mastera i przenosi tam plik, a odrzucenie usuwa plik; wiersz propozycji zostaje w obu przypadkach.
+
+### notifications
+
+Co zdarzyło się w sprawach, które użytkownik zgłosił, skomentował albo do których zaproponował zdjęcie. Wiersze tworzy wyłącznie API; rodzaje i ich odbiorców opisuje [api.md](api.md#notifications).
+
+| Kolumna | Typ | Ograniczenia |
+| --- | --- | --- |
+| id | uuid | PK |
+| user_id | uuid | NOT NULL, FK -> users(id), ON DELETE CASCADE |
+| kind | text | NOT NULL, jedno z `status_inprogress`, `status_finished`, `comment`, `update`, `photo_proposal`, `photo_approved`, `photo_rejected` |
+| master_report_id | uuid | FK -> master_reports(id), ON DELETE CASCADE |
+| photo_proposal_id | uuid | FK -> master_report_photo_proposals(id), ON DELETE CASCADE |
+| subject | text | NOT NULL, niepusty po przycięciu spacji; tytuł mastera z chwili zdarzenia |
+| detail | text | treść komentarza albo nowa odpowiedź urzędu, inaczej NULL |
+| read_at | timestamptz | NULL, dopóki odbiorca nie otworzył powiadomienia |
+| created_at | timestamptz | NOT NULL |
+
+Indeksy: `(user_id, created_at DESC, id)` do odczytu od najnowszych, częściowy `user_id` dla `read_at IS NULL` pod licznik nieodczytanych, oraz `master_report_id` i `photo_proposal_id`.
 
 ### local_government_offices
 
@@ -319,16 +383,60 @@ za miasto. Brak potwierdzonego kodu pozostaje NULL; nie zgadujemy go z nazwy lub
 
 Indeksy: `teryt_code`, `entity_type`.
 
+### projects
+
+Biblioteka innowacji społecznych ROPS Kraków, importowana z `db/seeds/rops_projects.json`
+przez `tooling/seed/import_projects.py`. Migracja 10 tworzy tabelę; rekordy są
+upsertowane po `slug`. Kolumna `summary_vector vector(1024)` powstaje tylko, gdy obraz bazy
+ma rozszerzenie pgvector; obraz PostGIS go nie ma, a API używa jej tylko dla zapytań
+z gotowym wektorem.
+
+| Kolumna | Typ | Uwagi |
+| --- | --- | --- |
+| id | integer | PK, SERIAL |
+| slug | varchar(255) | NOT NULL, UNIQUE; slug innowacji z adresu jej strony |
+| title | text | NOT NULL, nazwa innowacji |
+| category | text | NOT NULL, nazwa kategorii biblioteki, np. `Dla seniorów` |
+| category_slug | varchar(255) | NULL, slug kategorii z adresu strony |
+| url | text | NOT NULL, adres strony innowacji na rops.krakow.pl |
+| summary | text | NOT NULL, lead z listy kategorii |
+| description | text | NULL, sekcja "Na czym polega rozwiązanie?" |
+| problem | text | NULL, sekcja "Jakich problemów dotyczy innowacja?" |
+| target_group | text | NULL, sekcja "Grupa docelowa" |
+| beneficiaries | text | NULL, sekcja "Kto może skorzystać z innowacji?" |
+| effectiveness | text | NULL, sekcja "Czy to działa?" |
+| authors | text | NULL, sekcja "Autorzy", nazwiska po przecinku |
+| created_at | timestamptz | NOT NULL, domyślnie NOW() |
+
+### project_chunks
+
+Teksty innowacji po jednym wierszu na sekcję, przeszukiwane przez `POST /projects/search`
+w poszukiwaniu dopasowanego fragmentu. Import zapisuje je na nowo dla każdej
+innowacji ze zbioru. Kolumna `tsv` używa konfiguracji `polish`, utworzonej przez
+migrację 10 jako kopia `simple`, gdy baza jej nie ma.
+
+| Kolumna | Typ | Uwagi |
+| --- | --- | --- |
+| id | integer | PK, SERIAL |
+| project_slug | varchar(255) | NOT NULL, FK do `projects.slug`, ON DELETE CASCADE |
+| chunk_index | integer | NOT NULL, kolejność sekcji na stronie |
+| source_file | text | NULL, adres strony innowacji |
+| content | text | NOT NULL, tekst sekcji |
+| tsv | tsvector | kolumna generowana z `content`, indeks GIN |
+| created_at | timestamptz | NOT NULL, domyślnie NOW() |
+
 ## Reguły usuwania
 
 | Usuwany rekord | Skutek |
 | --- | --- |
-| users | błąd, jeśli istnieją jego reporty lub komentarze; polubienia usuwane kaskadowo |
-| master_reports | błąd, jeśli istnieją powiązane reporty; w pozostałych przypadkach komentarze i polubienia usuwane kaskadowo |
+| users | błąd, jeśli istnieją jego reporty lub komentarze; polubienia, propozycje zdjęć i powiadomienia usuwane kaskadowo |
+| master_reports | błąd, jeśli istnieją powiązane reporty; w pozostałych przypadkach komentarze, polubienia, propozycje zdjęć i powiadomienia usuwane kaskadowo |
 | reports | zdjęcia usuwane kaskadowo; master i dyskusja pozostają, chyba że był to ostatni report mastera, wtedy API usuwa też master |
 | report_photos | brak zależności |
 | master_report_comments | polubienia usuwane kaskadowo |
 | master_report_comment_likes | brak zależności |
+| master_report_photo_proposals | powiadomienia o propozycji usuwane kaskadowo; plik zostaje, dopóki nie usunie go odrzucenie propozycji |
+| notifications | brak zależności |
 | report_categories, master_report_statuses, local_government_offices, service_entities | błąd, jeśli rekord jest referencjonowany |
 
 Usuwanie jest fizyczne. Tabele nie mają `deleted_at`.
@@ -354,6 +462,12 @@ i kody gmin ustalone przez ULDK. Źródła i wyjątki są opisane w TESTING.md.
 Obejmuje ZDMK, ZTP, MPK, Mobilis, MPO, ZZM, ZIW, Wodociągi Miasta Krakowa, MPEC
 oraz Straż Miejską, a także inne jednostki z Krakowa i Małopolski. Nie jest pełnym
 wykazem regionalnym. Brakujące lub niejednoznaczne dane pozostają NULL.
+
+Zbiór `db/seeds/rops_projects.json` zawiera bibliotekę innowacji społecznych
+[ROPS Kraków](https://rops.krakow.pl/innowacje-spoleczne/biblioteka-innowacji-spolecznych),
+zebraną przez `tooling/seed/collect_projects.py` ze stron kategorii i stron innowacji.
+Data zbioru jest zapisana w polu `collected_on`. Innowacja wymieniona w dwóch kategoriach
+zachowuje pierwszą z nich.
 
 Każda jednostka ma `source_urls` i `verified_on`. Data oznacza odczyt źródła,
 nie potwierdzenie aktualności wszystkich danych. Uzupełnienia są przechowywane

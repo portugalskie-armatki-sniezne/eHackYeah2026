@@ -7,6 +7,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { letterFor, type ReportLetter } from "../api/letters";
+import { photoProposalsApi } from "../api/photoProposals";
 import {
   reportsApi,
   type MasterReportComment,
@@ -14,7 +15,14 @@ import {
   type ReportCategoryName,
 } from "../api/reports";
 import { useSession } from "../api/session";
+import {
+  activeJobId,
+  visualizationsApi,
+  type Visualization,
+} from "../api/visualizations";
+import { useLocale, useMessages } from "../i18n/locale";
 import MasterReports from "./MasterReports";
+import PhotoProposalDialog from "./PhotoProposalDialog";
 import { formatDate, timeAgo } from "./relativeTime";
 import StatusBadge from "./StatusBadge";
 import MarkerRecipient from "./MarkerRecipient";
@@ -38,13 +46,16 @@ type Sheet = {
   letter: ReportLetter;
 };
 
+// A photo a resident offered for a case that has none. It is what the sheet
+// frames, under a question mark, until the case's author decides about it.
+type OfferedPhoto = {
+  id: string;
+  /** where the api serves the offered photo from */
+  src: string;
+};
+
 // what the side panel beside the post shows
 type PanelView = "comments" | "reports";
-
-const KIND_LABELS: Record<ReportCategoryName, string> = {
-  issue: "Fault report",
-  improvement: "Improvement idea",
-};
 
 // the pin's pictogram in text: "!" for a fault, "+" for an improvement
 const KIND_GLYPHS: Record<ReportCategoryName, string> = {
@@ -76,10 +87,6 @@ function parseRopsInnovation(body: string): ParsedBody {
     cleanText,
     ropsInnovation: { title, url },
   };
-}
-
-function countLabel(count: number, noun: string): string {
-  return count === 1 ? `1 ${noun}` : `${count} ${noun}s`;
 }
 
 function renderTextWithLinks(text: string) {
@@ -114,6 +121,8 @@ export default function MarkerDialog({
   onSignInRequired,
 }: MarkerDialogProps) {
   const session = useSession();
+  const t = useMessages().marker;
+  const locale = useLocale();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const id = useId();
   const [sheet, setSheet] = useState<Sheet | null>(null);
@@ -136,6 +145,31 @@ export default function MarkerDialog({
   });
   // where focus goes once the panel has opened or closed
   const focusRef = useRef<"panel" | PanelView | null>(null);
+  // The photo offered for a case that has none, which the frame shows under a
+  // question mark. Null once it has been taken or turned down.
+  const [offered, setOffered] = useState<OfferedPhoto | null>(null);
+  const [offering, setOffering] = useState(false);
+  const [deciding, setDeciding] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  // The picture Gemini drew over the case's photos: a fault repaired, or an
+  // idea carried out. The sheet reads the case's history when it opens; a
+  // case without one is queued for drawing once per open, by its author or
+  // an admin, and the sheet follows the job until the picture is saved.
+  const [visualization, setVisualization] = useState<Visualization | null>(
+    null,
+  );
+  // whether the history has been read, so a drawing is only queued after it
+  const [historyRead, setHistoryRead] = useState(false);
+  const [visualizing, setVisualizing] = useState(false);
+  const [visualizationError, setVisualizationError] = useState<string | null>(
+    null,
+  );
+  // whether the frame shows the drawn idea instead of the photo
+  const [showVisualization, setShowVisualization] = useState(false);
+  // one drawing per open, however often the session or the case reloads
+  const queuedRef = useRef(false);
+  // the drawing under way, abandoned only when the sheet closes
+  const drawingRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -174,17 +208,107 @@ export default function MarkerDialog({
             null,
           letter,
         });
+        if (master.pending_photo_id && master.pending_photo_url) {
+          setOffered({
+            id: master.pending_photo_id,
+            src: photoProposalsApi.photoUrl(master.pending_photo_url),
+          });
+        }
         setComments(discussion.items);
       } catch (error) {
         if (signal.aborted) return;
-        setError(
-          error instanceof Error ? error.message : "Could not load the report.",
-        );
+        setError(error instanceof Error ? error.message : t.loadFailed);
+      }
+    }
+    // the newest saved picture, if the case has one; its absence is no error
+    async function readHistory() {
+      try {
+        const page = await visualizationsApi.history(masterId, signal);
+        if (signal.aborted) return;
+        setVisualization(page.items.find((item) => item.url) ?? null);
+      } catch {
+        // the toggle stays away; the sheet is still readable without it
+      } finally {
+        if (!signal.aborted) setHistoryRead(true);
       }
     }
     void load();
+    void readHistory();
     return () => controller.abort();
+    // the fallback text is read once, when the load fails
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [masterId]);
+
+  useEffect(() => () => drawingRef.current?.abort(), []);
+
+  // Queue the drawing once the case and its history are in. The api draws a
+  // published report for its author or an admin, from the report's own
+  // photos; the case's oldest photo names that report.
+  useEffect(() => {
+    const master = sheet?.master;
+    if (
+      !master ||
+      !historyRead ||
+      visualization ||
+      queuedRef.current ||
+      session.status !== "signed-in" ||
+      master.photos.length === 0
+    ) {
+      return;
+    }
+    const mine =
+      session.user.role === "admin" || session.user.id === master.author_id;
+    if (!mine) return;
+    queuedRef.current = true;
+    const reportId = master.photos[0].report_id;
+    const controller = new AbortController();
+    drawingRef.current = controller;
+    const { signal } = controller;
+    async function draw() {
+      setVisualizing(true);
+      setVisualizationError(null);
+      try {
+        let job: Visualization;
+        try {
+          job = await visualizationsApi.generate(
+            reportId,
+            crypto.randomUUID(),
+            signal,
+          );
+        } catch (error) {
+          // the account already has a drawing under way: follow that one if
+          // it is this report's, otherwise there is nothing to wait for
+          const active = activeJobId(error);
+          if (!active) throw error;
+          job = await visualizationsApi.status(active, signal);
+          if (job.report_id !== reportId) throw error;
+        }
+        const done = await visualizationsApi.follow(job, signal);
+        if (signal.aborted) return;
+        if (done.status === "succeeded" && done.url) {
+          setVisualization(done);
+        } else {
+          setVisualizationError(t.visualizationFailed);
+        }
+      } catch (error) {
+        if (signal.aborted) return;
+        setVisualizationError(
+          error instanceof Error ? error.message : t.visualizationFailed,
+        );
+      } finally {
+        if (!signal.aborted) setVisualizing(false);
+      }
+    }
+    void draw();
+    // the fallback text is read once, when the drawing fails
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sheet, historyRead, visualization, session]);
+
+  // a taken photo is the case's own now, so the sheet reads the case again
+  const reloadMaster = async () => {
+    const master = await reportsApi.masterReport(masterId);
+    setSheet((current) => (current ? { ...current, master } : current));
+  };
 
   const togglePanel = (view: PanelView) => {
     if (panelOpen && panel === view) {
@@ -229,9 +353,7 @@ export default function MarkerDialog({
           : await reportsApi.likeComment(comment.id),
       );
     } catch (error) {
-      setCommentError(
-        error instanceof Error ? error.message : "Could not save the like.",
-      );
+      setCommentError(error instanceof Error ? error.message : t.likeFailed);
     }
   };
 
@@ -249,12 +371,47 @@ export default function MarkerDialog({
       setComments((current) => [...current, comment]);
       setDraft("");
     } catch (error) {
-      setCommentError(
-        error instanceof Error ? error.message : "Could not post the comment.",
-      );
+      setCommentError(error instanceof Error ? error.message : t.postFailed);
     } finally {
       postingRef.current = false;
       setPosting(false);
+    }
+  };
+
+  // The case's own author needs no approval, so the api may hand the photo
+  // back already taken, and then it is the case's picture rather than a
+  // proposal; either way the file comes from the api.
+  const handleOffer = async (photo: File) => {
+    const proposal = await photoProposalsApi.offer(masterId, photo);
+    setPhotoError(null);
+    if (proposal.state === "approved") {
+      await reloadMaster();
+      return;
+    }
+    setOffered({
+      id: proposal.id,
+      src: photoProposalsApi.photoUrl(proposal.url),
+    });
+  };
+
+  const handleDecide = async (approve: boolean) => {
+    if (!offered || deciding) {
+      return;
+    }
+    setDeciding(true);
+    setPhotoError(null);
+    try {
+      if (approve) {
+        await photoProposalsApi.approve(offered.id);
+        await reloadMaster();
+      } else {
+        await photoProposalsApi.reject(offered.id);
+      }
+      setOffered(null);
+    } catch (error) {
+      setPhotoError(error instanceof Error ? error.message : t.decideFailed);
+    } finally {
+      setDeciding(false);
     }
   };
 
@@ -266,392 +423,530 @@ export default function MarkerDialog({
   const master = sheet?.master;
   const photos = master?.photos ?? [];
   const photo = photos[Math.min(photoIndex, photos.length - 1)];
+  // the drawn idea takes the frame only while the toggle is pressed
+  const drawn =
+    showVisualization && visualization?.url ? { url: visualization.url } : null;
   const letter = sheet?.letter;
+  // the offered photo is only the case's picture while the case has none
+  const waiting = photos.length === 0 ? offered : null;
+  // Whoever filed the case decides about its photo, and so may an admin; the
+  // api holds the same line.
+  const decides =
+    session.status === "signed-in" &&
+    (session.user.role === "admin" || session.user.id === master?.author_id);
+  // anyone signed in may offer one for a case that has none and none waiting
+  const canOffer = Boolean(master) && photos.length === 0 && offered === null;
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="marker-dialog"
-      aria-labelledby={`${id}-title`}
-      onClose={onClose}
-      onKeyDown={handleKeyDown}
-    >
-      <div
-        className={
-          panelOpen
-            ? "marker-dialog__stage marker-dialog__stage--open"
-            : "marker-dialog__stage"
-        }
+    <>
+      <dialog
+        ref={dialogRef}
+        className="marker-dialog"
+        aria-labelledby={`${id}-title`}
+        onClose={onClose}
+        onKeyDown={handleKeyDown}
       >
-        <article className="marker-dialog__post">
-          <button
-            type="button"
-            className="marker-dialog__close"
-            onClick={() => dialogRef.current?.close()}
-          >
-            <span aria-hidden="true">&times;</span>
-            <span className="visually-hidden">Close</span>
-          </button>
+        <div
+          className={
+            panelOpen
+              ? "marker-dialog__stage marker-dialog__stage--open"
+              : "marker-dialog__stage"
+          }
+        >
+          <article className="marker-dialog__post">
+            <button
+              type="button"
+              className="marker-dialog__close"
+              onClick={() => dialogRef.current?.close()}
+            >
+              <span aria-hidden="true">&times;</span>
+              <span className="visually-hidden">{t.close}</span>
+            </button>
 
-          {/* The photo leads, the way a post does; a filing without one gets the
+            {/* The photo leads, the way a post does; a filing without one gets the
             drafting grid the marker sheet shows before an image is chosen. */}
-          <figure className="marker-dialog__figure">
-            {photo ? (
-              <img
-                className="marker-dialog__photo"
-                src={reportsApi.photoUrl(photo)}
-                alt={master ? `Photo of: ${master.title}` : "Report photo"}
-              />
-            ) : (
-              <div className="marker-dialog__photo marker-dialog__photo--empty">
+            <figure className="marker-dialog__figure">
+              {photo ? (
+                <>
+                  <img
+                    className="marker-dialog__photo"
+                    src={
+                      drawn
+                        ? visualizationsApi.fileUrl(drawn)
+                        : reportsApi.photoUrl(photo)
+                    }
+                    alt={
+                      master
+                        ? drawn
+                          ? t.visualizationOf(master.title)
+                          : t.photoOf(master.title)
+                        : t.reportPhoto
+                    }
+                  />
+                  {/* The toggle rides the frame's top-left corner, clear of
+                      the close button; pressed, it swaps the photo for the
+                      drawn idea. It waits, disabled, while Gemini draws. */}
+                  {(visualization || visualizing) && (
+                    <button
+                      type="button"
+                      className="marker-dialog__vision"
+                      aria-pressed={showVisualization}
+                      disabled={!visualization}
+                      onClick={() => setShowVisualization((shown) => !shown)}
+                    >
+                      <span aria-hidden="true">✦</span>{" "}
+                      {visualization ? t.visualization : t.visualizing}
+                    </button>
+                  )}
+                </>
+              ) : waiting ? (
+                <>
+                  <img
+                    className="marker-dialog__photo marker-dialog__photo--pending"
+                    src={waiting.src}
+                    alt={t.pendingPhotoAlt(master ? master.title : t.report)}
+                  />
+                  {/* the mark rides the frame's top-left corner, clear of the
+                      status badge and the decision below it */}
+                  <span
+                    className="marker-dialog__pending"
+                    title={t.pendingPhotoHint}
+                  >
+                    <span aria-hidden="true">?</span> {t.pendingPhoto}
+                  </span>
+                  {/* only the resident who filed the case settles it */}
+                  {decides && (
+                    <div className="marker-dialog__pending-actions">
+                      <button
+                        type="button"
+                        className="marker-dialog__button marker-dialog__button--primary marker-dialog__button--compact"
+                        disabled={deciding}
+                        onClick={() => void handleDecide(true)}
+                      >
+                        {deciding ? t.deciding : t.usePhoto}
+                      </button>
+                      <button
+                        type="button"
+                        className="marker-dialog__button marker-dialog__button--compact"
+                        disabled={deciding}
+                        onClick={() => void handleDecide(false)}
+                      >
+                        {t.turnDownPhoto}
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="marker-dialog__photo marker-dialog__photo--empty">
+                  {/* With a case loaded and no photo on it, the pictogram is
+                      the way to offer one; until then it is only a drawing. */}
+                  {canOffer && session.status !== "checking" ? (
+                    <button
+                      type="button"
+                      className="marker-dialog__placeholder-glyph marker-dialog__placeholder-glyph--action"
+                      title={t.offerPhotoHint}
+                      onClick={() => {
+                        if (session.status === "signed-in") setOffering(true);
+                        else onSignInRequired();
+                      }}
+                    >
+                      <span aria-hidden="true">{KIND_GLYPHS[category]}</span>
+                      <span className="visually-hidden">{t.offerPhoto}</span>
+                    </button>
+                  ) : (
+                    <span
+                      className="marker-dialog__placeholder-glyph"
+                      aria-hidden="true"
+                    >
+                      {KIND_GLYPHS[category]}
+                    </span>
+                  )}
+                  {!sheet && !error && (
+                    <span className="marker-dialog__placeholder-text">
+                      {t.loading}
+                    </span>
+                  )}
+                  {sheet && (
+                    <span className="marker-dialog__placeholder-text">
+                      {canOffer ? t.offerPhoto : t.noPhoto}
+                    </span>
+                  )}
+                </div>
+              )}
+              {sheet && (
+                <figcaption className="marker-dialog__badge">
+                  <StatusBadge status={sheet.status} />
+                </figcaption>
+              )}
+            </figure>
+
+            {photoError && (
+              <p className="marker-dialog__photo-error" role="alert">
+                {photoError}
+              </p>
+            )}
+
+            {visualizationError && (
+              <p className="marker-dialog__photo-error">
+                {t.visualizationFailed}
+              </p>
+            )}
+
+            {photos.length > 1 && (
+              <div
+                className="marker-dialog__strip"
+                role="group"
+                aria-label={t.photos}
+              >
+                {photos.map((item, index) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className="marker-dialog__thumb"
+                    aria-pressed={index === photoIndex && !drawn}
+                    onClick={() => {
+                      setPhotoIndex(index);
+                      setShowVisualization(false);
+                    }}
+                  >
+                    <img src={reportsApi.photoUrl(item)} alt="" />
+                    <span className="visually-hidden">
+                      {t.photoIndex(index + 1, photos.length)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="marker-dialog__body">
+              <header className="marker-dialog__byline">
                 <span
-                  className="marker-dialog__placeholder-glyph"
+                  className="marker-dialog__avatar marker-dialog__avatar--post"
                   aria-hidden="true"
                 >
                   {KIND_GLYPHS[category]}
                 </span>
-                {!sheet && !error && (
-                  <span className="marker-dialog__placeholder-text">
-                    Loading...
+                <div className="marker-dialog__who">
+                  <span className="marker-dialog__kind">
+                    {t.kinds[category]}
                   </span>
-                )}
-                {sheet && (
-                  <span className="marker-dialog__placeholder-text">
-                    No photo yet
-                  </span>
-                )}
-              </div>
-            )}
-            {sheet && (
-              <figcaption className="marker-dialog__badge">
-                <StatusBadge status={sheet.status} />
-              </figcaption>
-            )}
-          </figure>
-
-          {photos.length > 1 && (
-            <div
-              className="marker-dialog__strip"
-              role="group"
-              aria-label="Photos"
-            >
-              {photos.map((item, index) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className="marker-dialog__thumb"
-                  aria-pressed={index === photoIndex}
-                  onClick={() => setPhotoIndex(index)}
-                >
-                  <img src={reportsApi.photoUrl(item)} alt="" />
-                  <span className="visually-hidden">
-                    Photo {index + 1} of {photos.length}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          <div className="marker-dialog__body">
-            <header className="marker-dialog__byline">
-              <span
-                className="marker-dialog__avatar marker-dialog__avatar--post"
-                aria-hidden="true"
-              >
-                {KIND_GLYPHS[category]}
-              </span>
-              <div className="marker-dialog__who">
-                <span className="marker-dialog__kind">
-                  {KIND_LABELS[category]}
-                </span>
-                {master && (
-                  <span className="marker-dialog__when">
-                    <time
-                      dateTime={master.created_at}
-                      title={formatDate(master.created_at)}
-                    >
-                      {timeAgo(master.created_at)}
-                    </time>
-                  </span>
-                )}
-              </div>
-            </header>
-
-            <h2 id={`${id}-title`} className="marker-dialog__title">
-              {master ? master.title : error ? "Report" : "Loading report"}
-            </h2>
-
-            {error && (
-              <p className="marker-dialog__error" role="alert">
-                {error}
-              </p>
-            )}
-
-            {letter &&
-              master &&
-              (() => {
-                const { cleanText, ropsInnovation } = parseRopsInnovation(
-                  letter.body,
-                );
-                return (
-                  <div className="marker-dialog__letter">
-                    <dl className="marker-dialog__envelope">
-                      <dt>To</dt>
-                      <dd>
-                        <MarkerRecipient
-                          master={master}
-                          letter={letter}
-                          onSignInRequired={onSignInRequired}
-                        />
-                      </dd>
-                      <dt>Subject</dt>
-                      <dd>{letter.subject}</dd>
-                    </dl>
-                    {cleanText && (
-                      <p className="marker-dialog__text">
-                        {renderTextWithLinks(cleanText)}
-                      </p>
-                    )}
-                    {ropsInnovation && (
-                      <aside
-                        className="marker-dialog__rops-box"
-                        aria-label="Innowacja ROPS"
+                  {master && (
+                    <span className="marker-dialog__when">
+                      <time
+                        dateTime={master.created_at}
+                        title={formatDate(master.created_at, locale)}
                       >
-                        <div className="marker-dialog__rops-header">
-                          <span className="marker-dialog__rops-badge">
-                            Innowacja ROPS
-                          </span>
-                        </div>
-                        <div className="marker-dialog__rops-content">
-                          <strong className="marker-dialog__rops-title">
-                            {ropsInnovation.title}
-                          </strong>
-                          <a
-                            href={ropsInnovation.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="marker-dialog__rops-link"
-                          >
-                            Zobacz model innowacji na rops.krakow.pl &rarr;
-                          </a>
-                        </div>
-                      </aside>
-                    )}
-                  </div>
-                );
-              })()}
+                        {timeAgo(master.created_at, locale, t.justNow)}
+                      </time>
+                    </span>
+                  )}
+                </div>
+              </header>
 
-            {sheet && master?.response && (
-              <aside
-                className="marker-dialog__response"
-                aria-label="Official response"
-              >
-                <span className="marker-dialog__response-label">
-                  Official response
-                </span>
-                <p className="marker-dialog__text">
-                  {renderTextWithLinks(master.response)}
+              <h2 id={`${id}-title`} className="marker-dialog__title">
+                {master ? master.title : error ? t.report : t.loadingReport}
+              </h2>
+
+              {error && (
+                <p className="marker-dialog__error" role="alert">
+                  {error}
                 </p>
-              </aside>
-            )}
-          </div>
+              )}
 
-          {sheet && (
-            <div className="marker-dialog__actions">
-              <button
-                ref={(button) => {
-                  toggleRefs.current.comments = button;
-                }}
-                type="button"
-                className="marker-dialog__button marker-dialog__toggle"
-                aria-expanded={panelOpen && panel === "comments"}
-                aria-controls={`${id}-panel`}
-                onClick={() => togglePanel("comments")}
-              >
-                Comments
-                <span className="marker-dialog__count">{comments.length}</span>
-              </button>
-              <button
-                ref={(button) => {
-                  toggleRefs.current.reports = button;
-                }}
-                type="button"
-                className="marker-dialog__button marker-dialog__toggle"
-                aria-expanded={panelOpen && panel === "reports"}
-                aria-controls={`${id}-panel`}
-                onClick={() => togglePanel("reports")}
-              >
-                Reports
-                <span className="marker-dialog__count">
-                  {sheet.master.report_count}
-                </span>
-              </button>
-            </div>
-          )}
-        </article>
-
-        {/* the panel waits under the post and slides out to its right */}
-        {sheet && (
-          <section
-            id={`${id}-panel`}
-            className="marker-dialog__panel"
-            aria-labelledby={`${id}-panel-title`}
-          >
-            <header className="marker-dialog__panel-head">
-              <h3 id={`${id}-panel-title`} className="marker-dialog__label">
-                {panel === "reports"
-                  ? countLabel(sheet.master.report_count, "report")
-                  : comments.length === 0
-                    ? "Comments"
-                    : countLabel(comments.length, "comment")}
-              </h3>
-              <button
-                ref={panelCloseRef}
-                type="button"
-                className="marker-dialog__panel-close"
-                onClick={closePanel}
-              >
-                <span className="marker-dialog__panel-close-icon">
-                  <span aria-hidden="true">&times;</span>
-                  <span className="visually-hidden">Close panel</span>
-                </span>
-                <span className="marker-dialog__panel-back">
-                  <span aria-hidden="true">&larr;</span> Back
-                </span>
-              </button>
-            </header>
-
-            <div className="marker-dialog__panel-scroll">
-              {panel === "comments" &&
-                (comments.length === 0 ? (
-                  <p className="marker-dialog__hint">
-                    Nobody has weighed in yet. Be the first.
-                  </p>
-                ) : (
-                  <ul className="marker-dialog__feed">
-                    {comments.map((comment) => {
-                      const mine = comment.user_id === me;
-                      return (
-                        <li key={comment.id} className="marker-dialog__comment">
-                          <span
-                            className={
-                              mine
-                                ? "marker-dialog__avatar marker-dialog__avatar--me"
-                                : "marker-dialog__avatar"
-                            }
-                            aria-hidden="true"
-                          >
-                            {mine
-                              ? myInitial
-                              : (
-                                  comment.author_first_name[0] ?? "?"
-                                ).toUpperCase()}
-                          </span>
-                          <div className="marker-dialog__bubble">
-                            <div className="marker-dialog__comment-head">
-                              <span className="marker-dialog__author">
-                                {mine ? "You" : comment.author_first_name}
-                              </span>
-                              <time
-                                className="marker-dialog__when"
-                                dateTime={comment.created_at}
-                                title={formatDate(comment.created_at)}
-                              >
-                                {timeAgo(comment.created_at)}
-                              </time>
-                            </div>
-                            <p className="marker-dialog__comment-text">
-                              {comment.content}
-                            </p>
-                            <button
-                              type="button"
-                              className="marker-dialog__like"
-                              aria-pressed={comment.liked_by_me}
-                              onClick={() => void handleLike(comment)}
-                            >
-                              <span aria-hidden="true">
-                                {comment.liked_by_me ? "♥" : "♡"}
-                              </span>{" "}
-                              {comment.like_count}
-                              <span className="visually-hidden">
-                                {comment.liked_by_me
-                                  ? " likes, unlike"
-                                  : " likes, like"}
-                              </span>
-                            </button>
+              {letter &&
+                master &&
+                (() => {
+                  const { cleanText, ropsInnovation } = parseRopsInnovation(
+                    letter.body,
+                  );
+                  return (
+                    <div className="marker-dialog__letter">
+                      <dl className="marker-dialog__envelope">
+                        <dt>{t.to}</dt>
+                        <dd>
+                          <MarkerRecipient
+                            master={master}
+                            letter={letter}
+                            onSignInRequired={onSignInRequired}
+                          />
+                        </dd>
+                        <dt>{t.subject}</dt>
+                        <dd>{letter.subject}</dd>
+                      </dl>
+                      {cleanText && (
+                        <p className="marker-dialog__text">
+                          {renderTextWithLinks(cleanText)}
+                        </p>
+                      )}
+                      {ropsInnovation && (
+                        <aside
+                          className="marker-dialog__rops-box"
+                          aria-label={t.ropsLabel}
+                        >
+                          <div className="marker-dialog__rops-header">
+                            <span className="marker-dialog__rops-badge">
+                              {t.ropsLabel}
+                            </span>
                           </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ))}
+                          <div className="marker-dialog__rops-content">
+                            <strong className="marker-dialog__rops-title">
+                              {ropsInnovation.title}
+                            </strong>
+                            <a
+                              href={ropsInnovation.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="marker-dialog__rops-link"
+                            >
+                              {t.ropsLink} &rarr;
+                            </a>
+                          </div>
+                        </aside>
+                      )}
+                    </div>
+                  );
+                })()}
 
-              {reportsSeen && (
-                <MasterReports
-                  masterId={masterId}
-                  hidden={panel !== "reports"}
-                />
+              {sheet && master?.response && (
+                <aside
+                  className="marker-dialog__response"
+                  aria-label={t.officialResponse}
+                >
+                  <span className="marker-dialog__response-label">
+                    {t.officialResponse}
+                  </span>
+                  <p className="marker-dialog__text">
+                    {renderTextWithLinks(master.response)}
+                  </p>
+                </aside>
               )}
             </div>
 
-            {panel === "comments" && (
-              <div className="marker-dialog__panel-foot">
-                {commentError && (
-                  <p className="marker-dialog__error" role="alert">
-                    {commentError}
-                  </p>
-                )}
-
-                {session.status === "signed-in" ? (
-                  <form
-                    className="marker-dialog__compose"
-                    onSubmit={handleSubmit}
-                  >
-                    <span
-                      className="marker-dialog__avatar marker-dialog__avatar--me"
-                      aria-hidden="true"
-                    >
-                      {myInitial}
-                    </span>
-                    <label
-                      className="visually-hidden"
-                      htmlFor={`${id}-comment`}
-                    >
-                      New comment
-                    </label>
-                    <textarea
-                      id={`${id}-comment`}
-                      className="marker-dialog__textarea"
-                      rows={1}
-                      disabled={posting}
-                      placeholder="Write a comment..."
-                      value={draft}
-                      onChange={(event) => setDraft(event.target.value)}
-                    />
-                    <button
-                      type="submit"
-                      className="marker-dialog__button marker-dialog__button--primary"
-                      disabled={!draft.trim() || posting}
-                    >
-                      {posting ? "Posting..." : "Post"}
-                    </button>
-                  </form>
-                ) : (
-                  session.status === "signed-out" && (
-                    <button
-                      type="button"
-                      className="marker-dialog__button"
-                      onClick={onSignInRequired}
-                    >
-                      Sign in to comment
-                    </button>
-                  )
-                )}
+            {sheet && (
+              <div className="marker-dialog__actions">
+                <button
+                  ref={(button) => {
+                    toggleRefs.current.comments = button;
+                  }}
+                  type="button"
+                  className="marker-dialog__button marker-dialog__toggle"
+                  aria-expanded={panelOpen && panel === "comments"}
+                  aria-controls={`${id}-panel`}
+                  onClick={() => togglePanel("comments")}
+                >
+                  {t.commentsTab}
+                  <span className="marker-dialog__count">
+                    {comments.length}
+                  </span>
+                </button>
+                <button
+                  ref={(button) => {
+                    toggleRefs.current.reports = button;
+                  }}
+                  type="button"
+                  className="marker-dialog__button marker-dialog__toggle"
+                  aria-expanded={panelOpen && panel === "reports"}
+                  aria-controls={`${id}-panel`}
+                  onClick={() => togglePanel("reports")}
+                >
+                  {t.reportsTab}
+                  <span className="marker-dialog__count">
+                    {sheet.master.report_count}
+                  </span>
+                </button>
               </div>
             )}
-          </section>
-        )}
-      </div>
-    </dialog>
+          </article>
+
+          {/* the panel waits under the post and slides out to its right */}
+          {sheet && (
+            <section
+              id={`${id}-panel`}
+              className="marker-dialog__panel"
+              aria-labelledby={`${id}-panel-title`}
+            >
+              <header className="marker-dialog__panel-head">
+                <h3 id={`${id}-panel-title`} className="marker-dialog__label">
+                  {panel === "reports"
+                    ? t.reportCount(sheet.master.report_count)
+                    : t.comments(comments.length)}
+                </h3>
+                <button
+                  ref={panelCloseRef}
+                  type="button"
+                  className="marker-dialog__panel-close"
+                  onClick={closePanel}
+                >
+                  <span className="marker-dialog__panel-close-icon">
+                    <span aria-hidden="true">&times;</span>
+                    <span className="visually-hidden">{t.closePanel}</span>
+                  </span>
+                  <span className="marker-dialog__panel-back">
+                    <span aria-hidden="true">&larr;</span> {t.back}
+                  </span>
+                </button>
+              </header>
+
+              <div className="marker-dialog__panel-scroll">
+                {panel === "comments" &&
+                  (comments.length === 0 ? (
+                    <p className="marker-dialog__hint">{t.noComments}</p>
+                  ) : (
+                    <ul className="marker-dialog__feed">
+                      {comments.map((comment) => {
+                        const mine = comment.user_id === me;
+                        // an office's word stands out from the residents' thread
+                        const official = comment.highlighted;
+                        return (
+                          <li
+                            key={comment.id}
+                            className={
+                              official
+                                ? "marker-dialog__comment marker-dialog__comment--official"
+                                : "marker-dialog__comment"
+                            }
+                          >
+                            <span
+                              className={
+                                mine || official
+                                  ? "marker-dialog__avatar marker-dialog__avatar--me"
+                                  : "marker-dialog__avatar"
+                              }
+                              aria-hidden="true"
+                            >
+                              {mine
+                                ? myInitial
+                                : official
+                                  ? "!"
+                                  : (
+                                      comment.author_first_name[0] ?? "?"
+                                    ).toUpperCase()}
+                            </span>
+                            <div className="marker-dialog__bubble">
+                              <div className="marker-dialog__comment-head">
+                                <span className="marker-dialog__author">
+                                  {mine
+                                    ? t.you
+                                    : official
+                                      ? t.office
+                                      : comment.author_first_name}
+                                  {official && (
+                                    <span className="marker-dialog__official">
+                                      {t.official}
+                                    </span>
+                                  )}
+                                </span>
+                                <time
+                                  className="marker-dialog__when"
+                                  dateTime={comment.created_at}
+                                  title={formatDate(comment.created_at, locale)}
+                                >
+                                  {timeAgo(
+                                    comment.created_at,
+                                    locale,
+                                    t.justNow,
+                                  )}
+                                </time>
+                              </div>
+                              <p className="marker-dialog__comment-text">
+                                {comment.content}
+                              </p>
+                              <button
+                                type="button"
+                                className="marker-dialog__like"
+                                aria-pressed={comment.liked_by_me}
+                                onClick={() => void handleLike(comment)}
+                              >
+                                <span aria-hidden="true">
+                                  {comment.liked_by_me ? "♥" : "♡"}
+                                </span>{" "}
+                                {comment.like_count}
+                                <span className="visually-hidden">
+                                  {comment.liked_by_me
+                                    ? t.likesUnlike
+                                    : t.likesLike}
+                                </span>
+                              </button>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ))}
+
+                {reportsSeen && (
+                  <MasterReports
+                    masterId={masterId}
+                    hidden={panel !== "reports"}
+                  />
+                )}
+              </div>
+
+              {panel === "comments" && (
+                <div className="marker-dialog__panel-foot">
+                  {commentError && (
+                    <p className="marker-dialog__error" role="alert">
+                      {commentError}
+                    </p>
+                  )}
+
+                  {session.status === "signed-in" ? (
+                    <form
+                      className="marker-dialog__compose"
+                      onSubmit={handleSubmit}
+                    >
+                      <span
+                        className="marker-dialog__avatar marker-dialog__avatar--me"
+                        aria-hidden="true"
+                      >
+                        {myInitial}
+                      </span>
+                      <label
+                        className="visually-hidden"
+                        htmlFor={`${id}-comment`}
+                      >
+                        {t.newComment}
+                      </label>
+                      <textarea
+                        id={`${id}-comment`}
+                        className="marker-dialog__textarea"
+                        rows={1}
+                        disabled={posting}
+                        placeholder={t.writeComment}
+                        value={draft}
+                        onChange={(event) => setDraft(event.target.value)}
+                      />
+                      <button
+                        type="submit"
+                        className="marker-dialog__button marker-dialog__button--primary"
+                        disabled={!draft.trim() || posting}
+                      >
+                        {posting ? t.posting : t.post}
+                      </button>
+                    </form>
+                  ) : (
+                    session.status === "signed-out" && (
+                      <button
+                        type="button"
+                        className="marker-dialog__button"
+                        onClick={onSignInRequired}
+                      >
+                        {t.signInToComment}
+                      </button>
+                    )
+                  )}
+                </div>
+              )}
+            </section>
+          )}
+        </div>
+      </dialog>
+      {offering && (
+        <PhotoProposalDialog
+          onClose={() => setOffering(false)}
+          onSubmit={handleOffer}
+        />
+      )}
+    </>
   );
 }

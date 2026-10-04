@@ -24,8 +24,8 @@ PAYLOAD = {
 def smtp(monkeypatch: pytest.MonkeyPatch) -> MagicMock:
     monkeypatch.setenv("SMTP_USER", "sender@gmail.com")
     monkeypatch.setenv("SMTP_PASSWORD", "test-app-password")
-    monkeypatch.setenv("SMTP_MOCK", "false")
-    monkeypatch.delenv("SMTP_MOCK_DESTINATION", raising=False)
+    monkeypatch.setenv("SMTP_MOCK", "true")
+    monkeypatch.setenv("SMTP_MOCK_DESTINATION", "demo@example.com")
     smtp = MagicMock()
     monkeypatch.setattr("app.main.smtplib.SMTP", smtp)
     return smtp
@@ -51,7 +51,7 @@ def test_send_plaintext(smtp: MagicMock, report_type: str, intro: str, other_int
     connection.login.assert_called_once_with("sender@gmail.com", "test-app-password")
     message = connection.send_message.call_args.args[0]
     assert message["From"] == "sender@gmail.com"
-    assert message["To"] == PAYLOAD["to"]
+    assert message["To"] == "demo@example.com"
     assert message["Subject"] == PAYLOAD["subject"]
     assert message.get_content_type() == "multipart/alternative"
     assert message.get_body(("plain",)).get_content_type() == "text/plain"
@@ -72,11 +72,12 @@ def test_send_plaintext(smtp: MagicMock, report_type: str, intro: str, other_int
         else "<strong>Opis propozycji:</strong>" in html
     )
     assert "<strong>Zespół pomożeMy</strong>" not in html
-    assert connection.send_message.call_args.kwargs["to_addrs"] == [PAYLOAD["to"]]
+    assert connection.send_message.call_args.kwargs["to_addrs"] == ["demo@example.com"]
 
 
 @pytest.mark.parametrize("flag", ["true", "TRUE", " true "])
 def test_mock_redirects_mail(smtp: MagicMock, monkeypatch: pytest.MonkeyPatch, flag: str):
+    monkeypatch.setenv("ENVIRONMENT", "prod")
     monkeypatch.setenv("SMTP_MOCK", flag)
     monkeypatch.setenv("SMTP_MOCK_DESTINATION", "team@example.com")
 
@@ -92,17 +93,17 @@ def test_mock_redirects_mail(smtp: MagicMock, monkeypatch: pytest.MonkeyPatch, f
 
 
 @pytest.mark.parametrize("flag", ["false", None])
-def test_disabled_mock_uses_requested_recipient(smtp: MagicMock, monkeypatch: pytest.MonkeyPatch, flag: str | None):
+def test_disabled_mock_blocks_sending(smtp: MagicMock, monkeypatch: pytest.MonkeyPatch, flag: str | None):
     if flag is None:
         monkeypatch.delenv("SMTP_MOCK")
+    else:
+        monkeypatch.setenv("SMTP_MOCK", flag)
     monkeypatch.setenv("SMTP_MOCK_DESTINATION", "team@example.com")
 
     response = TestClient(app).post("/send", json=PAYLOAD)
 
-    assert response.status_code == 200
-    connection = smtp.return_value.__enter__.return_value
-    assert connection.send_message.call_args.args[0]["To"] == PAYLOAD["to"]
-    assert connection.send_message.call_args.kwargs["to_addrs"] == [PAYLOAD["to"]]
+    assert response.status_code == 503
+    smtp.assert_not_called()
 
 
 @pytest.mark.parametrize("destination", [None, "", "invalid", "team@example.com, other@example.com"])
@@ -110,6 +111,8 @@ def test_mock_requires_valid_destination(smtp: MagicMock, monkeypatch: pytest.Mo
     monkeypatch.setenv("SMTP_MOCK", "true")
     if destination is not None:
         monkeypatch.setenv("SMTP_MOCK_DESTINATION", destination)
+    else:
+        monkeypatch.delenv("SMTP_MOCK_DESTINATION")
 
     response = TestClient(app).post("/send", json=PAYLOAD)
 
@@ -413,6 +416,21 @@ def test_photos_attach_existing_api_files(
     assert path.read_bytes() == content
 
 
+def test_generated_photo_key_is_accepted(smtp: MagicMock, photo_root: Path):
+    key = PHOTO_KEY.removesuffix(".png") + "_generated_7e8d9c0b-1a2f-4b3c-8d9e-0f1a2b3c4d5e.png"
+    path = photo_root / key
+    path.parent.mkdir(parents=True)
+    path.write_bytes(b"\x89PNG\r\n\x1a\nimage")
+
+    response = TestClient(app).post("/send", json=PAYLOAD | {"photos": [{"storage_key": key}]})
+
+    assert response.status_code == 200
+    message = smtp.return_value.__enter__.return_value.send_message.call_args.args[0]
+    attachment = next(message.iter_attachments())
+    assert attachment.get_filename() == path.name
+    assert attachment.get_payload(decode=True) == b"\x89PNG\r\n\x1a\nimage"
+
+
 @pytest.mark.parametrize(
     "key", ["/etc/passwd", "../secret.png", PHOTO_KEY.replace("reports/", "uploads/"), "https://example.com/photo.png"]
 )
@@ -424,10 +442,20 @@ def test_invalid_photo_keys_block_sending(smtp: MagicMock, key: str):
 
 
 def test_too_many_photos_block_sending(smtp: MagicMock):
-    response = TestClient(app).post("/send", json=PAYLOAD | {"photos": [{"storage_key": PHOTO_KEY}] * 6})
+    response = TestClient(app).post("/send", json=PAYLOAD | {"photos": [{"storage_key": PHOTO_KEY}] * 7})
 
     assert response.status_code == 422
     smtp.assert_not_called()
+
+
+def test_saved_visualization_attachment(smtp: MagicMock, photo_root: Path):
+    key = "visualizations/11111111-1111-4111-8111-111111111111/result.png"
+    path = photo_root / key
+    path.parent.mkdir(parents=True)
+    path.write_bytes(b"\x89PNG\r\n\x1a\nvisualization")
+    assert TestClient(app).post("/send", json=PAYLOAD | {"photos": [{"storage_key": key}]}).status_code == 200
+    message = smtp.return_value.__enter__.return_value.send_message.call_args.args[0]
+    assert next(message.iter_attachments()).get_payload(decode=True) == path.read_bytes()
 
 
 def test_missing_photo_blocks_sending(smtp: MagicMock, photo_root: Path):
