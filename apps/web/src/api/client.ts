@@ -78,6 +78,7 @@ type RequestOptions = {
    * credentials, not an expired session.
    */
   auth?: boolean;
+  responseType?: "json" | "blob";
   signal?: AbortSignal;
 };
 
@@ -88,7 +89,15 @@ export function apiUrl(path: string): string {
 /** The only place that calls the API: every request and error goes through it. */
 export async function apiFetch<T>(
   path: string,
-  { method, json, body, query, auth = true, signal }: RequestOptions = {},
+  {
+    method,
+    json,
+    body,
+    query,
+    auth = true,
+    responseType = "json",
+    signal,
+  }: RequestOptions = {},
 ): Promise<T> {
   const headers = new Headers();
   const sentToken = auth ? token : null;
@@ -121,5 +130,6 @@ export async function apiFetch<T>(
     );
   }
   if (response.status === 204) return undefined as T;
+  if (responseType === "blob") return response.blob() as Promise<T>;
   return response.json() as Promise<T>;
 }
