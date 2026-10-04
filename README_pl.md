@@ -3,9 +3,9 @@
 **pomożeMy** to **wspólna platforma** do **zgłaszania lokalnych problemów**, **proponowania inicjatyw obywatelskich** i **śledzenia ich postępów**.
 Ma ułatwić kontakt z instytucjami publicznymi. Wykorzystuje AI (deterministyczne klasyfikatory i modele generatywne) do ustalenia, która instytucja odpowiada za dane zgłoszenie, na podstawie bazy publicznie dostępnych informacji o instytucjach. Do zgłoszenia można dołączyć lokalizację GPS i zdjęcia pokazujące problem.
 
-![pomożeMy - zmiana miasta bez nadmiernej biurokracji](docs/teaser-pl.png)
-
 **[ENGLISH README | README PO ANGIELSKU](README.md)**
+
+![pomożeMy - zmiana miasta bez nadmiernej biurokracji](docs/teaser-pl.png)
 
 ## Struktura repozytorium
 
@@ -125,11 +125,11 @@ Obraz API zawiera biblioteki do klasyfikacji na CPU oraz przypięte modele Laya 
 
 Skille w `.agents/skills/` są wersjonowane razem z projektem. Można korzystać z nich w Codexie z poziomu repozytorium:
 
-| Skill | Przykładowe polecenie | Działanie |
-| --- | --- | --- |
-| [commit](.agents/skills/commit/SKILL.md) | `Użyj $commit, aby zatwierdzić przygotowane zmiany.` | Sprawdza wszystkie zmiany w indeksie, uruchamia odpowiednie kontrole i tworzy commit. Wysyła zmiany tylko na wyraźne polecenie. |
-| [pr](.agents/skills/pr/SKILL.md) | `Użyj $pr, aby otworzyć pull request dla tego brancha.` | Sprawdza i wysyła commity z brancha, a następnie tworzy lub aktualizuje PR do domyślnej gałęzi repozytorium, chyba że wskazano inną. |
-| [babysit](.agents/skills/babysit/SKILL.md) | `Użyj $babysit, aby doprowadzić te zmiany do main.` | Zatwierdza zmiany, tworzy lub wznawia draft PR, sprawdza je i scala do `main` metodą squash. |
+| Skill                                      | Przykładowe polecenie                                   | Działanie                                                                                                                            |
+| ------------------------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| [commit](.agents/skills/commit/SKILL.md)   | `Użyj $commit, aby zatwierdzić przygotowane zmiany.`    | Sprawdza wszystkie zmiany w indeksie, uruchamia odpowiednie kontrole i tworzy commit. Wysyła zmiany tylko na wyraźne polecenie.      |
+| [pr](.agents/skills/pr/SKILL.md)           | `Użyj $pr, aby otworzyć pull request dla tego brancha.` | Sprawdza i wysyła commity z brancha, a następnie tworzy lub aktualizuje PR do domyślnej gałęzi repozytorium, chyba że wskazano inną. |
+| [babysit](.agents/skills/babysit/SKILL.md) | `Użyj $babysit, aby doprowadzić te zmiany do main.`     | Zatwierdza zmiany, tworzy lub wznawia draft PR, sprawdza je i scala do `main` metodą squash.                                         |
 
 Wszystkie trzy skille wymagają Gita. `pr` i `babysit` wymagają też uwierzytelnionego dostępu do GitHuba przez integrację lub CLI `gh`. Przestrzegają `AGENTS.md` i przyjmują opcjonalne wskazówki dotyczące wiadomości lub odwołania do zgłoszeń. Nie wymagają instalowania osobistych skilli globalnych. Agenci obsługujący pliki skilli mogą też bezpośrednio przeczytać podlinkowane instrukcje `SKILL.md`.
 
