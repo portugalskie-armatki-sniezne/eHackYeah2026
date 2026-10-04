@@ -118,11 +118,6 @@ def main():
         compose("run", "--rm", "--no-deps", "db-migrator", "down")
         if query("SELECT to_regclass('notifications') IS NULL "
                  "AND to_regclass('master_report_photo_proposals') IS NULL;") != "t":
-            raise RuntimeError("Notification migration rollback left its tables behind")
-        print("PASS: notifications and photo proposals rolled back", flush=True)
-        compose("run", "--rm", "--no-deps", "db-migrator", "down")
-        if query("SELECT to_regclass('notifications') IS NULL "
-                 "AND to_regclass('master_report_photo_proposals') IS NULL;") != "t":
             raise RuntimeError("Notification and photo proposal rollback left its tables behind")
         print("PASS: notifications and photo proposals migration rolled back successfully", flush=True)
         compose("run", "--rm", "--no-deps", "db-migrator", "down")
