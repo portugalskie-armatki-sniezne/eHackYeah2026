@@ -22,7 +22,7 @@ import {
 } from "../api/visualizations";
 import { useLocale, useMessages } from "../i18n/locale";
 import MasterReports from "./MasterReports";
-import PhotoProposalDialog from "./PhotoProposalDialog";
+import AddPhotoDialog from "./AddPhotoDialog";
 import { formatDate, timeAgo } from "./relativeTime";
 import StatusBadge from "./StatusBadge";
 import MarkerRecipient from "./MarkerRecipient";
@@ -34,6 +34,7 @@ type MarkerDialogProps = {
   /** picks the post's avatar glyph, as it picks the pin's */
   category: ReportCategoryName;
   onClose: () => void;
+  onPhotoAdded: (master: MasterReportDetail) => void;
   /** Called when a signed-out visitor tries to comment. */
   onSignInRequired: () => void;
 };
@@ -118,6 +119,7 @@ export default function MarkerDialog({
   masterId,
   category,
   onClose,
+  onPhotoAdded,
   onSignInRequired,
 }: MarkerDialogProps) {
   const session = useSession();
@@ -136,7 +138,7 @@ export default function MarkerDialog({
   const postingRef = useRef(false);
   const [panel, setPanel] = useState<PanelView>("comments");
   const [panelOpen, setPanelOpen] = useState(false);
-  // the reports load the first time the panel shows them, then stay mounted
+  // the reports load when the panel first shows them and after a filing is added
   const [reportsSeen, setReportsSeen] = useState(false);
   const panelCloseRef = useRef<HTMLButtonElement>(null);
   const toggleRefs = useRef<Record<PanelView, HTMLButtonElement | null>>({
@@ -148,7 +150,7 @@ export default function MarkerDialog({
   // The photo offered for a case that has none, which the frame shows under a
   // question mark. Null once it has been taken or turned down.
   const [offered, setOffered] = useState<OfferedPhoto | null>(null);
-  const [offering, setOffering] = useState(false);
+  const [addingPhoto, setAddingPhoto] = useState(false);
   const [deciding, setDeciding] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
   // The picture Gemini drew over the case's photos: a fault repaired, or an
@@ -378,20 +380,13 @@ export default function MarkerDialog({
     }
   };
 
-  // The case's own author needs no approval, so the api may hand the photo
-  // back already taken, and then it is the case's picture rather than a
-  // proposal; either way the file comes from the api.
-  const handleOffer = async (photo: File) => {
-    const proposal = await photoProposalsApi.offer(masterId, photo);
+  // adding a photo creates a filing, so refresh the case and its filings
+  const handleAddPhoto = async (photo: File) => {
+    await reportsApi.addMasterPhoto(masterId, photo);
     setPhotoError(null);
-    if (proposal.state === "approved") {
-      await reloadMaster();
-      return;
-    }
-    setOffered({
-      id: proposal.id,
-      src: photoProposalsApi.photoUrl(proposal.url),
-    });
+    const master = await reportsApi.masterReport(masterId);
+    setSheet((current) => (current ? { ...current, master } : current));
+    onPhotoAdded(master);
   };
 
   const handleDecide = async (approve: boolean) => {
@@ -434,8 +429,9 @@ export default function MarkerDialog({
   const decides =
     session.status === "signed-in" &&
     (session.user.role === "admin" || session.user.id === master?.author_id);
-  // anyone signed in may offer one for a case that has none and none waiting
-  const canOffer = Boolean(master) && photos.length === 0 && offered === null;
+  // anyone signed in may add a photo to a case that has none and none waiting
+  const canAddPhoto =
+    Boolean(master) && photos.length === 0 && offered === null;
 
   return (
     <>
@@ -538,20 +534,21 @@ export default function MarkerDialog({
                 </>
               ) : (
                 <div className="marker-dialog__photo marker-dialog__photo--empty">
-                  {/* With a case loaded and no photo on it, the pictogram is
-                      the way to offer one; until then it is only a drawing. */}
-                  {canOffer && session.status !== "checking" ? (
+                  {/* with a case loaded and no photo on it, the pictogram is
+                      the way to add one; until then it is only a drawing. */}
+                  {canAddPhoto && session.status !== "checking" ? (
                     <button
                       type="button"
                       className="marker-dialog__placeholder-glyph marker-dialog__placeholder-glyph--action"
-                      title={t.offerPhotoHint}
+                      title={t.addPhotoHint}
                       onClick={() => {
-                        if (session.status === "signed-in") setOffering(true);
+                        if (session.status === "signed-in")
+                          setAddingPhoto(true);
                         else onSignInRequired();
                       }}
                     >
                       <span aria-hidden="true">{KIND_GLYPHS[category]}</span>
-                      <span className="visually-hidden">{t.offerPhoto}</span>
+                      <span className="visually-hidden">{t.addPhoto}</span>
                     </button>
                   ) : (
                     <span
@@ -568,7 +565,7 @@ export default function MarkerDialog({
                   )}
                   {sheet && (
                     <span className="marker-dialog__placeholder-text">
-                      {canOffer ? t.offerPhoto : t.noPhoto}
+                      {canAddPhoto ? t.addPhoto : t.noPhoto}
                     </span>
                   )}
                 </div>
@@ -876,6 +873,7 @@ export default function MarkerDialog({
 
                 {reportsSeen && (
                   <MasterReports
+                    key={master?.report_count}
                     masterId={masterId}
                     hidden={panel !== "reports"}
                   />
@@ -941,10 +939,10 @@ export default function MarkerDialog({
           )}
         </div>
       </dialog>
-      {offering && (
-        <PhotoProposalDialog
-          onClose={() => setOffering(false)}
-          onSubmit={handleOffer}
+      {addingPhoto && (
+        <AddPhotoDialog
+          onClose={() => setAddingPhoto(false)}
+          onSubmit={handleAddPhoto}
         />
       )}
     </>

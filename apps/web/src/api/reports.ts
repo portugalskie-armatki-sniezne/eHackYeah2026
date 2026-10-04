@@ -185,6 +185,15 @@ export const reportsApi = {
     return apiFetch(`/master-reports/${encodeURIComponent(id)}`, { signal });
   },
 
+  addMasterPhoto(id: string, photo: File): Promise<Report> {
+    const form = new FormData();
+    form.set("photo", photo, photo.name);
+    return apiFetch(`/master-reports/${encodeURIComponent(id)}/photos`, {
+      method: "POST",
+      body: form,
+    });
+  },
+
   updateMasterReport(
     id: string,
     body: MasterReportUpdate,
