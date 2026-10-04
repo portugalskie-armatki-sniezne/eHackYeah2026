@@ -107,6 +107,7 @@ export default function ProjectsCatalog() {
                   key={item.category}
                   type="button"
                   className="catalog__pill"
+                  title={`${item.category} (${item.count})`}
                   aria-pressed={category === item.category}
                   onClick={() =>
                     setCategory(

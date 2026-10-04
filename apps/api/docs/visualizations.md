@@ -1,6 +1,6 @@
 # Wizualizacje i wysyłka testowa
 
-Główne API obsługuje użytkowników, limity, kolejkę oraz zapis obrazów. `gemini` generuje obrazy, a `notify` wysyła mail na adres testowy. Frontend korzysta wyłącznie z głównego API. Powiadomienia i przyciski frontendu nie są częścią tej integracji.
+Główne API obsługuje użytkowników, limity, kolejkę oraz zapis obrazów. `gemini` generuje obrazy, a `notify` wysyła mail na adres testowy. Frontend korzysta wyłącznie z głównego API. Powiadomienia nie są częścią tej integracji. Karta sprawy na mapie (`MarkerDialog`) odczytuje przy otwarciu publiczną historię `GET /master-reports/{master_id}/visualizations` i pokazuje najnowszy obraz pod przełącznikiem w rogu zdjęcia. Jeśli sprawy nie zwizualizowano, a zalogowany użytkownik jest autorem sprawy albo administratorem, karta raz na otwarcie, dla obu kategorii, zleca `POST /reports/{report_id}/visualizations` dla zgłoszenia z najstarszym zdjęciem i odpytuje `status_url`, aż obraz będzie zapisany.
 
 ## Konfiguracja
 
@@ -23,7 +23,7 @@ Wartości limitów i czasu przechowywania muszą być dodatnimi liczbami całkow
 
 Wymagany jest bearer token oraz nagłówek `Idempotency-Key` z niepustym kluczem do 200 znaków. Zachowaj ten sam klucz podczas ponawiania żądania sieciowego. Nowa próba generacji, również po błędzie poprzedniej, używa nowego klucza.
 
-Obecny webowy `apiFetch` obsługuje FormData i odpowiedzi blob. Przy integracji trzeba dodać możliwość przekazania `Idempotency-Key` oraz zachowania `Retry-After` i obiektu `detail` w błędzie. API udostępnia `Retry-After` przez CORS.
+Webowy `apiFetch` obsługuje FormData, odpowiedzi blob, dodatkowe nagłówki (`headers`, w tym `Idempotency-Key`) i zachowuje treść błędu w `ApiError.body`, skąd karta sprawy odczytuje `job_id` z odpowiedzi 409. `Retry-After` nie jest jeszcze odczytywany. API udostępnia go przez CORS.
 
 | Metoda | Ścieżka | Działanie |
 | --- | --- | --- |
@@ -34,9 +34,9 @@ Obecny webowy `apiFetch` obsługuje FormData i odpowiedzi blob. Przy integracji 
 | GET | `/reports/{report_id}/visualizations` | publiczna historia udanych obrazów zgłoszenia |
 | GET | `/master-reports/{master_id}/visualizations` | publiczna historia obrazów wszystkich zgłoszeń sprawy |
 
-`POST /visualizations` przyjmuje `description`, 1-5 plików `photos` oraz opcjonalne `draft_id` z wcześniejszej odpowiedzi. Kolejne próby z tym `draft_id` dopisują historię tego samego formularza. Każde zlecenie zachowuje własny opis i kopie zdjęć źródłowych. JPEG, PNG i WebP mają limit 10 MB na zdjęcie i 20 MB łącznie. Przy zapisanym zgłoszeniu wymagana jest kategoria `improvement` oraz autor lub administrator.
+`POST /visualizations` przyjmuje `description`, 1-5 plików `photos` oraz opcjonalne `draft_id` z wcześniejszej odpowiedzi. Kolejne próby z tym `draft_id` dopisują historię tego samego formularza. Każde zlecenie zachowuje własny opis i kopie zdjęć źródłowych. JPEG, PNG i WebP mają limit 10 MB na zdjęcie i 20 MB łącznie. Opcjonalne `report_type` (`improvement` domyślnie albo `issue`) mówi, co ma pokazać obraz: zrealizowaną inicjatywę albo naprawioną usterkę; przy zapisanym zgłoszeniu wynika z jego kategorii. Zapisane zgłoszenie może generować tylko autor lub administrator.
 
-Odpowiedź `202` zawiera `id`, `draft_id`, `report_id`, `status_url`, `status`, `generated: true`, `url`, `prompt`, `media_type`, `error_code`, `created_at` i `completed_at`. Status to `queued`, `running`, `succeeded` lub `failed`. `url` jest dostępny po zapisaniu obrazu. Odpytuj `status_url`, aby odebrać wynik; backend nie wysyła nowych powiadomień w ramach tego zadania.
+Odpowiedź `202` zawiera `id`, `draft_id`, `report_id`, `report_type`, `status_url`, `status`, `generated: true`, `url`, `prompt`, `media_type`, `error_code`, `created_at` i `completed_at`. Status to `queued`, `running`, `succeeded` lub `failed`. `url` jest dostępny po zapisaniu obrazu. Odpytuj `status_url`, aby odebrać wynik; backend nie wysyła nowych powiadomień w ramach tego zadania.
 
 Ten sam klucz i dane zwracają istniejące zlecenie bez zużycia kolejnej próby. Zmienione dane z tym samym kluczem zwracają `409`. Drugie aktywne zlecenie użytkownika również zwraca `409`, z identyfikatorem istniejącego zadania. Limit prób jest wspólny dla formularzy i zgłoszeń; przekroczenie zwraca `429` z `Retry-After`. Nieudane przyjęte zlecenia liczą się do limitu, a odrzucone żądania nie. Usunięcie zgłoszenia nie zeruje licznika.
 
@@ -44,7 +44,7 @@ Listy historii zwracają `items`, `total`, `limit` i `offset`. Domyślny limit t
 
 ## Publikacja i przechowanie
 
-`POST /reports` przyjmuje dodatkowe pole multipart `visualization_draft_id`. Musi ono wskazywać własny, niewygasły i jeszcze nieopublikowany formularz, a zgłoszenie musi mieć kategorię `improvement`. Publikacja wiąże wszystkie jego obrazy i zlecenia ze zgłoszeniem, także generację w toku. Jeśli nie prześlesz `photos`, API kopiuje oryginalne zdjęcia z ostatniego zlecenia formularza do zdjęć zgłoszenia.
+`POST /reports` przyjmuje dodatkowe pole multipart `visualization_draft_id`. Musi ono wskazywać własny, niewygasły i jeszcze nieopublikowany formularz, a kategoria zgłoszenia musi odpowiadać `report_type` jego ostatniego zlecenia. Publikacja wiąże wszystkie jego obrazy i zlecenia ze zgłoszeniem, także generację w toku. Jeśli nie prześlesz `photos`, API kopiuje oryginalne zdjęcia z ostatniego zlecenia formularza do zdjęć zgłoszenia.
 
 Robocze pliki wymagają tokenu ich autora lub administratora. W przeglądarce pobierz roboczy `url` przez `fetch` z nagłówkiem `Authorization`, a potem wyświetl blob przez `URL.createObjectURL`; samo `<img src>` nie dołącza tokenu. Po publikacji pliki obrazów są publiczne, tak jak zdjęcia zgłoszeń. Formularze wygasają po skonfigurowanym czasie; worker usuwa ich pliki i zachowuje metadane prób do limitowania. Opublikowane źródła i historia pozostają do usunięcia zgłoszenia. Odczyt wygasłego wyniku zwraca `410`.
 

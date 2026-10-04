@@ -2,7 +2,7 @@
 
 Źródło: migracje w `db/migrations/`. Migracje 01 i 02 tworzą tabele, 03 dodaje ograniczenia, a 04 wstawia początkowe kategorie i statusy. Migracja 06 dodaje gminę i powiat zgłoszenia w Małopolsce, a 07 zapisaną lokalizację siedziby instytucji. Migracja 12 dodaje propozycje zdjęć do masterów i powiadomienia.
 
-Migracja 13 dodaje `visualization_drafts` (właściciel, termin wygaśnięcia i powiązanie ze zgłoszeniem), `visualization_jobs` (kopie źródeł, idempotencja, dzierżawa i wynik każdej próby) oraz `mail_delivery_jobs` (unikalne zlecenie na master, zależność od generacji, dzierżawa i wynik SMTP). Zlecenia pozostają po usunięciu zgłoszenia, aby zachować liczniki limitów. Worker usuwa wtedy powiązane pliki i formularz. Szczegóły opisuje [kontrakt integracji](visualizations.md).
+Migracja 13 dodaje `visualization_drafts` (właściciel, termin wygaśnięcia i powiązanie ze zgłoszeniem), `visualization_jobs` (kopie źródeł, idempotencja, dzierżawa i wynik każdej próby) oraz `mail_delivery_jobs` (unikalne zlecenie na master, zależność od generacji, dzierżawa i wynik SMTP). Migracja 14 dodaje do `visualization_jobs` kolumnę `report_type` (`improvement` albo `issue`), czyli rodzaj obrazu przekazywany konektorowi. Zlecenia pozostają po usunięciu zgłoszenia, aby zachować liczniki limitów. Worker usuwa wtedy powiązane pliki i formularz. Szczegóły opisuje [kontrakt integracji](visualizations.md).
 
 ## ERD
 

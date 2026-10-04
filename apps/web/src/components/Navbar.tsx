@@ -73,7 +73,9 @@ export default function Navbar({
         <a className="navbar__brand" href="#map">
           <BrandMark className="navbar__mark" />
           <span className="navbar__wordmark">
-            PomozeMy<span className="navbar__brand-accent"></span>
+            <span className="navbar__wordmark-caps">P</span>omoże
+            <span className="navbar__wordmark-caps">My</span>
+            <span className="navbar__brand-accent"></span>
           </span>
         </a>
         <button
@@ -93,63 +95,69 @@ export default function Navbar({
           </span>
         </button>
         <nav id={menuId} className="navbar__nav" aria-label={t.nav.main}>
-          <ul className="navbar__list">
-            {shown.map((item, index) => (
-              <li key={item.href} className="navbar__item">
-                {index > 0 && (
-                  <span className="navbar__divider" aria-hidden="true" />
-                )}
-                <a
-                  className="navbar__link"
-                  href={item.href}
-                  aria-current={item.href === current ? "page" : undefined}
-                  onClick={() => setOpen(false)}
-                >
-                  {t.nav[item.label]}
-                  {/* the figure is also spelled out, so it is not read as part
-                      of the link's own name */}
-                  {item.label === "notifications" && unread > 0 && (
-                    <>
-                      <span className="navbar__badge" aria-hidden="true">
-                        {unread}
-                      </span>
-                      <span className="visually-hidden">
-                        {" "}
-                        {t.nav.unreadNotifications(unread)}
-                      </span>
-                    </>
+          {/* the fold is the part that is squeezed open and shut; it carries
+              no spacing of its own so it can collapse to nothing */}
+          <div className="navbar__fold">
+            <ul className="navbar__list">
+              {shown.map((item, index) => (
+                <li key={item.href} className="navbar__item">
+                  {index > 0 && (
+                    <span className="navbar__divider" aria-hidden="true" />
                   )}
-                </a>
-              </li>
-            ))}
-          </ul>
+                  <a
+                    className="navbar__link"
+                    href={item.href}
+                    aria-current={item.href === current ? "page" : undefined}
+                    onClick={() => setOpen(false)}
+                  >
+                    {t.nav[item.label]}
+                    {/* the figure is also spelled out, so it is not read as part
+                      of the link's own name */}
+                    {item.label === "notifications" && unread > 0 && (
+                      <>
+                        <span className="navbar__badge" aria-hidden="true">
+                          {unread}
+                        </span>
+                        <span className="visually-hidden">
+                          {" "}
+                          {t.nav.unreadNotifications(unread)}
+                        </span>
+                      </>
+                    )}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </nav>
         {session.status !== "checking" && (
           <div className="navbar__account">
-            {session.status === "signed-in" ? (
-              <AccountMenu
-                name={session.user.first_name}
-                onProfile={() => {
-                  setOpen(false);
-                  onProfile();
-                }}
-                onSignOut={() => {
-                  setOpen(false);
-                  onSignOut();
-                }}
-              />
-            ) : (
-              <button
-                type="button"
-                className="navbar__link navbar__button"
-                onClick={() => {
-                  setOpen(false);
-                  onSignIn();
-                }}
-              >
-                {t.nav.signIn}
-              </button>
-            )}
+            <div className="navbar__fold">
+              {session.status === "signed-in" ? (
+                <AccountMenu
+                  name={session.user.first_name}
+                  onProfile={() => {
+                    setOpen(false);
+                    onProfile();
+                  }}
+                  onSignOut={() => {
+                    setOpen(false);
+                    onSignOut();
+                  }}
+                />
+              ) : (
+                <button
+                  type="button"
+                  className="navbar__link navbar__button"
+                  onClick={() => {
+                    setOpen(false);
+                    onSignIn();
+                  }}
+                >
+                  {t.nav.signIn}
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -223,26 +231,36 @@ function AccountMenu({ name, onProfile, onSignOut }: AccountMenuProps) {
         <span className="navbar__user-name">{name}</span>
         <span className="navbar__caret" aria-hidden="true" />
       </button>
-      <ul id={menuId} className="navbar__menu" hidden={!open}>
-        <li>
-          <button
-            type="button"
-            className="navbar__menu-item"
-            onClick={() => choose(onProfile)}
-          >
-            {t.nav.myProfile}
-          </button>
-        </li>
-        <li>
-          <button
-            type="button"
-            className="navbar__menu-item"
-            onClick={() => choose(onSignOut)}
-          >
-            {t.nav.logout}
-          </button>
-        </li>
-      </ul>
+      <div
+        className={
+          open
+            ? "navbar__menu-shell navbar__menu-shell--open"
+            : "navbar__menu-shell"
+        }
+      >
+        <div className="navbar__menu-clip">
+          <ul id={menuId} className="navbar__menu" inert={!open}>
+            <li>
+              <button
+                type="button"
+                className="navbar__menu-item"
+                onClick={() => choose(onProfile)}
+              >
+                {t.nav.myProfile}
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                className="navbar__menu-item"
+                onClick={() => choose(onSignOut)}
+              >
+                {t.nav.logout}
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

@@ -129,6 +129,50 @@
   box-shadow: 3px 3px 0 var(--ink);
 }
 
+/* The idea Gemini drew rides the photo's top-left corner as a toggle, a tile
+   like the pending mark. Pressed, it is inked amber and the frame shows the
+   drawing instead of the photo it was drawn over; while the drawing is still
+   being made the tile waits, greyed. */
+.marker-dialog__vision {
+  position: absolute;
+  top: 0.625rem;
+  left: 0.625rem;
+  max-width: calc(100% - 3.875rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.1875rem 0.5rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.marker-dialog__vision:hover {
+  background: var(--amber-ghost);
+}
+
+.marker-dialog__vision[aria-pressed="true"] {
+  background: var(--amber);
+}
+
+.marker-dialog__vision:disabled {
+  color: var(--ink-soft);
+  cursor: progress;
+}
+
+.marker-dialog__vision:focus-visible {
+  outline: var(--scaffold-line) solid var(--focus);
+  outline-offset: 3px;
+}
+
 /* The strip under the frame: why the photo is marked, and what to do about it. */
 .marker-dialog__offer {
   display: flex;

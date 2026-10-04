@@ -188,7 +188,7 @@ Filtry `GET /reports`: `user_id`, `master_report_id` oraz `longitude`, `latitude
 
 Request `POST /reports` to `multipart/form-data`. `user_id` pochodzi z tokenu. Pole `photos` można powtórzyć do 5 razy albo pominąć.
 
-Opcjonalne `visualization_draft_id` publikuje własny formularz wizualizacji dla kategorii `improvement`, wraz z historią i zleceniami w toku. Bez `photos` API kopiuje jego ostatnie źródła. Nowy master otrzymuje jedno zlecenie maila na wymuszony adres testowy; dołączenie do istniejącego mastera nie wysyła maila. Szczegóły opisuje [kontrakt integracji](visualizations.md).
+Opcjonalne `visualization_draft_id` publikuje własny formularz wizualizacji, którego `report_type` musi odpowiadać kategorii zgłoszenia, wraz z historią i zleceniami w toku. Bez `photos` API kopiuje jego ostatnie źródła. Nowy master otrzymuje jedno zlecenie maila na wymuszony adres testowy; dołączenie do istniejącego mastera nie wysyła maila. Szczegóły opisuje [kontrakt integracji](visualizations.md).
 
 Przykład:
 
