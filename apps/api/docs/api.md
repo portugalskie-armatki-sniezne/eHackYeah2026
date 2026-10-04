@@ -357,6 +357,7 @@ Request `POST` to `{"content": "Potwierdzam, dziura jest coraz większa."}`. Opc
   "id": "e1f2a3b4-5c6d-4e7f-8a9b-0c1d2e3f4a5b",
   "master_report_id": "5d1f7a52-3c3e-4a7e-8b0a-1f6d2d9e7a20",
   "user_id": "0b0c6f0e-6a1e-4a43-9c7e-2f5d6a1b9c11",
+  "author_first_name": "Anna",
   "content": "Potwierdzam, dziura jest coraz większa.",
   "like_count": 4,
   "liked_by_me": true,
@@ -365,6 +366,7 @@ Request `POST` to `{"content": "Potwierdzam, dziura jest coraz większa."}`. Opc
 }
 ```
 
+- `author_first_name` to imię autora; nazwisko i dane kontaktowe nie są publiczne.
 - Lista jest posortowana od najstarszych. Token jest opcjonalny; bez niego `liked_by_me` ma wartość `false`.
 - Komentarzy nie można edytować, bo tabela nie ma `edited_at`.
 - `PUT` i `DELETE` na `/like` są idempotentne i zwracają komentarz z aktualnym `like_count`.
@@ -563,4 +565,3 @@ Kontrakt, przykład requestu, konfigurację modeli i pomiar trafności opisuje [
 | 1 | Jak master trafia do odpowiedzialnej jednostki i jak potwierdzane są postęp oraz zakończenie? Relację przechowuje `responsible_office_id` albo `responsible_service_entity_id`, obecnie ustawiane ręcznie przez `office` lub `admin`. | obsługa wysyłki i statusów |
 | 2 | Kiedy mock dopasowania zastąpi klasyfikator LLM, który porówna też opisy i zdjęcia? | `POST /reports` |
 | 3 | Czy `limit/offset` wystarcza, czy potrzebna paginacja kursorowa? | wszystkie listy |
-| 4 | Czy komentarze mają pokazywać imię autora? Teraz zwracają tylko `user_id`. | `/master-reports/{id}/comments` |

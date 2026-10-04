@@ -3,9 +3,9 @@
 **pomożeMy** is a **unified platform** for **reporting local issues**, **proposing citizen initiatives**, and **tracking their progress**.
 It aims to simplify communication with public institutions by using AI (deterministic classifiers and generative models) to identify the authority responsible for each report based on a database built from publicly available information about institutions. Each report can include GPS coordinates and photos to illustrate the problem.
 
-![pomożeMy - changing your city without excessive bureaucracy](docs/teaser-en.png)
-
 **[POLISH README | README PO POLSKU](README_pl.md)**
+
+![pomożeMy - changing your city without excessive bureaucracy](docs/teaser-en.png)
 
 ## Repository Layout
 
