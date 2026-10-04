@@ -48,7 +48,16 @@ def media_type(storage_key: str) -> str:
 def save(storage_key: str, data: bytes) -> None:
     path = file_path(storage_key)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(data)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as file:
+            temporary = Path(file.name)
+            file.write(data)
+        os.chmod(temporary, 0o644)
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def move(source_key: str, target_key: str) -> None:

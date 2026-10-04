@@ -47,6 +47,7 @@ def application(monkeypatch):
 
     monkeypatch.setattr(main, "pool", Mock())
     monkeypatch.setattr(main, "warmup", Mock())
+    monkeypatch.setattr(main.workflow_worker, "start", lambda pool: [])
     monkeypatch.delenv("INFERENCE_REQUIRED", raising=False)
     return main
 

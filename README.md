@@ -86,7 +86,7 @@ You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.j
 
 #### Gemini Connector
 
-`apps/gemini` is an internal image-generation service for `improvement` reports. Gemini Flash prepares one image prompt from the description and shared report photos; Nano Banana uses that prompt and the photos to generate one visualization. `POST /generate` returns the prompt and image as base64. It reads the API upload directory but does not save the generated file or attach it to a report. Authentication, the retry limit, and photo persistence still need to be integrated in the API. The connector is deployed on the internal Compose network. See the [Gemini API guide](apps/gemini/docs/api.md) for local setup and the request format.
+`apps/gemini` is an internal image-generation service for `improvement` reports. Gemini Flash prepares a prompt from the description and photos; Nano Banana generates one visualization. The main API handles authenticated requests before and after publication, user limits, background jobs, and persistent image history. It also sends one test email for each new case, always to the configured test address, including on prod during the hackathon. See the [backend integration contract](apps/api/docs/visualizations.md) and the [Gemini API guide](apps/gemini/docs/api.md).
 
 #### Web Application
 

@@ -86,7 +86,7 @@ Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hacky
 
 #### Konektor Gemini
 
-`apps/gemini` to wewnętrzny serwis generowania wizualizacji zgłoszeń `improvement`. Gemini Flash tworzy jeden prompt na podstawie opisu i zdjęć zgłoszenia, a Nano Banana używa go razem ze zdjęciami do wygenerowania jednej wizualizacji. `POST /generate` zwraca prompt i obraz zakodowany w base64. Serwis odczytuje zdjęcia ze wspólnego katalogu API, ale nie zapisuje wyniku ani nie przypisuje go do zgłoszenia. Uwierzytelnianie, limit ponowień i zapis zdjęcia wymagają jeszcze integracji w API. Konektor działa w wewnętrznej sieci Compose. Instrukcję konfiguracji i format żądania opisuje [dokumentacja konektora Gemini](apps/gemini/docs/api.md).
+`apps/gemini` to wewnętrzny serwis generowania wizualizacji zgłoszeń `improvement`. Gemini Flash przygotowuje prompt z opisu i zdjęć, a Nano Banana generuje jeden obraz. Główne API obsługuje uwierzytelnione żądania przed publikacją i po niej, limity użytkownika, zadania w tle oraz trwałą historię obrazów. Wysyła też jeden mail testowy dla każdej nowej sprawy, zawsze na skonfigurowany adres testowy, także na prodzie przez czas hackathonu. Szczegóły opisują [kontrakt integracji backendu](apps/api/docs/visualizations.md) i [dokumentacja konektora Gemini](apps/gemini/docs/api.md).
 
 #### Aplikacja web
 

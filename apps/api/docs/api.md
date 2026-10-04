@@ -16,6 +16,7 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 - Filtr po okolicy: `longitude`, `latitude` i `radius_m` (metry, do 100 000) podawane razem, inaczej 422.
 - Nieznane pola w body JSON zwracają 422.
 - Błędy w formacie FastAPI: `{"detail": "..."}`, a dla 422 lista błędów walidacji.
+- Generacja formularza przez `POST /visualizations` również używa multipart; [kontrakt](visualizations.md) opisuje idempotencję, historię i wysyłkę testową.
 
 ### Kody błędów
 
@@ -26,8 +27,10 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 | 403 | rola nie pozwala na operację |
 | 404 | brak zasobu o podanym id albo brak kategorii, statusu, urzędu, jednostki usługowej lub mastera wskazanego w body |
 | 409 | naruszenie unikalności albo klucza obcego przy usuwaniu, master ma już zdjęcie, inna propozycja czeka na decyzję, albo decyzja o propozycji już zapadła |
+| 410 | wygasły formularz wizualizacji lub usunięty wynik |
 | 413 | zdjęcie większe niż 10 MB |
 | 422 | niepoprawne dane (typ, pusty `title` lub `description`, brak kontaktu użytkownika, zły zakres współrzędnych, zły format lub za dużo zdjęć) |
+| 429 | limit generacji użytkownika, z nagłówkiem `Retry-After` |
 | 502 | dostawca analizy zwrócił niepoprawny wynik |
 | 503 | dostawca analizy lub GUGiK jest niedostępny, logowanie przez Google nie jest skonfigurowane albo nie udało się pobrać kluczy Google |
 
@@ -48,6 +51,8 @@ Endpointy CRUD opisane poniżej mają status `done`. Nazwy pól są takie same j
 | service_entities | `/service-entities` | list, get (tylko odczyt) |
 | projects | `/projects`, `/projects/categories`, `/projects/search` | list, categories, get, search (tylko odczyt); biblioteka innowacji ROPS z `db/seeds/rops_projects.json` |
 | inference | `/inference`, `/inference/service-entity`, `/inference/service-entity/recommendation` | tłumaczenie, klasyfikacja, wybór typu i rekomendacja instytucji według lokalizacji siedziby; [kontrakt](inference.md#rekomendacja-instytucji-dla-nowego-zgłoszenia) |
+| visualizations | `/visualizations`, `/reports/{id}/visualizations`, `/master-reports/{id}/visualizations` | generacja, status, pliki i historia; [kontrakt](visualizations.md) |
+| deliveries | `/master-reports/{id}/delivery` | status automatycznego maila testowego dla nowej sprawy; autor lub `admin` |
 
 ### Dostęp
 
@@ -172,7 +177,7 @@ Pola `PATCH`: `first_name`, `last_name`, `email`, `phone`, `password`, `role` (t
 
 | Metoda | Ścieżka | Opis | Dostęp | Sukces | Błędy |
 | --- | --- | --- | --- | --- | --- |
-| POST | `/reports` | dodanie z dopasowaniem do mastera i ustaleniem gminy i powiatu | zalogowany | 201 | 401, 404 (brak kategorii), 413, 422, 503 |
+| POST | `/reports` | dodanie z dopasowaniem do mastera i ustaleniem gminy i powiatu | zalogowany | 201 | 401, 403, 404, 409, 410, 413, 422, 503 |
 | GET | `/reports` | lista z filtrami | publiczny | 200 | 422 |
 | GET | `/reports/{id}` | pobranie | publiczny | 200 | 404 |
 | PATCH | `/reports/{id}` | aktualizacja | autor, `admin` | 200 | 401, 403, 404, 422, 503 |
@@ -181,7 +186,11 @@ Pola `PATCH`: `first_name`, `last_name`, `email`, `phone`, `password`, `role` (t
 
 Filtry `GET /reports`: `user_id`, `master_report_id` oraz `longitude`, `latitude`, `radius_m`. Lista jest posortowana od najnowszych.
 
-Request `POST /reports` to `multipart/form-data`. `user_id` pochodzi z tokenu. Pole `photos` można powtórzyć do 5 razy albo pominąć:
+Request `POST /reports` to `multipart/form-data`. `user_id` pochodzi z tokenu. Pole `photos` można powtórzyć do 5 razy albo pominąć.
+
+Opcjonalne `visualization_draft_id` publikuje własny formularz wizualizacji dla kategorii `improvement`, wraz z historią i zleceniami w toku. Bez `photos` API kopiuje jego ostatnie źródła. Nowy master otrzymuje jedno zlecenie maila na wymuszony adres testowy; dołączenie do istniejącego mastera nie wysyła maila. Szczegóły opisuje [kontrakt integracji](visualizations.md).
+
+Przykład:
 
 ```text
 report_category_id=2
