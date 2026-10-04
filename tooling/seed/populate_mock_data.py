@@ -22,7 +22,7 @@ EMAIL_DOMAIN = "mock.ehackyeah.pl"
 # argon2 hash of the shared demo password "mock_demo_password", made with the API's pwdlib.
 PASSWORD_HASH = "$argon2id$v=19$m=65536,t=3,p=4$C8q6FsWpZaniVoEJX31lrQ$JWM5uG3q1fbVayRB47gk2OZs033HC/81zuhGOqxvdQU"
 PHOTO_DIR = Path(__file__).resolve().parent / "mock_photos"
-GENERATED_MASTERS = 40
+GENERATED_MASTERS = 140
 HISTORY_DAYS = 90
 # reports about one issue lie within the API matching radius of 50 meters.
 REPORT_SPREAD_M = 25
@@ -245,6 +245,15 @@ def delete_mocks(connection: psycopg.Connection) -> list[str]:
     return storage_keys
 
 
+def delete_reports(connection: psycopg.Connection) -> list[str]:
+    """delete every remaining report with its master, return storage keys of their photos."""
+    storage_keys = [row[0] for row in connection.execute("SELECT storage_key FROM report_photos")]
+    # reports reference their master with RESTRICT, while photos, comments, and likes go with cascades.
+    connection.execute("DELETE FROM reports")
+    connection.execute("DELETE FROM master_reports")
+    return storage_keys
+
+
 def insert_mocks(connection: psycopg.Connection, users: list[User], masters: list[Master],
                  parties: tuple[dict[str, int], dict[str, int], dict[str, int]]) -> list[tuple[str, str]]:
     """insert users and masters, return storage keys and source files of report photos."""
@@ -337,6 +346,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("upload_dir", type=Path, help="the API UPLOAD_DIR, for example apps/api/uploads")
     parser.add_argument("--seed", type=int, default=2026, help="random seed of generated content")
+    parser.add_argument("--replace-all", action="store_true",
+                        help="also delete the reports of real users, leaving only the mock data")
     args = parser.parse_args()
 
     rng, now = random.Random(args.seed), datetime.now(timezone.utc)
@@ -355,6 +366,9 @@ def main() -> int:
             connection.execute("SELECT pg_advisory_xact_lock(%s)", (MATCHING_LOCK_KEY,))
             parties = responsible_parties(connection)
             old_photos = delete_mocks(connection)
+            # the mock users go first, so only the reports of real users are left to delete.
+            if args.replace_all:
+                old_photos += delete_reports(connection)
             photos = insert_mocks(connection, users, masters, parties)
             save_photos(args.upload_dir, photos, saved)
     except (OSError, ValueError) as error:
