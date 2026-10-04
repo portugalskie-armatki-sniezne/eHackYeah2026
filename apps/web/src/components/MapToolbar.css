@@ -102,6 +102,19 @@
   fill: currentColor;
 }
 
+/* The device dot, drawn as the map's survey marker: an ink-ruled amber disc. */
+.toolbar__icon-disc {
+  fill: var(--amber);
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+/* Only one of the recentre pictograms shows at a time: the crosshair on wide
+   screens, the dot on phones. */
+.toolbar__icon--position {
+  display: none;
+}
+
 /* The report tile only exists on phones; wide screens never render it. */
 .toolbar__report {
   display: none;
@@ -269,5 +282,15 @@
 
   .toolbar__label {
     display: none;
+  }
+
+  .toolbar__icon--crosshair {
+    display: none;
+  }
+
+  .toolbar__icon--position {
+    display: block;
+    width: 1.25rem;
+    height: 1.25rem;
   }
 }
