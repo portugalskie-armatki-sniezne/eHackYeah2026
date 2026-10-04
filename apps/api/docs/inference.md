@@ -44,16 +44,17 @@ Gotowy obraz trafia do GHCR, a VPS pobiera go podczas zwykłego wdrożenia.
 Modele nie wymagają ręcznego pobierania, wolumenu ani dodatkowych sekretów.
 Tag obrazu wskazuje jednocześnie wersję aplikacji i modeli.
 
-Budowanie obrazu wykonuje próbną klasyfikację polskiego tekstu jako użytkownik
-kontenera, z wyłączonym dostępem bibliotek modeli do Hugging Face.
-Sprawdza w ten sposób tłumaczenie, katalog typów i klasyfikację.
+Budowanie obrazu sprawdza kompletność przypiętych checkpointów i wykonuje próbną
+klasyfikację polskiego tekstu bez obrazu oraz z wygenerowanym obrazem PNG.
+Test działa jako nieuprzywilejowany użytkownik kontenera, bez dostępu do sieci.
+Sprawdza w ten sposób tłumaczenie, katalog typów, dekodowanie obrazu i klasyfikację.
 Nie sprawdza konkretnej etykiety, ponieważ jest to test działania modeli,
 a nie pomiar trafności. Błąd przerywa build przed publikacją obrazu.
 
 Compose ustawia `INFERENCE_REQUIRED=true`, `LAYA_DEVICE=cpu` oraz ścieżki
 `LAYA_MODEL_PATH=/app/models/laya-vision` i
 `TRANSLATION_MODEL_PATH=/app/models/opus-mt-pl-en` na dev i prod.
-API ładuje modele i wykonuje tę samą próbę przed przyjęciem ruchu.
+API ładuje modele i wykonuje próbę klasyfikacji tekstu przed przyjęciem ruchu.
 Pozostają one w pamięci pojedynczego procesu Uvicorn.
 Lokalne `task api` zachowuje ładowanie przy pierwszym żądaniu, chyba że
 ustawisz `INFERENCE_REQUIRED=true`.

@@ -29,6 +29,7 @@ COPY apps/api/app app
 RUN mkdir uploads && chown 65534:65534 uploads
 USER 65534:65534
 # fail the image build if either model cannot perform a real prediction offline
-RUN --network=none python -m app.inference.warmup
+RUN --network=none --mount=type=bind,source=apps/api/tests/check_inference_image.py,target=/app/check_inference_image.py \
+    python check_inference_image.py
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
