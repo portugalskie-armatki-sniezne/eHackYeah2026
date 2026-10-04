@@ -235,10 +235,20 @@ samodzielnie. `PATCH` z lokalizacją wyznacza je ponownie; edycja samego opisu o
 przepięcie do mastera zachowują przypisanie. Starsze rekordy mają cztery pola `null`
 do czasu aktualizacji lokalizacji; migracja nie odpytuje usługi zewnętrznej.
 
-Punkt poza Małopolską lub brak gminy dla punktu oznacza 422. Niedostępność usługi,
-przekroczenie limitu 5 s oczekiwania na odpowiedź lub niejednoznaczna odpowiedź
-oznaczają 503. Błąd nie zapisuje nowego zgłoszenia, mastera ani zdjęć; przy edycji
-zachowuje poprzednie dane.
+Backend przechowuje do 4096 udanych wyników dla dokładnych współrzędnych w pamięci
+procesu API. Wynik jest aktualny przez 24 godziny. Przy przejściowej awarii usługi
+starszy wynik może posłużyć jako wynik zastępczy. Restart procesu usuwa cache.
+Jednoczesne zapytania dla tego samego punktu współdzielą wynik. Pozostałe trafiają
+do kolejki, która mieści do 16 różnych punktów, wliczając aktualnie obsługiwany.
+Proces odpytuje ULDK pojedynczo. Przejściowe błędy sieci oraz HTTP 408, 429 i 5xx
+ponawia do trzech prób z przerwami 0,5 s i 1 s. Każda próba ma limit 5 s.
+Klient czeka na wynik maksymalnie 30 s; zaległe zapytania wygasają w kolejce.
+
+Punkt poza Małopolską lub brak gminy dla punktu oznacza 422. Niejednoznaczna lub
+niepoprawna odpowiedź oznacza 503 i unieważnia starszy wynik. Niedostępność po
+ponowieniach, pełna kolejka lub przekroczenie czasu oczekiwania oznaczają 503,
+jeśli nie ma wyniku w cache. Błąd nie zapisuje nowego zgłoszenia, mastera ani zdjęć;
+przy edycji zachowuje poprzednie dane.
 
 ### Dopasowanie do mastera
 
