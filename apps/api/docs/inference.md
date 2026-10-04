@@ -271,6 +271,21 @@ podczas ustalania regionu nowego zgłoszenia zwraca 503. Błędy klasyfikacji i 
 takie same kody jak `/inference/service-entity`. Endpoint nie zapisuje
 zgłoszenia, przypisania ani zmian do starych rekordów.
 
+## Dopasowanie do mastera
+
+`POST /reports` pyta model tylko wtedy, gdy w promieniu dopasowania są otwarte
+mastery tej samej kategorii, ale żaden tytuł nie przekroczył progu podobieństwa.
+Tłumacz przekłada tytuł reportu i tytuły 5 najbliższych masterów. Laya dostaje
+pytanie o master opisujący ten sam problem, z opcjami będącymi identyfikatorami
+masterów i opcją `unmatched`.
+
+Wybrany master musi mieć co najmniej 1,2 raza wyższą ocenę niż `unmatched`
+(`MIN_SCORE_RATIO` w `app/inference/masters.py`). Bez tego progu model łączył
+prawie połowę par różnych problemów. Wyłączony dostawca, błąd modelu albo brak
+ocen oznaczają dopasowanie wyłącznie po tytułach. Report zostaje zapisany,
+a API loguje ostrzeżenie. Pierwsze zapytanie ładuje modele, kolejne trwają
+w lokalnym pomiarze na CPU zwykle poniżej sekundy.
+
 ## Ustawienia modeli
 
 Laya działa domyślnie na CPU, z trzema permutacjami kolejności opcji.
@@ -317,3 +332,27 @@ Kończy się kodem 1, jeśli trafność spadnie poniżej podanego progu.
 Wynik na syntetycznych przykładach nie zastępuje oceny na rzeczywistych zgłoszeniach.
 
 Ostatni pomiar i nierozwiązane pomyłki opisuje [raport ewaluacji](inference-evaluation.md).
+
+Zbiór `tests/fixtures/master_matching.json` zawiera 168 par tytułu reportu
+i masterów z okolicy: 112 tego samego problemu (połowa z dodatkowym masterem
+o innym problemie) i 56 różnych problemów. Pary pochodzą z danych mockowych
+bez nazw ulic, a trzy przeformułowane tytuły z dev. Pomiar dopasowania:
+
+```sh
+cd apps/api
+uv run --extra inference --env-file ../../.env python -m app.inference.evaluate_masters \
+  --output /tmp/master-evaluation.json --min-recall 0.7 --max-false-merges 0.15
+```
+
+Skrypt dopasowuje jak publikacja: najpierw po tytułach, potem modelem. Kończy się
+kodem 1, gdy odsetek złączonych par tego samego problemu spadnie poniżej
+`--min-recall` albo odsetek złączonych różnych problemów przekroczy
+`--max-false-merges`. Ostatni pomiar na lokalnych modelach:
+
+| Wariant | Złączone tego samego problemu | Złączone różne problemy |
+| --- | --- | --- |
+| Same tytuły | 25 / 112 | 0 / 56 |
+| Tytuły i model, próg 1,2 | 85 / 112 | 7 / 56 |
+
+Pytanie i próg dobrano na tym samym zbiorze, więc wynik jest optymistyczny.
+Błędne łączenia może poprawić office przez `POST /reports/{id}/move`.
