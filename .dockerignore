@@ -3,5 +3,9 @@
 **/dist
 **/.venv
 **/.env*
+**/client_secret*.json
+**/project-key.json
+**/gcp_service_account.json
+apps/gemini/output
 **/__pycache__
 apps/api/models

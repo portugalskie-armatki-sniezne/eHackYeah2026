@@ -1,0 +1,19 @@
+/* The photo sheet is the pin sheet with the photo in place of a thumbnail: it
+   is what was just seen through the camera, so it is shown at full width and
+   framed like the map, with the description under it. */
+.photo-report__preview {
+  width: 100%;
+  max-height: 40dvh;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--surface-section);
+  object-fit: cover;
+}
+
+/* Phones: the keyboard takes half the screen once the description has focus,
+   so the photo gives up height to keep the field and the actions in view. */
+@media (max-width: 40rem) {
+  .photo-report__preview {
+    max-height: 28dvh;
+  }
+}

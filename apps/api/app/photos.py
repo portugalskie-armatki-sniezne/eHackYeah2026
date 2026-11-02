@@ -14,6 +14,11 @@ PHOTO_COLUMNS = "p.id, p.report_id, p.storage_key, p.created_at"
 PHOTO_ORDER = "p.created_at, p.id"
 
 
+def photo_file_url(photo_id: UUID) -> str:
+    # relative to the API base URL and public, so the app can show photos without a token.
+    return f"/photos/{photo_id}/file"
+
+
 class Photo(BaseModel):
     id: UUID
     report_id: UUID
@@ -23,8 +28,7 @@ class Photo(BaseModel):
     @computed_field
     @property
     def url(self) -> str:
-        # relative to the API base URL and public, so the app can show photos without a token.
-        return f"/photos/{self.id}/file"
+        return photo_file_url(self.id)
 
 
 @router.get("/{photo_id}/file", response_class=FileResponse)

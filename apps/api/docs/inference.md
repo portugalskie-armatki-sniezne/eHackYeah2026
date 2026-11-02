@@ -35,9 +35,36 @@ pobranie można wznowić tym samym poleceniem. `.env` jest zachowywany.
 predykcji. Języki tłumacza ustalają `TRANSLATION_SOURCE_LANGUAGE` oraz
 `TRANSLATION_TARGET_LANGUAGE`; pobierany checkpoint obsługuje parę `pl` i `en`.
 
-Podstawowy obraz Docker API nadal instaluje tylko zależności podstawowe.
-Uruchomienie modeli w kontenerze wymaga obrazu z zestawem `inference`,
-udostępnienia checkpointów w kontenerze oraz przekazania powyższych zmiennych.
+## Wdrożenie na VPS
+
+Workflow `[1] Deploy` buduje obraz API z zestawem `inference` i bibliotekami
+PyTorch dla CPU. Pobiera przypięte checkpointy do `/app/models` w osobnej
+warstwie obrazu, zachowywanej w cache przy zmianach kodu aplikacji.
+Gotowy obraz trafia do GHCR, a VPS pobiera go podczas zwykłego wdrożenia.
+Modele nie wymagają ręcznego pobierania, wolumenu ani dodatkowych sekretów.
+Tag obrazu wskazuje jednocześnie wersję aplikacji i modeli.
+
+Budowanie obrazu sprawdza kompletność przypiętych checkpointów i wykonuje próbną
+klasyfikację polskiego tekstu bez obrazu oraz z wygenerowanym obrazem PNG.
+Test działa jako nieuprzywilejowany użytkownik kontenera, bez dostępu do sieci.
+Sprawdza w ten sposób tłumaczenie, katalog typów, dekodowanie obrazu i klasyfikację.
+Nie sprawdza konkretnej etykiety, ponieważ jest to test działania modeli,
+a nie pomiar trafności. Błąd przerywa build przed publikacją obrazu.
+
+Compose ustawia `INFERENCE_REQUIRED=true`, `LAYA_DEVICE=cpu` oraz ścieżki
+`LAYA_MODEL_PATH=/app/models/laya-vision` i
+`TRANSLATION_MODEL_PATH=/app/models/opus-mt-pl-en` na dev i prod.
+API ładuje modele i wykonuje próbę klasyfikacji tekstu przed przyjęciem ruchu.
+Pozostają one w pamięci pojedynczego procesu Uvicorn.
+Lokalne `task api` zachowuje ładowanie przy pierwszym żądaniu, chyba że
+ustawisz `INFERENCE_REQUIRED=true`.
+
+`GET /ready` potwierdza zakończenie startu, w tym próbę modeli, gdy są wymagane.
+Healthcheck odczytuje ten stan bez powtarzania predykcji.
+`GET /health` nadal sprawdza wyłącznie działanie aplikacji.
+Workflow czeka do 600 sekund na zdrowy kontener. Nieudany start oznacza
+nieudane wdrożenie; workflow nie przywraca automatycznie poprzedniego obrazu.
+Push do `main` wdraża dev, a `[2] Release` korzysta z tego samego mechanizmu na prod.
 
 ## Request API
 
@@ -244,6 +271,21 @@ podczas ustalania regionu nowego zgłoszenia zwraca 503. Błędy klasyfikacji i 
 takie same kody jak `/inference/service-entity`. Endpoint nie zapisuje
 zgłoszenia, przypisania ani zmian do starych rekordów.
 
+## Dopasowanie do mastera
+
+`POST /reports` pyta model tylko wtedy, gdy w promieniu dopasowania są otwarte
+mastery tej samej kategorii, ale żaden tytuł nie przekroczył progu podobieństwa.
+Tłumacz przekłada tytuł reportu i tytuły 5 najbliższych masterów. Laya dostaje
+pytanie o master opisujący ten sam problem, z opcjami będącymi identyfikatorami
+masterów i opcją `unmatched`.
+
+Wybrany master musi mieć co najmniej 1,2 raza wyższą ocenę niż `unmatched`
+(`MIN_SCORE_RATIO` w `app/inference/masters.py`). Bez tego progu model łączył
+prawie połowę par różnych problemów. Wyłączony dostawca, błąd modelu albo brak
+ocen oznaczają dopasowanie wyłącznie po tytułach. Report zostaje zapisany,
+a API loguje ostrzeżenie. Pierwsze zapytanie ładuje modele, kolejne trwają
+w lokalnym pomiarze na CPU zwykle poniżej sekundy.
+
 ## Ustawienia modeli
 
 Laya działa domyślnie na CPU, z trzema permutacjami kolejności opcji.
@@ -290,3 +332,27 @@ Kończy się kodem 1, jeśli trafność spadnie poniżej podanego progu.
 Wynik na syntetycznych przykładach nie zastępuje oceny na rzeczywistych zgłoszeniach.
 
 Ostatni pomiar i nierozwiązane pomyłki opisuje [raport ewaluacji](inference-evaluation.md).
+
+Zbiór `tests/fixtures/master_matching.json` zawiera 168 par tytułu reportu
+i masterów z okolicy: 112 tego samego problemu (połowa z dodatkowym masterem
+o innym problemie) i 56 różnych problemów. Pary pochodzą z danych mockowych
+bez nazw ulic, a trzy przeformułowane tytuły z dev. Pomiar dopasowania:
+
+```sh
+cd apps/api
+uv run --extra inference --env-file ../../.env python -m app.inference.evaluate_masters \
+  --output /tmp/master-evaluation.json --min-recall 0.7 --max-false-merges 0.15
+```
+
+Skrypt dopasowuje jak publikacja: najpierw po tytułach, potem modelem. Kończy się
+kodem 1, gdy odsetek złączonych par tego samego problemu spadnie poniżej
+`--min-recall` albo odsetek złączonych różnych problemów przekroczy
+`--max-false-merges`. Ostatni pomiar na lokalnych modelach:
+
+| Wariant | Złączone tego samego problemu | Złączone różne problemy |
+| --- | --- | --- |
+| Same tytuły | 25 / 112 | 0 / 56 |
+| Tytuły i model, próg 1,2 | 85 / 112 | 7 / 56 |
+
+Pytanie i próg dobrano na tym samym zbiorze, więc wynik jest optymistyczny.
+Błędne łączenia może poprawić office przez `POST /reports/{id}/move`.

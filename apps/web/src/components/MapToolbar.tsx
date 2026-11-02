@@ -1,5 +1,7 @@
 import type { ChangeEvent } from "react";
 import { useMessages } from "../i18n/locale";
+import MapFilters from "./MapFilters";
+import type { MarkerFilters } from "./markerFilters";
 import "./MapToolbar.css";
 
 export type BasemapId = "streets";
@@ -17,6 +19,14 @@ type MapToolbarProps = {
   onPhotoReportStart: () => boolean;
   /** A photo taken with the "+" tile, to be pinned where the device is. */
   onPhotoReport: (photo: File) => void;
+  /** Which kinds and statuses the map draws a pin for. */
+  filters: MarkerFilters;
+  onFiltersChange: (filters: MarkerFilters) => void;
+  /** how many pins the filters leave on the map, out of every pin loaded */
+  shownPins: number;
+  totalPins: number;
+  /** whether the filter list offers the box for the viewer's own cases */
+  canFilterMine: boolean;
 };
 
 export default function MapToolbar({
@@ -28,6 +38,11 @@ export default function MapToolbar({
   canRecenterOnMe,
   onPhotoReportStart,
   onPhotoReport,
+  filters,
+  onFiltersChange,
+  shownPins,
+  totalPins,
+  canFilterMine,
 }: MapToolbarProps) {
   const t = useMessages().toolbar;
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -93,8 +108,9 @@ export default function MapToolbar({
             disabled={!canRecenterOnMe}
             title={canRecenterOnMe ? undefined : t.noFix}
           >
+            {/* Wide screens: a drafting crosshair, as the map cursor draws. */}
             <svg
-              className="toolbar__icon"
+              className="toolbar__icon toolbar__icon--crosshair"
               viewBox="-10 -10 20 20"
               aria-hidden="true"
               focusable="false"
@@ -104,6 +120,16 @@ export default function MapToolbar({
                 d="M-9 0 H-4 M4 0 H9 M0 -9 V-4 M0 4 V9"
               />
               <circle className="toolbar__icon-dot" r="2.25" />
+            </svg>
+            {/* Phones: the survey dot that marks the device on the map, since
+                there is no mouse cursor for a crosshair to echo. */}
+            <svg
+              className="toolbar__icon toolbar__icon--position"
+              viewBox="-10 -10 20 20"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <circle className="toolbar__icon-disc" r="6" />
             </svg>
             <span className="toolbar__label">{t.recenterOnMe}</span>
           </button>
@@ -117,6 +143,19 @@ export default function MapToolbar({
             3D
           </button>
         </div>
+        {/* Its own tile rather than one of the view controls: on a phone it
+            leaves the row altogether for the sheet's bottom-left corner. */}
+        <span
+          className="toolbar__divider toolbar__divider--filters"
+          aria-hidden="true"
+        />
+        <MapFilters
+          filters={filters}
+          onChange={onFiltersChange}
+          shown={shownPins}
+          total={totalPins}
+          canFilterMine={canFilterMine}
+        />
       </div>
     </div>
   );

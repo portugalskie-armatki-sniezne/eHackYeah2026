@@ -1,0 +1,51 @@
+name: "[5] Clean up disk"
+
+# frees disk space on the target machine: images no container uses, stopped containers,
+# build cache, and old runner diagnostics. Volumes are never touched, they hold the photos and the database.
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to clean up"
+        type: choice
+        options:
+          - dev
+          - prod
+        default: dev
+
+jobs:
+  cleanup:
+    name: Clean up ${{ inputs.environment }}
+    # the self-hosted runner works on the target machine, so no inbound connection is needed
+    runs-on: [self-hosted]
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+    # never runs during a deployment, which needs the images it is pulling
+    concurrency:
+      group: deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+    steps:
+      - name: Disk usage before
+        run: |
+          df -h /
+          docker system df
+
+      - name: Remove unused Docker data
+        run: |
+          docker container prune -f
+          # -a also drops the tagged images of earlier deployments
+          docker image prune -a -f
+          docker builder prune -a -f
+
+      - name: Remove old runner diagnostics
+        # the runner appends to these logs only; the current job's file is kept
+        run: |
+          find "$RUNNER_ROOT/_diag" -name '*.log' -mmin +60 -delete 2>/dev/null || true
+        env:
+          RUNNER_ROOT: ${{ runner.workspace }}/../..
+
+      - name: Disk usage after
+        run: |
+          df -h /
+          docker system df

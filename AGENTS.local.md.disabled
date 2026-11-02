@@ -1,0 +1,6 @@
+# Local scope: backend only
+
+- I work only on the backend in `apps/api/`.
+- Do not modify `apps/web/`, `db/migrations/`, `db/seeds/` or `infra/`.
+- If a task needs a frontend or database change, describe the needed change and ask me instead of editing.
+- Read-only access to these paths is fine for context.

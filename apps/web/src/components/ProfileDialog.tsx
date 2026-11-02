@@ -10,12 +10,11 @@ import { authApi, type User, type UserUpdate } from "../api/auth";
 import { reportsApi, type Report } from "../api/reports";
 import { updateUser } from "../api/session";
 import { useLocale, useMessages } from "../i18n/locale";
-import LanguageToggle from "./LanguageToggle";
 import type { Locale, Messages } from "../i18n/messages";
 import "./AuthDialog.css";
 import "./ProfileDialog.css";
 
-type ProfileTab = "account" | "password" | "reports" | "preferences";
+type ProfileTab = "account" | "password" | "reports";
 
 type ProfileDialogProps = {
   user: User;
@@ -79,7 +78,6 @@ export default function ProfileDialog({ user, onClose }: ProfileDialogProps) {
     { value: "account", label: t.tabs.account },
     { value: "password", label: t.tabs.password },
     { value: "reports", label: t.tabs.reports },
-    { value: "preferences", label: t.tabs.preferences },
   ];
 
   return (
@@ -136,7 +134,6 @@ export default function ProfileDialog({ user, onClose }: ProfileDialogProps) {
         {tab === "reports" && (
           <ReportsSection user={user} dialogRef={dialogRef} />
         )}
-        {tab === "preferences" && <PreferencesSection dialogRef={dialogRef} />}
       </div>
     </dialog>
   );
@@ -465,28 +462,6 @@ function PasswordSection({ user, busy, run, dialogRef }: SectionProps) {
         </button>
       </footer>
     </form>
-  );
-}
-
-/** Settings kept in this browser rather than on the account. */
-function PreferencesSection({ dialogRef }: Pick<SectionProps, "dialogRef">) {
-  const t = useMessages().profile;
-  const id = useId();
-  return (
-    <>
-      <div className="profile-dialog__section">
-        <div className="auth-dialog__field">
-          <span id={`${id}-language`} className="auth-dialog__label">
-            {t.language}
-          </span>
-          <LanguageToggle labelledBy={`${id}-language`} />
-          <p className="auth-dialog__hint">{t.languageHint}</p>
-        </div>
-      </div>
-      <footer className="auth-dialog__actions">
-        <CloseButton dialogRef={dialogRef} />
-      </footer>
-    </>
   );
 }
 

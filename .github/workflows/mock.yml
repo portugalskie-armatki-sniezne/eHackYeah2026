@@ -1,0 +1,110 @@
+name: "[5] Mock data"
+
+# replaces the mock demo data of the chosen environment with the importer from tooling/seed
+# the import removes the previous mock users with their reports, comments, and photos, and leaves real records untouched
+# it needs the reference data of [4] Seed, because every mock topic names a responsible institution
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to fill with mock data"
+        type: choice
+        options:
+          - dev
+          - prod
+        default: dev
+      confirm:
+        description: "Type prod to confirm a production run"
+        type: string
+        default: ""
+      seed:
+        description: "Random seed of the generated content"
+        type: string
+        default: "2026"
+      replace_all:
+        description: "Delete the reports of real users too, leaving only the mock data"
+        type: boolean
+        default: false
+
+env:
+  # a local image, one per environment so that parallel runs do not replace each other's build
+  MOCK_IMAGE: ehackyeah2026-seed:mock-${{ inputs.environment }}
+
+jobs:
+  mock:
+    name: Fill ${{ inputs.environment }}
+    # the self-hosted runner works on the target machine, so no inbound connection is needed
+    runs-on: [self-hosted]
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+    # shares the group with deployments, so that the import never runs during a migration
+    concurrency:
+      group: deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+    env:
+      # holds the database settings of the target environment
+      ENV_FILE: ${{ vars.DEPLOY_DIR }}/.env
+    steps:
+      # prod serves real reports, so it takes a typed confirmation
+      - name: Confirm a production run
+        if: ${{ inputs.environment == 'prod' }}
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          if [ "$CONFIRM" != prod ]; then
+            echo "Type prod in the confirm field to replace the mock data on prod." >&2
+            exit 1
+          fi
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build seeder image
+        run: docker build -t "$MOCK_IMAGE" tooling/seed
+
+      # the photos belong on the volume that api serves them from, named after the Compose project
+      - name: Find the uploads volume
+        id: uploads
+        working-directory: ${{ vars.DEPLOY_DIR }}
+        run: |
+          container="$(docker compose ps -q api)"
+          if [ -z "$container" ]; then
+            echo "The api service is not running, deploy it before importing mock data." >&2
+            exit 1
+          fi
+          volume="$(docker inspect \
+            -f '{{range .Mounts}}{{if eq .Destination "/app/uploads"}}{{.Name}}{{end}}{{end}}' "$container")"
+          if [ -z "$volume" ]; then
+            echo "The api container has no volume on /app/uploads." >&2
+            exit 1
+          fi
+          echo "volume=$volume" >> "$GITHUB_OUTPUT"
+
+      - name: Import mock data
+        env:
+          UPLOADS_VOLUME: ${{ steps.uploads.outputs.volume }}
+          SEED: ${{ inputs.seed }}
+          REPLACE_ALL: ${{ inputs.replace_all }}
+        run: |
+          # the flag is empty unless the run asked to clear the reports of real users
+          replace=""
+          if [ "$REPLACE_ALL" = true ]; then
+            replace="--replace-all"
+          fi
+          # the database settings of the environment, with the same defaults as in docker-compose.app.yaml
+          set -a
+          . "$ENV_FILE"
+          set +a
+          export PGHOST="${POSTGRES_HOST:-db}"
+          export PGPORT="${POSTGRES_PORT:-5432}"
+          export PGDATABASE="${POSTGRES_DB:-app_db}"
+          export PGUSER="${POSTGRES_USER:-app_user}"
+          export PGPASSWORD="${POSTGRES_PASSWORD:-local_dev_password}"
+          # the image runs as the unprivileged user of the api image, which owns the uploads volume
+          # the connection settings are passed by name to keep the password out of the command line
+          docker run --rm \
+            --network "${DB_NETWORK:-ehackyeah2026_default}" \
+            -e PGHOST -e PGPORT -e PGDATABASE -e PGUSER -e PGPASSWORD \
+            -v "$UPLOADS_VOLUME:/app/uploads" \
+            --entrypoint python \
+            "$MOCK_IMAGE" /app/populate_mock_data.py /app/uploads --seed "$SEED" $replace

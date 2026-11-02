@@ -8,6 +8,47 @@ export const locales = ["en", "pl"] as const;
 
 export type Locale = (typeof locales)[number];
 
+/** The two kinds of pin; mirrors ReportCategoryName of the API. */
+type PinKind = "issue" | "improvement";
+
+/** What a notification is about; mirrors NotificationKind of the API. */
+type NoticeKind =
+  | "status_inprogress"
+  | "status_finished"
+  | "comment"
+  | "update"
+  | "photo_proposal"
+  | "photo_approved"
+  | "photo_rejected";
+
+/** The guide's steps, each with its own card. */
+export type TourStepId =
+  | "welcome"
+  | "zoom"
+  | "filters"
+  | "filterList"
+  | "tilt"
+  | "openCase"
+  | "caseSheet"
+  | "reportClick"
+  | "photoTile"
+  | "reportKind"
+  | "reportForm"
+  | "photoForm"
+  | "reportSend"
+  | "navReports"
+  | "reports"
+  | "navNotifications"
+  | "notifications"
+  | "navInitiatives"
+  | "catalog"
+  | "navAbout"
+  | "about"
+  | "finish";
+
+/** A step's card: what is shown, and what the manual tour asks to be done. */
+type TourStepText = { title: string; body: string; action?: string };
+
 export function isLocale(value: unknown): value is Locale {
   return (
     typeof value === "string" && (locales as readonly string[]).includes(value)
@@ -37,6 +78,7 @@ const en = {
   language: {
     label: "Language",
     names: { en: "English", pl: "Polski" } as Record<Locale, string>,
+    switchTo: (name: string) => `Switch language to ${name}`,
   },
   nav: {
     skipToMap: "Skip to map",
@@ -47,10 +89,319 @@ const en = {
     reports: "Reports",
     initiatives: "Initiatives",
     about: "About",
+    notifications: "Notifications",
+    unreadNotifications: (count: number) =>
+      `${count} unread ${count === 1 ? "notification" : "notifications"}`,
     signIn: "Sign in",
+    guide: "Start the guide",
     signedInAs: "Signed in as ",
     myProfile: "My Profile",
     logout: "Logout",
+  },
+  reports: {
+    title: "Reports",
+    lede: "Every case on the map in one list, with its status and the discussion under it. Office and admin accounts move cases along and answer them with official comments.",
+    backToMap: "Go back to map",
+    signInToComment: "Sign in to comment",
+    loading: "Loading cases...",
+    empty: "No cases match.",
+    search: "Search",
+    searchPlaceholder: "Search by title or description...",
+    filter: "Narrow the list",
+    allStatuses: "All",
+    onlyMine: "Only mine",
+    onlyMineHint: "Keeps only the cases you have filed a report for",
+    shown: (shown: number, total: number) => `${shown} of ${total} cases`,
+    kinds: { issue: "Fault report", improvement: "Improvement idea" },
+    statuses: {
+      created: "Created",
+      reported: "Reported",
+      inprogress: "In progress",
+      finished: "Finished",
+    },
+    setStatus: "Set status",
+    reportCount: (total: number) =>
+      `${total} ${total === 1 ? "report" : "reports"}`,
+    remove: "Remove case",
+    removeHint:
+      "Takes the pin off the map with its reports, photos, and comments.",
+    confirmRemove: "Remove for good",
+    removing: "Removing...",
+    cancel: "Cancel",
+    showComments: "Show comments",
+    hideComments: "Hide comments",
+    loadingComments: "Loading comments...",
+    noComments: "No comments yet.",
+    official: "Official",
+    office: "Office",
+    you: "You",
+    deleteComment: "Delete",
+    composeLabel: "New comment",
+    composePlaceholder: "Write a comment...",
+    highlight: "Highlight as official",
+    post: "Post",
+    posting: "Posting...",
+    somethingWrong: "Something went wrong.",
+    officialResponse: "Official response",
+    photoOf: (title: string) => `Photo of the case "${title}"`,
+    noPhoto: "No photo yet",
+    addPhoto: "Add photo",
+    pendingPhoto: "Waiting for approval",
+    pendingPhotoAlt: (title: string) => `Photo offered for the case "${title}"`,
+    pendingPhotoHint:
+      "A resident offered this photo. It keeps its question mark until the person who filed the case takes it.",
+    usePhoto: "Use this photo",
+    turnDownPhoto: "Turn it down",
+    deciding: "Saving...",
+    signInToAddPhoto: "Sign in to add a photo",
+  },
+  notifications: {
+    title: "Notifications",
+    lede: "What happened to the cases you filed: how far they have moved, what was said under them, and the photos neighbours offered for them.",
+    backToMap: "Go back to map",
+    loading: "Loading notifications...",
+    empty: "Nothing yet. What happens to your cases shows up here.",
+    emptyUnread: "You have opened everything.",
+    loadFailed: "Could not load your notifications.",
+    somethingWrong: "Something went wrong.",
+    signedOutTitle: "Sign in to read your notifications",
+    signedOutText:
+      "Notifications follow the cases filed from your account, so they come with it.",
+    signIn: "Sign in",
+    filter: "Show",
+    all: "All",
+    unreadOnly: "Unread",
+    shown: (shown: number, total: number) =>
+      `${shown} of ${total} ${total === 1 ? "notification" : "notifications"}`,
+    unread: "New",
+    markAllRead: "Mark all as read",
+    markRead: "Mark as read",
+    dismiss: "Dismiss",
+    openCase: "Open the case",
+    caseGone: "This case is no longer on the map.",
+    justNow: "just now",
+    kinds: {
+      status_inprogress: "Work has started",
+      status_finished: "The case is finished",
+      comment: "New comment",
+      update: "The case was updated",
+      photo_proposal: "A photo is waiting for you",
+      photo_approved: "Your photo was taken",
+      photo_rejected: "Your photo was turned down",
+    } as Record<NoticeKind, string>,
+    offeredPhotoAlt: (subject: string) => `Photo offered for: ${subject}`,
+    usePhoto: "Use this photo",
+    turnDownPhoto: "Turn it down",
+    deciding: "Saving...",
+    alreadyDecided: "This photo has already been decided on.",
+  },
+  status: {
+    created: "Created",
+    reported: "Reported",
+    inprogress: "In progress",
+    finished: "Finished",
+    unknown: "Unknown",
+  },
+  auth: {
+    signIn: "Sign in",
+    createAccount: "Create account",
+    register: "Register",
+    mode: "Mode",
+    firstName: "First name",
+    lastName: "Last name",
+    email: "Email",
+    phone: "Phone",
+    contactHint:
+      "Enter an email, a phone number, or both. Either one signs you in.",
+    contactRequired: "Enter an email address or a phone number.",
+    login: "Email or phone",
+    password: "Password",
+    passwordHint: (min: number) => `At least ${min} characters.`,
+    close: "Close",
+    pleaseWait: "Please wait...",
+    googleFailed: "Google sign-in failed.",
+    somethingWrong: "Something went wrong.",
+  },
+  signOut: {
+    title: "Sign out",
+    question: "Are you sure you want to sign out?",
+    cancel: "Cancel",
+    confirm: "Sign out",
+  },
+  map: {
+    label: "Map",
+    canvasLabel:
+      "Map. Use the arrow keys to pan and the plus and minus keys to zoom.",
+    categoriesError: "The report categories could not be loaded.",
+    newPin: "New pin",
+    pinLabel: (
+      kind: PinKind,
+      number: number,
+      status: string | null,
+      reportCount: number,
+      description: string,
+    ) =>
+      `${kind === "improvement" ? "Improvement" : "Fault"} pin ${number}${
+        status ? `, ${status.toLowerCase()}` : ""
+      }${reportCount > 1 ? `, ${reportCount} reports` : ""}: ${description}`,
+    pinPendingPhoto: "Its photo is waiting for approval.",
+  },
+  pin: {
+    issueTab: "Fault / report",
+    initiativeTab: "Community initiative",
+    newMarker: "New marker",
+    titleLabel: "Title (optional)",
+    titlePlaceholder: "In a few words - taken from the description if empty",
+    description: "Description",
+    descriptionPlaceholder: "What is happening here?",
+    image: "Image",
+    chosenImage: "Chosen image",
+    noImage: "No image",
+    changeImage: "Change image",
+    chooseImage: "Choose image",
+    close: "Close",
+    cancel: "Cancel",
+    saving: "Saving...",
+    addMarker: "Add marker",
+    saveFailed: "Could not save the report.",
+    matchFound: (percent: number) =>
+      `Similar innovation found (${percent}% match)`,
+    useProject: "Build on this project",
+    saveAsNew: "Submit as a new idea",
+    backToEdit: "Back to editing",
+    ideaLabel: "Your idea for this place",
+    ideaPlaceholder:
+      "Describe your proposal for an initiative or innovation at this location...",
+    checking: "Checking the database...",
+    sendInitiative: "Send initiative",
+  },
+  addPhoto: {
+    title: "Add photo",
+    hint: "Choose a photo of this case. It will appear with the case as soon as you add it. JPEG, PNG or WebP, up to 10 MB.",
+    photo: "Photo",
+    photoAlt: "The selected photo",
+    choose: "Choose a photo",
+    change: "Change photo",
+    none: "No photo chosen",
+    cancel: "Cancel",
+    send: "Add photo",
+    sending: "Adding...",
+    saveFailed: "Could not add the photo.",
+  },
+  photoReport: {
+    title: "Photo report",
+    hint: "Filed where you are standing.",
+    photoAlt: "The photo just taken",
+    description: "Description",
+    descriptionPlaceholder: "What is in the photo?",
+    discard: "Discard photo",
+    send: "Send report",
+    saving: "Saving...",
+    saveFailed: "Could not save the photo report.",
+  },
+  marker: {
+    kinds: { issue: "Fault report", improvement: "Improvement idea" },
+    close: "Close",
+    photoOf: (title: string) => `Photo of: ${title}`,
+    reportPhoto: "Report photo",
+    loading: "Loading...",
+    noPhoto: "No photo yet",
+    photos: "Photos",
+    photoIndex: (number: number, total: number) =>
+      `Photo ${number} of ${total}`,
+    reportCount: (total: number) =>
+      `${total} ${total === 1 ? "report" : "reports"}`,
+    report: "Report",
+    loadingReport: "Loading report",
+    loadFailed: "Could not load the report.",
+    likeFailed: "Could not save the like.",
+    postFailed: "Could not post the comment.",
+    justNow: "just now",
+    to: "To",
+    subject: "Subject",
+    noEmail: "no email on record",
+    notAssigned: "not assigned yet",
+    ropsLabel: "ROPS innovation",
+    ropsLink: "See the innovation model on rops.krakow.pl",
+    officialResponse: "Official response",
+    comments: (total: number) =>
+      total === 0
+        ? "Comments"
+        : total === 1
+          ? "1 comment"
+          : `${total} comments`,
+    noComments: "Nobody has weighed in yet. Be the first.",
+    you: "You",
+    office: "Office",
+    official: "Official",
+    likesUnlike: " likes, unlike",
+    likesLike: " likes, like",
+    newComment: "New comment",
+    writeComment: "Write a comment...",
+    posting: "Posting...",
+    post: "Post",
+    signInToComment: "Sign in to comment",
+    commentsTab: "Comments",
+    reportsTab: "Reports",
+    closePanel: "Close panel",
+    back: "Back",
+    reportsLoadFailed: "Could not load the reports.",
+    loadingReports: "Loading reports...",
+    noReports: "No reports to show.",
+    reportPhotoOf: (number: number, title: string) =>
+      `Photo ${number} of: ${title}`,
+    contactInstitution: "Contact institution",
+    recipientFailed: "Could not find a recipient.",
+    findingRecipient: "Finding a suggested recipient...",
+    recipientLoadFailed: "Could not load the suggested recipient.",
+    tryAgain: "Try again",
+    noInstitution: "No matching institution found.",
+    suggestedRecipient:
+      "Suggested recipient based on the report and location. Not assigned yet.",
+    checkingSignIn: "Checking sign-in...",
+    signInToFindRecipient: "Sign in to find a recipient",
+    addPhoto: "Add photo",
+    addPhotoHint: "This case has no photo yet. If you are there, add one.",
+    pendingPhoto: "Waiting for approval",
+    pendingPhotoAlt: (title: string) => `Photo offered for: ${title}`,
+    pendingPhotoHint:
+      "A resident offered this photo. It keeps its question mark until the person who filed the case takes it.",
+    usePhoto: "Use this photo",
+    turnDownPhoto: "Turn it down",
+    deciding: "Saving...",
+    decideFailed: "Could not save the decision.",
+    visualization: "Visualization",
+    visualizing: "Drawing the visualization...",
+    visualizationOf: (title: string) => `Visualization of: ${title}`,
+    visualizationFailed: "Could not draw the visualization.",
+  },
+  catalog: {
+    title: "Social Innovation Library",
+    lede: "Proven models and innovations from the library of ROPS Kraków, the regional social policy centre. Get inspired and propose bringing one to your neighbourhood.",
+    backToMap: "Go back to map",
+    search: "Search",
+    searchPlaceholder:
+      "Search innovations (e.g. seniors, board, integration)...",
+    categoryFilter: "Category",
+    all: (total: number) => `All (${total})`,
+    shown: (shown: number, total: number) => `${shown} of ${total} innovations`,
+    loadFailed: "Could not load the innovation library.",
+    loading: "Loading social innovations...",
+    empty: "No innovations match the chosen criteria.",
+    description: "What it is",
+    problem: "Problem",
+    targetGroup: "Target group",
+    beneficiaries: "For whom",
+    effectiveness: "Does it work",
+    authors: "Authors",
+    collapse: "Hide details",
+    details: "Innovation details",
+    source: "See on rops.krakow.pl",
+    proposeOnMap: "Propose on the map",
+    proposeTitle: "Go to the map and point out a location",
+  },
+  api: {
+    requestFailed: (status: number) => `Request failed (${status}).`,
   },
   about: {
     lede: "A unified platform for reporting local issues, proposing citizen initiatives, and tracking their progress. Changing your city without excessive complications.",
@@ -106,6 +457,22 @@ const en = {
     view: "View",
     recenterOnMe: "Recenter on me",
   },
+  filters: {
+    label: "Filter",
+    open: "Filter the pins on the map",
+    heading: "Show on the map",
+    kind: "Kind",
+    status: "Status",
+    author: "Author",
+    onlyMine: "Only my reports",
+    kinds: {
+      issue: "Fault reports",
+      improvement: "Improvement ideas",
+    } as Record<PinKind, string>,
+    shown: (shown: number, total: number) => `${shown} of ${total} pins shown`,
+    selectAll: "Show all",
+    clear: "Hide all",
+  },
   profile: {
     title: "Profile",
     section: "Section",
@@ -113,10 +480,7 @@ const en = {
       account: "Account",
       password: "Password",
       reports: "Reports",
-      preferences: "Preferences",
     },
-    language: "Language",
-    languageHint: "This choice is kept in this browser only.",
     close: "Close",
     edit: "Edit",
     cancel: "Cancel",
@@ -152,6 +516,162 @@ const en = {
     reportCount: (total: number) =>
       `${total} ${total === 1 ? "report" : "reports"}.`,
   },
+  onboarding: {
+    chooserTitle: "Welcome to pomożeMy",
+    chooserLede:
+      "A short guide shows how to report a problem, propose an idea, and follow what happens next. Nothing you do in the guide is sent.",
+    autoTitle: "Show me",
+    autoText:
+      "Sit back: the guide clicks through the app on its own. It takes about a minute and a half.",
+    manualTitle: "Walk me through",
+    manualText:
+      "You click, and the guide shows you where and explains what happens.",
+    skip: "Skip, I will look around myself",
+    rerunHint: "The ? button in the navigation bar starts the guide again.",
+    label: "Guide",
+    progress: (step: number, total: number) => `${step} / ${total}`,
+    close: "Close the guide",
+    back: "Back",
+    next: "Next",
+    pause: "Pause",
+    resume: "Resume",
+    takeOver: "Take over",
+    finish: "Finish",
+    paused:
+      "Paused because you clicked the page. Resume, or take over and click through yourself.",
+    yourTurn: "Your turn",
+    stepDone: "Done! Moving on.",
+    held: "This is the guide, so nothing was sent. A real report goes on the map and on to the right office.",
+    signUp: "Create an account",
+    explore: "Look around",
+    sampleTitle: "Pothole on the bike lane",
+    sampleDescription:
+      "A deep pothole by the bike lane at the corner. Cyclists swerve onto the road to avoid it.",
+    catalogQuery: "senior",
+    sampleBanner:
+      "These are sample notifications. Once you sign in, news about your own cases shows up here.",
+    sampleNotifications: [
+      {
+        kind: "status_inprogress",
+        subject: "Pothole on the bike lane",
+        detail: null,
+      },
+      {
+        kind: "update",
+        subject: "Pothole on the bike lane",
+        detail: "The road authority has scheduled the repair for next week.",
+      },
+      {
+        kind: "comment",
+        subject: "A bench by the playground",
+        detail: "Great idea, the nearest bench is 300 metres away.",
+      },
+    ] as { kind: NoticeKind; subject: string; detail: string | null }[],
+    steps: {
+      welcome: {
+        title: "This is the map of cases",
+        body: "Every pin is a reported problem or an idea for the neighbourhood. Nearby pins are grouped into numbered discs that open up as you zoom in.",
+      },
+      zoom: {
+        title: "Move around the map",
+        body: "Zoom with these buttons, the mouse wheel, or two fingers. Drag to move the view.",
+        action: "Press + or -.",
+      },
+      filters: {
+        title: "Filter the pins",
+        body: "This tile narrows the map down to the cases you care about.",
+        action: "Open the filter list.",
+      },
+      filterList: {
+        title: "Pick what to show",
+        body: "Tick the kinds and statuses to keep on the map. Once you sign in, you can also keep only your own reports.",
+      },
+      tilt: {
+        title: "See the city in 3D",
+        body: "Tilt the camera to see the buildings around a case.",
+        action: "Switch 3D on.",
+      },
+      openCase: {
+        title: "Open a case",
+        body: "A click on a pin opens its case.",
+        action: "Click any pin.",
+      },
+      caseSheet: {
+        title: "Everything about one case",
+        body: "The status shows how far the case has moved. Below are the office it goes to, the official response, the comments, and every report merged into it.",
+      },
+      reportClick: {
+        title: "Report a problem",
+        body: "To report something, click the map where it is. A new pin waits there for its description.",
+        action: "Click any spot on the map.",
+      },
+      photoTile: {
+        title: "Report with a photo",
+        body: "On a phone, the + tile opens the camera, and the report is pinned where you are standing.",
+      },
+      reportKind: {
+        title: "A fault or an idea?",
+        body: "Pick a fault to report a problem, or a community initiative to propose a change. An initiative is compared with the ROPS library of proven ideas.",
+        action: "Switch between the two tabs.",
+      },
+      reportForm: {
+        title: "Describe it",
+        body: "The title is optional. A sentence and a photo are enough for the office to understand the problem.",
+        action: "Write a short description.",
+      },
+      photoForm: {
+        title: "Describe the photo",
+        body: "One sentence is enough. The photo and your location are already attached.",
+        action: "Write a short description.",
+      },
+      reportSend: {
+        title: "Send it",
+        body: "Normally this sends the report: it goes on the map, and the right office is found for it. In the guide nothing is sent.",
+        action: "Press the button, or close the sheet.",
+      },
+      navReports: {
+        title: "Every case in one list",
+        body: "The Reports page lists every case with its status and discussion.",
+        action: "Open Reports.",
+      },
+      reports: {
+        title: "Search and narrow down",
+        body: "Search by words, filter by status, or keep only your own cases. Each row unfolds its comments.",
+      },
+      navNotifications: {
+        title: "Notifications",
+        body: "This is where you learn what happened to your cases. The link shows up once you sign in.",
+        action: "Open Notifications.",
+      },
+      notifications: {
+        title: "Stay up to date",
+        body: "A case taken up or finished, an office's response, a new comment, an offered photo: it all shows up here.",
+      },
+      navInitiatives: {
+        title: "Initiatives",
+        body: "Looking for inspiration? The library of social innovations is one click away.",
+        action: "Open Initiatives.",
+      },
+      catalog: {
+        title: "Social innovation library",
+        body: "Proven models from ROPS Kraków. Search, read the details, and propose one on the map for your neighbourhood.",
+        action: "Search for something, like senior.",
+      },
+      navAbout: {
+        title: "About the project",
+        body: "How a report travels from a pin to the office that can fix it.",
+        action: "Open About.",
+      },
+      about: {
+        title: "How it works",
+        body: "Read why pomożeMy exists and how reports are merged and routed to offices.",
+      },
+      finish: {
+        title: "You are ready",
+        body: "Report your first case or look around on your own. The ? button starts this guide again.",
+      },
+    } as Record<TourStepId, TourStepText>,
+  },
 };
 
 export type Messages = typeof en;
@@ -180,6 +700,7 @@ const pl: Messages = {
   language: {
     label: "Język",
     names: { en: "English", pl: "Polski" },
+    switchTo: (name: string) => `Zmień język na ${name}`,
   },
   nav: {
     skipToMap: "Przejdź do mapy",
@@ -190,54 +711,361 @@ const pl: Messages = {
     reports: "Zgłoszenia",
     initiatives: "Inicjatywy",
     about: "O nas",
+    notifications: "Powiadomienia",
+    unreadNotifications: (count: number) =>
+      `${plNotifications(count)} nieodczytanych`,
     signIn: "Zaloguj się",
+    guide: "Uruchom przewodnik",
     signedInAs: "Zalogowano jako ",
     myProfile: "Mój profil",
     logout: "Wyloguj",
   },
+  reports: {
+    title: "Zgłoszenia",
+    lede: "Wszystkie zgłoszenia prosto z mapy na jednej liście, ze statusem i sekcją dyskusji pod każdym z nich. Konta urzędów, jednostek i administratorów mogą zmieniać status i udzielać oficjalnych odpowiedzi na zgłoszenia.",
+    backToMap: "Wróć do mapy",
+    signInToComment: "Zaloguj się, aby komentować",
+    loading: "Wczytywanie spraw...",
+    empty: "Brak spraw spełniających kryteria.",
+    search: "Szukaj",
+    searchPlaceholder: "Szukaj po tytule lub opisie...",
+    filter: "Zawęź listę",
+    allStatuses: "Wszystkie",
+    onlyMine: "Moje",
+    onlyMineHint: "Zostawia tylko sprawy z Twoim zgłoszeniem",
+    shown: (shown: number, total: number) => `${shown} z ${plCases(total)}`,
+    kinds: { issue: "Zgłoszenie usterki", improvement: "Pomysł na ulepszenie" },
+    statuses: {
+      created: "Utworzone",
+      reported: "Zgłoszone",
+      inprogress: "W trakcie",
+      finished: "Zakończone",
+    },
+    setStatus: "Ustaw status",
+    reportCount: (total: number) => plReports(total),
+    remove: "Usuń",
+    removeHint:
+      "Zdejmuje pinezkę z mapy razem ze zgłoszeniami, zdjęciami i komentarzami.",
+    confirmRemove: "Usuń bezpowrotnie",
+    removing: "Usuwanie...",
+    cancel: "Anuluj",
+    showComments: "Pokaż komentarze",
+    hideComments: "Ukryj komentarze",
+    loadingComments: "Wczytywanie komentarzy...",
+    noComments: "Nie ma jeszcze komentarzy.",
+    official: "Oficjalny",
+    office: "Urząd",
+    you: "Ty",
+    deleteComment: "Usuń",
+    composeLabel: "Nowy komentarz",
+    composePlaceholder: "Napisz komentarz...",
+    highlight: "Wyróżnij jako oficjalny",
+    post: "Opublikuj",
+    posting: "Publikowanie...",
+    somethingWrong: "Coś poszło nie tak.",
+    officialResponse: "Oficjalna odpowiedź",
+    photoOf: (title: string) => `Zdjęcie sprawy „${title}”`,
+    noPhoto: "Brak zdjęcia",
+    addPhoto: "Dodaj zdjęcie",
+    pendingPhoto: "Czeka na zatwierdzenie",
+    pendingPhotoAlt: (title: string) =>
+      `Zdjęcie zaproponowane do sprawy „${title}”`,
+    pendingPhotoHint:
+      "Ktoś zaproponował to zdjęcie. Znak zapytania zostaje, dopóki autor zgłoszenia go nie przyjmie.",
+    usePhoto: "Użyj tego zdjęcia",
+    turnDownPhoto: "Odrzuć",
+    deciding: "Zapisywanie...",
+    signInToAddPhoto: "Zaloguj się, aby dodać zdjęcie",
+  },
+  notifications: {
+    title: "Powiadomienia",
+    lede: "Co wydarzyło się ze zgłoszeniami, które wysłałeś: jak daleko zaszły, co pod nimi napisano i jakie zdjęcia proponują inni.",
+    backToMap: "Wróć do mapy",
+    loading: "Ładowanie powiadomień...",
+    empty: "Pusto :((",
+    emptyUnread: "Pusto :((",
+    loadFailed: "Nie udało się wczytać powiadomień.",
+    somethingWrong: "Coś poszło nie tak.",
+    signedOutTitle: "Zaloguj się, aby zobaczyć powiadomienia",
+    signedOutText:
+      "Powiadomienia dotyczą zgłoszeń wysłanych z Twojego konta, więc idą razem z nim.",
+    signIn: "Zaloguj się",
+    filter: "Pokaż",
+    all: "Wszystkie",
+    unreadOnly: "Nieodczytane",
+    shown: (shown: number, total: number) =>
+      `${shown} z ${plNotifications(total)}`,
+    unread: "Nowe",
+    markAllRead: "Oznacz wszystkie jako odczytane",
+    markRead: "Oznacz jako odczytane",
+    dismiss: "Usuń",
+    openCase: "Otwórz zgłoszenie",
+    caseGone: "Tego zgłoszenia nie ma już na mapie.",
+    justNow: "właśnie teraz",
+    kinds: {
+      status_inprogress: "Prace się rozpoczęły",
+      status_finished: "Zgłoszenie zakończone",
+      comment: "Nowy komentarz",
+      update: "Aktualizacja zgłoszenia",
+      photo_proposal: "Czeka na Ciebie zdjęcie",
+      photo_approved: "Twoje zdjęcie zostało przyjęte",
+      photo_rejected: "Twoje zdjęcie zostało odrzucone",
+    },
+    offeredPhotoAlt: (subject: string) =>
+      `Zdjęcie zaproponowane do: ${subject}`,
+    usePhoto: "Użyj tego zdjęcia",
+    turnDownPhoto: "Odrzuć",
+    deciding: "Zapisywanie...",
+    alreadyDecided: "Decyzja o tym zdjęciu już zapadła.",
+  },
+  status: {
+    created: "Utworzone",
+    reported: "Zgłoszone",
+    inprogress: "W trakcie",
+    finished: "Zakończone",
+    unknown: "Nieznany",
+  },
+  auth: {
+    signIn: "Zaloguj się",
+    createAccount: "Utwórz konto",
+    register: "Zarejestruj się",
+    mode: "Tryb",
+    firstName: "Imię",
+    lastName: "Nazwisko",
+    email: "E-mail",
+    phone: "Telefon",
+    contactHint:
+      "Podaj e-mail, numer telefonu lub oba. Każde z nich pozwala się zalogować.",
+    contactRequired: "Podaj adres e-mail lub numer telefonu.",
+    login: "E-mail lub telefon",
+    password: "Hasło",
+    passwordHint: (min: number) => `Co najmniej ${min} znaków.`,
+    close: "Zamknij",
+    pleaseWait: "Proszę czekać...",
+    googleFailed: "Logowanie przez Google nie powiodło się.",
+    somethingWrong: "Coś poszło nie tak.",
+  },
+  signOut: {
+    title: "Wyloguj",
+    question: "Czy na pewno chcesz się wylogować?",
+    cancel: "Anuluj",
+    confirm: "Wyloguj",
+  },
+  map: {
+    label: "Mapa",
+    canvasLabel:
+      "Mapa. Przesuwaj strzałkami, a przybliżaj i oddalaj klawiszami plus i minus.",
+    categoriesError: "Nie udało się wczytać kategorii zgłoszeń.",
+    newPin: "Nowa pinezka",
+    pinLabel: (
+      kind: PinKind,
+      number: number,
+      status: string | null,
+      reportCount: number,
+      description: string,
+    ) =>
+      `Pinezka ${kind === "improvement" ? "ulepszenia" : "usterki"} ${number}${
+        status ? `, ${status.toLowerCase()}` : ""
+      }${reportCount > 1 ? `, ${plReports(reportCount)}` : ""}: ${description}`,
+    pinPendingPhoto: "Jego zdjęcie czeka na zatwierdzenie.",
+  },
+  pin: {
+    issueTab: "Usterka / zgłoszenie",
+    initiativeTab: "Inicjatywa społeczna",
+    newMarker: "Nowe zgłoszenie",
+    titleLabel: "Tytuł (opcjonalnie)",
+    titlePlaceholder: "W kilku słowach - jeśli puste, weźmiemy go z opisu",
+    description: "Opis",
+    descriptionPlaceholder: "Co się tu dzieje?",
+    image: "Zdjęcie",
+    chosenImage: "Wybrane zdjęcie",
+    noImage: "Dodaj zdjęcie",
+    changeImage: "Zmień zdjęcie",
+    chooseImage: "Wybierz zdjęcie",
+    close: "Zamknij",
+    cancel: "Anuluj",
+    saving: "Zapisywanie...",
+    addMarker: "Dodaj zgłoszenie",
+    saveFailed: "Nie udało się zapisać zgłoszenia.",
+    matchFound: (percent: number) =>
+      `Znaleziono podobną innowację (${percent}% zbieżności)`,
+    useProject: "Oprzyj się na tym projekcie",
+    saveAsNew: "Zgłoś jako nowy pomysł",
+    backToEdit: "Wróć do edycji",
+    ideaLabel: "Twój pomysł na to miejsce",
+    ideaPlaceholder:
+      "Opisz swoją propozycję inicjatywy lub innowacji w tej lokalizacji...",
+    checking: "Sprawdzam bazę...",
+    sendInitiative: "Wyślij inicjatywę",
+  },
+  addPhoto: {
+    title: "Dodaj zdjęcie",
+    hint: "Wybierz zdjęcie, które pokazuje tę sprawę. Po dodaniu będzie od razu widoczne przy zgłoszeniu. JPEG, PNG lub WebP, do 10 MB.",
+    photo: "Zdjęcie",
+    photoAlt: "Wybrane zdjęcie",
+    choose: "Wybierz zdjęcie",
+    change: "Zmień zdjęcie",
+    none: "Nie wybrano zdjęcia",
+    cancel: "Anuluj",
+    send: "Dodaj zdjęcie",
+    sending: "Dodawanie...",
+    saveFailed: "Nie udało się dodać zdjęcia.",
+  },
+  photoReport: {
+    title: "Zgłoszenie ze zdjęciem",
+    hint: "Zapiszemy je w miejscu, w którym jesteś.",
+    photoAlt: "Właśnie zrobione zdjęcie",
+    description: "Opis",
+    descriptionPlaceholder: "Co chcesz zglosić?",
+    discard: "Odrzuć zdjęcie",
+    send: "Wyślij zgłoszenie",
+    saving: "Zapisywanie...",
+    saveFailed: "Nie udało się zapisać zgłoszenia ze zdjęciem.",
+  },
+  marker: {
+    kinds: { issue: "Zgłoszenie usterki", improvement: "Pomysł na ulepszenie" },
+    close: "Zamknij",
+    photoOf: (title: string) => `Zdjęcie: ${title}`,
+    reportPhoto: "Zdjęcie ze zgłoszenia",
+    loading: "Wczytywanie...",
+    noPhoto: "Brak zdjęcia",
+    photos: "Zdjęcia",
+    photoIndex: (number: number, total: number) =>
+      `Zdjęcie ${number} z ${total}`,
+    reportCount: (total: number) => plReports(total),
+    report: "Zgłoszenie",
+    loadingReport: "Wczytywanie zgłoszenia",
+    loadFailed: "Nie udało się wczytać zgłoszenia.",
+    likeFailed: "Nie udało się zapisać polubienia.",
+    postFailed: "Nie udało się opublikować komentarza.",
+    justNow: "przed chwilą",
+    to: "Do",
+    subject: "Temat",
+    noEmail: "brak adresu e-mail w rejestrze",
+    notAssigned: "jeszcze nieprzypisane",
+    ropsLabel: "Innowacja ROPS",
+    ropsLink: "Zobacz model innowacji na rops.krakow.pl",
+    officialResponse: "Oficjalna odpowiedź",
+    comments: (total: number) =>
+      total === 0 ? "Komentarze" : plComments(total),
+    noComments: "Nikt jeszcze nie zabrał głosu. Bądź pierwszy.",
+    you: "Ty",
+    office: "Urząd",
+    official: "Oficjalny",
+    likesUnlike: " polubień, cofnij polubienie",
+    likesLike: " polubień, polub",
+    newComment: "Nowy komentarz",
+    writeComment: "Napisz komentarz...",
+    posting: "Publikowanie...",
+    post: "Opublikuj",
+    signInToComment: "Zaloguj się, aby komentować",
+    commentsTab: "Komentarze",
+    reportsTab: "Zgłoszenia",
+    closePanel: "Zamknij panel",
+    back: "Wstecz",
+    reportsLoadFailed: "Nie udało się wczytać zgłoszeń.",
+    loadingReports: "Wczytywanie zgłoszeń...",
+    noReports: "Brak zgłoszeń do wyświetlenia.",
+    reportPhotoOf: (number: number, title: string) =>
+      `Zdjęcie ${number}: ${title}`,
+    contactInstitution: "Skontaktuj się z instytucją",
+    recipientFailed: "Nie udało się znaleźć adresata.",
+    findingRecipient: "Szukanie sugerowanego adresata...",
+    recipientLoadFailed: "Nie udało się wczytać sugerowanego adresata.",
+    tryAgain: "Spróbuj ponownie",
+    noInstitution: "Nie znaleziono pasującej instytucji.",
+    suggestedRecipient:
+      "Adresat sugerowany na podstawie zgłoszenia i lokalizacji. Jeszcze nieprzypisany.",
+    checkingSignIn: "Sprawdzanie logowania...",
+    signInToFindRecipient: "Zaloguj się, aby znaleźć adresata",
+    addPhoto: "Dodaj zdjęcie",
+    addPhotoHint:
+      "To zgłoszenie nie ma jeszcze zdjęcia. Jeśli jesteś na miejscu, dodaj je.",
+    pendingPhoto: "Czeka na zatwierdzenie",
+    pendingPhotoAlt: (title: string) => `Zdjęcie zaproponowane do: ${title}`,
+    pendingPhotoHint:
+      "Ktoś zaproponował to zdjęcie. Znak zapytania zostaje, dopóki autor zgłoszenia go nie przyjmie.",
+    usePhoto: "Użyj tego zdjęcia",
+    turnDownPhoto: "Odrzuć",
+    deciding: "Zapisywanie...",
+    decideFailed: "Nie udało się zapisać decyzji.",
+    visualization: "Wizualizacja",
+    visualizing: "Rysowanie wizualizacji...",
+    visualizationOf: (title: string) => `Wizualizacja: ${title}`,
+    visualizationFailed: "Nie udało się narysować wizualizacji.",
+  },
+  catalog: {
+    title: "Biblioteka Innowacji Społecznych",
+    lede: "Pomysły i innowacje z biblioteki ROPS Kraków. Zainspiruj się i zaproponuj ich realizację w swojej okolicy. Jeśli masz własny pomysł, również możesz go zgłosić.",
+    backToMap: "Wróć do mapy",
+    search: "Szukaj",
+    searchPlaceholder:
+      "Szukaj innowacji (np. seniorzy, tablica, integracja)...",
+    categoryFilter: "Kategoria",
+    all: (total: number) => `Wszystkie (${total})`,
+    shown: (shown: number, total: number) =>
+      `${shown} z ${plInnovations(total)}`,
+    loadFailed: "Nie udało się załadować biblioteki innowacji.",
+    loading: "Ładowanie innowacji społecznych...",
+    empty: "Nie znaleziono innowacji dla wybranych kryteriów.",
+    description: "Na czym polega",
+    problem: "Problem",
+    targetGroup: "Grupa docelowa",
+    beneficiaries: "Dla kogo",
+    effectiveness: "Czy to działa",
+    authors: "Autorzy",
+    collapse: "Zwiń szczegóły",
+    details: "Szczegóły innowacji",
+    source: "Zobacz na rops.krakow.pl",
+    proposeOnMap: "Zaproponuj na mapie",
+    proposeTitle: "Przejdź na mapę i wskaż lokalizację",
+  },
+  api: {
+    requestFailed: (status: number) => `Żądanie nie powiodło się (${status}).`,
+  },
   about: {
-    lede: "Jedna platforma do zgłaszania lokalnych problemów, proponowania inicjatyw obywatelskich i śledzenia ich postępów. Zmieniaj swoje miasto bez zbędnych komplikacji.",
+    lede: "Jedna platforma do zgłaszania lokalnych problemów, proponowania inicjatyw obywatelskich i śledzenia ich postępów. Zmieniaj swoje miasto bez zbędnych komplikacji i nadmiernej biurokracji.",
     backToMap: "Wróć do mapy",
     pillars: [
       {
         title: "Zgłaszaj lokalne problemy",
-        text: "Zepsuta lampa, dziura w jezdni, przepełniony kosz. Zaznacz to na mapie, dodaj zdjęcie, a my skontaktujemy się z właściwymi służbami.",
+        text: "Zepsuta lampa, dziura w jezdni, przepełniony kosz. Zaznacz to na mapie, dodaj zdjęcie, a my znajdziemy właściwego adresata. W wersji demonstracyjnej wysyłamy zgłoszenia na adres testowy.",
       },
       {
-        title: "Proponuj inicjatywy",
+        title: "Wyjdź z inicjatywą",
         text: "Ławka, przejście dla pieszych, stojak na rowery. Umieść pomysł tam, gdzie jego miejsce, i pozwól sąsiadom go poprzeć.",
       },
       {
         title: "Śledź ich postępy",
-        text: "Każda sprawa ma wspólny status i odpowiedź instytucji, więc nikt nie musi pytać dwa razy.",
+        text: "Każda sprawa ma wspólny status i miejsce na odpowiedź instytucji, więc nikt nie musi pytać dwa razy.",
       },
     ],
     howHeading: "Jak wędruje zgłoszenie",
     steps: [
       {
         title: "Postaw pinezkę",
-        text: "Kliknij na mapie tam, gdzie coś jest nie tak, albo zrób zdjęcie z miejsca, w którym stoisz. Pinezka zapamięta pozycję GPS i zdjęcie.",
+        text: "Kliknij na mapie tam, gdzie coś jest nie tak, albo zrób zdjęcie z miejsca, w którym stoisz. Te dane posłużą jako podstawa twojego zgłoszenia.",
       },
       {
         title: "Opisz problem",
-        text: "Wystarczy jedno zdanie. Zgłoszenie zapisuje się od razu, zanim cokolwiek innego się z nim stanie.",
+        text: "Wystarczy jedno zdanie z krótkim opisem problemu lub proponowanej inicjatywy.",
       },
       {
-        title: "Pozwól maszynie znaleźć urząd",
-        text: "Deterministyczne klasyfikatory i modele generatywne czytają tekst i zdjęcie, ustalają, jakiego rodzaju służb wymaga problem, i wybierają odpowiedzialną instytucję z bazy zbudowanej z publicznie dostępnych informacji o instytucjach.",
+        title: "Pozwól nam znaleźć właściwego adresata",
+        text: "Deterministyczne klasyfikatory i modele generatywne czytają tekst i zdjęcie, ustalają, jaka instytucja lub służba powinna zająć się problemem, i wybierają odpowiedzialną instytucję lub służbę z naszej bazy zawierającej najpopularniejsze kontakty.",
       },
       {
         title: "Jeden problem, jedna sprawa",
-        text: "Zgłoszenia dotyczące tej samej rzeczy w tym samym miejscu są łączone w jedno zgłoszenie główne, więc jedna zepsuta lampa to jedna sprawa, a nie dwadzieścia.",
+        text: "Zgłoszenia dotyczące tej samej rzeczy w tym samym miejscu są łączone w jedno zgłoszenie główne, więc jedna zepsuta lampa to jedna sprawa, a nie dwadzieścia. Kolejne zgłoszenia tego samego problemu są grupowane i zliczane.",
       },
       {
         title: "Śledź dalej",
-        text: "Komentuj, polub i obserwuj zmiany statusu, aż sprawa zostanie zakończona.",
+        text: "Komentuj, reaguj i obserwuj zmiany statusu, aż sprawa zostanie zakończona. Jeśli sprawa się zakończy lub urzędnik albo administrator na nią odpowie, otrzymasz powiadomienie.",
       },
     ],
-    whyHeading: "Dlaczego istnieje",
+    whyHeading: "Po co jesteśmy",
     whyText:
-      "Powiadomienie właściwej instytucji publicznej o problemie nie powinno wymagać wiedzy, która to instytucja. Szukanie urzędu, formularza i adresu to praca, która powstrzymuje ludzi przed zgłaszaniem czegokolwiek, a ten sam problem zgłasza wielokrotnie każdy, kto się na to zdecyduje. pomożeMy trzyma mapę, zdjęcia i rozmowę w jednym miejscu, ustala, kto jest odpowiedzialny, i pozwala wszystkim zobaczyć, co wydarzyło się dalej.",
+      "Powiadomienie właściwej instytucji publicznej o problemie nie powinno być trudne ani nieintuicyjne. Szukanie urzędu, formularza i adresu, pod który można wysłać zgłoszenie, to dodatkowa praca, która często powstrzymuje ludzi przed zgłaszaniem czegokolwiek, a ten sam problem napotyka wiele osób. pomożeMy trzyma lokalizacje, zdjęcia i rozmowę w jednym miejscu, ustala, kto jest odpowiedzialny, i pozwala wszystkim zobaczyć, co wydarzyło się dalej. Nie trać czasu, zacznij pomagać w swojej małej ojczyźnie już dziś!",
   },
   toolbar: {
     zoom: "Powiększenie",
@@ -249,6 +1077,23 @@ const pl: Messages = {
     view: "Widok",
     recenterOnMe: "Wyśrodkuj na mnie",
   },
+  filters: {
+    label: "Filtruj",
+    open: "Filtruj pinezki na mapie",
+    heading: "Pokaż na mapie",
+    kind: "Rodzaj",
+    status: "Status",
+    author: "Autor",
+    onlyMine: "Moje zgłoszenia",
+    kinds: {
+      issue: "Usterki",
+      improvement: "Pomysły na ulepszenia",
+    } as Record<PinKind, string>,
+    shown: (shown: number, total: number) =>
+      `${shown} z ${total} pinezek na mapie`,
+    selectAll: "Pokaż wszystkie",
+    clear: "Ukryj wszystkie",
+  },
   profile: {
     title: "Profil",
     section: "Sekcja",
@@ -256,10 +1101,7 @@ const pl: Messages = {
       account: "Konto",
       password: "Hasło",
       reports: "Zgłoszenia",
-      preferences: "Preferencje",
     },
-    language: "Język",
-    languageHint: "Ten wybór zapisujemy tylko w tej przeglądarce.",
     close: "Zamknij",
     edit: "Edytuj",
     cancel: "Anuluj",
@@ -294,7 +1136,173 @@ const pl: Messages = {
       `Wyświetlono ${shown} najnowszych z ${total} zgłoszeń.`,
     reportCount: (total: number) => `${plReports(total)}.`,
   },
+  onboarding: {
+    chooserTitle: "Witaj w pomożeMy",
+    chooserLede:
+      "Krótki przewodnik pokaże, jak zgłosić problem, zaproponować pomysł i śledzić, co dzieje się dalej. Nic, co zrobisz w przewodniku, nie zostanie wysłane.",
+    autoTitle: "Pokaż mi",
+    autoText:
+      "Usiądź wygodnie - przewodnik sam przeklika aplikację. Zajmie to około półtorej minuty.",
+    manualTitle: "Poprowadź mnie",
+    manualText:
+      "Ty klikasz, a przewodnik pokazuje gdzie i tłumaczy, co się stanie.",
+    skip: "Pomiń, rozejrzę się na własną rękę",
+    rerunHint: "Przycisk ? na pasku nawigacji uruchomi przewodnik ponownie.",
+    label: "Przewodnik",
+    progress: (step: number, total: number) => `${step} / ${total}`,
+    close: "Zamknij przewodnik",
+    back: "Wstecz",
+    next: "Dalej",
+    pause: "Pauza",
+    resume: "Wznów",
+    takeOver: "Przejmij stery",
+    finish: "Zakończ",
+    paused:
+      "Wstrzymano, bo kliknięto stronę. Wznów albo przejmij stery i klikaj samodzielnie.",
+    yourTurn: "Twoja kolej",
+    stepDone: "Gotowe! Idziemy dalej.",
+    held: "To tylko przewodnik, więc nic nie zostało wysłane. Prawdziwe zgłoszenie trafia na mapę i do właściwego urzędu.",
+    signUp: "Załóż konto",
+    explore: "Rozejrzę się",
+    sampleTitle: "Dziura przy ścieżce rowerowej",
+    sampleDescription:
+      "Głęboka dziura przy ścieżce rowerowej na rogu. Rowerzyści omijają ją, zjeżdżając na jezdnię.",
+    catalogQuery: "senior",
+    sampleBanner:
+      "To przykładowe powiadomienia. Po zalogowaniu zobaczysz tu wieści o swoich sprawach.",
+    sampleNotifications: [
+      {
+        kind: "status_inprogress",
+        subject: "Dziura przy ścieżce rowerowej",
+        detail: null,
+      },
+      {
+        kind: "update",
+        subject: "Dziura przy ścieżce rowerowej",
+        detail: "Zarząd dróg zaplanował naprawę na przyszły tydzień.",
+      },
+      {
+        kind: "comment",
+        subject: "Ławka przy placu zabaw",
+        detail: "Świetny pomysł, najbliższa ławka jest 300 metrów dalej.",
+      },
+    ],
+    steps: {
+      welcome: {
+        title: "To mapa spraw",
+        body: "Każda pinezka to zgłoszony problem albo pomysł dla okolicy. Pobliskie pinezki łączą się w ponumerowane kółka, które rozdzielają się po przybliżeniu.",
+      },
+      zoom: {
+        title: "Poruszaj się po mapie",
+        body: "Przybliżaj tymi przyciskami, kółkiem myszy albo dwoma palcami. Przeciągnij, aby przesunąć widok.",
+        action: "Naciśnij + albo -.",
+      },
+      filters: {
+        title: "Filtruj pinezki",
+        body: "Ten kafelek zawęża mapę do spraw, które Cię interesują.",
+        action: "Otwórz listę filtrów.",
+      },
+      filterList: {
+        title: "Wybierz, co widać",
+        body: "Zaznacz rodzaje i statusy, które mają zostać na mapie. Po zalogowaniu możesz też zostawić tylko swoje zgłoszenia.",
+      },
+      tilt: {
+        title: "Zobacz miasto w 3D",
+        body: "Pochyl kamerę, aby zobaczyć budynki wokół sprawy.",
+        action: "Włącz 3D.",
+      },
+      openCase: {
+        title: "Otwórz sprawę",
+        body: "Kliknięcie pinezki otwiera jej sprawę.",
+        action: "Kliknij dowolną pinezkę.",
+      },
+      caseSheet: {
+        title: "Wszystko o jednej sprawie",
+        body: "Status pokazuje, na jakim etapie jest sprawa. Niżej są urząd, do którego trafia, oficjalna odpowiedź, komentarze i wszystkie połączone z nią zgłoszenia.",
+      },
+      reportClick: {
+        title: "Zgłoś problem",
+        body: "Aby coś zgłosić, kliknij mapę w miejscu problemu. Pojawi się tam nowa pinezka, która czeka na opis.",
+        action: "Kliknij dowolne miejsce na mapie.",
+      },
+      photoTile: {
+        title: "Zgłoś zdjęciem",
+        body: "Na telefonie kafelek + otwiera aparat, a zgłoszenie trafia tam, gdzie stoisz.",
+      },
+      reportKind: {
+        title: "Usterka czy pomysł?",
+        body: "Wybierz usterkę, aby zgłosić problem, albo inicjatywę, aby zaproponować zmianę. Inicjatywa jest porównywana z biblioteką sprawdzonych pomysłów ROPS.",
+        action: "Przełącz między zakładkami.",
+      },
+      reportForm: {
+        title: "Opisz to",
+        body: "Tytuł nie jest wymagany. Zdanie opisu i zdjęcie wystarczą, aby urząd zrozumiał problem.",
+        action: "Wpisz krótki opis.",
+      },
+      photoForm: {
+        title: "Opisz zdjęcie",
+        body: "Wystarczy jedno zdanie. Zdjęcie i Twoje położenie są już dołączone.",
+        action: "Wpisz krótki opis.",
+      },
+      reportSend: {
+        title: "Wyślij",
+        body: "Normalnie ten przycisk wysyła zgłoszenie: trafia ono na mapę, a system dobiera do niego właściwy urząd. W przewodniku nic nie jest wysyłane.",
+        action: "Naciśnij przycisk albo zamknij okno.",
+      },
+      navReports: {
+        title: "Wszystkie sprawy na jednej liście",
+        body: "Strona Zgłoszenia zbiera wszystkie sprawy z ich statusem i dyskusją.",
+        action: "Otwórz Zgłoszenia.",
+      },
+      reports: {
+        title: "Szukaj i zawężaj",
+        body: "Szukaj po słowach, filtruj po statusie albo zostaw tylko swoje sprawy. Każdy wiersz rozwija swoje komentarze.",
+      },
+      navNotifications: {
+        title: "Powiadomienia",
+        body: "Tutaj dowiesz się, co dzieje się z Twoimi sprawami. Link pojawia się po zalogowaniu.",
+        action: "Otwórz Powiadomienia.",
+      },
+      notifications: {
+        title: "Bądź na bieżąco",
+        body: "Przyjęcie albo zakończenie sprawy, odpowiedź urzędu, nowy komentarz, zaproponowane zdjęcie - wszystko trafia tutaj.",
+      },
+      navInitiatives: {
+        title: "Inicjatywy",
+        body: "Szukasz inspiracji? Biblioteka innowacji społecznych jest o jedno kliknięcie stąd.",
+        action: "Otwórz Inicjatywy.",
+      },
+      catalog: {
+        title: "Biblioteka innowacji społecznych",
+        body: "Sprawdzone modele ROPS Kraków. Wyszukaj, przeczytaj szczegóły i zaproponuj jeden z nich na mapie dla swojej okolicy.",
+        action: "Wyszukaj coś, na przykład senior.",
+      },
+      navAbout: {
+        title: "O projekcie",
+        body: "Jak zgłoszenie wędruje od pinezki do urzędu, który może pomóc.",
+        action: "Otwórz O nas.",
+      },
+      about: {
+        title: "Jak to działa",
+        body: "Przeczytaj, po co powstało pomożeMy i jak zgłoszenia są łączone i kierowane do urzędów.",
+      },
+      finish: {
+        title: "Gotowe",
+        body: "Zgłoś swoją pierwszą sprawę albo rozejrzyj się na własną rękę. Przycisk ? uruchomi ten przewodnik ponownie.",
+      },
+    },
+  },
 };
+
+/** Polish counts: 1 powiadomienie, 2-4 powiadomienia, 5+ powiadomień (with the teens). */
+function plNotifications(n: number) {
+  const last = n % 10;
+  const tens = n % 100;
+  if (n === 1) return "1 powiadomienie";
+  if (last >= 2 && last <= 4 && (tens < 12 || tens > 14))
+    return `${n} powiadomienia`;
+  return `${n} powiadomień`;
+}
 
 /** Polish counts: 1 zgłoszenie, 2-4 zgłoszenia, 5+ zgłoszeń (with the teens). */
 function plReports(n: number) {
@@ -304,6 +1312,35 @@ function plReports(n: number) {
   if (last >= 2 && last <= 4 && (tens < 12 || tens > 14))
     return `${n} zgłoszenia`;
   return `${n} zgłoszeń`;
+}
+
+/** Polish counts: 1 sprawa, 2-4 sprawy, 5+ spraw (with the teens). */
+function plCases(n: number) {
+  const last = n % 10;
+  const tens = n % 100;
+  if (n === 1) return "1 sprawa";
+  if (last >= 2 && last <= 4 && (tens < 12 || tens > 14)) return `${n} sprawy`;
+  return `${n} spraw`;
+}
+
+/** Polish counts: 1 komentarz, 2-4 komentarze, 5+ komentarzy (with the teens). */
+function plComments(n: number) {
+  const last = n % 10;
+  const tens = n % 100;
+  if (n === 1) return "1 komentarz";
+  if (last >= 2 && last <= 4 && (tens < 12 || tens > 14))
+    return `${n} komentarze`;
+  return `${n} komentarzy`;
+}
+
+/** Polish counts: 1 innowacja, 2-4 innowacje, 5+ innowacji (with the teens). */
+function plInnovations(n: number) {
+  const last = n % 10;
+  const tens = n % 100;
+  if (n === 1) return "1 innowacja";
+  if (last >= 2 && last <= 4 && (tens < 12 || tens > 14))
+    return `${n} innowacje`;
+  return `${n} innowacji`;
 }
 
 export const messages: Record<Locale, Messages> = { en, pl };

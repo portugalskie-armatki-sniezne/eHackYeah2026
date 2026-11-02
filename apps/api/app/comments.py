@@ -6,17 +6,19 @@ from fastapi import APIRouter, HTTPException, Response, status
 from psycopg import errors, sql
 from pydantic import BaseModel, ConfigDict
 
+from app import notifications
 from app.auth import CurrentUser, OptionalUser
 from app.common import Connection, Limit, Offset, Page, Text, fetch_page
 
 router = APIRouter(tags=["comments"])
 
 COMMENT_COLUMNS = sql.SQL(
-    "c.id, c.master_report_id, c.user_id, c.content, "
+    "c.id, c.master_report_id, c.user_id, "
+    "(SELECT u.first_name FROM users u WHERE u.id = c.user_id) AS author_first_name, c.content, "
     "(SELECT count(*) FROM master_report_comment_likes l WHERE l.comment_id = c.id) AS like_count, "
     "EXISTS (SELECT 1 FROM master_report_comment_likes l "
     "WHERE l.comment_id = c.id AND l.user_id = %(viewer_id)s) AS liked_by_me, "
-    "c.created_at"
+    "c.highlighted, c.created_at"
 )
 
 
@@ -24,10 +26,13 @@ class Comment(BaseModel):
     id: UUID
     master_report_id: UUID
     user_id: UUID
+    author_first_name: str
     content: str
     like_count: int
     # false for anonymous requests.
     liked_by_me: bool
+    # an office or admin comment that stands out in the discussion.
+    highlighted: bool
     created_at: datetime
 
 
@@ -35,6 +40,8 @@ class CommentCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     content: Text
+    # only office or admin can highlight a comment.
+    highlighted: bool = False
 
 
 def comment_not_found() -> HTTPException:
@@ -72,13 +79,27 @@ def list_comments(
 
 @router.post("/master-reports/{master_report_id}/comments", status_code=status.HTTP_201_CREATED)
 def create_comment(master_report_id: UUID, body: CommentCreate, user: CurrentUser, connection: Connection) -> Comment:
+    if body.highlighted and user.role == "user":
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only office or admin can highlight a comment")
     try:
         with connection.transaction():
             comment_id = connection.execute(
-                "INSERT INTO master_report_comments (master_report_id, user_id, content) "
-                "VALUES (%s, %s, %s) RETURNING id",
-                (master_report_id, user.id, body.content),
+                "INSERT INTO master_report_comments (master_report_id, user_id, content, highlighted) "
+                "VALUES (%s, %s, %s, %s) RETURNING id",
+                (master_report_id, user.id, body.content, body.highlighted),
             ).fetchone()["id"]
+            # the foreign key above already proved the master report exists.
+            title = connection.execute(
+                "SELECT title FROM master_reports WHERE id = %s", (master_report_id,)
+            ).fetchone()["title"]
+            notifications.create(
+                connection,
+                notifications.followers(connection, master_report_id, exclude=user.id),
+                "comment",
+                subject=title,
+                master_report_id=master_report_id,
+                detail=body.content,
+            )
     except errors.ForeignKeyViolation:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Master report not found") from None
     return fetch_comment(comment_id, user.id, connection)

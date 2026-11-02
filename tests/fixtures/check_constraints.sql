@@ -6,6 +6,7 @@ DECLARE
     master_id UUID;
     report_id UUID;
     comment_id UUID;
+    proposal_id UUID;
     category_id BIGINT;
     created_status_id BIGINT;
     institution_id BIGINT;
@@ -320,6 +321,73 @@ BEGIN
         RAISE EXCEPTION 'Like without a user accepted';
     EXCEPTION WHEN foreign_key_violation THEN NULL;
     END;
+
+    -- a photo offered for a master: one waits at a time, and a decision needs its date
+    INSERT INTO master_report_photo_proposals (master_report_id, user_id, storage_key)
+    VALUES (master_id, author_id, 'proposals/first.jpg') RETURNING id INTO proposal_id;
+    BEGIN
+        INSERT INTO master_report_photo_proposals (master_report_id, user_id, storage_key)
+        VALUES (master_id, author_id, 'proposals/second.jpg');
+        RAISE EXCEPTION 'Second waiting photo proposal accepted';
+    EXCEPTION WHEN unique_violation THEN NULL;
+    END;
+    BEGIN
+        INSERT INTO master_report_photo_proposals (master_report_id, user_id, storage_key, state)
+        VALUES (master_id, author_id, 'proposals/bad.jpg', 'maybe');
+        RAISE EXCEPTION 'Unknown photo proposal state accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
+    BEGIN
+        INSERT INTO master_report_photo_proposals (master_report_id, user_id, storage_key)
+        VALUES (master_id, author_id, '   ');
+        RAISE EXCEPTION 'Blank storage key accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
+    BEGIN
+        UPDATE master_report_photo_proposals SET state = 'approved' WHERE id = proposal_id;
+        RAISE EXCEPTION 'Decided photo proposal without a decision date accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
+    BEGIN
+        UPDATE master_report_photo_proposals SET decided_at = NOW() WHERE id = proposal_id;
+        RAISE EXCEPTION 'Waiting photo proposal with a decision date accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
+    -- a decided proposal frees the master for another one
+    UPDATE master_report_photo_proposals SET state = 'rejected', decided_at = NOW() WHERE id = proposal_id;
+    INSERT INTO master_report_photo_proposals (master_report_id, user_id, storage_key)
+    VALUES (master_id, author_id, 'proposals/second.jpg') RETURNING id INTO proposal_id;
+    BEGIN
+        INSERT INTO master_report_photo_proposals (master_report_id, user_id, storage_key)
+        VALUES (gen_random_uuid(), author_id, 'proposals/orphan.jpg');
+        RAISE EXCEPTION 'Photo proposal without a master report accepted';
+    EXCEPTION WHEN foreign_key_violation THEN NULL;
+    END;
+
+    -- notifications: a known kind, a subject, and the resources they point at
+    INSERT INTO notifications (user_id, kind, master_report_id, photo_proposal_id, subject)
+    VALUES (author_id, 'photo_proposal', master_id, proposal_id, 'Dziura w jezdni');
+    INSERT INTO notifications (user_id, kind, subject) VALUES (author_id, 'comment', 'Bez sprawy');
+    BEGIN
+        INSERT INTO notifications (user_id, kind, subject) VALUES (author_id, 'something_else', 'Zle');
+        RAISE EXCEPTION 'Unknown notification kind accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
+    BEGIN
+        INSERT INTO notifications (user_id, kind, subject) VALUES (author_id, 'comment', '   ');
+        RAISE EXCEPTION 'Blank notification subject accepted';
+    EXCEPTION WHEN check_violation THEN NULL;
+    END;
+    BEGIN
+        INSERT INTO notifications (user_id, kind, subject) VALUES (gen_random_uuid(), 'comment', 'Nikt');
+        RAISE EXCEPTION 'Notification without a recipient accepted';
+    EXCEPTION WHEN foreign_key_violation THEN NULL;
+    END;
+    -- a proposal that goes takes the notifications about it with it
+    DELETE FROM master_report_photo_proposals WHERE id = proposal_id;
+    IF EXISTS (SELECT 1 FROM notifications WHERE photo_proposal_id = proposal_id) THEN
+        RAISE EXCEPTION 'Deleting a photo proposal left its notifications behind';
+    END IF;
 
     BEGIN
         INSERT INTO local_government_offices (teryt_code, local_government_name) VALUES ('invalid', 'Test');

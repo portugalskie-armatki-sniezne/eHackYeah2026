@@ -7,6 +7,7 @@ import {
 } from "../api/letters";
 import type { MasterReportDetail } from "../api/reports";
 import { useSession } from "../api/session";
+import { useMessages } from "../i18n/locale";
 
 function Recipient({
   recipient,
@@ -15,6 +16,7 @@ function Recipient({
   recipient: LetterRecipient;
   letter: ReportLetter;
 }) {
+  const t = useMessages().marker;
   return (
     <>
       <span className="marker-dialog__recipient">{recipient.name}</span>
@@ -26,12 +28,12 @@ function Recipient({
           {recipient.email}
         </a>
       ) : (
-        <span className="marker-dialog__hint">no email on record</span>
+        <span className="marker-dialog__hint">{t.noEmail}</span>
       )}
       {recipient.contact && (
         <>
           <a className="marker-dialog__link" href={recipient.contact.url}>
-            Contact institution
+            {t.contactInstitution}
           </a>
           {recipient.contact.description && (
             <span className="marker-dialog__hint">
@@ -56,6 +58,7 @@ function RecommendedRecipient({
   master: MasterReportDetail;
   letter: ReportLetter;
 }) {
+  const t = useMessages().marker;
   const [state, setState] = useState<RecommendationState>({
     status: "loading",
   });
@@ -72,20 +75,19 @@ function RecommendedRecipient({
         if (!signal.aborted)
           setState({
             status: "error",
-            message:
-              error instanceof Error
-                ? error.message
-                : "Could not find a recipient.",
+            message: error instanceof Error ? error.message : t.recipientFailed,
           });
       },
     );
     return () => controller.abort();
+    // the fallback text is read once, when the lookup fails
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [master, attempt]);
 
   if (state.status === "loading") {
     return (
       <span className="marker-dialog__hint" role="status">
-        Finding a suggested recipient...
+        {t.findingRecipient}
       </span>
     );
   }
@@ -93,7 +95,7 @@ function RecommendedRecipient({
     return (
       <>
         <span className="marker-dialog__hint" role="alert">
-          Could not load the suggested recipient. {state.message}
+          {t.recipientLoadFailed} {state.message}
         </span>
         <button
           type="button"
@@ -103,24 +105,18 @@ function RecommendedRecipient({
             setAttempt((value) => value + 1);
           }}
         >
-          Try again
+          {t.tryAgain}
         </button>
       </>
     );
   }
   if (!state.recipient) {
-    return (
-      <span className="marker-dialog__hint">
-        No matching institution found.
-      </span>
-    );
+    return <span className="marker-dialog__hint">{t.noInstitution}</span>;
   }
   return (
     <>
       <Recipient recipient={state.recipient} letter={letter} />
-      <span className="marker-dialog__hint">
-        Suggested recipient based on the report and location. Not assigned yet.
-      </span>
+      <span className="marker-dialog__hint">{t.suggestedRecipient}</span>
     </>
   );
 }
@@ -135,10 +131,11 @@ export default function MarkerRecipient({
   onSignInRequired: () => void;
 }) {
   const session = useSession();
+  const t = useMessages().marker;
   if (letter.recipient)
     return <Recipient recipient={letter.recipient} letter={letter} />;
   if (session.status === "checking")
-    return <span className="marker-dialog__hint">Checking sign-in...</span>;
+    return <span className="marker-dialog__hint">{t.checkingSignIn}</span>;
   if (session.status === "signed-out") {
     return (
       <button
@@ -146,7 +143,7 @@ export default function MarkerRecipient({
         className="marker-dialog__button"
         onClick={onSignInRequired}
       >
-        Sign in to find a recipient
+        {t.signInToFindRecipient}
       </button>
     );
   }

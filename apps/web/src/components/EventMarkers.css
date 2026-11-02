@@ -7,7 +7,7 @@
 .event-pin {
   width: 32px;
   height: 40px;
-  cursor: pointer;
+  /* cursor: pointer; */
   /* how far the head is open; hover drives it, and the layers pinned to the
      head's corners are measured off it */
   --pin-head: 28px;
@@ -113,15 +113,40 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* The category pictogram is struck with the outline's pen and left square at the
-   ends, so the bar of the "!" and the dot under it are cut the same way. Like the
-   outline it keeps that one pen however far the head opens, rather than inking a
-   thicker line, which is why the dot is a stroke and not a filled square. */
+/* The status pictogram, the one the reports page's badge wears, struck with the
+   outline's pen and cut square at the ends the way the badge cuts it. Like the
+   outline it keeps that one pen however far the head opens, rather than inking
+   a thicker line. vector-effect is not inherited, so it goes on the shapes. */
 .event-pin__glyph {
   fill: none;
   stroke: var(--ink);
   stroke-width: 2.5;
+  stroke-linecap: square;
+  stroke-linejoin: round;
+}
+
+.event-pin__glyph > * {
   vector-effect: non-scaling-stroke;
+}
+
+.event-pin__glyph .status-glyph__fill {
+  fill: var(--ink);
+  stroke: none;
+}
+
+/* The paper takes the badge's colour for the status, needle and head alike so no
+   seam shows at the join: blue once it is reported, amber while the work is on,
+   green once it is done. */
+.event-pin--reported .event-pin__paper {
+  fill: var(--blue);
+}
+
+.event-pin--inprogress .event-pin__paper {
+  fill: var(--amber-ghost);
+}
+
+.event-pin--finished .event-pin__paper {
+  fill: var(--green);
 }
 
 /* How many filings the pin stands for: the chrome's amber tile, straddling the
@@ -151,6 +176,37 @@
 }
 
 .event-pin--photo:hover .event-pin__count {
+  opacity: 0;
+  transition: none;
+}
+
+/* A photo somebody offered is not the case's own yet: its head is dashed like
+   a pin still being drawn, and the question mark says so in the corner. */
+.event-pin--pending .event-pin__line {
+  stroke-dasharray: 4 3;
+}
+
+.event-pin__pending-mark {
+  position: absolute;
+  top: calc(16.5px - var(--pin-head));
+  left: calc(8.5px - var(--pin-head) / 2);
+  width: 15px;
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  /* a fixed line box keeps the tile square, as the count's does */
+  line-height: 11px;
+  text-align: center;
+  transition:
+    opacity 140ms ease 140ms,
+    top 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2),
+    left 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.event-pin--photo:hover .event-pin__pending-mark {
   opacity: 0;
   transition: none;
 }

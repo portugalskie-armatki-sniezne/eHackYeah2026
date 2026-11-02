@@ -5,6 +5,10 @@
   --amber: #efb33f;
   --amber-soft: #f7dba6;
   --amber-ghost: #fbeed2;
+  --indo-blue: #094d92;
+  /* the two colours beside amber: a reported case, and a finished one */
+  --blue: #8fc0ea;
+  --green: #8ccf6f;
 
   --surface: var(--paper);
   --surface-section: #f1efe8;

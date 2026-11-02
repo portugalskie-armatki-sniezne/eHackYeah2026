@@ -2,14 +2,15 @@
 .env
 .env.*
 !.env.example
+client_secret*.json
+project-key.json
+gcp_service_account.json
 *.key
 *.p12
 *.pfx
 *.jks
 *.keystore
 !/apps/mobile/android/app/debug.keystore
-/db/seeds/danerops
-*.jsonl
 
 # Python dependencies, bytecode, and tooling caches
 __pycache__/
@@ -36,6 +37,7 @@ coverage.xml
 
 # Downloaded inference checkpoints
 /apps/api/models/
+/apps/gemini/output/
 
 # JavaScript dependencies and tooling caches
 node_modules/

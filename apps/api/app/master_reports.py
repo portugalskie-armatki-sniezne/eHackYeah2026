@@ -1,12 +1,14 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
 import psycopg
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
 from psycopg import errors, sql
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
-from app.auth import AdminUser, StaffUser
+from app import notifications, storage
+from app.auth import AdminUser, CurrentUser, StaffUser
 from app.common import (
     Connection,
     Limit,
@@ -21,7 +23,9 @@ from app.common import (
     location_json,
     reject_nulls,
 )
-from app.photos import PHOTO_COLUMNS, PHOTO_ORDER, Photo
+from app.photo_proposals import proposal_file_url
+from app.photos import PHOTO_COLUMNS, PHOTO_ORDER, Photo, photo_file_url
+from app.reports import Report, fetch_report, read_photos, save_photos
 
 router = APIRouter(prefix="/master-reports", tags=["master reports"])
 
@@ -30,8 +34,17 @@ MASTER_REPORT_COLUMNS = sql.SQL(
     "m.title, m.description, "
     "{location} AS location, m.response, "
     "(SELECT count(*) FROM reports r WHERE r.master_report_id = m.id) AS report_count, "
+    "(SELECT p.id FROM report_photos p JOIN reports r ON r.id = p.report_id "
+    f"WHERE r.master_report_id = m.id ORDER BY {PHOTO_ORDER} LIMIT 1) AS photo_id, "
+    "(SELECT pp.id FROM master_report_photo_proposals pp "
+    "WHERE pp.master_report_id = m.id AND pp.state = 'pending' LIMIT 1) AS pending_photo_id, "
+    "(SELECT r.user_id FROM reports r WHERE r.master_report_id = m.id "
+    "ORDER BY r.created_at, r.id LIMIT 1) AS author_id, "
     "m.edited_at, m.created_at"
 ).format(location=location_json("m"))
+
+# the status changes a case's residents hear about, by master_report_statuses.name
+STATUS_NOTICES = {"inprogress": "status_inprogress", "finished": "status_finished"}
 
 FOREIGN_KEY_ERRORS = {
     "master_reports_report_category_id_fkey": "Report category not found",
@@ -54,8 +67,27 @@ class MasterReport(BaseModel):
     location: Location
     response: str | None
     report_count: int
+    # whoever filed the case first, who decides about a photo offered for it;
+    # null for a master whose last report is gone.
+    author_id: UUID | None
+    # the earliest photo among the master's reports, which the map shows on the pin
+    # without fetching every master's detail; the list carries it as photo_url only.
+    photo_id: UUID | None = Field(exclude=True)
+    # a photo a resident offered for a case that has none, which the map and the
+    # case's sheet show under a question mark until its author decides about it.
+    pending_photo_id: UUID | None
     edited_at: datetime
     created_at: datetime
+
+    @computed_field
+    @property
+    def photo_url(self) -> str | None:
+        return photo_file_url(self.photo_id) if self.photo_id else None
+
+    @computed_field
+    @property
+    def pending_photo_url(self) -> str | None:
+        return proposal_file_url(self.pending_photo_id) if self.pending_photo_id else None
 
 
 class MasterReportDetail(MasterReport):
@@ -86,6 +118,30 @@ class MasterReportUpdate(BaseModel):
 
 def master_report_not_found() -> HTTPException:
     return HTTPException(status.HTTP_404_NOT_FOUND, "Master report not found")
+
+
+def announce_changes(
+    connection: psycopg.Connection, master_report_id: UUID, before: dict[str, object], changes: dict[str, object]
+) -> None:
+    """tell everyone who filed the case what an office just changed on it."""
+    status_id = changes.get("status_id")
+    kind = None
+    if status_id is not None and status_id != before["status_id"]:
+        row = connection.execute("SELECT name FROM master_report_statuses WHERE id = %s", (status_id,)).fetchone()
+        kind = STATUS_NOTICES.get(row["name"] if row else "")
+    if kind is None and changes.keys() - {"status_id"}:
+        # anything else an office touched is an update to the case.
+        kind = "update"
+    if kind is None:
+        return
+    notifications.create(
+        connection,
+        notifications.followers(connection, master_report_id),
+        kind,
+        subject=str(changes.get("title") or before["title"]),
+        master_report_id=master_report_id,
+        detail=changes.get("response") if isinstance(changes.get("response"), str) else None,
+    )
 
 
 def fetch_master_report(master_report_id: UUID, connection: psycopg.Connection) -> MasterReportDetail:
@@ -148,6 +204,35 @@ def get_master_report(master_report_id: UUID, connection: Connection) -> MasterR
     return fetch_master_report(master_report_id, connection)
 
 
+@router.post("/{master_report_id}/photos", status_code=status.HTTP_201_CREATED)
+def add_master_report_photo(
+    master_report_id: UUID,
+    user: CurrentUser,
+    connection: Connection,
+    photo: Annotated[UploadFile, File(description="one JPEG, PNG, or WebP image, 10 MB at most")],
+) -> Report:
+    """attach a photo through a copy of the case's first report owned by the uploader."""
+    uploads = read_photos([photo])
+    with storage.cleanup_on_error() as saved, connection.transaction():
+        master = connection.execute(
+            "SELECT id FROM master_reports WHERE id = %s FOR UPDATE", (master_report_id,)
+        ).fetchone()
+        if master is None:
+            raise master_report_not_found()
+        report = connection.execute(
+            "INSERT INTO reports (user_id, master_report_id, report_category_id, title, description, location, "
+            "municipality_teryt, municipality_name, county_teryt, county_name) "
+            "SELECT %s, master_report_id, report_category_id, title, description, location, "
+            "municipality_teryt, municipality_name, county_teryt, county_name FROM reports "
+            "WHERE master_report_id = %s ORDER BY created_at, id LIMIT 1 RETURNING id",
+            (user.id, master_report_id),
+        ).fetchone()
+        if report is None:
+            raise HTTPException(status.HTTP_409_CONFLICT, "The case has no report left to copy")
+        save_photos(connection, report["id"], uploads, saved)
+    return fetch_report(report["id"], connection)
+
+
 @router.patch("/{master_report_id}")
 def update_master_report(
     master_report_id: UUID, body: MasterReportUpdate, _: StaffUser, connection: Connection
@@ -159,10 +244,16 @@ def update_master_report(
         clause, params = assignments(changes)
         try:
             with connection.transaction():
+                before = connection.execute(
+                    "SELECT status_id, title FROM master_reports WHERE id = %s FOR UPDATE", (master_report_id,)
+                ).fetchone()
+                if before is None:
+                    raise master_report_not_found()
                 updated = connection.execute(
                     sql.SQL("UPDATE master_reports SET {} WHERE id = %s").format(clause),
                     (*params, master_report_id),
                 ).rowcount
+                announce_changes(connection, master_report_id, before, changes)
         except errors.ForeignKeyViolation as error:
             raise foreign_key_error(error, FOREIGN_KEY_ERRORS) from None
         except errors.CheckViolation as error:

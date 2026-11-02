@@ -2,6 +2,10 @@ from uuid import uuid4
 
 import psycopg
 from fastapi.testclient import TestClient
+from psycopg_pool import PoolTimeout
+
+from app.db import get_connection
+from app.main import app
 
 
 def test_browser_requests_from_other_origins_are_allowed(client: TestClient):
@@ -21,6 +25,19 @@ def test_browser_requests_from_other_origins_are_allowed(client: TestClient):
     assert "authorization" in preflight.headers["Access-Control-Allow-Headers"].lower()
     response = client.get("/report-categories", headers={"Origin": origin})
     assert response.headers["Access-Control-Allow-Origin"] == "*"
+
+
+def test_busy_database_returns_503(client: TestClient):
+    def no_connection():
+        raise PoolTimeout("couldn't get a connection after 10.00 sec")
+
+    app.dependency_overrides[get_connection] = no_connection
+
+    response = client.get("/report-categories")
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Database is busy, try again"
+    assert response.headers["Retry-After"] == "5"
 
 
 def test_reference_data_is_public(client: TestClient):

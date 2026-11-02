@@ -8,10 +8,13 @@ import {
 } from "react";
 import { projectsApi, type ProjectSearchResult } from "../api/projects";
 import type { ReportCategoryName } from "../api/reports";
+import { useMessages } from "../i18n/locale";
 import DistrictLocation from "./DistrictLocation";
 import "./PinDialog.css";
 
 export type PinDraft = {
+  /** Left out when empty, so the report is titled by its description. */
+  title?: string;
   description: string;
   image: File | null;
   /** Object URL for the chosen image, owned by the pin once added. */
@@ -30,7 +33,8 @@ function formatLngLat([lng, lat]: [number, number]): string {
   return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 }
 
-const SIMILARITY_THRESHOLD = 0.55;
+const SIMILARITY_THRESHOLD = 0.5;
+const TITLE_MAX_LENGTH = 80;
 
 /**
  * The sheet that opens when a pin is dropped. Supports two modes:
@@ -40,6 +44,7 @@ const SIMILARITY_THRESHOLD = 0.55;
 export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [activeTab, setActiveTab] = useState<"issue" | "initiative">("issue");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -51,6 +56,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
   const savingRef = useRef(false);
   const addedRef = useRef(false);
   const id = useId();
+  const t = useMessages().pin;
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -87,6 +93,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
     setError(null);
     try {
       await onAdd({
+        title: title.trim() || undefined,
         description: finalDescription,
         image: img,
         imageUrl: imgUrl,
@@ -96,9 +103,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
       addedRef.current = true;
       onClose();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Could not save the report.",
-      );
+      setError(err instanceof Error ? err.message : t.saveFailed);
     } finally {
       savingRef.current = false;
       setSaving(false);
@@ -122,7 +127,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
     try {
       const results = await projectsApi.search(trimmed, { limit: 1 });
       const topMatch = results[0];
-      if (topMatch && topMatch.score > SIMILARITY_THRESHOLD) {
+      if (topMatch && topMatch.score >= SIMILARITY_THRESHOLD) {
         setDetectedMatch(topMatch);
       } else {
         await executeAdd(trimmed, "improvement", null, null);
@@ -172,7 +177,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
           }}
           disabled={saving || checkingSimilarity}
         >
-          Usterka / zgłoszenie
+          {t.issueTab}
         </button>
         <button
           type="button"
@@ -186,7 +191,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
           }}
           disabled={saving || checkingSimilarity}
         >
-          Inicjatywa społeczna
+          {t.initiativeTab}
         </button>
       </div>
 
@@ -194,7 +199,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
         <form className="pin-dialog__form" onSubmit={handleSubmitIssue}>
           <header className="pin-dialog__header">
             <h2 id={`${id}-title`} className="pin-dialog__title">
-              New marker
+              {t.newMarker}
             </h2>
             <p className="pin-dialog__coords">{formatLngLat(lngLat)}</p>
             <DistrictLocation
@@ -209,8 +214,25 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
           )}
 
           <div className="pin-dialog__field">
+            <label className="pin-dialog__label" htmlFor={`${id}-report-title`}>
+              {t.titleLabel}
+            </label>
+            <input
+              id={`${id}-report-title`}
+              className="pin-dialog__input"
+              type="text"
+              name="title"
+              maxLength={TITLE_MAX_LENGTH}
+              disabled={saving}
+              placeholder={t.titlePlaceholder}
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+            />
+          </div>
+
+          <div className="pin-dialog__field">
             <label className="pin-dialog__label" htmlFor={`${id}-description`}>
-              Description
+              {t.description}
             </label>
             <textarea
               id={`${id}-description`}
@@ -219,7 +241,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
               rows={4}
               required
               disabled={saving}
-              placeholder="What is happening here?"
+              placeholder={t.descriptionPlaceholder}
               value={description}
               onChange={(event) => setDescription(event.target.value)}
             />
@@ -227,22 +249,22 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
 
           <div className="pin-dialog__field">
             <span className="pin-dialog__label" id={`${id}-image-label`}>
-              Image
+              {t.image}
             </span>
             <div className="pin-dialog__image">
               {imageUrl ? (
                 <img
                   className="pin-dialog__preview"
                   src={imageUrl}
-                  alt={image?.name ?? "Chosen image"}
+                  alt={image?.name ?? t.chosenImage}
                 />
               ) : (
                 <span className="pin-dialog__placeholder" aria-hidden="true">
-                  No image
+                  {t.noImage}
                 </span>
               )}
               <label className="pin-dialog__button pin-dialog__file">
-                {image ? "Change image" : "Choose image"}
+                {image ? t.changeImage : t.chooseImage}
                 <input
                   className="visually-hidden"
                   type="file"
@@ -263,14 +285,14 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
               onClick={() => dialogRef.current?.close()}
               disabled={saving}
             >
-              Close
+              {t.close}
             </button>
             <button
               type="submit"
               className="pin-dialog__button pin-dialog__button--primary"
               disabled={!canAdd || saving}
             >
-              {saving ? "Saving..." : "Add marker"}
+              {saving ? t.saving : t.addMarker}
             </button>
           </footer>
         </form>
@@ -278,7 +300,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
         <form className="pin-dialog__form" onSubmit={handleInitiativeSubmit}>
           <header className="pin-dialog__header">
             <h2 id={`${id}-title`} className="pin-dialog__title">
-              Inicjatywa społeczna
+              {t.initiativeTab}
             </h2>
             <p className="pin-dialog__coords">{formatLngLat(lngLat)}</p>
             <DistrictLocation
@@ -295,18 +317,26 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
           {detectedMatch ? (
             <div className="pin-dialog__match-box">
               <div className="pin-dialog__match-badge">
-                Znaleziono podobną innowację (
-                {Math.round(detectedMatch.score * 100)}% zbieżności)
+                {t.matchFound(Math.round(detectedMatch.score * 100))}
               </div>
               <h3 className="pin-dialog__match-title">{detectedMatch.title}</h3>
               <span className="pin-dialog__match-category">
                 {detectedMatch.category}
               </span>
               <p className="pin-dialog__match-desc">
-                {detectedMatch.matched_snippet ||
+                {detectedMatch.summary ||
                   detectedMatch.description ||
-                  detectedMatch.summary}
+                  detectedMatch.matched_snippet}
               </p>
+              {detectedMatch.matched_snippet &&
+                detectedMatch.matched_snippet !== detectedMatch.summary && (
+                  <blockquote className="pin-dialog__match-quote">
+                    <span className="pin-dialog__match-quote-label">
+                      Fragment z dokumentacji:
+                    </span>{" "}
+                    {detectedMatch.matched_snippet}
+                  </blockquote>
+                )}
               <div className="pin-dialog__match-actions">
                 <button
                   type="button"
@@ -314,7 +344,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
                   onClick={handleLinkToMatch}
                   disabled={saving}
                 >
-                  {saving ? "Zapisywanie..." : "Oprzyj się na tym projekcie"}
+                  {saving ? t.saving : t.useProject}
                 </button>
                 <button
                   type="button"
@@ -322,7 +352,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
                   onClick={handleSaveAsNewInitiative}
                   disabled={saving}
                 >
-                  {saving ? "Zapisywanie..." : "Zgłoś jako nowy pomysł"}
+                  {saving ? t.saving : t.saveAsNew}
                 </button>
                 <button
                   type="button"
@@ -330,7 +360,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
                   onClick={() => setDetectedMatch(null)}
                   disabled={saving}
                 >
-                  Wróć do edycji
+                  {t.backToEdit}
                 </button>
               </div>
             </div>
@@ -339,9 +369,29 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
               <div className="pin-dialog__field">
                 <label
                   className="pin-dialog__label"
+                  htmlFor={`${id}-initiative-title`}
+                >
+                  {t.titleLabel}
+                </label>
+                <input
+                  id={`${id}-initiative-title`}
+                  className="pin-dialog__input"
+                  type="text"
+                  name="title"
+                  maxLength={TITLE_MAX_LENGTH}
+                  disabled={saving || checkingSimilarity}
+                  placeholder={t.titlePlaceholder}
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                />
+              </div>
+
+              <div className="pin-dialog__field">
+                <label
+                  className="pin-dialog__label"
                   htmlFor={`${id}-initiative-desc`}
                 >
-                  Twój pomysł na to miejsce
+                  {t.ideaLabel}
                 </label>
                 <textarea
                   id={`${id}-initiative-desc`}
@@ -350,7 +400,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
                   rows={5}
                   required
                   disabled={saving || checkingSimilarity}
-                  placeholder="Opisz swoją propozycję inicjatywy lub innowacji w tej lokalizacji..."
+                  placeholder={t.ideaPlaceholder}
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
                 />
@@ -363,7 +413,7 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
                   onClick={() => dialogRef.current?.close()}
                   disabled={saving || checkingSimilarity}
                 >
-                  Anuluj
+                  {t.cancel}
                 </button>
                 <button
                   type="submit"
@@ -371,10 +421,10 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
                   disabled={!canAdd || saving || checkingSimilarity}
                 >
                   {checkingSimilarity
-                    ? "Sprawdzam bazę..."
+                    ? t.checking
                     : saving
-                      ? "Zapisywanie..."
-                      : "Wyślij inicjatywę"}
+                      ? t.saving
+                      : t.sendInitiative}
                 </button>
               </footer>
             </>

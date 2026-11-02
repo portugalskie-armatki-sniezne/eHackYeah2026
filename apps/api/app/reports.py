@@ -7,7 +7,7 @@ from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile, 
 from psycopg import errors, sql
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from app import matching, municipalities, storage
+from app import deliveries, matching, municipalities, storage, visualizations
 from app.auth import CurrentUser, StaffUser
 from app.common import (
     POINT,
@@ -26,6 +26,7 @@ from app.common import (
     location_json,
     reject_nulls,
 )
+from app.inference.masters import MasterMatch
 from app.models import User
 from app.photos import PHOTO_COLUMNS, PHOTO_ORDER, Photo
 
@@ -149,6 +150,21 @@ def read_photos(files: list[UploadFile], existing: int = 0) -> list[tuple[str, b
     return photos
 
 
+def read_saved_photos(keys: list[str]) -> list[tuple[str, bytes]]:
+    photos = []
+    for key in keys:
+        try:
+            with storage.file_path(key).open("rb") as source:
+                data = source.read(storage.MAX_PHOTO_BYTES + 1)
+        except OSError:
+            raise HTTPException(404, "Source photo not found") from None
+        extension = storage.detect_extension(data)
+        if len(data) > storage.MAX_PHOTO_BYTES or extension is None:
+            raise HTTPException(422, "Source photo is invalid or too large")
+        photos.append((extension, data))
+    return photos
+
+
 def save_photos(
     connection: psycopg.Connection, report_id: UUID, photos: list[tuple[str, bytes]], saved: list[str]
 ) -> list[UUID]:
@@ -170,20 +186,26 @@ def save_photos(
 def create_report(
     user: CurrentUser,
     connection: Connection,
+    master_matcher: MasterMatch,
     report_category_id: Annotated[int, Form()],
     title: Annotated[Text, Form()],
     description: Annotated[Text, Form()],
     longitude: Annotated[Longitude, Form()],
     latitude: Annotated[Latitude, Form()],
     photos: PhotoUploads = None,
+    visualization_draft_id: Annotated[UUID | None, Form()] = None,
 ) -> Report:
     uploads = read_photos(photos or [])
     location = Location(longitude=longitude, latitude=latitude)
     municipality = municipality_for(location)
+    # the model runs before the transaction, so it does not hold the matching lock.
+    suggested_master_id = matching.suggest_master(connection, master_matcher, report_category_id, title, location)
     try:
         with storage.cleanup_on_error() as saved, connection.transaction():
             # the report joins a similar open master nearby or becomes the first report of a new one.
-            master_report_id = matching.assign_master(connection, report_category_id, title, description, location)
+            master_report_id, new_master = matching.assign_master_for_publication(
+                connection, report_category_id, title, description, location, suggested_master_id
+            )
             report_id = connection.execute(
                 sql.SQL(
                     "INSERT INTO reports (user_id, master_report_id, report_category_id, title, description, location, "
@@ -204,7 +226,18 @@ def create_report(
                     municipality.county_name,
                 ),
             ).fetchone()["id"]
+            if visualization_draft_id is not None:
+                visualizations.attach_draft(visualization_draft_id, report_id, user.id, report_category_id, connection)
+                if not uploads:
+                    source = connection.execute(
+                        "SELECT source_keys FROM visualization_jobs WHERE draft_id = %s "
+                        "ORDER BY created_at DESC, id DESC LIMIT 1",
+                        (visualization_draft_id,),
+                    ).fetchone()
+                    uploads = read_saved_photos(source["source_keys"] if source else [])
             save_photos(connection, report_id, uploads, saved)
+            if new_master:
+                deliveries.enqueue(connection, master_report_id, report_id, user)
     except errors.ForeignKeyViolation as error:
         raise foreign_key_error(error, FOREIGN_KEY_ERRORS) from None
     return fetch_report(report_id, connection)

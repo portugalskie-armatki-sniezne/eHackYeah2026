@@ -52,7 +52,7 @@ Request:
 | `last_name` | nazwisko, wymagane przy `anonymous=false` |
 | `anonymous` | boolean, domyślnie `false`; `true` ukrywa dane zgłaszającego |
 | `location` | opcjonalny obiekt z `longitude` (-180 do 180) i `latitude` (-90 do 90), WGS 84 |
-| `photos` | opcjonalna lista do 5 obiektów ze `storage_key` istniejącego zdjęcia; domyślnie `[]` |
+| `photos` | opcjonalna lista do 6 obiektów ze `storage_key` istniejącego zdjęcia; domyślnie `[]` |
 
 `issue` wybiera [issue.md](../templates/issue.md), a `improvement` [improvement.md](../templates/improvement.md). Szablony zawierają miejsca `{description}`, `{reporter}` i `{pin}`. Markdown szablonu jest renderowany przed wstawieniem danych. Opis i dane zgłaszającego są wstawiane dosłownie, z zachowaniem nowych linii; nie są interpretowane jako HTML, Markdown ani kolejny szablon.
 
@@ -92,7 +92,12 @@ Przy braku `location` lub wartości `null` szablon pokazuje `Przybliżona lokali
 
 Backend przekazuje `storage_key` z `report_photos` lub listę `photos` z odpowiedzi API. Dodatkowe pola zdjęcia (`id`, `report_id`, `created_at`, `url`) są pomijane. Przykładowe klucze powyżej są ilustracyjne.
 
-Klucz ma format `reports/{report_id}/{photo_id}.{ext}` stosowany przez API, z rozszerzeniem `jpg`, `png` albo `webp`. Notify odczytuje plik z katalogu `UPLOAD_DIR` i dodaje go jako załącznik. Nie korzysta z bazy ani nie pobiera plików przez HTTP. Compose montuje ten sam wolumen `api_uploads` co API, tylko do odczytu.
+Klucz ma format `reports/{report_id}/{photo_id}.{ext}` albo
+`reports/{report_id}/{source_photo_id}_generated_{generated_photo_id}.{ext}`, z
+rozszerzeniem `jpg`, `png` albo `webp`. API może dołączyć jedną wygenerowaną wizualizację do pięciu zdjęć
+źródłowych. Notify odczytuje plik z katalogu `UPLOAD_DIR` i dodaje go jako
+załącznik. Nie korzysta z bazy ani nie pobiera plików przez HTTP. Compose montuje
+ten sam wolumen `api_uploads` co API, tylko do odczytu.
 
 Dozwolone są JPEG, PNG i WebP do 10 MB na zdjęcie, tak jak w API. Łączny limit załączników jednego maila wynosi 20 MB. Brak zdjęcia, niepoprawny plik albo przekroczenie limitu blokuje całą wysyłkę przed połączeniem z SMTP.
 
@@ -102,7 +107,9 @@ Pominięcie `photos` lub pusta lista oznacza mail bez załączników. Dowolne ś
 
 `SMTP_MOCK=true` podmienia odbiorcę z `to` na `SMTP_MOCK_DESTINATION`, zarówno w nagłówku wiadomości, jak i w wysyłce SMTP. Mail nadal jest wysyłany przez Gmail, a temat i treść pozostają bez zmian.
 
-Przy `SMTP_MOCK=false` używany jest odbiorca z żądania. Brak zmiennej oznacza `false`. Pusty lub błędny adres testowy przy włączonym mocku blokuje wysyłkę.
+Przez cały hackathon, także na prodzie, wymagane są `SMTP_MOCK=true` i poprawny adres testowy. `false`, brak zmiennej oraz pusty lub błędny adres testowy blokują wysyłkę. Główne API przekazuje tylko adres testowy z enva, bez pobierania adresu sklasyfikowanej instytucji. Wysyłkę dla nowej sprawy, limity i zmianę statusu obsługuje [integracja w API](../../api/docs/visualizations.md).
+
+Załączniki akceptują również kontrolowane klucze `visualizations/<job_id>/<photo_id>.<extension>` i `visualizations/<job_id>/result.<extension>`, aby dołączyć zapisany wynik generacji.
 
 ## Kody błędów
 
@@ -110,7 +117,7 @@ Przy `SMTP_MOCK=false` używany jest odbiorca z żądania. Brak zmiennej oznacza
 | --- | --- |
 | 404 | zdjęcie wskazane przez `storage_key` nie istnieje |
 | 413 | zdjęcie przekracza 10 MB albo załączniki przekraczają łącznie 20 MB |
-| 422 | niepoprawne dane wiadomości, lokalizacja, klucz lub format zdjęcia, ponad 5 zdjęć, brak wymaganych pól albo dodatkowe pola żądania |
+| 422 | niepoprawne dane wiadomości, lokalizacja, klucz lub format zdjęcia, ponad 6 zdjęć, brak wymaganych pól albo dodatkowe pola żądania |
 | 503 | brak danych SMTP, niepoprawna konfiguracja mock albo brak możliwości odczytu zdjęcia |
 | 502 | błąd połączenia, TLS, logowania lub wysyłki SMTP |
 

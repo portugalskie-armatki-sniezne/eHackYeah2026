@@ -8,7 +8,7 @@ API w FastAPI do zgłaszania problemów, łączenia podobnych zgłoszeń w maste
 | --- | --- |
 | [data-model.md](data-model.md) | ERD (Mermaid), tabele kolumn, relacje i reguły usuwania |
 | [api.md](api.md) | konwencje, dostęp, endpointy, dopasowanie do mastera, przykłady JSON, kody błędów |
-| [inference.md](inference.md) | tłumaczenie, klasyfikacja typów jednostek, opcjonalne zdjęcia i pomiar trafności |
+| [inference.md](inference.md) | tłumaczenie, klasyfikacja typów jednostek, dopasowanie do mastera, opcjonalne zdjęcia i pomiar trafności |
 
 ## Zasady dla agentów i ludzi
 
@@ -26,7 +26,7 @@ API w FastAPI do zgłaszania problemów, łączenia podobnych zgłoszeń w maste
 | `mock` | działa na danych testowych |
 | `done` | działa na bazie, są testy |
 
-Endpointy CRUD z [api.md](api.md) mają status `done`. `/inference` udostępnia analizę z wymiennymi dostawcami. `/inference/service-entity` wybiera jeden typ jednostki po skonfigurowaniu modeli. Dopasowanie reportów do masterów też działa na bazie i ma testy, ale jest tymczasową heurystyką, którą zastąpi klasyfikator LLM.
+Endpointy CRUD z [api.md](api.md) oraz katalog innowacji `/projects` mają status `done`. `/inference` udostępnia analizę z wymiennymi dostawcami. `/inference/service-entity` wybiera jeden typ jednostki po skonfigurowaniu modeli. Dopasowanie reportów do masterów też działa na bazie i ma testy. Łączy heurystykę tytułów z wyborem modelu Laya dla tytułów sformułowanych inaczej.
 
 ## Uruchomienie
 
@@ -57,7 +57,14 @@ Polecenie uruchamia bazę, migracje i import seeda, a potem API pod <http://127.
 | `comments.py` | komentarze i polubienia masterów |
 | `reference.py` | `/report-categories` i `/master-report-statuses` |
 | `institution_contacts.py` | `/institution-contacts` |
-| `inference/` | `/inference`, wymienny tłumacz, klasyfikator i adapter Laya |
+| `service_entities.py` | `/service-entities` |
+| `service_entity_types.py` | typy jednostek usługowych |
+| `municipalities.py` | identyfikacja gminy i powiatu (ULDK GUGiK) |
+| `geocoding.py` | geokodowanie adresów |
+| `collect_service_entity_seats.py` | gromadzenie siedzib jednostek usługowych |
+| `geocode_service_entities.py` | geokodowanie siedzib jednostek usługowych |
+| `projects.py` | `/projects`, katalog innowacji społecznych ROPS i wyszukiwanie |
+| `inference/` | `/inference`, wymienny tłumacz, klasyfikator, adapter Laya i wybór mastera przez model |
 | `set_role.py` | skrypt nadający rolę użytkownikowi |
 
 ## Testy
@@ -85,9 +92,11 @@ Dostępne role to `user`, `office` i `admin`. Później role może zmieniać `ad
 
 Report to pojedyncze zgłoszenie użytkownika. Master to wspólna sprawa dla podobnych reportów: ma status, odpowiedź, odpowiedzialny podmiot (urząd albo jednostkę usługową), komentarze i polubienia.
 
-`POST /reports` od razu przypina nowy report do mastera. Kandydaci to mastery z tą samą kategorią, ze statusem innym niż `finished`, do 50 m od punktu mastera. Spośród nich wygrywa ten o najbardziej podobnym tytule. Jeśli żaden nie przekroczy progu podobieństwa, report tworzy nowy master. Gdy master straci ostatni report, API usuwa go razem z dyskusją. Szczegóły są w [api.md](api.md#dopasowanie-do-mastera), a promień i próg w `app/matching.py`.
+`POST /reports` od razu przypina nowy report do mastera. Kandydaci to mastery z tą samą kategorią, ze statusem innym niż `finished`, do 50 m od punktu mastera. Spośród nich wygrywa ten o najbardziej podobnym tytule. Jeśli żaden nie przekroczy progu podobieństwa, model wybiera master opisujący ten sam problem. Bez wyboru modelu report tworzy nowy master. Gdy master straci ostatni report, API usuwa go razem z dyskusją. Szczegóły są w [api.md](api.md#dopasowanie-do-mastera), promień i próg tytułów w `app/matching.py`, a próg modelu w `app/inference/masters.py`.
 
 ## Zdjęcia
+
+Generacja wizualizacji przed publikacją i przy zapisanej inicjatywie, historia obrazów, limity oraz automatyczna wysyłka testowa mają osobny [kontrakt integracji](visualizations.md). Worker działa wraz z API, a pliki korzystają z tego samego trwałego katalogu co zdjęcia.
 
 Pliki zdjęć trafiają do katalogu z opcjonalnej zmiennej `UPLOAD_DIR`. Domyślnie jest to `apps/api/uploads`, ignorowany przez Git. Ścieżka względna zaczyna się w `apps/api`. Report ma najwyżej 5 zdjęć JPEG, PNG lub WebP do 10 MB.
 
@@ -97,6 +106,6 @@ W kontenerze `docker-compose.app.yaml` ustawia `UPLOAD_DIR=/app/uploads` na nazw
 
 ## Zakres
 
-Model danych obejmuje tabele z migracji: `users`, `report_categories`, `master_report_statuses`, `master_reports`, `reports`, `report_photos`, `master_report_comments`, `master_report_comment_likes`, `local_government_offices`, `service_entities`.
+Model danych obejmuje tabele z migracji i seedów: `users`, `report_categories`, `master_report_statuses`, `master_reports`, `reports`, `report_photos`, `master_report_comments`, `master_report_comment_likes`, `local_government_offices`, `service_entities`, `service_entity_seats`, `projects`, `project_chunks`.
 
-API obejmuje CRUD tych tabel, słowniki, komentarze i polubienia. Urzędy (`/institution-contacts`) i słowniki są tylko do odczytu, a `service_entities` nie ma jeszcze endpointów. Inicjatywy nie mają jeszcze tabel i pozostają poza zakresem.
+API obejmuje CRUD zgłoszeń i masterów, słowniki, komentarze i polubienia, autentykację (hasło oraz Google SSO). Urzędy (`/institution-contacts`), jednostki usługowe (`/service-entities`) oraz innowacje społeczne ROPS (`/projects`) posiadają zaimplementowane, przetestowane endpointy odczytu i wyszukiwania semantycznego. Inicjatywy są rejestrowane jako kategoria zgłoszeń.

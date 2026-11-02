@@ -48,7 +48,23 @@ def media_type(storage_key: str) -> str:
 def save(storage_key: str, data: bytes) -> None:
     path = file_path(storage_key)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(data)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as file:
+            temporary = Path(file.name)
+            file.write(data)
+        os.chmod(temporary, 0o644)
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
+def move(source_key: str, target_key: str) -> None:
+    """rename a saved file, for a photo that moves from one key to another."""
+    target = file_path(target_key)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    file_path(source_key).replace(target)
 
 
 def delete(storage_keys: Iterable[str]) -> None:
