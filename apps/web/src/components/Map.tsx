@@ -32,6 +32,8 @@ import PinDialog, { type PinDraft } from "./PinDialog";
 import PhotoReportDialog from "./PhotoReportDialog";
 import MarkerDialog from "./MarkerDialog";
 import ReportClusters from "./ReportClusters";
+import DistrictFilter from "./DistrictFilter";
+import { krakowDistrictAt } from "../data/krakowDistricts";
 import { isClusterAt } from "./reportClusterHit";
 import { createTiltPrewarmer } from "./mapPrewarm";
 import {
@@ -488,6 +490,21 @@ export default function Map({ onSignInRequired }: MapProps) {
   const [tilted, setTilted] = useState(false);
   const [styleReady, setStyleReady] = useState(false);
   const [pins, setPins] = useState<EventPin[]>([]);
+  const [selectedDistrict, setSelectedDistrict] = useState<number | null>(null);
+  const [reportsLoaded, setReportsLoaded] = useState(false);
+  const [reportsLoadFailed, setReportsLoadFailed] = useState(false);
+  const districtCounts = useMemo(() => {
+    const counts = new globalThis.Map<number, number>();
+    for (const pin of pins) {
+      const district = krakowDistrictAt({
+        longitude: pin.lngLat[0],
+        latitude: pin.lngLat[1],
+      });
+      if (district)
+        counts.set(district.number, (counts.get(district.number) ?? 0) + 1);
+    }
+    return counts;
+  }, [pins]);
   // which kinds, statuses and author the toolbar's filter list leaves on the map
   const [filters, setFilters] = useState<MarkerFilters>(ALL_MARKERS);
   // the viewer's own cases, which the filter list's author box narrows to;
@@ -586,8 +603,10 @@ export default function Map({ onSignInRequired }: MapProps) {
           .sort((left, right) => right.report_count - left.report_count)
           .map((master) => masterPin(master, names, statusNames));
         setPins((current) => loaded.reduce(upsertPin, current));
+        setReportsLoaded(true);
       } catch (error) {
         if (controller.signal.aborted) return;
+        setReportsLoadFailed(true);
         console.error("Could not load the map's reports.", error);
       }
     }
@@ -735,8 +754,17 @@ export default function Map({ onSignInRequired }: MapProps) {
   );
 
   const visiblePins = useMemo(
-    () => pins.filter((pin) => matchesFilters(pin, shownFilters, myCases)),
-    [pins, shownFilters, myCases],
+    () =>
+      pins.filter(
+        (pin) =>
+          (selectedDistrict === null ||
+            krakowDistrictAt({
+              longitude: pin.lngLat[0],
+              latitude: pin.lngLat[1],
+            })?.number === selectedDistrict) &&
+          matchesFilters(pin, shownFilters, myCases),
+      ),
+    [pins, shownFilters, myCases, selectedDistrict],
   );
 
   const handleCloseDraft = useCallback(() => setDraftLngLat(null), []);
@@ -891,6 +919,16 @@ export default function Map({ onSignInRequired }: MapProps) {
         shownPins={visiblePins.length}
         totalPins={pins.length}
         canFilterMine={myCases !== null}
+      />
+      <DistrictFilter
+        mapRef={mapRef}
+        styleReady={styleReady}
+        selected={selectedDistrict}
+        counts={districtCounts}
+        visibleCount={visiblePins.length}
+        loading={!reportsLoaded && !reportsLoadFailed}
+        failed={reportsLoadFailed}
+        onChange={setSelectedDistrict}
       />
       <UserPosition mapRef={mapRef} styleReady={styleReady} fix={fix} />
       <ReportClusters

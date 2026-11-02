@@ -1,0 +1,21 @@
+.district-location {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.625rem 0.75rem;
+  border-left: 4px solid var(--amber);
+  background: var(--surface-section);
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+.district-location a {
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  text-underline-offset: 2px;
+}
+
+.district-location a:focus-visible {
+  outline: var(--scaffold-line) solid var(--focus);
+  outline-offset: 3px;
+}

@@ -1,4 +1,5 @@
 import { useMessages } from "../i18n/locale";
+import { krakowDistrictSource } from "../data/krakowDistricts";
 import "./About.css";
 
 /**
@@ -9,6 +10,7 @@ import "./About.css";
  */
 export default function About() {
   const t = useMessages().about;
+  const districts = useMessages().districts;
 
   return (
     <section className="about" aria-labelledby="about-title">
@@ -57,6 +59,25 @@ export default function About() {
               {t.whyHeading}
             </h2>
             <p className="about__text">{t.whyText}</p>
+          </section>
+          <section className="about__section" aria-labelledby="about-data">
+            <h2 id="about-data" className="about__heading">
+              {districts.dataHeading}
+            </h2>
+            <p className="about__text">{districts.dataText}</p>
+            <a
+              className="about__link"
+              href={krakowDistrictSource.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {krakowDistrictSource.attribution} - {krakowDistrictSource.title}
+            </a>
+            <p className="about__text">
+              {districts.generatedOn}:{" "}
+              {krakowDistrictSource.generatedAt.slice(0, 10)}.{" "}
+              {districts.retrievedOn}: {krakowDistrictSource.retrievedOn}.
+            </p>
           </section>
         </div>
       </div>

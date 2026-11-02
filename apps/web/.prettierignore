@@ -1,1 +1,3 @@
 dist
+# generated district coordinates retain one feature per line
+src/data/krakow-districts.json

@@ -21,7 +21,8 @@ eHackYeah2026/
 │   └── seeds/                       # dane referencyjne i arkusz kontaktów
 ├── docs/
 │   ├── teaser-en.png                # angielski teaser projektu
-│   └── teaser-pl.png                # polski teaser projektu
+│   ├── teaser-pl.png                # polski teaser projektu
+│   └── krakow-open-data.md          # dane MSIP, ich zastosowanie i odświeżanie
 ├── tooling/
 │   └── seed/                        # importer XLS, importer danych demo i ich obraz Dockera
 ├── tests/
@@ -68,6 +69,8 @@ Oba środowiska uruchamiają trzy skonteneryzowane usługi zarządzane przez Doc
 - **Interaktywny przewodnik po aplikacji**: Wprowadzenie dla nowych użytkowników oferujące tryb automatycznej animacji z symulowanym kursorem lub tryb manualny prowadzący krok po kroku przez mapę, formularz zgłoszeń, powiadomienia i innowacje ROPS, bez tworzenia zbędnych danych w bazie.
 - **Autoryzacja i profil użytkownika**: Rejestracja i logowanie hasłem oraz przez Google SSO, zarządzanie profilem oraz śledzenie zgłoszeń i komentarzy.
 - **Wielojęzyczność**: Pełne wsparcie dla języka polskiego i angielskiego z przełączaniem w czasie rzeczywistym.
+
+Mapa korzysta z oficjalnych [granic dzielnic Krakowa z MSIP](https://msip.krakow.pl/dataset/1483). Rozpoznaje dzielnicę zgłoszenia, filtruje sprawy według dzielnic i dołącza lokalizację do przygotowanej wiadomości. Źródło, daty, sposób odświeżania i scenariusz demo opisano w [dokumentacji otwartych danych Krakowa](docs/krakow-open-data.md).
 
 ## Wdrożenie
 

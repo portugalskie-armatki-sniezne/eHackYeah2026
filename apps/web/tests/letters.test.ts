@@ -41,6 +41,7 @@ describe("marker letters", () => {
       recipient: { name: entity.name, email: "reports@example.org" },
       subject: master.title,
       body: master.description,
+      location: master.location,
     });
     expect(apiFetch).toHaveBeenCalledTimes(1);
     expect(apiFetch.mock.calls[0][0]).toBe("/service-entities/7");
@@ -147,13 +148,39 @@ describe("marker letters", () => {
     });
   });
 
-  test("prefills the email subject and unchanged body without breaking on punctuation", async () => {
+  test("includes the MSIP district and location in email without changing stored text", async () => {
     const letter = await letterFor(master);
     const href = new URL(
       letterMailto({ name: entity.name, email: entity.email }, letter),
     );
     expect(href.pathname).toBe(entity.email);
     expect(href.searchParams.get("subject")).toBe(master.title);
+    expect(letter.body).toBe(master.description);
+    expect(href.searchParams.get("body")).toBe(
+      `${master.description}\n\nLokalizacja: 50.06100, 19.93800\nDzielnica I Stare Miasto\nŹródło granic dzielnicy: Gmina Miejska Kraków, Portal MSIP Obserwatorium, https://msip.krakow.pl/dataset/1483`,
+    );
+  });
+
+  test("does not add a Kraków district to a report outside the city", async () => {
+    const letter = await letterFor({
+      ...master,
+      location: { longitude: 20.064, latitude: 49.987 },
+    });
+    const href = new URL(
+      letterMailto({ name: entity.name, email: entity.email }, letter),
+    );
+    expect(href.searchParams.get("body")).toBe(master.description);
+  });
+
+  test("supports letters without a report location", () => {
+    const letter = {
+      recipient: null,
+      subject: master.title,
+      body: master.description,
+    };
+    const href = new URL(
+      letterMailto({ name: entity.name, email: entity.email }, letter),
+    );
     expect(href.searchParams.get("body")).toBe(master.description);
   });
 });

@@ -21,7 +21,8 @@ eHackYeah2026/
 │   └── seeds/                       # reference data and the contacts workbook
 ├── docs/
 │   ├── teaser-en.png                # English project teaser
-│   └── teaser-pl.png                # Polish project teaser
+│   ├── teaser-pl.png                # Polish project teaser
+│   └── krakow-open-data.md          # MSIP data, its use and refresh procedure
 ├── tooling/
 │   └── seed/                        # XLS importer, mock data importer, and their Docker image
 ├── tests/
@@ -68,6 +69,8 @@ Both environments run three containerized services configured via Docker Compose
 - **Interactive Onboarding Tour**: Guided workflow walkthrough for new residents offering automated animation with simulated pointer movement or manual step-by-step guidance across map exploration, issue reporting, notifications, and social innovations, with zero production side effects.
 - **Authentication and Profiles**: Sign in using email/password or Google SSO, manage user profile, and track filed reports and comments.
 - **Bilingual Interface**: Full Polish and English language localization with on-the-fly switching.
+
+The map uses official [Kraków district boundaries from MSIP](https://msip.krakow.pl/dataset/1483). It identifies each report's district, filters cases by district and adds location details to the prepared email. See the [Kraków open data documentation](docs/krakow-open-data.md) for provenance, dates, refresh instructions and a demo walkthrough.
 
 ## Deployment
 

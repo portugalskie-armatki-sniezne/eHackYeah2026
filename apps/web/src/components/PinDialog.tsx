@@ -9,6 +9,7 @@ import {
 import { projectsApi, type ProjectSearchResult } from "../api/projects";
 import type { ReportCategoryName } from "../api/reports";
 import { useMessages } from "../i18n/locale";
+import DistrictLocation from "./DistrictLocation";
 import "./PinDialog.css";
 
 export type PinDraft = {
@@ -201,6 +202,9 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
               {t.newMarker}
             </h2>
             <p className="pin-dialog__coords">{formatLngLat(lngLat)}</p>
+            <DistrictLocation
+              location={{ longitude: lngLat[0], latitude: lngLat[1] }}
+            />
           </header>
 
           {error && (
@@ -299,6 +303,9 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
               {t.initiativeTab}
             </h2>
             <p className="pin-dialog__coords">{formatLngLat(lngLat)}</p>
+            <DistrictLocation
+              location={{ longitude: lngLat[0], latitude: lngLat[1] }}
+            />
           </header>
 
           {error && (

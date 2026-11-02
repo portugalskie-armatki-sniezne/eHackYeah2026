@@ -1,0 +1,50 @@
+.district-filter {
+  position: fixed;
+  bottom: calc(var(--pill-inset) + 7rem + var(--safe-bottom));
+  left: calc(1.5rem + var(--safe-left));
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: min(19rem, calc(100% - 3rem));
+  padding: 0.75rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  box-shadow: 3px 3px 0 var(--amber);
+  font-size: 0.75rem;
+}
+
+.district-filter label {
+  font-weight: 800;
+}
+
+.district-filter select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.375rem;
+  border: 1px solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+.district-filter a {
+  color: var(--ink-soft);
+  text-underline-offset: 2px;
+}
+
+.district-filter select:focus-visible,
+.district-filter a:focus-visible {
+  outline: var(--scaffold-line) solid var(--focus);
+  outline-offset: 3px;
+}
+
+@media (max-width: 40rem) {
+  .district-filter {
+    left: calc(1.25rem + var(--safe-left));
+    gap: 0.25rem;
+    padding: 0.5rem;
+  }
+}
