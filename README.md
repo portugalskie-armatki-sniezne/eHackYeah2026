@@ -20,7 +20,8 @@ eHackYeah2026/
 │   └── seeds/                       # reference data and the contacts workbook
 ├── docs/
 │   ├── teaser-en.png                # English project teaser
-│   └── teaser-pl.png                # Polish project teaser
+│   ├── teaser-pl.png                # Polish project teaser
+│   └── krakow-open-data.md          # MSIP data, its use and refresh procedure
 ├── tooling/
 │   └── seed/                        # XLS importer, mock data importer, and their Docker image
 ├── tests/
@@ -43,6 +44,8 @@ eHackYeah2026/
 ## Access
 
 You can access the project at [hackyeah.jakubowskii.pl/#main](https://hackyeah.jakubowskii.pl/#main), at least during the HackYeah 2026 hackathon.
+
+The map uses official [Kraków district boundaries from MSIP](https://msip.krakow.pl/dataset/1483). It identifies each report's district, filters cases by district and adds location details to the prepared email. See the [Kraków open data documentation](docs/krakow-open-data.md) for provenance, dates, refresh instructions and a demo walkthrough.
 
 ## Deployment
 

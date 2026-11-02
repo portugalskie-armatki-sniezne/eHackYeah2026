@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useEffectEvent,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -23,6 +24,9 @@ import EventMarkers, {
 import PinDialog, { type PinDraft } from "./PinDialog";
 import MarkerDialog from "./MarkerDialog";
 import ReportClusters from "./ReportClusters";
+import DistrictFilter from "./DistrictFilter";
+import { krakowDistrictAt } from "../data/krakowDistricts";
+import { useMessages } from "../i18n/locale";
 import { isClusterAt } from "./reportClusterHit";
 import { createTiltPrewarmer } from "./mapPrewarm";
 import {
@@ -44,7 +48,7 @@ import "./Map.css";
 setWorkerUrl(maplibreWorkerUrl);
 
 // Where the map opens when the device has never been located in this browser.
-const POZNAN: [number, number] = [16.929, 52.407];
+const KRAKOW: [number, number] = [19.94498, 50.06465];
 // wide enough to open on most of the reported city, not one street of it
 const ZOOM = 14;
 // Close enough to read the street you are standing on.
@@ -438,12 +442,46 @@ type MapProps = {
 
 export default function Map({ onSignInRequired }: MapProps) {
   const session = useSession();
+  const t = useMessages().districts;
   const containerRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const [tilted, setTilted] = useState(false);
   const [styleReady, setStyleReady] = useState(false);
   const [pins, setPins] = useState<EventPin[]>([]);
+  const [selectedDistrict, setSelectedDistrict] = useState<number | null>(null);
+  const [reportsLoaded, setReportsLoaded] = useState(false);
+  const [reportsLoadFailed, setReportsLoadFailed] = useState(false);
+  const districtPins = useMemo(
+    () =>
+      pins.map((pin) => ({
+        pin,
+        district:
+          krakowDistrictAt({
+            longitude: pin.lngLat[0],
+            latitude: pin.lngLat[1],
+          })?.number ?? null,
+      })),
+    [pins],
+  );
+  const visiblePins = useMemo(
+    () =>
+      districtPins
+        .filter(
+          ({ district }) =>
+            selectedDistrict === null || district === selectedDistrict,
+        )
+        .map(({ pin }) => pin),
+    [districtPins, selectedDistrict],
+  );
+  const districtCounts = useMemo(() => {
+    const counts = new globalThis.Map<number, number>();
+    for (const { district } of districtPins) {
+      if (district !== null)
+        counts.set(district, (counts.get(district) ?? 0) + 1);
+    }
+    return counts;
+  }, [districtPins]);
   // why the last photo report did not save, until the next one is tried
   const [saveError, setSaveError] = useState<string | null>(null);
   const photoSavingRef = useRef(false);
@@ -495,8 +533,10 @@ export default function Map({ onSignInRequired }: MapProps) {
           .sort((left, right) => right.report_count - left.report_count)
           .map((master) => masterPin(master, names));
         setPins((current) => loaded.reduce(upsertPin, current));
+        setReportsLoaded(true);
       } catch (error) {
         if (controller.signal.aborted) return;
+        setReportsLoadFailed(true);
         console.error("Could not load the map's reports.", error);
       }
     }
@@ -545,7 +585,7 @@ export default function Map({ onSignInRequired }: MapProps) {
     const map = new MapLibreMap({
       container,
       style: BASEMAP_STYLES.streets,
-      center: lastKnown ?? POZNAN,
+      center: lastKnown ?? KRAKOW,
       zoom: lastKnown ? LOCATE_ZOOM : ZOOM,
       ...FLAT_VIEW,
       maxPitch: 70,
@@ -597,7 +637,7 @@ export default function Map({ onSignInRequired }: MapProps) {
       .getCanvas()
       .setAttribute(
         "aria-label",
-        "Map of Poznań. Use the arrow keys to pan and the plus and minus keys to zoom.",
+        "Map of Kraków. Use the arrow keys to pan and the plus and minus keys to zoom.",
       );
 
     mapRef.current = map;
@@ -724,7 +764,7 @@ export default function Map({ onSignInRequired }: MapProps) {
   const handleZoomOut = useCallback(() => mapRef.current?.zoomOut(), []);
   const handleRecenter = useCallback(() => {
     mapRef.current?.flyTo({
-      center: POZNAN,
+      center: KRAKOW,
       zoom: ZOOM,
       ...(tilted ? TILTED_VIEW : FLAT_VIEW),
     });
@@ -739,7 +779,7 @@ export default function Map({ onSignInRequired }: MapProps) {
   }, [tilted]);
 
   return (
-    <section className="map" aria-label="Map of Poznań">
+    <section className="map" aria-label={t.mapLabel}>
       {saveError && (
         <aside className="map__notice" role="alert">
           {saveError}
@@ -759,17 +799,30 @@ export default function Map({ onSignInRequired }: MapProps) {
         onPhotoReportStart={canStartReport}
         onPhotoReport={handlePhotoReport}
       />
+      <DistrictFilter
+        mapRef={mapRef}
+        styleReady={styleReady}
+        selected={selectedDistrict}
+        counts={districtCounts}
+        visibleCount={visiblePins.length}
+        loading={!reportsLoaded && !reportsLoadFailed}
+        failed={reportsLoadFailed}
+        onChange={(district) => {
+          if (district !== null) centredRef.current = true;
+          setSelectedDistrict(district);
+        }}
+      />
       <UserPosition mapRef={mapRef} styleReady={styleReady} fix={fix} />
       <ReportClusters
         mapRef={mapRef}
         styleReady={styleReady}
-        pins={pins}
+        pins={visiblePins}
         onUngroupedChange={setUngroupedIds}
       />
       <EventMarkers
         mapRef={mapRef}
         styleReady={styleReady}
-        pins={pins}
+        pins={visiblePins}
         ungroupedIds={ungroupedIds}
         draftLngLat={draftLngLat}
         onPinClick={setOpenPinId}

@@ -9,6 +9,7 @@ import {
 import { useSession } from "../api/session";
 import StatusBadge from "./StatusBadge";
 import MarkerRecipient from "./MarkerRecipient";
+import DistrictLocation from "./DistrictLocation";
 import "./MarkerDialog.css";
 
 type MarkerDialogProps = {
@@ -341,6 +342,7 @@ export default function MarkerDialog({
           <h2 id={`${id}-title`} className="marker-dialog__title">
             {master ? master.title : error ? "Report" : "Loading report"}
           </h2>
+          {master && <DistrictLocation location={master.location} />}
 
           {error && (
             <p className="marker-dialog__error" role="alert">

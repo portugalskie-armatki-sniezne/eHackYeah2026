@@ -8,6 +8,7 @@ import {
 } from "react";
 import { projectsApi, type ProjectSearchResult } from "../api/projects";
 import type { ReportCategoryName } from "../api/reports";
+import DistrictLocation from "./DistrictLocation";
 import "./PinDialog.css";
 
 export type PinDraft = {
@@ -196,6 +197,9 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
               New marker
             </h2>
             <p className="pin-dialog__coords">{formatLngLat(lngLat)}</p>
+            <DistrictLocation
+              location={{ longitude: lngLat[0], latitude: lngLat[1] }}
+            />
           </header>
 
           {error && (
@@ -277,6 +281,9 @@ export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
               Inicjatywa społeczna
             </h2>
             <p className="pin-dialog__coords">{formatLngLat(lngLat)}</p>
+            <DistrictLocation
+              location={{ longitude: lngLat[0], latitude: lngLat[1] }}
+            />
           </header>
 
           {error && (

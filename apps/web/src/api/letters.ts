@@ -1,5 +1,13 @@
 import { apiFetch } from "./client";
-import type { MasterReport, MasterReportDetail } from "./reports";
+import type {
+  MasterReport,
+  MasterReportDetail,
+  ReportLocation,
+} from "./reports";
+import {
+  krakowDistrictAt,
+  krakowDistrictSource,
+} from "../data/krakowDistricts";
 
 /** Who a master is addressed to, as far as the responsible body's record says. */
 export type LetterRecipient = {
@@ -18,6 +26,7 @@ export type ReportLetter = {
   recipient: LetterRecipient | null;
   subject: string;
   body: string;
+  location?: ReportLocation;
 };
 
 // the fields read off the catalogue records; both carry many more
@@ -107,6 +116,7 @@ export async function letterFor(
     recipient: await letterRecipient(master, signal),
     subject: master.title,
     body: master.description,
+    location: master.location,
   };
 }
 
@@ -148,5 +158,10 @@ export function letterMailto(
   recipient: LetterRecipient,
   letter: ReportLetter,
 ): string {
-  return `mailto:${recipient.email ?? ""}?subject=${encodeURIComponent(letter.subject)}&body=${encodeURIComponent(letter.body)}`;
+  const district = letter.location ? krakowDistrictAt(letter.location) : null;
+  const body =
+    district && letter.location
+      ? `${letter.body}\n\nLokalizacja: ${letter.location.latitude.toFixed(5)}, ${letter.location.longitude.toFixed(5)}\n${district.fullName}\nŹródło granic dzielnicy: ${krakowDistrictSource.attribution}, ${krakowDistrictSource.url}`
+      : letter.body;
+  return `mailto:${recipient.email ?? ""}?subject=${encodeURIComponent(letter.subject)}&body=${encodeURIComponent(body)}`;
 }

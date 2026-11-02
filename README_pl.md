@@ -20,7 +20,8 @@ eHackYeah2026/
 │   └── seeds/                       # dane referencyjne i arkusz kontaktów
 ├── docs/
 │   ├── teaser-en.png                # angielski teaser projektu
-│   └── teaser-pl.png                # polski teaser projektu
+│   ├── teaser-pl.png                # polski teaser projektu
+│   └── krakow-open-data.md          # dane MSIP, ich zastosowanie i odświeżanie
 ├── tooling/
 │   └── seed/                        # importer XLS, importer danych demo i ich obraz Dockera
 ├── tests/
@@ -43,6 +44,8 @@ eHackYeah2026/
 ## Dostęp do projektu
 
 Projekt jest dostępny pod adresem [hackyeah.jakubowskii.pl/#main](https://hackyeah.jakubowskii.pl/#main), przynajmniej podczas hackathonu HackYeah 2026.
+
+Mapa korzysta z oficjalnych [granic dzielnic Krakowa z MSIP](https://msip.krakow.pl/dataset/1483). Rozpoznaje dzielnicę zgłoszenia, filtruje sprawy według dzielnic i dołącza lokalizację do przygotowanej wiadomości. Źródło, daty, sposób odświeżania i scenariusz demo opisano w [dokumentacji otwartych danych Krakowa](docs/krakow-open-data.md).
 
 ## Wdrożenie
 

@@ -15,6 +15,25 @@ export function isLocale(value: unknown): value is Locale {
 }
 
 const en = {
+  districts: {
+    heading: "Kraków districts",
+    filter: "Cases by Kraków district",
+    all: "All locations",
+    outside: "Outside the Kraków district boundaries in MSIP data",
+    source: "Source",
+    boundariesSource: "Boundaries: Gmina Miejska Kraków, MSIP Obserwatorium",
+    empty: "No cases in this district yet.",
+    loading: "Loading cases...",
+    loadError: "Could not load cases. Refresh the page to try again.",
+    caseCount: (count: number) => `Cases in the selected area: ${count}`,
+    mapLabel:
+      "Map of Kraków. Use the arrow keys to pan and the plus and minus keys to zoom.",
+    dataHeading: "Open data from Kraków",
+    dataText:
+      "Official MSIP district boundaries identify the district of a report, filter cases on the map and add the district to the prepared email. A district identifies the area, not the institution responsible for a case.",
+    generatedOn: "MSIP file generated on",
+    retrievedOn: "Downloaded on",
+  },
   language: {
     label: "Language",
     names: { en: "English", pl: "Polski" } as Record<Locale, string>,
@@ -138,6 +157,26 @@ const en = {
 export type Messages = typeof en;
 
 const pl: Messages = {
+  districts: {
+    heading: "Dzielnice Krakowa",
+    filter: "Sprawy według dzielnic Krakowa",
+    all: "Wszystkie lokalizacje",
+    outside: "Poza granicami dzielnic Krakowa w danych MSIP",
+    source: "Źródło",
+    boundariesSource: "Granice: Gmina Miejska Kraków, MSIP Obserwatorium",
+    empty: "W tej dzielnicy nie ma jeszcze spraw.",
+    loading: "Wczytywanie spraw...",
+    loadError:
+      "Nie udało się wczytać spraw. Odśwież stronę, aby spróbować ponownie.",
+    caseCount: (count: number) => `Sprawy w wybranym obszarze: ${count}`,
+    mapLabel:
+      "Mapa Krakowa. Strzałki przesuwają mapę, a plus i minus zmieniają powiększenie.",
+    dataHeading: "Otwarte dane Krakowa",
+    dataText:
+      "Oficjalne granice dzielnic z MSIP służą do rozpoznawania dzielnicy zgłoszenia, filtrowania spraw na mapie i uzupełniania przygotowanej wiadomości. Dzielnica określa obszar, a nie instytucję odpowiedzialną za sprawę.",
+    generatedOn: "Plik MSIP wygenerowany",
+    retrievedOn: "Pobrano",
+  },
   language: {
     label: "Język",
     names: { en: "English", pl: "Polski" },
