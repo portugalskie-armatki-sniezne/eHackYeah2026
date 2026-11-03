@@ -1,0 +1,1444 @@
+{
+  "source": {
+    "name": "Centra Aktywności Seniora w Krakowie",
+    "authority": "Gmina Miejska Kraków, Urząd Miasta Krakowa, Wydział Polityki Społecznej i Zdrowia",
+    "portalUrl": "https://otwartedane.um.krakow.pl/zbiory-danych/centra-aktywnosci-seniora-w-krakowie",
+    "apiUrl": "https://api.um.krakow.pl/opendata-spoleczenstwo-centra-aktywnosci-seniora/v1/cas-lista",
+    "retrievedOn": "2026-11-03",
+    "lastRefresh": "2026-11-03T22:26:48.567",
+    "sha256": "a6e9ef09ab1c9ac9123e893ba6f40ab5857edc9ab18d81376a38a72c626e1d88",
+    "termsUrl": "https://otwartedane.um.krakow.pl/warunki-korzystania",
+    "count": 68
+  },
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": 1,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9479414, 50.0553326]
+      },
+      "properties": {
+        "id": 1,
+        "name": "CAS Senior w Centrum",
+        "operator": "Fundacja KDM",
+        "districtNumber": 1,
+        "districtRoman": "I",
+        "districtName": "Stare Miasto",
+        "address": "Berka Joselewicza 28",
+        "postalCode": "31-031",
+        "phone": "122656553",
+        "notes": null,
+        "coordinates": [19.9479414, 50.0553326]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 2,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9327008, 50.0674578]
+      },
+      "properties": {
+        "id": 2,
+        "name": "CAS Dobrej Nadziei",
+        "operator": "Stowarzyszenie Dobrej Nadziei",
+        "districtNumber": 1,
+        "districtRoman": "I",
+        "districtName": "Stare Miasto",
+        "address": "Batorego 3/5",
+        "postalCode": "31-135",
+        "phone": "662383382",
+        "notes": null,
+        "coordinates": [19.9327008, 50.0674578]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 3,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9374519, 50.0695688]
+      },
+      "properties": {
+        "id": 3,
+        "name": "CAS Spot Nestor Długa",
+        "operator": "Stowarzyszenie SIEMACHA",
+        "districtNumber": 1,
+        "districtRoman": "I",
+        "districtName": "Stare Miasto",
+        "address": "Długa 42",
+        "postalCode": "31-146",
+        "phone": "882053561",
+        "notes": null,
+        "coordinates": [19.9374519, 50.0695688]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 4,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9341713, 50.0647017]
+      },
+      "properties": {
+        "id": 4,
+        "name": "CAS Artystyczny WARSZTATOWA 5",
+        "operator": "Fundacja Zawsze Silni",
+        "districtNumber": 1,
+        "districtRoman": "I",
+        "districtName": "Stare Miasto",
+        "address": "Dunajewskiego 5",
+        "postalCode": "31-146",
+        "phone": "730685606",
+        "notes": null,
+        "coordinates": [19.9341713, 50.0647017]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 5,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9668727, 50.0583914]
+      },
+      "properties": {
+        "id": 5,
+        "name": "CAS przy parafii św. Kazimierza",
+        "operator": "Stowarzyszenie \"Kultura i Edukacja\"",
+        "districtNumber": 2,
+        "districtRoman": "II",
+        "districtName": "Grzegórzki",
+        "address": "Bobrowskiego 6",
+        "postalCode": "31-552",
+        "phone": "124173500",
+        "notes": null,
+        "coordinates": [19.9668727, 50.0583914]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 6,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9570558, 50.0570396]
+      },
+      "properties": {
+        "id": 6,
+        "name": "CAS Dojrzały smak życia!",
+        "operator": "Stowarzyszenie AKADEMIA PEŁNI ŻYCIA im. J. Boehnert",
+        "districtNumber": 2,
+        "districtRoman": "II",
+        "districtName": "Grzegórzki",
+        "address": "Rzeźnicza 2a",
+        "postalCode": "31-540",
+        "phone": "532254436",
+        "notes": null,
+        "coordinates": [19.9570558, 50.0570396]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 7,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9645217, 50.0682825]
+      },
+      "properties": {
+        "id": 7,
+        "name": "CAS Aktywni Razem",
+        "operator": "Stowarzyszenie PLINEU Centrum Dobrego Życia",
+        "districtNumber": 2,
+        "districtRoman": "II",
+        "districtName": "Grzegórzki",
+        "address": "Kasprowicza 9a/1",
+        "postalCode": "31-523",
+        "phone": "509084820",
+        "notes": null,
+        "coordinates": [19.9645217, 50.0682825]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 8,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9662171, 50.0668074]
+      },
+      "properties": {
+        "id": 8,
+        "name": "Cas Spot Nestor Mogilska",
+        "operator": "Stowarzyszenie SIEMACHA",
+        "districtNumber": 2,
+        "districtRoman": "II",
+        "districtName": "Grzegórzki",
+        "address": "Mogilska 58",
+        "postalCode": "31-546",
+        "phone": "601619428",
+        "notes": null,
+        "coordinates": [19.9662171, 50.0668074]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 9,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9659764, 50.0828331]
+      },
+      "properties": {
+        "id": 9,
+        "name": "CAS Olsza",
+        "operator": "Fundacja im. Heleny i Tadeusza Augustyn",
+        "districtNumber": 3,
+        "districtRoman": "III",
+        "districtName": "Prądnik Czerwony",
+        "address": "Miechowity 6",
+        "postalCode": "31-469",
+        "phone": "505121239",
+        "notes": null,
+        "coordinates": [19.9659764, 50.0828331]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 10,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9736009, 50.0833561]
+      },
+      "properties": {
+        "id": 10,
+        "name": "CAS Renesans",
+        "operator": "Stowarzyszenie Grace",
+        "districtNumber": 3,
+        "districtRoman": "III",
+        "districtName": "Prądnik Czerwony",
+        "address": "Młyńska Boczna 7",
+        "postalCode": "31-470",
+        "phone": "606717646",
+        "notes": null,
+        "coordinates": [19.9736009, 50.0833561]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 11,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9713436, 50.0918024]
+      },
+      "properties": {
+        "id": 11,
+        "name": "CAS Prądnik Czerwony",
+        "operator": "Fundacja im. Heleny i Tadeusza Augustyn",
+        "districtNumber": 3,
+        "districtRoman": "III",
+        "districtName": "Prądnik Czerwony",
+        "address": "Strzelców 5a",
+        "postalCode": "31-422",
+        "phone": "501387510",
+        "notes": null,
+        "coordinates": [19.9713436, 50.0918024]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 12,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9276533, 50.0943965]
+      },
+      "properties": {
+        "id": 12,
+        "name": "CAS Prądnik Biały",
+        "operator": "Fundacja Nowe Centrum",
+        "districtNumber": 4,
+        "districtRoman": "IV",
+        "districtName": "Prądnik Biały",
+        "address": "Pachońskiego 8",
+        "postalCode": "31-223",
+        "phone": "578775119",
+        "notes": null,
+        "coordinates": [19.9276533, 50.0943965]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 13,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9271102, 50.0866704]
+      },
+      "properties": {
+        "id": 13,
+        "name": "CAS Uskrzydleni Wiekiem",
+        "operator": "Fundacja Współpracujmy",
+        "districtNumber": 4,
+        "districtRoman": "IV",
+        "districtName": "Prądnik Biały",
+        "address": "Rusznikarska 14/16",
+        "postalCode": "31-261",
+        "phone": "511200011",
+        "notes": null,
+        "coordinates": [19.9271102, 50.0866704]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 14,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.908865, 50.084787]
+      },
+      "properties": {
+        "id": 14,
+        "name": "CAS \"Nie Dzieli Nas Wiek”",
+        "operator": "Stowarzyszenie \"Bądź gotów\"",
+        "districtNumber": 4,
+        "districtRoman": "IV",
+        "districtName": "Prądnik Biały",
+        "address": "Weissa 8/21",
+        "postalCode": "31-339",
+        "phone": "727430999",
+        "notes": null,
+        "coordinates": [19.908865, 50.084787]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 15,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9257572, 50.070198]
+      },
+      "properties": {
+        "id": 15,
+        "name": "CAS Optymista",
+        "operator": "Polski Komitet Pomocy Społecznej Małopolski Zarząd Wojewódzki",
+        "districtNumber": 5,
+        "districtRoman": "V",
+        "districtName": "Krowodrza",
+        "address": "Sienkiewicza 2a",
+        "postalCode": "30-033",
+        "phone": "126345157",
+        "notes": null,
+        "coordinates": [19.9257572, 50.070198]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 16,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9220949, 50.0776158]
+      },
+      "properties": {
+        "id": 16,
+        "name": "CAS Współpracujmy",
+        "operator": "Fundacja Współpracujmy",
+        "districtNumber": 5,
+        "districtRoman": "V",
+        "districtName": "Krowodrza",
+        "address": "Litewska 34",
+        "postalCode": "30-014",
+        "phone": "506497108",
+        "notes": null,
+        "coordinates": [19.9220949, 50.0776158]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 17,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9111518, 50.075188]
+      },
+      "properties": {
+        "id": 17,
+        "name": "CAS Seniorpedia.pl",
+        "operator": "Stowarzyszenie na rzecz promocji zdrowia Consensus",
+        "districtNumber": 5,
+        "districtRoman": "V",
+        "districtName": "Krowodrza",
+        "address": "Kazimierza Wielkiego  117",
+        "postalCode": "30-074",
+        "phone": "601457888",
+        "notes": null,
+        "coordinates": [19.9111518, 50.075188]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 18,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.8934424, 50.0799837]
+      },
+      "properties": {
+        "id": 18,
+        "name": "CAS Źródło",
+        "operator": "Stowarzyszenie \"LAJKONIK\"",
+        "districtNumber": 6,
+        "districtRoman": "VI",
+        "districtName": "Bronowice",
+        "address": "Gabrieli Zapolskiej 42",
+        "postalCode": "30-126",
+        "phone": null,
+        "notes": null,
+        "coordinates": [19.8934424, 50.0799837]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 19,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.8824829, 50.0776163]
+      },
+      "properties": {
+        "id": 19,
+        "name": "CAS Bronowice",
+        "operator": "Stowarzyszenie „Carpe Diem”",
+        "districtNumber": 6,
+        "districtRoman": "VI",
+        "districtName": "Bronowice",
+        "address": "Na Błonie 15B",
+        "postalCode": "30-147",
+        "phone": "605261515",
+        "notes": null,
+        "coordinates": [19.8824829, 50.0776163]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 20,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.8716379, 50.0635699]
+      },
+      "properties": {
+        "id": 20,
+        "name": "CAS w Willi Decjusza",
+        "operator": "Stowarzyszenie Willa Decjusza",
+        "districtNumber": 7,
+        "districtRoman": "VII",
+        "districtName": "Zwierzyniec",
+        "address": "28 lipca 1943 17a",
+        "postalCode": "30-233",
+        "phone": "508688474",
+        "notes": null,
+        "coordinates": [19.8716379, 50.0635699]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 21,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9249112, 50.0556308]
+      },
+      "properties": {
+        "id": 21,
+        "name": "CAS Salwator",
+        "operator": "Fundacja Aktywności i Edukacji Społecznej FAES",
+        "districtNumber": 7,
+        "districtRoman": "VII",
+        "districtName": "Zwierzyniec",
+        "address": "Morawskiego 5",
+        "postalCode": "30-102",
+        "phone": "797377808",
+        "notes": null,
+        "coordinates": [19.9249112, 50.0556308]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 22,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9105046, 50.0569682]
+      },
+      "properties": {
+        "id": 22,
+        "name": "CAS w Hali 100-lecia KS Cracovia",
+        "operator": "Fundacja Kuźnia Talentów",
+        "districtNumber": 7,
+        "districtRoman": "VII",
+        "districtName": "Zwierzyniec",
+        "address": "Aleja Marszałka Focha 40",
+        "postalCode": "30-119",
+        "phone": "793777713",
+        "notes": null,
+        "coordinates": [19.9105046, 50.0569682]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 23,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.921576, 50.0530164]
+      },
+      "properties": {
+        "id": 23,
+        "name": "CAS Przystań Aktywnego Seniora",
+        "operator": "Krakowskie Wodne Ochotnicze Pogotowie Ratunkowe",
+        "districtNumber": 7,
+        "districtRoman": "VII",
+        "districtName": "Zwierzyniec",
+        "address": "Dojazdowa 4",
+        "postalCode": "30-105",
+        "phone": "690651389",
+        "notes": null,
+        "coordinates": [19.921576, 50.0530164]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 24,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9382355, 50.0441224]
+      },
+      "properties": {
+        "id": 24,
+        "name": "CAS Lemon",
+        "operator": "Stowarzyszenie „Carpe Diem”",
+        "districtNumber": 8,
+        "districtRoman": "VIII",
+        "districtName": "Dębniki",
+        "address": "Ludwinowska 11",
+        "postalCode": "30-331",
+        "phone": "733999785",
+        "notes": null,
+        "coordinates": [19.9382355, 50.0441224]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 25,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.89771, 50.0116348]
+      },
+      "properties": {
+        "id": 25,
+        "name": "CAS Radosny Senior",
+        "operator": "Stowarzyszenie RADOSNY SENIOR",
+        "districtNumber": 8,
+        "districtRoman": "VIII",
+        "districtName": "Dębniki",
+        "address": "Zamiejska 6",
+        "postalCode": "30-358",
+        "phone": "518810724",
+        "notes": null,
+        "coordinates": [19.89771, 50.0116348]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 26,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.8727576, 49.9888943]
+      },
+      "properties": {
+        "id": 26,
+        "name": "CAS Tekla",
+        "operator": "Stowarzyszenie \"LAJKONIK\"",
+        "districtNumber": 8,
+        "districtRoman": "VIII",
+        "districtName": "Dębniki",
+        "address": "Działowskiego 1",
+        "postalCode": "30-399",
+        "phone": null,
+        "notes": null,
+        "coordinates": [19.8727576, 49.9888943]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 27,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9254503, 50.0481252]
+      },
+      "properties": {
+        "id": 27,
+        "name": "CAS Dębniki",
+        "operator": "Fundacja Aktywności i Edukacji Społecznej FAES",
+        "districtNumber": 8,
+        "districtRoman": "VIII",
+        "districtName": "Dębniki",
+        "address": "Bałuckiego 21",
+        "postalCode": "30-318",
+        "phone": null,
+        "notes": null,
+        "coordinates": [19.9254503, 50.0481252]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 28,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9285425, 50.0468249]
+      },
+      "properties": {
+        "id": 28,
+        "name": "CAS Popatrz Sercem",
+        "operator": "Fundacja Popatrz Sercem",
+        "districtNumber": 8,
+        "districtRoman": "VIII",
+        "districtName": "Dębniki",
+        "address": "Mieszczańska 9b",
+        "postalCode": "30-313",
+        "phone": "570811577",
+        "notes": null,
+        "coordinates": [19.9285425, 50.0468249]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 29,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9290003, 50.0277693]
+      },
+      "properties": {
+        "id": 29,
+        "name": "CAS Borsuczek",
+        "operator": "Stowarzyszenie \"LAJKONIK\"",
+        "districtNumber": 9,
+        "districtRoman": "IX",
+        "districtName": "Łagiewniki-Borek Fałęcki",
+        "address": "Borsucza 12",
+        "postalCode": "30-408",
+        "phone": null,
+        "notes": null,
+        "coordinates": [19.9290003, 50.0277693]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 30,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.928488, 50.0130064]
+      },
+      "properties": {
+        "id": 30,
+        "name": "CAS Pasja",
+        "operator": "Stowarzyszenie \"LAJKONIK\"",
+        "districtNumber": 9,
+        "districtRoman": "IX",
+        "districtName": "Łagiewniki-Borek Fałęcki",
+        "address": "Zakopiańska 62",
+        "postalCode": "30-418",
+        "phone": null,
+        "notes": null,
+        "coordinates": [19.928488, 50.0130064]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 31,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9453447, 49.9939845]
+      },
+      "properties": {
+        "id": 31,
+        "name": "CAS Swoszowice corner",
+        "operator": "Fundacja Rodzina Plus",
+        "districtNumber": 10,
+        "districtRoman": "X",
+        "districtName": "Swoszowice",
+        "address": "Myślenicka 133",
+        "postalCode": "30-698",
+        "phone": null,
+        "notes": null,
+        "coordinates": [19.9453447, 49.9939845]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 32,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9493548, 49.9808129]
+      },
+      "properties": {
+        "id": 32,
+        "name": "CAS Wróblowianka",
+        "operator": "Klub Sportowy \"WRÓBLOWIANKA\"",
+        "districtNumber": 10,
+        "districtRoman": "X",
+        "districtName": "Swoszowice",
+        "address": "Wróblowicka 58",
+        "postalCode": "30-698",
+        "phone": "600051651",
+        "notes": null,
+        "coordinates": [19.9493548, 49.9808129]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 33,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.954615, 50.01234]
+      },
+      "properties": {
+        "id": 33,
+        "name": "CAS Kurdwanów",
+        "operator": "Stowarzyszenie Dobrej Nadziei",
+        "districtNumber": 11,
+        "districtRoman": "XI",
+        "districtName": "Podgórze Duchackie",
+        "address": "Witosa 39",
+        "postalCode": "30-647",
+        "phone": "510789340",
+        "notes": null,
+        "coordinates": [19.954615, 50.01234]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 34,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9527895, 50.0277541]
+      },
+      "properties": {
+        "id": 34,
+        "name": "CAS Spot Nestor Bonarka",
+        "operator": "Stowarzyszenie SIEMACHA",
+        "districtNumber": 11,
+        "districtRoman": "XI",
+        "districtName": "Podgórze Duchackie",
+        "address": "Kamieńskiego 11",
+        "postalCode": "30-644",
+        "phone": null,
+        "notes": null,
+        "coordinates": [19.9527895, 50.0277541]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 35,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9625922, 50.0047008]
+      },
+      "properties": {
+        "id": 35,
+        "name": "CAS Radosny Senior Plus",
+        "operator": "Stowarzyszenie RADOSNY SENIOR",
+        "districtNumber": 11,
+        "districtRoman": "XI",
+        "districtName": "Podgórze Duchackie",
+        "address": "Cechowa 144A",
+        "postalCode": "30-685",
+        "phone": null,
+        "notes": null,
+        "coordinates": [19.9625922, 50.0047008]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 36,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0079645, 50.0127328]
+      },
+      "properties": {
+        "id": 36,
+        "name": "CAS Prokocim",
+        "operator": "Fundacja im. Heleny i Tadeusza Augustyn",
+        "districtNumber": 12,
+        "districtRoman": "XII",
+        "districtName": "Bieżanów-Prokocim",
+        "address": "Kurczaba 25",
+        "postalCode": "30-868",
+        "phone": "518317989",
+        "notes": null,
+        "coordinates": [20.0079645, 50.0127328]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 37,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9797226, 50.0159061]
+      },
+      "properties": {
+        "id": 37,
+        "name": "CAS Spot Nestor Facimiech",
+        "operator": "Stowarzyszenie SIEMACHA",
+        "districtNumber": 12,
+        "districtRoman": "XII",
+        "districtName": "Bieżanów-Prokocim",
+        "address": "Facimiech 32",
+        "postalCode": "30-667",
+        "phone": null,
+        "notes": null,
+        "coordinates": [19.9797226, 50.0159061]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 38,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0375139, 50.013624]
+      },
+      "properties": {
+        "id": 38,
+        "name": "CAS Bieżanowianka",
+        "operator": "Klub Sportowy Bieżanowianka",
+        "districtNumber": 12,
+        "districtRoman": "XII",
+        "districtName": "Bieżanów-Prokocim",
+        "address": "Lipowskiego 5",
+        "postalCode": "30-898",
+        "phone": "126302998",
+        "notes": null,
+        "coordinates": [20.0375139, 50.013624]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 39,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0087024, 50.012641]
+      },
+      "properties": {
+        "id": 39,
+        "name": "CAS Spot Nestor Kurczaba",
+        "operator": "Stowarzyszenie SIEMACHA",
+        "districtNumber": 12,
+        "districtRoman": "XII",
+        "districtName": "Bieżanów-Prokocim",
+        "address": "Kurczaba 29",
+        "postalCode": "30-868",
+        "phone": "601619428",
+        "notes": null,
+        "coordinates": [20.0087024, 50.012641]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 40,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9522493, 50.0575904]
+      },
+      "properties": {
+        "id": 40,
+        "name": "CAS Zabłocie – Grzegórzki",
+        "operator": "Fundacja Małopolska Izba Samorządowa",
+        "districtNumber": 13,
+        "districtRoman": "XIII",
+        "districtName": "Podgórze",
+        "address": "Aleja Daszyńskiego 16",
+        "postalCode": "31-534",
+        "phone": "122002926",
+        "notes": null,
+        "coordinates": [19.9522493, 50.0575904]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 41,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9522493, 50.0575904]
+      },
+      "properties": {
+        "id": 41,
+        "name": "CAS Zabłocie – Grzegórzki",
+        "operator": "Fundacja Małopolska Izba Samorządowa",
+        "districtNumber": 2,
+        "districtRoman": "II",
+        "districtName": "Grzegórzki",
+        "address": "Aleja Daszyńskiego 16",
+        "postalCode": "31-535",
+        "phone": "122002927",
+        "notes": null,
+        "coordinates": [19.9522493, 50.0575904]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 42,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9953935, 50.0327843]
+      },
+      "properties": {
+        "id": 42,
+        "name": "CAS Żeglarz",
+        "operator": "Klub Żeglarski Horn Kraków",
+        "districtNumber": 13,
+        "districtRoman": "XIII",
+        "districtName": "Podgórze",
+        "address": "Kozia 22",
+        "postalCode": "30-733",
+        "phone": null,
+        "notes": null,
+        "coordinates": [19.9953935, 50.0327843]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 43,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9606691, 50.0427034]
+      },
+      "properties": {
+        "id": 43,
+        "name": "CAS Podgórze",
+        "operator": "Fundacja im. Heleny i Tadeusza Augustyn",
+        "districtNumber": 13,
+        "districtRoman": "XIII",
+        "districtName": "Podgórze",
+        "address": "Limanowskiego 51",
+        "postalCode": "30-551",
+        "phone": "510276263",
+        "notes": null,
+        "coordinates": [19.9606691, 50.0427034]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 44,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9818478, 50.0430765]
+      },
+      "properties": {
+        "id": 44,
+        "name": "CAS Pracownia Inicjatyw",
+        "operator": "Stowarzyszenie Fabryka Inicjatyw",
+        "districtNumber": 13,
+        "districtRoman": "XIII",
+        "districtName": "Podgórze",
+        "address": "Stróża Rybna 19",
+        "postalCode": "30-714",
+        "phone": "792847487",
+        "notes": null,
+        "coordinates": [19.9818478, 50.0430765]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 45,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.977449, 50.0395783]
+      },
+      "properties": {
+        "id": 45,
+        "name": "CAS Wena",
+        "operator": "Stowarzyszenie Primavera",
+        "districtNumber": 13,
+        "districtRoman": "XIII",
+        "districtName": "Podgórze",
+        "address": "Gromadzka 53a",
+        "postalCode": "30-719",
+        "phone": "507740080",
+        "notes": null,
+        "coordinates": [19.977449, 50.0395783]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 46,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.9429568, 50.041159]
+      },
+      "properties": {
+        "id": 46,
+        "name": "CAS Korona",
+        "operator": "Fundacja Jarzębina",
+        "districtNumber": 13,
+        "districtRoman": "XIII",
+        "districtName": "Podgórze",
+        "address": "Kalwaryjska 9-15",
+        "postalCode": "30-504",
+        "phone": "884866402",
+        "notes": null,
+        "coordinates": [19.9429568, 50.041159]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 47,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0062457, 50.0834702]
+      },
+      "properties": {
+        "id": 47,
+        "name": "CAS Viktoria 303",
+        "operator": "Fundacja Inspiracja i Wsparcia Pasja",
+        "districtNumber": 14,
+        "districtRoman": "XIV",
+        "districtName": "Czyżyny",
+        "address": "Osiedle Dywizjonu 303 66",
+        "postalCode": "31-875",
+        "phone": "533988822",
+        "notes": null,
+        "coordinates": [20.0062457, 50.0834702]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 48,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0023812, 50.0939066]
+      },
+      "properties": {
+        "id": 48,
+        "name": "CAS Super Senior",
+        "operator": "Fundacja Edukacji i Aktywności Seniorów LokoMotywa",
+        "districtNumber": 15,
+        "districtRoman": "XV",
+        "districtName": "Mistrzejowice",
+        "address": "OsiedleTysiąclecia 42",
+        "postalCode": "31-610",
+        "phone": "722102173",
+        "notes": null,
+        "coordinates": [20.0023812, 50.0939066]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 49,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.013988, 50.0983829]
+      },
+      "properties": {
+        "id": 49,
+        "name": "CAS Mistrzejowice",
+        "operator": "Fundacja Nowe Centrum",
+        "districtNumber": 15,
+        "districtRoman": "XV",
+        "districtName": "Mistrzejowice",
+        "address": "Osiedle Piastów 41",
+        "postalCode": "31-625",
+        "phone": "732994087",
+        "notes": null,
+        "coordinates": [20.013988, 50.0983829]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 50,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0267958, 50.0962896]
+      },
+      "properties": {
+        "id": 50,
+        "name": "CAS Ruch to Zdrowie",
+        "operator": "Stowarzyszenie Pomocy Bezrobotnym i Osobom Pokrzywdzonym przez Los",
+        "districtNumber": 15,
+        "districtRoman": "XV",
+        "districtName": "Mistrzejowice",
+        "address": "Osiedle Mistrzejowice Nowe 6a",
+        "postalCode": "31-640",
+        "phone": "609397000",
+        "notes": null,
+        "coordinates": [20.0267958, 50.0962896]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 51,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0176106, 50.0846647]
+      },
+      "properties": {
+        "id": 51,
+        "name": "CAS Bieńczyce",
+        "operator": "Fundacja Nowe Centrum",
+        "districtNumber": 16,
+        "districtRoman": "XVI",
+        "districtName": "Bieńczyce",
+        "address": "Osiedle Kościuszkowskie 2A",
+        "postalCode": "31-858",
+        "phone": "575361492",
+        "notes": null,
+        "coordinates": [20.0176106, 50.0846647]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 52,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.98624, 50.0371001]
+      },
+      "properties": {
+        "id": 52,
+        "name": "CAS Złota Jesień Hutnika",
+        "operator": "Stowarzyszenie Byłych Pracowników Huty „Złota Jesień Hutnika”",
+        "districtNumber": 16,
+        "districtRoman": "XVI",
+        "districtName": "Bieńczyce",
+        "address": "Kaczeńcowa 7",
+        "postalCode": "31-831",
+        "phone": "509690123",
+        "notes": null,
+        "coordinates": [19.98624, 50.0371001]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 53,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0278745, 50.0844092]
+      },
+      "properties": {
+        "id": 53,
+        "name": "CAS Cyfrowe Centrum Bieńczyce",
+        "operator": "Stowarzyszenie Fabryka Inicjatyw",
+        "districtNumber": 16,
+        "districtRoman": "XVI",
+        "districtName": "Bieńczyce",
+        "address": "Osiedle Jagiellońskie 19",
+        "postalCode": "31-834",
+        "phone": "666580390",
+        "notes": null,
+        "coordinates": [20.0278745, 50.0844092]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 54,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0563288, 50.0942744]
+      },
+      "properties": {
+        "id": 54,
+        "name": "CAS Uskrzydlone Wzgórza",
+        "operator": "Fundacja Uskrzydlamy",
+        "districtNumber": 17,
+        "districtRoman": "XVII",
+        "districtName": "Wzgórza Krzesławickie",
+        "address": "Osiedle Na Stoku 1",
+        "postalCode": "31-705",
+        "phone": "519649567",
+        "notes": null,
+        "coordinates": [20.0563288, 50.0942744]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 55,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0617088, 50.1031673]
+      },
+      "properties": {
+        "id": 55,
+        "name": "CAS Uśmiech",
+        "operator": "Fundacja UŚMIECH",
+        "districtNumber": 17,
+        "districtRoman": "XVII",
+        "districtName": "Wzgórza Krzesławickie",
+        "address": "Kantorowicka 122",
+        "postalCode": "31-763",
+        "phone": "796188221",
+        "notes": null,
+        "coordinates": [20.0617088, 50.1031673]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 56,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0409985, 50.0789622]
+      },
+      "properties": {
+        "id": 56,
+        "name": "CAS Zielone",
+        "operator": "Fundacja Nowe Centrum",
+        "districtNumber": 18,
+        "districtRoman": "XVIII",
+        "districtName": "Nowa Huta",
+        "address": "Osiedle Zielone 22",
+        "postalCode": "31-971",
+        "phone": "733956640",
+        "notes": null,
+        "coordinates": [20.0409985, 50.0789622]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 57,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0490222, 50.0689256]
+      },
+      "properties": {
+        "id": 57,
+        "name": "CAS Fruwająca Ryba",
+        "operator": "Fundacja Ukryte Skrzydła",
+        "districtNumber": 18,
+        "districtRoman": "XVIII",
+        "districtName": "Nowa Huta",
+        "address": "Osiedle Na Skarpie 35",
+        "postalCode": "31-910",
+        "phone": "794387527",
+        "notes": null,
+        "coordinates": [20.0490222, 50.0689256]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 58,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0362822, 50.0813429]
+      },
+      "properties": {
+        "id": 58,
+        "name": "CAS Seniorzy nauczycielami życia",
+        "operator": "Stowarzyszenie Pomocy Socjalnej \"Gaudium et Spes\"",
+        "districtNumber": 18,
+        "districtRoman": "XVIII",
+        "districtName": "Nowa Huta",
+        "address": "Osiedle Górali 23",
+        "postalCode": "31-961",
+        "phone": "608473767",
+        "notes": null,
+        "coordinates": [20.0362822, 50.0813429]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 59,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0382822, 50.0697605]
+      },
+      "properties": {
+        "id": 59,
+        "name": "CAS Cyfrowe Centrum",
+        "operator": "Stowarzyszenie Fabryka Inicjatyw",
+        "districtNumber": 18,
+        "districtRoman": "XVIII",
+        "districtName": "Nowa Huta",
+        "address": "Osiedle Centrum E 18",
+        "postalCode": "31-934",
+        "phone": "506303304",
+        "notes": null,
+        "coordinates": [20.0382822, 50.0697605]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 60,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0591938, 50.0648878]
+      },
+      "properties": {
+        "id": 60,
+        "name": "CAS Spot Nestor Ptaszyckiego",
+        "operator": "Stowarzyszenie SIEMACHA",
+        "districtNumber": 18,
+        "districtRoman": "XVIII",
+        "districtName": "Nowa Huta",
+        "address": "Ptaszyckiego 6",
+        "postalCode": "31-979",
+        "phone": "601619428",
+        "notes": null,
+        "coordinates": [20.0591938, 50.0648878]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 61,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0266621, 50.0738831]
+      },
+      "properties": {
+        "id": 61,
+        "name": "CAS Kolorowe",
+        "operator": "Fundacja ARISE",
+        "districtNumber": 18,
+        "districtRoman": "XVIII",
+        "districtName": "Nowa Huta",
+        "address": "Osiedle Kolorowe 11a",
+        "postalCode": "31-967",
+        "phone": "666971585",
+        "notes": null,
+        "coordinates": [20.0266621, 50.0738831]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 62,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.1867997, 50.1134662]
+      },
+      "properties": {
+        "id": 62,
+        "name": "CAS dla rozproszonych seniorów, mieszkańców XVIII dzielnicy",
+        "operator": "Fundacja Ukryte Skrzydła",
+        "districtNumber": 18,
+        "districtRoman": "XVIII",
+        "districtName": "Nowa Huta",
+        "address": "Wróżenicka 49",
+        "postalCode": "31-997",
+        "phone": "660569100",
+        "notes": "W CAS dla rozproszonych seniorów, mieszkańców XVIII dzielnicy zajęcia w poszczególne dni odbywają się w różnych miejscach",
+        "coordinates": [20.1867997, 50.1134662]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 63,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.1752432, 50.091055]
+      },
+      "properties": {
+        "id": 63,
+        "name": "CAS dla rozproszonych seniorów, mieszkańców XVIII dzielnicy",
+        "operator": "Fundacja Ukryte Skrzydła",
+        "districtNumber": 18,
+        "districtRoman": "XVIII",
+        "districtName": "Nowa Huta",
+        "address": "Osiedle Kościelniki",
+        "postalCode": "31-999",
+        "phone": "660569100",
+        "notes": "W CAS dla rozproszonych seniorów, mieszkańców XVIII dzielnicy zajęcia w poszczególne dni odbywają się w różnych miejscach",
+        "coordinates": [20.1752432, 50.091055]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 64,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.1280735, 50.0498584]
+      },
+      "properties": {
+        "id": 64,
+        "name": "CAS dla rozproszonych seniorów, mieszkańców XVIII dzielnicy",
+        "operator": "Fundacja Ukryte Skrzydła",
+        "districtNumber": 18,
+        "districtRoman": "XVIII",
+        "districtName": "Nowa Huta",
+        "address": "Osiedle Chałupki",
+        "postalCode": "31-985",
+        "phone": "660569100",
+        "notes": "W CAS dla rozproszonych seniorów, mieszkańców XVIII dzielnicy zajęcia w poszczególne dni odbywają się w różnych miejscach",
+        "coordinates": [20.1280735, 50.0498584]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 65,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.1861277, 50.0567146]
+      },
+      "properties": {
+        "id": 65,
+        "name": "CAS dla rozproszonych seniorów, mieszkańców XVIII dzielnicy",
+        "operator": "Fundacja Ukryte Skrzydła",
+        "districtNumber": 18,
+        "districtRoman": "XVIII",
+        "districtName": "Nowa Huta",
+        "address": "Osiedle Wolica",
+        "postalCode": "31-998",
+        "phone": "660569100",
+        "notes": "W CAS dla rozproszonych seniorów, mieszkańców XVIII dzielnicy zajęcia w poszczególne dni odbywają się w różnych miejscach",
+        "coordinates": [20.1861277, 50.0567146]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 66,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.1445805, 50.0605012]
+      },
+      "properties": {
+        "id": 66,
+        "name": "CAS dla rozproszonych seniorów, mieszkańców XVIII dzielnicy",
+        "operator": "Fundacja Ukryte Skrzydła",
+        "districtNumber": 18,
+        "districtRoman": "XVIII",
+        "districtName": "Nowa Huta",
+        "address": "Osiedle Branice",
+        "postalCode": "31-985",
+        "phone": "660569100",
+        "notes": "W CAS dla rozproszonych seniorów, mieszkańców XVIII dzielnicy zajęcia w poszczególne dni odbywają się w różnych miejscach",
+        "coordinates": [20.1445805, 50.0605012]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 67,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0505851, 50.057507]
+      },
+      "properties": {
+        "id": 67,
+        "name": "CAS Kopaniec",
+        "operator": "Fundacja Ukryte Skrzydła",
+        "districtNumber": 18,
+        "districtRoman": "XVIII",
+        "districtName": "Nowa Huta",
+        "address": "ul. Syrachowska 1",
+        "postalCode": "31-979",
+        "phone": "789660514",
+        "notes": null,
+        "coordinates": [20.0505851, 50.057507]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 68,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.0371021, 50.0815214]
+      },
+      "properties": {
+        "id": 68,
+        "name": "CAS IB Polska w Hucie",
+        "operator": "Internationaler Bund Polska",
+        "districtNumber": 18,
+        "districtRoman": "XVIII",
+        "districtName": "Nowa Huta",
+        "address": "Osiedle Górali 24",
+        "postalCode": "31-961",
+        "phone": "452093540",
+        "notes": null,
+        "coordinates": [20.0371021, 50.0815214]
+      }
+    }
+  ]
+}

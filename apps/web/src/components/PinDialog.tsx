@@ -25,6 +25,8 @@ export type PinDraft = {
 
 type PinDialogProps = {
   lngLat: [number, number];
+  initialTab?: "issue" | "initiative";
+  initialTitle?: string;
   onClose: () => void;
   onAdd: (draft: PinDraft) => Promise<void>;
 };
@@ -41,10 +43,18 @@ const TITLE_MAX_LENGTH = 80;
  * - "issue": standard fault / communal issue report with description and optional photo.
  * - "initiative": civic improvement initiative with vector similarity check against ROPS projects.
  */
-export default function PinDialog({ lngLat, onClose, onAdd }: PinDialogProps) {
+export default function PinDialog({
+  lngLat,
+  initialTab = "issue",
+  initialTitle = "",
+  onClose,
+  onAdd,
+}: PinDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [activeTab, setActiveTab] = useState<"issue" | "initiative">("issue");
-  const [title, setTitle] = useState("");
+  const [activeTab, setActiveTab] = useState<"issue" | "initiative">(
+    initialTab,
+  );
+  const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);

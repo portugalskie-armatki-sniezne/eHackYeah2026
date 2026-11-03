@@ -74,6 +74,9 @@ const en = {
       "Official MSIP district boundaries identify the district of a report, filter cases on the map and add the district to the prepared email. A district identifies the area, not the institution responsible for a case.",
     generatedOn: "MSIP file generated on",
     retrievedOn: "Downloaded on",
+    casDataText:
+      "The app also integrates the official Senior Activity Centers (CAS) dataset from the Kraków Open Data portal, visualizing local community hubs and supporting neighborhood initiatives.",
+    casSource: "Senior Activity Centers: Municipality of Kraków",
   },
   language: {
     label: "Language",
@@ -456,6 +459,8 @@ const en = {
     photoReportWaiting: "Report at my location, waiting for a location fix",
     view: "View",
     recenterOnMe: "Recenter on me",
+    toggleCas: "Senior Activity Centers",
+    casTitle: "Toggle Senior Activity Centers (Kraków Open Data)",
   },
   filters: {
     label: "Filter",
@@ -696,6 +701,9 @@ const pl: Messages = {
       "Oficjalne granice dzielnic z MSIP służą do rozpoznawania dzielnicy zgłoszenia, filtrowania spraw na mapie i uzupełniania przygotowanej wiadomości. Dzielnica określa obszar, a nie instytucję odpowiedzialną za sprawę.",
     generatedOn: "Plik MSIP wygenerowany",
     retrievedOn: "Pobrano",
+    casDataText:
+      "Aplikacja integruje również oficjalny zbiór Centrów Aktywności Seniora (CAS) z portalu Otwarte Dane Krakowa, prezentując lokalne punkty aktywności mieszkańców i wspierając inicjatywy społeczne.",
+    casSource: "Centra Aktywności Seniora: Urząd Miasta Krakowa",
   },
   language: {
     label: "Język",
@@ -1076,6 +1084,9 @@ const pl: Messages = {
     photoReportWaiting: "Zgłoś w moim położeniu, czekam na ustalenie pozycji",
     view: "Widok",
     recenterOnMe: "Wyśrodkuj na mnie",
+    toggleCas: "Centra Aktywności Seniora",
+    casTitle:
+      "Przełącz widoczność Centrów Aktywności Seniora (Otwarte Dane Krakowa)",
   },
   filters: {
     label: "Filtruj",
