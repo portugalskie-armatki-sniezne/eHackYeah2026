@@ -48,3 +48,32 @@ Do odtworzenia snapshotu z wcześniej pobranej paczki użyj `--archive /ścieżk
 5. Wybierz „Wszystkie lokalizacje”. Sprawy spoza Krakowa powinny być ponownie dostępne, bez przypisanej krakowskiej dzielnicy.
 
 Testy `apps/web/tests/krakowDistricts.test.ts` sprawdzają znane lokalizacje, punkty spoza miasta, krawędzie i otwory wielokątów. Testy wiadomości sprawdzają dołączanie danych MSIP i zachowanie treści dla lokalizacji spoza Krakowa.
+
+## Centra Aktywności Seniora (CAS)
+
+### Źródło i pochodzenie
+
+Aplikacja integruje oficjalny zbiór [Centra Aktywności Seniora w Krakowie](https://otwartedane.um.krakow.pl/zbiory-danych/centra-aktywnosci-seniora-w-krakowie) udostępniony przez Gminę Miejską Kraków (Wydział Polityki Społecznej i Zdrowia).
+
+- Źródło danych: Portal Otwarte Dane Kraków (<https://otwartedane.um.krakow.pl>).
+- Endpoint API: `https://api.um.krakow.pl/opendata-spoleczenstwo-centra-aktywnosci-seniora/v1/cas-lista`.
+- Warunki wykorzystania: [Warunki korzystania z Otwartych Danych UMK](https://otwartedane.um.krakow.pl/warunki-korzystania).
+- Snapshot: `apps/web/src/data/krakow-cas.json` zawierający 68 obiektów CAS z przypisanymi współrzędnymi WGS84, nazwami, operatorami (organizacjami pozarządowymi), adresami, numerami dzielnic i danymi kontaktowymi.
+
+### Wykorzystanie w aplikacji
+
+1. **Warstwa referencyjna na mapie**: CAS są prezentowane na mapie jako dedykowane, szmaragdowe znaczniki placówek miejskich. Nie mieszają się ze zgłoszeniami usterek i nie posiadają statusów spraw.
+2. **Przełącznik w pasku narzędzi (MapToolbar)**: Przycisk `CAS` w pasku narzędzi mapy pozwala błyskawicznie włączać i wyłączać widoczność placówek.
+3. **Filtrowanie dzielnicowe**: Wybór dzielnicy w `DistrictFilter` zawęża wyświetlane punkty CAS do wybranego obszaru.
+4. **Okno szczegółów CAS (`CasDialog`)**: Kliknięcie punktu CAS otwiera kartę z nazwą, podmiotem prowadzącym (NGO), adresem, bezpośrednim numerem telefonu oraz linkiem do oficjalnego portalu Otwartych Danych.
+5. **Synergia z inicjatywami obywatelskimi**: Przycisk „Zgłoś inicjatywę w tej okolicy” w oknie CAS otwiera formularz nowej inicjatywy obywatelskiej z automatycznie ustawionymi współrzędnymi i tytułem powiązanym z placówką.
+
+### Odświeżanie danych
+
+Zbiór aktualizuje się skryptem pythonowym geokodującym adresy przez oficjalną usługę GUGiK i przeliczającym współrzędne do WGS84 przez `pyproj`:
+
+```sh
+python apps/web/scripts/update-krakow-cas.py
+```
+
+Testy jednostkowe w `apps/web/tests/krakowCas.test.ts` weryfikują kompletność 68 obiektów, poprawność współrzędnych i filtrów.

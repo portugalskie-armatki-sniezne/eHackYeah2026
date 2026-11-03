@@ -1,0 +1,175 @@
+.cas-dialog {
+  width: min(100% - 2rem, 28rem);
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--scaffold-shadow);
+}
+
+.cas-dialog::backdrop {
+  background: rgba(253, 252, 249, 0.72);
+}
+
+.cas-dialog__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.cas-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.cas-dialog__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.cas-dialog__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border: 1px solid var(--ink);
+}
+
+.cas-dialog__badge--cas {
+  background: #00796b;
+  color: #ffffff;
+}
+
+.cas-dialog__badge--opendata {
+  background: var(--surface-section);
+  color: var(--ink-soft);
+}
+
+.cas-dialog__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    transform 120ms ease;
+}
+
+.cas-dialog__close:hover {
+  background: var(--amber-ghost);
+  transform: translate(1px, 1px);
+}
+
+.cas-dialog__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.cas-dialog__details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  background: var(--surface-section);
+  font-size: 0.875rem;
+}
+
+.cas-dialog__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.cas-dialog__label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.cas-dialog__value {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.cas-dialog__link {
+  color: #00796b;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cas-dialog__link:hover {
+  color: #004d40;
+}
+
+.cas-dialog__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.cas-dialog__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border: var(--scaffold-line) solid var(--ink);
+  border-radius: var(--scaffold-radius);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    transform 120ms ease;
+}
+
+.cas-dialog__button--primary {
+  background: #efb33f;
+  color: var(--ink);
+}
+
+.cas-dialog__button--primary:hover {
+  background: #e09f25;
+  transform: translate(1px, 1px);
+}
+
+.cas-dialog__button--secondary {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.cas-dialog__button--secondary:hover {
+  background: var(--amber-ghost);
+  transform: translate(1px, 1px);
+}

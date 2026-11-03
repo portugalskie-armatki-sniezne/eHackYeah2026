@@ -27,6 +27,9 @@ type MapToolbarProps = {
   totalPins: number;
   /** whether the filter list offers the box for the viewer's own cases */
   canFilterMine: boolean;
+  /** Whether senior activity centers (CAS) are visible on the map. */
+  showCas: boolean;
+  onToggleCas: () => void;
 };
 
 export default function MapToolbar({
@@ -43,6 +46,8 @@ export default function MapToolbar({
   shownPins,
   totalPins,
   canFilterMine,
+  showCas,
+  onToggleCas,
 }: MapToolbarProps) {
   const t = useMessages().toolbar;
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -141,6 +146,16 @@ export default function MapToolbar({
             onClick={onToggleTilt}
           >
             3D
+          </button>
+          <span className="toolbar__divider" aria-hidden="true" />
+          <button
+            type="button"
+            className="toolbar__choice"
+            aria-pressed={showCas}
+            onClick={onToggleCas}
+            title={t.casTitle}
+          >
+            CAS
           </button>
         </div>
         {/* Its own tile rather than one of the view controls: on a phone it

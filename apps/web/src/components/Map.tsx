@@ -33,6 +33,9 @@ import PhotoReportDialog from "./PhotoReportDialog";
 import MarkerDialog from "./MarkerDialog";
 import ReportClusters from "./ReportClusters";
 import DistrictFilter from "./DistrictFilter";
+import CasMarkers from "./CasMarkers";
+import CasDialog from "./CasDialog";
+import type { KrakowCasCenter } from "../data/krakowCas";
 import { krakowDistrictAt } from "../data/krakowDistricts";
 import { isClusterAt } from "./reportClusterHit";
 import { createTiltPrewarmer } from "./mapPrewarm";
@@ -520,6 +523,12 @@ export default function Map({ onSignInRequired }: MapProps) {
   );
   // the clicked point while its marker sheet is open
   const [draftLngLat, setDraftLngLat] = useState<[number, number] | null>(null);
+  const [draftInitiative, setDraftInitiative] = useState<{
+    coords: [number, number];
+    title: string;
+  } | null>(null);
+  const [showCas, setShowCas] = useState(true);
+  const [openCas, setOpenCas] = useState<KrakowCasCenter | null>(null);
   // A photo taken with the "+" tile while its description sheet is open. The
   // position is the one the device had when the camera returned, so walking on
   // while writing does not move the report.
@@ -767,7 +776,21 @@ export default function Map({ onSignInRequired }: MapProps) {
     [pins, shownFilters, myCases, selectedDistrict],
   );
 
-  const handleCloseDraft = useCallback(() => setDraftLngLat(null), []);
+  const handleCloseDraft = useCallback(() => {
+    setDraftLngLat(null);
+    setDraftInitiative(null);
+  }, []);
+
+  const handleStartCasInitiative = useCallback(
+    (coords: [number, number], title: string) => {
+      setOpenCas(null);
+      if (canStartReport()) {
+        setDraftLngLat(coords);
+        setDraftInitiative({ coords, title });
+      }
+    },
+    [canStartReport],
+  );
   const handleClosePin = useCallback(() => {
     setOpenPinId(null);
     // a sheet opened from a link leaves the hash pointing at its case, which
@@ -919,6 +942,8 @@ export default function Map({ onSignInRequired }: MapProps) {
         shownPins={visiblePins.length}
         totalPins={pins.length}
         canFilterMine={myCases !== null}
+        showCas={showCas}
+        onToggleCas={() => setShowCas((current) => !current)}
       />
       <DistrictFilter
         mapRef={mapRef}
@@ -945,11 +970,30 @@ export default function Map({ onSignInRequired }: MapProps) {
         draftLngLat={draftLngLat}
         onPinClick={setOpenPinId}
       />
+      <CasMarkers
+        mapRef={mapRef}
+        styleReady={styleReady}
+        visible={showCas}
+        selectedDistrict={selectedDistrict}
+        onCasClick={setOpenCas}
+      />
       {draftLngLat && (
         <PinDialog
           lngLat={draftLngLat}
+          initialTab={draftInitiative ? "initiative" : "issue"}
+          initialTitle={draftInitiative?.title}
           onClose={handleCloseDraft}
-          onAdd={handleAddPin}
+          onAdd={async (draft) => {
+            await handleAddPin(draft);
+            setDraftInitiative(null);
+          }}
+        />
+      )}
+      {openCas && (
+        <CasDialog
+          cas={openCas}
+          onClose={() => setOpenCas(null)}
+          onStartInitiative={handleStartCasInitiative}
         />
       )}
       {photoDraft && (

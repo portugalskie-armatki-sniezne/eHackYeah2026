@@ -1,5 +1,6 @@
 import { useMessages } from "../i18n/locale";
 import { krakowDistrictSource } from "../data/krakowDistricts";
+import { krakowCasSource } from "../data/krakowCas";
 import "./About.css";
 
 /**
@@ -77,6 +78,21 @@ export default function About() {
               {districts.generatedOn}:{" "}
               {krakowDistrictSource.generatedAt.slice(0, 10)}.{" "}
               {districts.retrievedOn}: {krakowDistrictSource.retrievedOn}.
+            </p>
+            <p className="about__text" style={{ marginTop: "1rem" }}>
+              {districts.casDataText}
+            </p>
+            <a
+              className="about__link"
+              href={krakowCasSource.portalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {krakowCasSource.authority} - {krakowCasSource.name} (
+              {krakowCasSource.count} placówek)
+            </a>
+            <p className="about__text">
+              {districts.retrievedOn}: {krakowCasSource.retrievedOn}.
             </p>
           </section>
         </div>
