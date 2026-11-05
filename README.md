@@ -26,7 +26,9 @@ eHackYeah2026/
 │   ├── korzysci-dla-mieszkancow-i-miasta.md   # resident and city benefit scenarios (Polish)
 │   ├── korzysci-dla-mieszkancow-i-miasta.pdf  # PDF version of the scenarios
 │   ├── porownanie-kanalow-zgloszen.md       # comparison with Kraków reporting channels (Polish)
-│   └── porownanie-kanalow-zgloszen.pdf      # PDF version of the comparison
+│   ├── porownanie-kanalow-zgloszen.pdf      # PDF version of the comparison
+│   ├── pilotaz-utrzymanie-rozwoj.md        # proposed pilot, operations and next steps (Polish)
+│   └── pilotaz-utrzymanie-rozwoj-demo.pdf  # demo PDF version of the pilot proposal
 ├── tooling/
 │   └── seed/                        # XLS importer, mock data importer, and their Docker image
 ├── tests/
@@ -79,6 +81,8 @@ The map uses official [Kraków district boundaries from MSIP](https://msip.krako
 Three [resident and city benefit scenarios](docs/korzysci-dla-mieszkancow-i-miasta.md) show how the app uses municipal data, with short demo walkthroughs for the Open Data App competition. Available in Polish as Markdown and [PDF](docs/korzysci-dla-mieszkancow-i-miasta.pdf).
 
 A [comparison with Kraków's reporting channels](docs/porownanie-kanalow-zgloszen.md) explains how pomożeMy complements existing services, with official sources and examples of implemented features. Available in Polish as Markdown and [PDF](docs/porownanie-kanalow-zgloszen.pdf).
+
+The [pilot and operations proposal](docs/pilotaz-utrzymanie-rozwoj.md) describes participants, evaluation, report handling, contact updates and three development priorities. Available in Polish as Markdown and a [demo PDF](docs/pilotaz-utrzymanie-rozwoj-demo.pdf).
 
 ## Deployment
 

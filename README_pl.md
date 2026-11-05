@@ -26,7 +26,9 @@ eHackYeah2026/
 │   ├── korzysci-dla-mieszkancow-i-miasta.md   # scenariusze korzyści dla mieszkańców i miasta
 │   ├── korzysci-dla-mieszkancow-i-miasta.pdf  # wersja PDF scenariuszy
 │   ├── porownanie-kanalow-zgloszen.md       # porównanie z miejskimi kanałami zgłoszeń
-│   └── porownanie-kanalow-zgloszen.pdf      # wersja PDF porównania
+│   ├── porownanie-kanalow-zgloszen.pdf      # wersja PDF porównania
+│   ├── pilotaz-utrzymanie-rozwoj.md        # propozycja pilotażu, obsługa i dalszy rozwój
+│   └── pilotaz-utrzymanie-rozwoj-demo.pdf  # wersja demo PDF propozycji pilotażu
 ├── tooling/
 │   └── seed/                        # importer XLS, importer danych demo i ich obraz Dockera
 ├── tests/
@@ -79,6 +81,8 @@ Mapa korzysta z oficjalnych [granic dzielnic Krakowa z MSIP](https://msip.krakow
 Trzy [scenariusze korzyści dla mieszkańców i miasta](docs/korzysci-dla-mieszkancow-i-miasta.md) pokazują wykorzystanie miejskich danych i zawierają krótkie ścieżki demo na konkurs Open Data App. Materiał jest dostępny jako Markdown i [PDF](docs/korzysci-dla-mieszkancow-i-miasta.pdf).
 
 [Porównanie z krakowskimi kanałami zgłoszeń](docs/porownanie-kanalow-zgloszen.md) wyjaśnia, jak pomożeMy uzupełnia istniejące usługi, ze źródłami miejskimi i przykładami działających funkcji. Materiał jest dostępny jako Markdown i [PDF](docs/porownanie-kanalow-zgloszen.pdf).
+
+[Propozycja pilotażu i obsługi](docs/pilotaz-utrzymanie-rozwoj.md) opisuje uczestników, ocenę efektów, obsługę zgłoszeń, aktualizację kontaktów i trzy priorytety rozwoju. Materiał jest dostępny jako Markdown i [PDF z dopiskiem demo](docs/pilotaz-utrzymanie-rozwoj-demo.pdf).
 
 ## Wdrożenie
 
