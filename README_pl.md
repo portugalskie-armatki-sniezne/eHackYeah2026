@@ -22,7 +22,9 @@ eHackYeah2026/
 ├── docs/
 │   ├── teaser-en.png                # angielski teaser projektu
 │   ├── teaser-pl.png                # polski teaser projektu
-│   └── krakow-open-data.md          # dane MSIP, ich zastosowanie i odświeżanie
+│   ├── krakow-open-data.md          # dane MSIP, ich zastosowanie i odświeżanie
+│   ├── korzysci-dla-mieszkancow-i-miasta.md   # scenariusze korzyści dla mieszkańców i miasta
+│   └── korzysci-dla-mieszkancow-i-miasta.pdf  # wersja PDF scenariuszy
 ├── tooling/
 │   └── seed/                        # importer XLS, importer danych demo i ich obraz Dockera
 ├── tests/
@@ -71,6 +73,8 @@ Oba środowiska uruchamiają trzy skonteneryzowane usługi zarządzane przez Doc
 - **Wielojęzyczność**: Pełne wsparcie dla języka polskiego i angielskiego z przełączaniem w czasie rzeczywistym.
 
 Mapa korzysta z oficjalnych [granic dzielnic Krakowa z MSIP](https://msip.krakow.pl/dataset/1483). Rozpoznaje dzielnicę zgłoszenia, filtruje sprawy według dzielnic i dołącza lokalizację do przygotowanej wiadomości. Źródło, daty, sposób odświeżania i scenariusz demo opisano w [dokumentacji otwartych danych Krakowa](docs/krakow-open-data.md).
+
+Trzy [scenariusze korzyści dla mieszkańców i miasta](docs/korzysci-dla-mieszkancow-i-miasta.md) pokazują wykorzystanie miejskich danych i zawierają krótkie ścieżki demo na konkurs Open Data App. Materiał jest dostępny jako Markdown i [PDF](docs/korzysci-dla-mieszkancow-i-miasta.pdf).
 
 ## Wdrożenie
 

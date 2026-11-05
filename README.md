@@ -22,7 +22,9 @@ eHackYeah2026/
 ├── docs/
 │   ├── teaser-en.png                # English project teaser
 │   ├── teaser-pl.png                # Polish project teaser
-│   └── krakow-open-data.md          # MSIP data, its use and refresh procedure
+│   ├── krakow-open-data.md          # MSIP data, its use and refresh procedure
+│   ├── korzysci-dla-mieszkancow-i-miasta.md   # resident and city benefit scenarios (Polish)
+│   └── korzysci-dla-mieszkancow-i-miasta.pdf  # PDF version of the scenarios
 ├── tooling/
 │   └── seed/                        # XLS importer, mock data importer, and their Docker image
 ├── tests/
@@ -71,6 +73,8 @@ Both environments run three containerized services configured via Docker Compose
 - **Bilingual Interface**: Full Polish and English language localization with on-the-fly switching.
 
 The map uses official [Kraków district boundaries from MSIP](https://msip.krakow.pl/dataset/1483). It identifies each report's district, filters cases by district and adds location details to the prepared email. See the [Kraków open data documentation](docs/krakow-open-data.md) for provenance, dates, refresh instructions and a demo walkthrough.
+
+Three [resident and city benefit scenarios](docs/korzysci-dla-mieszkancow-i-miasta.md) show how the app uses municipal data, with short demo walkthroughs for the Open Data App competition. Available in Polish as Markdown and [PDF](docs/korzysci-dla-mieszkancow-i-miasta.pdf).
 
 ## Deployment
 
